@@ -15,6 +15,10 @@ The library provides:
 * Device listing and monitor
 * Descriptive and detailed error messages
 
+It is worth to note that the IngeniaLink protocol was not designed for
+applications (where high-reliability and bandwidth are likely strong
+requirements). You should limit its usage to configuration or evaluation tasks.
+
 ## Building libingenialink
 
 The `libingenialink` library is built using [CMake](<https://cmake.org/>)
