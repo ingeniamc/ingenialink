@@ -50,6 +50,7 @@ option(WITH_GITINFO     "Include Git commit hash in version"      OFF)
 option(WITH_EXAMPLES    "Build library usage example apps"        OFF)
 option(WITH_DOCS        "Build library public API documentation"  OFF)
 option(WITH_ERRDESC     "Support description details of errors"   ON)
+option(WITH_SERCOMM     "Automatically fetch and embed sercomm"   ON)
 
 if(WITH_GITINFO)
   find_package(Git REQUIRED)
@@ -103,9 +104,39 @@ if(WITH_ERRDESC)
   target_compile_definitions(ingenialink PRIVATE IL_WITH_ERRDESC)
 endif()
 
-# Linked libraries
-find_package(sercomm CONFIG REQUIRED)
-target_link_libraries(ingenialink PRIVATE sercomm)
+#-------------------------------------------------------------------------------
+# Dependencies
+
+if(WITH_SERCOMM)
+  include(ExternalProject)
+
+  set(SERCOMM_PREFIX ${CMAKE_BINARY_DIR}/sercomm)
+  set(SERCOMM_INSTALL ${SERCOMM_PREFIX}/install)
+
+  ExternalProject_Add(sercomm_lib
+    GIT_REPOSITORY
+      https://github.com/ingeniamc/sercomm.git
+    PREFIX
+      ${SERCOMM_PREFIX}
+    CMAKE_ARGS
+      -DCMAKE_INSTALL_PREFIX=${SERCOMM_INSTALL} -DWITH_PIC=ON
+  )
+
+  add_dependencies(ingenialink sercomm_lib)
+
+  # add headers and library to ingenialink
+  set(SERCOMM_INCLUDES ${SERCOMM_INSTALL}/include)
+  set(SERCOMM_LIBNAME
+    ${CMAKE_STATIC_LIBRARY_PREFIX}sercomm.${CMAKE_STATIC_LIBRARY_SUFFIX}
+  )
+  set(SERCOMM_LIB ${SERCOMM_INSTALL}/lib/${SERCOMM_LIBNAME})
+
+  target_include_directories(ingenialink PRIVATE ${SERCOMM_INCLUDES})
+  target_link_libraries(ingenialink PRIVATE ${SERCOMM_LIB})
+else()
+  find_package(sercomm CONFIG REQUIRED)
+  target_link_libraries(ingenialink PRIVATE sercomm)
+endif()
 
 #-------------------------------------------------------------------------------
 # Checks

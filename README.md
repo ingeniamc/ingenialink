@@ -21,8 +21,8 @@ requirements). You should limit its usage to configuration or evaluation tasks.
 
 ## Building libingenialink
 
-The `libingenialink` library is built using [CMake](<https://cmake.org/>)
-(version 3.0 or newer) on all platforms. It depends on `libsercomm`.
+The `libingenialink` library is built using [CMake][cmake] (version 3.0 or
+newer) on all platforms. It depends on [libsercomm][sercomm].
 
 On most systems you can build the library using the following commands:
 
@@ -30,6 +30,9 @@ On most systems you can build the library using the following commands:
 cmake -H. -Bbuild
 cmake --build build
 ```
+
+[cmake]: https://cmake.org
+[sercomm]: https://github.com/ingeniamc/sercomm
 
 ### Build options
 
@@ -41,6 +44,8 @@ The following build options are available:
   will be built.
 - `WITH_ERRDESC` (ON): When enabled, error details description can be obtained.
 - `WITH_DOCS` (OFF): When enabled the API documentation can be built.
+- `WITH_SERCOMM` (ON): When enabled, `libsercomm` will be automatically
+  downloaded and built into `libingenialink`.
 
 Furthermore, *standard* CMake build options can be used. You may find useful to
 read this list of [useful CMake variables][cmakeuseful].
