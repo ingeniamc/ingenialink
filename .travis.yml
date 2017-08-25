@@ -1,0 +1,20 @@
+language: c
+
+os:
+  - linux
+  - osx
+
+compiler:
+  - gcc
+  - clang
+
+before_script:
+  - mkdir _deps && cd _deps
+  - git clone https://github.com/ingeniamc/sercomm.git
+  - cd sercomm
+  - cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=../../_install
+  - cmake --build _build --target install
+
+script:
+  - cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
+  - cmake --build _build
