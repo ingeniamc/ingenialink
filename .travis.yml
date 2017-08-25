@@ -17,3 +17,6 @@ before_script:
 script:
   - cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
   - cmake --build _build
+
+notifications:
+  email: false
