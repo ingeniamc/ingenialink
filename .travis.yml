@@ -14,11 +14,9 @@ addons:
       - libudev-dev
 
 before_script:
-  - mkdir _deps && cd _deps
-  - git clone https://github.com/ingeniamc/sercomm.git
-  - cd sercomm
-  - cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=../../_install
-  - cmake --build _build --target install
+  - git clone https://github.com/ingeniamc/sercomm.git _deps/sercomm
+  - cmake -H. -B_deps/sercomm/_build -DCMAKE_INSTALL_PREFIX=_install
+  - cmake --build _deps/sercomm/_build --target install
 
 script:
   - cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
