@@ -50,7 +50,7 @@ option(WITH_GITINFO     "Include Git commit hash in version"      OFF)
 option(WITH_EXAMPLES    "Build library usage example apps"        OFF)
 option(WITH_DOCS        "Build library public API documentation"  OFF)
 option(WITH_ERRDESC     "Support description details of errors"   ON)
-option(WITH_SERCOMM     "Automatically fetch and embed sercomm"   ON)
+option(WITH_PIC         "Generate position independent code"      OFF)
 
 if(WITH_GITINFO)
   find_package(Git REQUIRED)
@@ -61,6 +61,11 @@ if(WITH_GITINFO)
     OUTPUT_VARIABLE PROJECT_VERSION_EXTRA
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
+endif()
+
+# Build a shared library by default
+if(NOT DEFINED BUILD_SHARED_LIBS)
+  set(BUILD_SHARED_LIBS ON)
 endif()
 
 if(NOT BUILD_SHARED_LIBS)
@@ -85,6 +90,11 @@ set(ingenialink_srcs
 
 add_library(ingenialink ${ingenialink_srcs})
 
+# Options
+if(WITH_PIC)
+  set_target_properties(ingenialink PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
+
 # Includes
 target_include_directories(
   ingenialink
@@ -104,39 +114,9 @@ if(WITH_ERRDESC)
   target_compile_definitions(ingenialink PRIVATE IL_WITH_ERRDESC)
 endif()
 
-#-------------------------------------------------------------------------------
 # Dependencies
-
-if(WITH_SERCOMM)
-  include(ExternalProject)
-
-  set(SERCOMM_PREFIX ${CMAKE_BINARY_DIR}/sercomm)
-  set(SERCOMM_INSTALL ${SERCOMM_PREFIX}/install)
-
-  ExternalProject_Add(sercomm_lib
-    GIT_REPOSITORY
-      https://github.com/ingeniamc/sercomm.git
-    PREFIX
-      ${SERCOMM_PREFIX}
-    CMAKE_ARGS
-      -DCMAKE_INSTALL_PREFIX=${SERCOMM_INSTALL} -DWITH_PIC=ON
-  )
-
-  add_dependencies(ingenialink sercomm_lib)
-
-  # add headers and library to ingenialink
-  set(SERCOMM_INCLUDES ${SERCOMM_INSTALL}/include)
-  set(SERCOMM_LIBNAME
-    ${CMAKE_STATIC_LIBRARY_PREFIX}sercomm.${CMAKE_STATIC_LIBRARY_SUFFIX}
-  )
-  set(SERCOMM_LIB ${SERCOMM_INSTALL}/lib/${SERCOMM_LIBNAME})
-
-  target_include_directories(ingenialink PRIVATE ${SERCOMM_INCLUDES})
-  target_link_libraries(ingenialink PRIVATE ${SERCOMM_LIB})
-else()
-  find_package(sercomm CONFIG REQUIRED)
-  target_link_libraries(ingenialink PRIVATE sercomm)
-endif()
+find_package(sercomm CONFIG REQUIRED)
+target_link_libraries(ingenialink PRIVATE sercomm)
 
 #-------------------------------------------------------------------------------
 # Checks

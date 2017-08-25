@@ -1,6 +1,5 @@
 # libingenialink - Communications library for Ingenia servodrives
 
-
 `libingenialink` is a portable, pure C implementation library for communicating
 with Ingenia drives via the IngeniaLink protocol.
 
@@ -22,13 +21,14 @@ requirements). You should limit its usage to configuration or evaluation tasks.
 ## Building libingenialink
 
 The `libingenialink` library is built using [CMake][cmake] (version 3.0 or
-newer) on all platforms. It depends on [libsercomm][sercomm].
+newer) on all platforms. It depends on [libsercomm][sercomm], so make sure you
+have it installed before building.
 
 On most systems you can build the library using the following commands:
 
 ```sh
-cmake -H. -Bbuild
-cmake --build build
+cmake -H. -B_build
+cmake --build _build
 ```
 
 [cmake]: https://cmake.org
@@ -44,8 +44,8 @@ The following build options are available:
   will be built.
 - `WITH_ERRDESC` (ON): When enabled, error details description can be obtained.
 - `WITH_DOCS` (OFF): When enabled the API documentation can be built.
-- `WITH_SERCOMM` (ON): When enabled, `libsercomm` will be automatically
-  downloaded and built into `libingenialink`.
+- `WITH_PIC` (OFF): When enabled, generated code will be position independent.
+  This may be useful if you want to embed ingenialink into a dynamic library.
 
 Furthermore, *standard* CMake build options can be used. You may find useful to
 read this list of [useful CMake variables][cmakeuseful].
