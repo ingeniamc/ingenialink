@@ -8,6 +8,11 @@ compiler:
   - gcc
   - clang
 
+addons:
+  apt:
+    packages:
+      - libudev-dev
+
 before_script:
   - mkdir _deps && cd _deps
   - git clone https://github.com/ingeniamc/sercomm.git
