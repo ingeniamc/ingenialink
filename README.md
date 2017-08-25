@@ -1,5 +1,7 @@
 # libingenialink - Communications library for Ingenia servodrives
 
+[![Build Status](https://travis-ci.org/ingeniamc/ingenialink.svg?branch=master)](https://travis-ci.org/ingeniamc/ingenialink)
+
 `libingenialink` is a portable, pure C implementation library for communicating
 with Ingenia drives via the IngeniaLink protocol.
 
