@@ -28,12 +28,11 @@
 #include <string.h>
 #include <errno.h>
 
-#if defined(__unix__)
+
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #  include <unistd.h>
 #elif defined(_WIN32)
 #  include <Windows.h>
-#else
-#  error Unsupported platform
 #endif
 
 #include "ingenialink/err.h"
@@ -54,10 +53,12 @@ void on_event(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
 		/* FIX: some devices will not respond immediately... a dirty
 		 * solution is to wait before notifying
 		 */
-#if defined(__unix__)
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 		usleep(MONITOR_WAIT_TIME * 1000);
 #elif defined(_WIN32)
 		Sleep(MONITOR_WAIT_TIME);
+#else
+#  warning Monitor event notification will not wait (missing sleep support)
 #endif
 
 		mon->on_added(mon->ctx, dev->path);
