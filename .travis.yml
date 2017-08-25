@@ -15,7 +15,7 @@ addons:
 
 before_script:
   - git clone https://github.com/ingeniamc/sercomm.git _deps/sercomm
-  - cmake -H. -B_deps/sercomm/_build -DCMAKE_INSTALL_PREFIX=_install
+  - cmake -H_deps/sercomm -B_deps/sercomm/_build -DCMAKE_INSTALL_PREFIX=_install
   - cmake --build _deps/sercomm/_build --target install
 
 script:
