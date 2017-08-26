@@ -50,7 +50,7 @@
 #define UARTCFG_BIN_SIDX	0x08
 
 /** Monitor wait time (ms). */
-#define MONITOR_WAIT_TIME	500
+#define MONITOR_WAIT_TIME	2000
 
 /** IngeniaLink network. */
 struct il_net {
@@ -63,7 +63,7 @@ struct il_net_dev_mon {
 	/** Serial port monitor. */
 	ser_dev_mon_t *mon;
 	/** Callback */
-	il_net_dev_on_added_t on_added;
+	il_net_dev_on_evt_t on_evt;
 	/** Context */
 	void *ctx;
 };

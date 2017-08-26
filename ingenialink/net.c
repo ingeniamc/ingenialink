@@ -45,7 +45,7 @@
 /**
  * Monitor event callback.
  */
-void on_event(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
+void on_ser_evt(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
 {
 	il_net_dev_mon_t *mon = ctx;
 
@@ -61,7 +61,9 @@ void on_event(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
 #  warning Monitor event notification will not wait (missing sleep support)
 #endif
 
-		mon->on_added(mon->ctx, dev->path);
+		mon->on_evt(mon->ctx, IL_NET_DEV_EVT_ADDED, dev->path);
+	} else {
+		mon->on_evt(mon->ctx, IL_NET_DEV_EVT_REMOVED, dev->path);
 	}
 }
 
@@ -288,13 +290,13 @@ void il_net_dev_list_destroy(il_net_dev_list_t *lst)
 	}
 }
 
-il_net_dev_mon_t *il_net_dev_mon_create(il_net_dev_on_added_t on_added,
+il_net_dev_mon_t *il_net_dev_mon_create(il_net_dev_on_evt_t on_evt,
 					void *ctx)
 {
 	il_net_dev_mon_t *mon;
 
 	/* validate arguments */
-	if (!on_added) {
+	if (!on_evt) {
 		ilerr__set("Invalid callback (NULL)");
 		return NULL;
 	}
@@ -308,8 +310,8 @@ il_net_dev_mon_t *il_net_dev_mon_create(il_net_dev_on_added_t on_added,
 
 	/* store context and bring up monitor */
 	mon->ctx = ctx;
-	mon->on_added = on_added;
-	mon->mon = ser_dev_monitor_init(on_event, mon);
+	mon->on_evt = on_evt;
+	mon->mon = ser_dev_monitor_init(on_ser_evt, mon);
 	if (!mon->mon) {
 		ilerr__set("Could not initialize monitor (%s)", sererr_last());
 		goto cleanup_mon;

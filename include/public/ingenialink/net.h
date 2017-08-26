@@ -65,11 +65,21 @@ typedef struct il_net_nodes_list {
 /** IngeniaLink node found callback. */
 typedef void (*il_net_nodes_on_found_t)(void *ctx, uint8_t id);
 
+/** Device monitor event types. */
+typedef enum
+{
+    /** Device added */
+    IL_NET_DEV_EVT_ADDED,
+    /** Device removed */
+    IL_NET_DEV_EVT_REMOVED
+} il_net_dev_evt_t;
+
 /** IngeniaLink network device monitor */
 typedef struct il_net_dev_mon il_net_dev_mon_t;
 
-/** IngeniaLink network device added callback. */
-typedef void (*il_net_dev_on_added_t)(void *ctx, const char *port);
+/** IngeniaLink network device event callback. */
+typedef void (*il_net_dev_on_evt_t)(void *ctx, il_net_dev_evt_t evt,
+				      const char *port);
 
 /**
  * Create IngeniaLink network instance.
@@ -125,8 +135,9 @@ IL_EXPORT void il_net_dev_list_destroy(il_net_dev_list_t *lst);
 /**
  * Create an IngeniaLink network device monitor.
  *
- * @param [in] on_added
- *      Callback function that will be called when a new device is added.
+ * @param [in] on_evt
+ *      Callback function that will be called when a new device is added or
+ *      removed.
  * @param [in] ctx
  *      Callback context (optional).
  *
@@ -135,7 +146,7 @@ IL_EXPORT void il_net_dev_list_destroy(il_net_dev_list_t *lst);
  *      created).
  */
 IL_EXPORT il_net_dev_mon_t *il_net_dev_mon_create(
-		il_net_dev_on_added_t on_added, void *ctx);
+		il_net_dev_on_evt_t on_evt, void *ctx);
 
 /**
  * Destroy the IngeniaLink network device monitor.
