@@ -86,6 +86,7 @@ set(ingenialink_srcs
   ingenialink/frame.c
   ingenialink/net.c
   ingenialink/node.c
+  ingenialink/version.c
 )
 
 add_library(ingenialink ${ingenialink_srcs})
