@@ -24,6 +24,7 @@
 
 #include "ingenialink/err.h"
 
+#define _SER_NO_LEGACY_STDINT
 #include <sercomm/sercomm.h>
 
 #include <stdarg.h>

@@ -27,8 +27,6 @@
 
 #include "public/ingenialink/err.h"
 
-#include <stdint.h>
-
 /**
  * Set last error message.
  *
