@@ -27,6 +27,7 @@
 
 #include "ingenialink/net.h"
 
+#define _SER_NO_LEGACY_STDINT
 #include <sercomm/sercomm.h>
 
 /** Default baudrate. */

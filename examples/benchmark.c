@@ -40,7 +40,7 @@
 static int run(int loops, const char *port, uint8_t id, uint16_t idx,
 	       uint8_t sidx)
 {
-	int32_t r;
+	int32_t r = 0;
 
 	il_net_t *net;
 	il_node_t *node;
