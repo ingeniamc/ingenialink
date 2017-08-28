@@ -66,12 +66,11 @@ typedef struct il_net_nodes_list {
 typedef void (*il_net_nodes_on_found_t)(void *ctx, uint8_t id);
 
 /** Device monitor event types. */
-typedef enum
-{
-    /** Device added */
-    IL_NET_DEV_EVT_ADDED,
-    /** Device removed */
-    IL_NET_DEV_EVT_REMOVED
+typedef enum {
+	/** Device added */
+	IL_NET_DEV_EVT_ADDED,
+	/** Device removed */
+	IL_NET_DEV_EVT_REMOVED
 } il_net_dev_evt_t;
 
 /** IngeniaLink network device monitor */
