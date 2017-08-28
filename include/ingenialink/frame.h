@@ -25,8 +25,7 @@
 #ifndef INGENIALINK_FRAME_H_
 #define INGENIALINK_FRAME_H_
 
-#include <stdlib.h>
-#include <stdint.h>
+#include "public/ingenialink/common.h"
 
 /** IngeniaLink frame  minimum size. */
 #define IL_FRAME_MIN_SZ		17U

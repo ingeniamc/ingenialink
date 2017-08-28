@@ -25,9 +25,7 @@
 #ifndef INGENIALINK_UTILS_H_
 #define INGENIALINK_UTILS_H_
 
-#include "config.h"
-
-#include <stdint.h>
+#include "public/ingenialink/common.h"
 
 /** Obtain the minimum of a, b. */
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
