@@ -95,6 +95,7 @@ int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 		int r;
 		uint8_t rd_buf[IL_FRAME_MAX_SZ];
 		size_t rd_recvd;
+		size_t i;
 
 		/* read next byte */
 		r = ser_read(net->ser, rd_buf, sizeof(rd_buf), &rd_recvd);
@@ -110,7 +111,7 @@ int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 			return IL_EDISCONN;
 		}
 
-		for (size_t i = 0; i < rd_recvd; i++) {
+		for (i = 0; i < rd_recvd; i++) {
 			/* push to the frame (and update its state) */
 			r = il_frame__push(&frame, rd_buf[i]);
 			if (r < 0) {
