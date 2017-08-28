@@ -26,7 +26,6 @@
 
 #include <sercomm/sercomm.h>
 
-#ifdef IL_WITH_ERRDESC
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -60,7 +59,6 @@ void ilerr__set(const char *fmt, ...)
 	vsnprintf(err_last, sizeof(err_last), fmt, args);
 	va_end(args);
 }
-#endif
 
 int ilerr__ser(int32_t code)
 {
@@ -90,9 +88,5 @@ int ilerr__ser(int32_t code)
 
 const char *ilerr_last()
 {
-#ifdef IL_WITH_ERRDESC
 	return (const char *)err_last;
-#else
-	return NULL;
-#endif
 }

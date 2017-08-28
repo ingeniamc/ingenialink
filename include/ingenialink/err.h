@@ -29,7 +29,6 @@
 
 #include <stdint.h>
 
-#ifdef IL_WITH_ERRDESC
 /**
  * Set last error message.
  *
@@ -39,9 +38,6 @@
  *      Arguments for format specification.
  */
 void ilerr__set(const char *fmt, ...);
-#else
-#define ilerr__set(fmt, ...) (void)0
-#endif
 
 /**
  * Set last error message with libsercomm error details and return a matching

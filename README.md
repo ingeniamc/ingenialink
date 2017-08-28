@@ -45,7 +45,6 @@ The following build options are available:
   included in version. This may be useful to trace installed development builds.
 - `WITH_EXAMPLES` (OFF): When enabled, the library usage example applications
   will be built.
-- `WITH_ERRDESC` (ON): When enabled, error details description can be obtained.
 - `WITH_DOCS` (OFF): When enabled the API documentation can be built.
 - `WITH_PIC` (OFF): When enabled, generated code will be position independent.
   This may be useful if you want to embed ingenialink into a dynamic library.

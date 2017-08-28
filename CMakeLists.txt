@@ -49,7 +49,6 @@ endif()
 option(WITH_GITINFO     "Include Git commit hash in version"      OFF)
 option(WITH_EXAMPLES    "Build library usage example apps"        OFF)
 option(WITH_DOCS        "Build library public API documentation"  OFF)
-option(WITH_ERRDESC     "Support description details of errors"   ON)
 option(WITH_PIC         "Generate position independent code"      OFF)
 
 if(WITH_GITINFO)
@@ -109,11 +108,6 @@ target_include_directories(
 
 # Definitions (common)
 target_compile_definitions(ingenialink PRIVATE IL_BUILDING)
-
-# Definitions (conditional)
-if(WITH_ERRDESC)
-  target_compile_definitions(ingenialink PRIVATE IL_WITH_ERRDESC)
-endif()
 
 # Dependencies
 find_package(sercomm CONFIG REQUIRED)
