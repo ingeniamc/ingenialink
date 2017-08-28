@@ -28,7 +28,6 @@
 #include <string.h>
 #include <errno.h>
 
-
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #  include <unistd.h>
 #elif defined(_WIN32)
@@ -94,10 +93,11 @@ int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 
 	while (!done) {
 		int r;
-		uint8_t c;
+		uint8_t rd_buf[IL_FRAME_MAX_SZ];
+		size_t rd_recvd;
 
 		/* read next byte */
-		r = ser_read(net->ser, &c, sizeof(c), NULL);
+		r = ser_read(net->ser, rd_buf, sizeof(rd_buf), &rd_recvd);
 		if (r == SER_EEMPTY) {
 			r = ser_read_wait(net->ser);
 			if (r < 0)
@@ -105,46 +105,52 @@ int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 			continue;
 		} else if (r < 0) {
 			return ilerr__ser(r);
+		} else if ((r == 0) && (rd_recvd == 0)) {
+			ilerr__set("Device was disconnected");
+			return IL_EDISCON;
 		}
 
-		/* push to the frame (and update its state) */
-		r = il_frame__push(&frame, c);
-		if (r < 0) {
-			/* likely garbage (reset to retry, will eventually
-			 * timeout)
-			 */
-			il_frame__reset(&frame);
-			continue;
-		}
-
-		/* validate */
-		if (frame.state == IL_FRAME_STATE_COMPLETE) {
-			uint8_t id_ = il_frame__get_id(&frame);
-			uint16_t idx_ = il_frame__get_idx(&frame);
-			uint8_t sidx_ = il_frame__get_sidx(&frame);
-			size_t sz_ = il_frame__get_sz(&frame);
-			void *data = il_frame__get_data(&frame);
-
-			int resp = il_frame__is_resp(&frame);
-
-			/* skip any async EMCY frame or daisy chain */
-			if (((id != id_) && (id != 0)) || (idx != idx_) ||
-			    (sidx != sidx_) || (!resp)) {
+		for (size_t i = 0; i < rd_recvd; i++) {
+			/* push to the frame (and update its state) */
+			r = il_frame__push(&frame, rd_buf[i]);
+			if (r < 0) {
+				/* likely garbage (reset to retry, will
+				 * eventually timeout)
+				 */
 				il_frame__reset(&frame);
 				continue;
 			}
 
-			if (sz < sz_) {
-				ilerr__set("Buffer too small");
-				return IL_ENOMEM;
+			/* validate */
+			if (frame.state == IL_FRAME_STATE_COMPLETE) {
+				uint8_t id_ = il_frame__get_id(&frame);
+				uint16_t idx_ = il_frame__get_idx(&frame);
+				uint8_t sidx_ = il_frame__get_sidx(&frame);
+				size_t sz_ = il_frame__get_sz(&frame);
+				void *data = il_frame__get_data(&frame);
+
+				int resp = il_frame__is_resp(&frame);
+
+				/* skip any async EMCY frame or daisy chain */
+				if (((id != id_) && (id != 0)) ||
+				    (idx != idx_) || (sidx != sidx_) ||
+				    (!resp)) {
+					il_frame__reset(&frame);
+					continue;
+				}
+
+				if (sz < sz_) {
+					ilerr__set("Buffer too small");
+					return IL_ENOMEM;
+				}
+
+				memcpy(buf, data, sz_);
+
+				if (recvd)
+					*recvd = sz_;
+
+				done = 1;
 			}
-
-			memcpy(buf, data, sz_);
-
-			if (recvd)
-				*recvd = sz_;
-
-			done = 1;
 		}
 	}
 

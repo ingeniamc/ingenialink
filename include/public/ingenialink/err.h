@@ -57,6 +57,8 @@ IL_BEGIN_DECL
 #define IL_EALREADY	-7
 /** Invalid memory address. */
 #define IL_EFAULT	-8
+/** Device disconnected */
+#define IL_EDISCON	-9
 
 /**
  * Obtain library last error details.
