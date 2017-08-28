@@ -296,16 +296,9 @@ void il_net_dev_list_destroy(il_net_dev_list_t *lst)
 	}
 }
 
-il_net_dev_mon_t *il_net_dev_mon_create(il_net_dev_on_evt_t on_evt,
-					void *ctx)
+il_net_dev_mon_t *il_net_dev_mon_create()
 {
 	il_net_dev_mon_t *mon;
-
-	/* validate arguments */
-	if (!on_evt) {
-		ilerr__set("Invalid callback (NULL)");
-		return NULL;
-	}
 
 	/* allocate monitor */
 	mon = malloc(sizeof(*mon));
@@ -314,30 +307,59 @@ il_net_dev_mon_t *il_net_dev_mon_create(il_net_dev_on_evt_t on_evt,
 		return NULL;
 	}
 
+	mon->running = 0;
+
+	return mon;
+}
+
+int il_net_dev_mon_start(il_net_dev_mon_t *mon, il_net_dev_on_evt_t on_evt,
+			 void *ctx)
+{
+	/* validate arguments */
+	if (!mon) {
+		ilerr__set("Invalid monitor (NULL)");
+		return IL_EFAULT;
+	}
+
+	if (!on_evt) {
+		ilerr__set("Invalid callback (NULL)");
+		return IL_EINVAL;
+	}
+
 	/* store context and bring up monitor */
 	mon->ctx = ctx;
 	mon->on_evt = on_evt;
 	mon->mon = ser_dev_monitor_init(on_ser_evt, mon);
 	if (!mon->mon) {
 		ilerr__set("Could not initialize monitor (%s)", sererr_last());
-		goto cleanup_mon;
+		return IL_EFAIL;
 	}
 
-	return mon;
+	mon->running = 1;
 
-cleanup_mon:
-	free(mon);
+	return 0;
+}
 
-	return NULL;
+void il_net_dev_mon_stop(il_net_dev_mon_t *mon)
+{
+	/* validate arguments */
+	if (!mon)
+		return;
+
+	if (mon->running) {
+		ser_dev_monitor_stop(mon->mon);
+		mon->running = 0;
+	}
 }
 
 void il_net_dev_mon_destroy(il_net_dev_mon_t *mon)
 {
-	/* validate monitor */
+	/* validate arguments */
 	if (!mon)
 		return;
 
-	ser_dev_monitor_stop(mon->mon);
+	il_net_dev_mon_stop(mon);
+
 	free(mon);
 }
 

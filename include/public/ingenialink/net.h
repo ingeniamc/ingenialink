@@ -134,6 +134,16 @@ IL_EXPORT void il_net_dev_list_destroy(il_net_dev_list_t *lst);
 /**
  * Create an IngeniaLink network device monitor.
  *
+ * @return
+ *      An instance of a device monitor (NULL if it could not be created).
+ */
+IL_EXPORT il_net_dev_mon_t *il_net_dev_mon_create(void);
+
+/**
+ * Start the IngeniaLink network device monitor.
+ *
+ * @param [in] mon
+ *      Monitor instance.
  * @param [in] on_evt
  *      Callback function that will be called when a new device is added or
  *      removed.
@@ -141,14 +151,24 @@ IL_EXPORT void il_net_dev_list_destroy(il_net_dev_list_t *lst);
  *      Callback context (optional).
  *
  * @return
- *      An instance of the running device monitor (NULL if it could not be
- *      created).
+ *	0 on success, error code otherwise.
  */
-IL_EXPORT il_net_dev_mon_t *il_net_dev_mon_create(
-		il_net_dev_on_evt_t on_evt, void *ctx);
+IL_EXPORT int il_net_dev_mon_start(il_net_dev_mon_t *mon,
+				   il_net_dev_on_evt_t on_evt, void *ctx);
+
+/**
+ * Stop the IngeniaLink network device monitor.
+ *
+ * @param [in] mon
+ *      Monitor instance.
+ */
+IL_EXPORT void il_net_dev_mon_stop(il_net_dev_mon_t *mon);
 
 /**
  * Destroy the IngeniaLink network device monitor.
+ *
+ * @note
+ *	If the monitor is running, it will be stopped.
  *
  * @param [in] mon
  *      Monitor instance.

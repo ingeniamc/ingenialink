@@ -62,6 +62,8 @@ struct il_net {
 struct il_net_dev_mon {
 	/** Serial port monitor. */
 	ser_dev_mon_t *mon;
+	/** Running flag. */
+	int running;
 	/** Callback */
 	il_net_dev_on_evt_t on_evt;
 	/** Context */

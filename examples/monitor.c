@@ -44,19 +44,28 @@ void on_evt(void *ctx, il_net_dev_evt_t evt, const char *port)
 
 int main(void)
 {
+	int r;
 	il_net_dev_mon_t *mon;
 
-	mon = il_net_dev_mon_create(on_evt, NULL);
+	mon = il_net_dev_mon_create();
 	if (!mon) {
 		fprintf(stderr, "Could not create monitor: %s\n", ilerr_last());
 		return 1;
+	}
+
+	r = il_net_dev_mon_start(mon, on_evt, NULL);
+	if (r < 0) {
+		goto cleanup;
 	}
 
 	printf("Press ENTER to stop monitoring\n");
 	getchar();
 	printf("Stopping...\n");
 
+	il_net_dev_mon_stop(mon);
+
+cleanup:
 	il_net_dev_mon_destroy(mon);
 
-	return 0;
+	return r;
 }
