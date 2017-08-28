@@ -43,7 +43,7 @@ static const uint8_t sync[FR_SYNC_SZ] = { FR_SYNC, FR_SYNC, FR_SYNC, FR_SYNC };
  *	IngeniaLink frame.
  *
  * @returns
- *	IL_EFRAME if there is any framing error.
+ *	IL_EFAIL if there is any framing error.
  */
 static int state_update(il_frame_t *frame)
 {
@@ -54,7 +54,7 @@ static int state_update(il_frame_t *frame)
 				frame->state = IL_FRAME_STATE_WAITING_MEI;
 			} else {
 				ilerr__set("Unexpected FUNC code");
-				return IL_EFRAME;
+				return IL_EFAIL;
 			}
 		}
 
@@ -64,7 +64,7 @@ static int state_update(il_frame_t *frame)
 			frame->state = IL_FRAME_STATE_WAITING_DATA;
 		} else {
 			ilerr__set("Unexpected MEI code");
-			return IL_EFRAME;
+			return IL_EFAIL;
 		}
 
 		break;
@@ -72,7 +72,7 @@ static int state_update(il_frame_t *frame)
 		if (frame->sz == (FR_NDATA_L_FLD + 1)) {
 			if (frame->buf[FR_NDATA_L_FLD] > IL_FRAME_MAX_DATA_SZ) {
 				ilerr__set("Received data size is too large");
-				return IL_EFRAME;
+				return IL_EFAIL;
 			}
 
 			frame->state = IL_FRAME_STATE_WAITING_SYNC;
@@ -87,7 +87,7 @@ static int state_update(il_frame_t *frame)
 				frame->state = IL_FRAME_STATE_COMPLETE;
 			} else {
 				ilerr__set("Frame synchronization failed");
-				return IL_EFRAME;
+				return IL_EFAIL;
 			}
 		}
 
@@ -162,7 +162,7 @@ int il_frame__push(il_frame_t *frame, uint8_t c)
 	/* check buffer size */
 	if (frame->sz >= sizeof(frame->buf)) {
 		ilerr__set("Buffer full");
-		return IL_EFRAME;
+		return IL_EFAIL;
 	}
 
 	/* push byte, update state */

@@ -107,7 +107,7 @@ int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 			return ilerr__ser(r);
 		} else if ((r == 0) && (rd_recvd == 0)) {
 			ilerr__set("Device was disconnected");
-			return IL_EDISCON;
+			return IL_EDISCONN;
 		}
 
 		for (size_t i = 0; i < rd_recvd; i++) {
@@ -319,6 +319,11 @@ int il_net_dev_mon_start(il_net_dev_mon_t *mon, il_net_dev_on_evt_t on_evt,
 	if (!mon) {
 		ilerr__set("Invalid monitor (NULL)");
 		return IL_EFAULT;
+	}
+
+	if (mon->running) {
+		ilerr__set("Monitor already running");
+		return IL_EALREADY;
 	}
 
 	if (!on_evt) {

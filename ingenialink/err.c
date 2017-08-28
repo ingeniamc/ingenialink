@@ -71,6 +71,10 @@ int ilerr__ser(int32_t code)
 		ilerr__set("Operation timed out");
 		r = IL_ETIMEDOUT;
 		break;
+	case SER_EDISCONN:
+		ilerr__set("Device was disconnected");
+		r = IL_EDISCONN;
+		break;
 	default:
 		ilerr__set("sercomm: %s", sererr_last());
 		r = IL_EFAIL;

@@ -45,20 +45,16 @@ IL_BEGIN_DECL
 #define IL_EFAIL	-1
 /** Invalid values. */
 #define IL_EINVAL       -2
-/** Invalid state. */
-#define IL_ESTATE	-3
 /** Operation timed out. */
-#define IL_ETIMEDOUT    -4
+#define IL_ETIMEDOUT    -3
 /** Not enough memory. */
-#define IL_ENOMEM	-5
-/** Framing error. */
-#define IL_EFRAME       -6
+#define IL_ENOMEM	-4
 /** Already initialized. */
-#define IL_EALREADY	-7
+#define IL_EALREADY	-5
 /** Invalid memory address. */
-#define IL_EFAULT	-8
+#define IL_EFAULT	-6
 /** Device disconnected */
-#define IL_EDISCON	-9
+#define IL_EDISCONN	-7
 
 /**
  * Obtain library last error details.

@@ -110,7 +110,7 @@ void il_frame__reset(il_frame_t *frame);
  *      Byte to be pushed.
  *
  * @returns
- *      IL_EFRAME if there is a framing error.
+ *      IL_EFAIL if there is a framing error.
  */
 int il_frame__push(il_frame_t *frame, uint8_t c);
 
