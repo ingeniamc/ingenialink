@@ -38,7 +38,7 @@
 	((((uint16_t)(x) & 0xFF00U) >> 8) | \
 	 (((uint16_t)(x) & 0x00FFU) << 8))
 #else
-#define __swap_16(x) (x)
+#define __swap_index(x) (x)
 #endif
 
 /*
