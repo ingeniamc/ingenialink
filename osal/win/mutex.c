@@ -32,7 +32,7 @@
 
 osal_mutex_t *osal_mutex_create()
 {
-	osal_mutex *mutex;
+	osal_mutex_t *mutex;
 
 	mutex = malloc(sizeof(*mutex));
 	if (!mutex)
