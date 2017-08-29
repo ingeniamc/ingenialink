@@ -15,6 +15,7 @@ The library provides:
 * Object oriented interface
 * Supports single link and daisy-chain topologies
 * Device listing and monitor
+* Thread-safe communications
 * Descriptive and detailed error messages
 
 It is worth to note that the IngeniaLink protocol was not designed for
@@ -46,6 +47,7 @@ The following build options are available:
 - `WITH_EXAMPLES` (OFF): When enabled, the library usage example applications
   will be built.
 - `WITH_DOCS` (OFF): When enabled the API documentation can be built.
+- `WITH_THREADSAFE` (ON): When enabled, the communications will be thread-safe.
 - `WITH_PIC` (OFF): When enabled, generated code will be position independent.
   This may be useful if you want to embed ingenialink into a dynamic library.
 

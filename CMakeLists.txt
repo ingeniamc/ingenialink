@@ -49,6 +49,7 @@ endif()
 option(WITH_GITINFO     "Include Git commit hash in version"      OFF)
 option(WITH_EXAMPLES    "Build library usage example apps"        OFF)
 option(WITH_DOCS        "Build library public API documentation"  OFF)
+option(WITH_THREADSAFE  "Make ingenialink thread-safe"            ON)
 option(WITH_PIC         "Generate position independent code"      OFF)
 
 if(WITH_GITINFO)
@@ -88,6 +89,17 @@ set(ingenialink_srcs
   ingenialink/version.c
 )
 
+# Sources (conditional)
+if(WITH_THREADSAFE)
+  if(UNIX)
+    list(APPEND ingenialink_srcs osal/posix/mutex.c)
+  elseif(WIN32)
+    list(APPEND ingenialink_srcs osal/win/mutex.c)
+  else()
+    message(FATAL_ERROR "Unsupported platform for thread-safe support")
+  endif()
+endif()
+
 add_library(ingenialink ${ingenialink_srcs})
 
 # Options
@@ -109,16 +121,33 @@ target_include_directories(
 # Definitions (common)
 target_compile_definitions(ingenialink PRIVATE IL_BUILDING)
 
+# Definitions (conditional)
+if(WITH_THREADSAFE)
+  target_compile_definitions(ingenialink PRIVATE IL_THREADSAFE)
+endif()
+
 # Dependencies
 find_package(sercomm CONFIG REQUIRED)
 target_link_libraries(ingenialink PRIVATE sercomm)
+
+# Dependencies (conditional)
+if(WITH_THREADSAFE)
+  # FIX: disable TRY_RUN for pthreads when cross-compiling
+  if(CMAKE_CROSSCOMPILING)
+    set(THREADS_PTHREAD_ARG OFF)
+  endif()
+  set(THREADS_PREFER_PTHREAD_FLAG ON)
+  find_package(Threads REQUIRED)
+
+  target_link_libraries(ingenialink PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+endif()
 
 #-------------------------------------------------------------------------------
 # Checks
 
 include(StyleCheck)
 if(STYLE_CHECK_AVAILABLE)
-  add_style_check("ingenialink/*.c" "ingenialink/*.h" "include/**/*.h")
+  add_style_check("ingenialink/*" "osal/**/*" "include/**/*")
 endif()
 
 #-------------------------------------------------------------------------------

@@ -28,12 +28,6 @@
 #include <string.h>
 #include <errno.h>
 
-#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
-#  include <unistd.h>
-#elif defined(_WIN32)
-#  include <Windows.h>
-#endif
-
 #include "ingenialink/err.h"
 #include "ingenialink/frame.h"
 
@@ -48,27 +42,33 @@ void on_ser_evt(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
 {
 	il_net_dev_mon_t *mon = ctx;
 
-	if (evt == SER_DEV_EVT_ADDED) {
-		/* FIX: some devices will not respond immediately... a dirty
-		 * solution is to wait before notifying
-		 */
-#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
-		usleep(MONITOR_WAIT_TIME * 1000);
-#elif defined(_WIN32)
-		Sleep(MONITOR_WAIT_TIME);
-#else
-#  warning Monitor event notification will not wait (missing sleep support)
-#endif
-
+	if (evt == SER_DEV_EVT_ADDED)
 		mon->on_evt(mon->ctx, IL_NET_DEV_EVT_ADDED, dev->path);
-	} else {
+	else
 		mon->on_evt(mon->ctx, IL_NET_DEV_EVT_REMOVED, dev->path);
-	}
 }
 
 /*******************************************************************************
  * Internal
  ******************************************************************************/
+
+void il_net__lock(il_net_t *net)
+{
+#ifdef IL_THREADSAFE
+	osal_mutex_lock(net->lock);
+#else
+	(void)net;
+#endif
+}
+
+void il_net__unlock(il_net_t *net)
+{
+#ifdef IL_THREADSAFE
+	osal_mutex_unlock(net->lock);
+#else
+	(void)net;
+#endif
+}
 
 int il_net__send(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 		 const void *buf, size_t sz)
@@ -187,11 +187,19 @@ il_net_t *il_net_create(const char *port, unsigned int timeout)
 		return NULL;
 	}
 
+#ifdef IL_THREADSAFE
+	net->lock = osal_mutex_create();
+	if (!net->lock) {
+		ilerr__set("Could not allocate network lock");
+		goto cleanup_net;
+	}
+#endif
+
 	/* allocate serial port */
 	net->ser = ser_create();
 	if (!net->ser) {
 		ilerr__set("Could not create serial port(%s)", sererr_last());
-		goto cleanup_net;
+		goto cleanup_lock;
 	}
 
 	/* open serial port */
@@ -230,6 +238,13 @@ close_ser:
 cleanup_ser:
 	ser_destroy(net->ser);
 
+cleanup_lock:
+#ifdef IL_THREADSAFE
+	osal_mutex_destroy(net->lock);
+#else
+	goto cleanup_net;
+#endif
+
 cleanup_net:
 	free(net);
 
@@ -244,6 +259,10 @@ void il_net_destroy(il_net_t *net)
 
 	/* free resources */
 	ser_close(net->ser);
+
+#ifdef IL_THREADSAFE
+	osal_mutex_destroy(net->lock);
+#endif
 
 	ser_destroy(net->ser);
 	free(net);
@@ -384,10 +403,12 @@ il_net_nodes_list_t *il_net_nodes_list_get(il_net_t *net,
 		return NULL;
 	}
 
+	il_net__lock(net);
+
 	/* broadcast "read node id" message */
 	r = il_net__send(net, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, NULL, 0);
 	if (r < 0)
-		return NULL;
+		goto unlock;
 
 	/* read any response until error (likely timeout) */
 	while (r == 0) {
@@ -412,6 +433,9 @@ il_net_nodes_list_t *il_net_nodes_list_get(il_net_t *net,
 				on_found(ctx, id);
 		}
 	}
+
+unlock:
+	il_net__unlock(net);
 
 	return lst;
 }

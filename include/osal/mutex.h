@@ -22,61 +22,54 @@
  * SOFTWARE.
  */
 
-#ifndef NET_H_
-#define NET_H_
+#ifndef OSAL_MUTEX_H_
+#define OSAL_MUTEX_H_
 
-#include "ingenialink/net.h"
+/** Mutex. */
+typedef struct osal_mutex osal_mutex_t;
 
-#ifdef IL_THREADSAFE
-#  include "osal/mutex.h"
-#endif
+/**
+ * Create a mutex.
+ *
+ * @return
+ *      Mutex (NULL if it could not be created).
+ *
+ * @see
+ *      osal_mutex_destroy
+ */
+osal_mutex_t *osal_mutex_create(void);
 
-#define _SER_NO_LEGACY_STDINT
-#include <sercomm/sercomm.h>
+/**
+ * Destroy a mutex.
+ *
+ * @param [in] mutex
+ *     Valid mutex.
+ *
+ * @see
+ *      osal_mutex_create
+ */
+void osal_mutex_destroy(osal_mutex_t *mutex);
 
-/** Default baudrate. */
-#define BAUDRATE_DEF		115200
+/**
+ * Acquire a mutex.
+ *
+ * @param [in] mutex
+ *     Valid mutex.
+ *
+ * @see
+ *      osal_mutex_unlock
+ */
+void osal_mutex_lock(osal_mutex_t *mutex);
 
-/** Default write timeout (ms) */
-#define TIMEOUT_WR_DEF		1000
-
-/** Binary mode ON message (ASCII protocol). */
-#define MSG_A2B			"\r0 W 0x82000 1\r"
-
-/** UART node id (index) */
-#define UARTCFG_ID_IDX		0x2000
-
-/** UART node id (subindex) */
-#define UARTCFG_ID_SIDX		0x01
-
-/** UART configuration, binary mode (index). */
-#define UARTCFG_BIN_IDX		0x2000
-/** UART configuration, binary mode (subindex). */
-#define UARTCFG_BIN_SIDX	0x08
-
-/** Monitor wait time (ms). */
-#define MONITOR_WAIT_TIME	2000
-
-/** IngeniaLink network. */
-struct il_net {
-	/** Serial communications channel */
-	ser_t *ser;
-#ifdef IL_THREADSAFE
-	/** Network lock. */
-	osal_mutex_t *lock;
-#endif
-};
-
-/** IngeniaLink network device monitor */
-struct il_net_dev_mon {
-	/** Serial port monitor. */
-	ser_dev_mon_t *mon;
-	/** Running flag. */
-	int running;
-	/** Callback */
-	il_net_dev_on_evt_t on_evt;
-	/** Context */
-	void *ctx;
-};
+/**
+ * Release a mutex.
+ *
+ * @param [in] mutex
+ *     Valid mutex.
+ *
+ * @see
+ *      osal_mutex_lock
+ */
+void osal_mutex_unlock(osal_mutex_t *mutex);
 
 #endif

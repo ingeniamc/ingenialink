@@ -95,12 +95,19 @@ int il_node_read(il_node_t *node, uint16_t idx, uint8_t sidx, void *buf,
 		return IL_EFAULT;
 	}
 
+	il_net__lock(node->net);
+
 	/* send request, receice response */
 	r = il_net__send(node->net, node->id, idx, sidx, NULL, 0);
 	if (r < 0)
-		return r;
+		goto unlock;
 
-	return il_net__recv(node->net, node->id, idx, sidx, buf, sz, recvd);
+	r = il_net__recv(node->net, node->id, idx, sidx, buf, sz, recvd);
+
+unlock:
+	il_net__unlock(node->net);
+
+	return r;
 }
 
 int il_node_read_u8(il_node_t *node, uint16_t idx, uint8_t sidx, uint8_t *buf)
@@ -183,14 +190,21 @@ int il_node_read_s64(il_node_t *node, uint16_t idx, uint8_t sidx, int64_t *buf)
 int il_node_write(il_node_t *node, uint16_t idx, uint8_t sidx, const void *data,
 		  size_t sz)
 {
+	int r;
+
 	/* validate nodework */
 	if (!node) {
 		ilerr__set("Invalid node (NULL)");
 		return IL_EFAULT;
 	}
 
-	/* send write request */
-	return il_net__send(node->net, node->id, idx, sidx, data, sz);
+	il_net__lock(node->net);
+
+	r = il_net__send(node->net, node->id, idx, sidx, data, sz);
+
+	il_net__unlock(node->net);
+
+	return r;
 }
 
 int il_node_write_u8(il_node_t *node, uint16_t idx, uint8_t sidx, uint8_t val)

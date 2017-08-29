@@ -27,6 +27,12 @@
 
 #include "public/ingenialink/net.h"
 
+/** Lock network. */
+void il_net__lock(il_net_t *net);
+
+/** Unlock network. */
+void il_net__unlock(il_net_t *net);
+
 /**
  * Send a frame.
  *
