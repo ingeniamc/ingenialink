@@ -1,14 +1,17 @@
-image: Visual Studio 2015
-
-platform:
-  - x86
-  - x64
+environment:
+  matrix:
+    - CMAKE_GENERATOR_NAME: Visual Studio 9 2008
+      platform: Any CPU
+    - CMAKE_GENERATOR_NAME: Visual Studio 10 2010
+      platform: Any CPU
+    - CMAKE_GENERATOR_NAME: Visual Studio 14 2015
+      platform: Any CPU
+    - CMAKE_GENERATOR_NAME: Visual Studio 14 2015 Win64
+      platform: x64
 
 configuration: Release
 
-before_build:
-  - cmd: if "%platform%"=="x86" set CMAKE_GENERATOR_NAME=Visual Studio 14 2015
-  - cmd: if "%platform%"=="x64" set CMAKE_GENERATOR_NAME=Visual Studio 14 2015 Win64
+install:
   - cmd: git clone https://github.com/ingeniamc/sercomm.git _deps\sercomm
   - cmd: cmake -H_deps\sercomm -B_deps\sercomm\_build -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_INSTALL_PREFIX=_install
   - cmd: cmake --build _deps\sercomm\_build --config %configuration% --target install
