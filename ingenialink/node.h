@@ -35,11 +35,6 @@
 /** Maximum node id. */
 #define NODEID_MAX		127
 
-/** UART configuration, binary mode (index). */
-#define UARTCFG_BIN_IDX		0x2000
-/** UART configuration, binary mode (subindex). */
-#define UARTCFG_BIN_SIDX	0x08
-
 /** UART configuration, statusword mode (index). */
 #define UARTCFG_SW_IDX		0x2000
 /** UART configuration, statusword mode (subindex). */

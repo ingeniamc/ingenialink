@@ -89,15 +89,21 @@ set(ingenialink_srcs
   ingenialink/version.c
 )
 
-# Sources (conditional)
-if(WITH_THREADSAFE)
-  if(UNIX)
+# Sources (osal)
+if(UNIX)
+  list(APPEND ingenialink_srcs osal/posix/sleep.c)
+
+  if(WITH_THREADSAFE)
     list(APPEND ingenialink_srcs osal/posix/mutex.c)
-  elseif(WIN32)
-    list(APPEND ingenialink_srcs osal/win/mutex.c)
-  else()
-    message(FATAL_ERROR "Unsupported platform for thread-safe support")
   endif()
+elseif(WIN32)
+  list(APPEND ingenialink_srcs osal/win/sleep.c)
+
+  if(WITH_THREADSAFE)
+    list(APPEND ingenialink_srcs osal/win/mutex.c)
+  endif()
+else()
+  message(FATAL_ERROR "Unsupported platform")
 endif()
 
 add_library(ingenialink ${ingenialink_srcs})

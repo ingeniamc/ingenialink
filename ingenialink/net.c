@@ -28,6 +28,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include "osal/sleep.h"
+
 #include "ingenialink/err.h"
 #include "ingenialink/frame.h"
 
@@ -91,14 +93,17 @@ int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 	int done = 0;
 	il_frame_t frame = IL_FRAME_INIT_DEF;
 
+	static uint8_t rbuf[IL_FRAME_MAX_SZ];
+	static size_t rbuf_cnt;
+
 	while (!done) {
 		int r;
-		uint8_t rd_buf[IL_FRAME_MAX_SZ];
-		size_t rd_recvd;
-		size_t i;
+		size_t i, rbuf_free, rbuf_added;
 
-		/* read next byte */
-		r = ser_read(net->ser, rd_buf, sizeof(rd_buf), &rd_recvd);
+		/* read */
+		rbuf_free = sizeof(rbuf) - rbuf_cnt;
+
+		r = ser_read(net->ser, &rbuf[rbuf_cnt], rbuf_free, &rbuf_added);
 		if (r == SER_EEMPTY) {
 			r = ser_read_wait(net->ser);
 			if (r < 0)
@@ -106,19 +111,29 @@ int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 			continue;
 		} else if (r < 0) {
 			return ilerr__ser(r);
-		} else if ((r == 0) && (rd_recvd == 0)) {
+		} else if ((r == 0) && (rbuf_added == 0) && (rbuf_free)) {
 			ilerr__set("Device was disconnected");
 			return IL_EDISCONN;
 		}
 
-		for (i = 0; i < rd_recvd; i++) {
+		/* produce */
+		rbuf_cnt += rbuf_added;
+
+		/* consume (until valid frame is reached) */
+		for (i = 0; rbuf_cnt; i++) {
+			rbuf_cnt--;
+
 			/* push to the frame (and update its state) */
-			r = il_frame__push(&frame, rd_buf[i]);
+			r = il_frame__push(&frame, rbuf[i]);
 			if (r < 0) {
 				/* likely garbage (reset to retry, will
 				 * eventually timeout)
 				 */
 				il_frame__reset(&frame);
+
+				/* push current byte again (may be ID) */
+				(void)il_frame__push(&frame, rbuf[i]);
+
 				continue;
 			}
 
@@ -151,6 +166,8 @@ int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 					*recvd = sz_;
 
 				done = 1;
+
+				break;
 			}
 		}
 	}
@@ -227,8 +244,8 @@ il_net_t *il_net_create(const char *port, unsigned int timeout)
 	(void)il_net__send(net, 0, UARTCFG_BIN_IDX, UARTCFG_BIN_SIDX, &val,
 			   sizeof(val));
 
-	/* flush serial queues */
-	(void)ser_flush(net->ser, SER_QUEUE_ALL);
+	/* QUIRK: binary reads not operative immediately */
+	osal_sleep_ms(INIT_WAIT_TIME);
 
 	return net;
 
@@ -393,6 +410,8 @@ il_net_nodes_list_t *il_net_nodes_list_get(il_net_t *net,
 					   void *ctx)
 {
 	int r;
+	uint8_t id;
+	size_t recvd;
 
 	il_net_nodes_list_t *lst = NULL;
 	il_net_nodes_list_t *prev;
@@ -405,6 +424,17 @@ il_net_nodes_list_t *il_net_nodes_list_get(il_net_t *net,
 
 	il_net__lock(net);
 
+	/* QUIRK: firmware may send an improper binary message after sending a
+	 * broadcast for the first time. The reason why this happens is unclear,
+	 * but a dirty way to fix it is to read twice (ignoring the first try).
+	 */
+	r = il_net__send(net, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, NULL, 0);
+	if (r < 0)
+		goto unlock;
+
+	while (il_net__recv(net, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, &id,
+			    sizeof(id), &recvd) == 0);
+
 	/* broadcast "read node id" message */
 	r = il_net__send(net, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, NULL, 0);
 	if (r < 0)
@@ -412,9 +442,6 @@ il_net_nodes_list_t *il_net_nodes_list_get(il_net_t *net,
 
 	/* read any response until error (likely timeout) */
 	while (r == 0) {
-		uint8_t id;
-		size_t recvd = 0;
-
 		r = il_net__recv(net, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, &id,
 				 sizeof(id), &recvd);
 		if ((r == 0) && (recvd > 0)) {
