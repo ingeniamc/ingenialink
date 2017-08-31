@@ -38,14 +38,6 @@ if(NOT DEFINED STYLE_CHECK_AVAILABLE)
 endif()
 
 function(add_style_check)
-  if(DEFINED HAS_STYLE_CHECK)
-    return()
-  else()
-    set(
-      HAS_STYLE_CHECK "" CACHE INTERNAL "Has style check"
-    )
-  endif()
-
   set(CHECKPATCH
     ${CMAKE_SOURCE_DIR}/scripts/checkpatch.pl
   )
