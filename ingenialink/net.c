@@ -24,14 +24,12 @@
 
 #include "net.h"
 
-#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
 #include "osal/sleep.h"
 
 #include "ingenialink/err.h"
-#include "ingenialink/frame.h"
 
 /*******************************************************************************
  * Private
@@ -93,17 +91,15 @@ int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 	int done = 0;
 	il_frame_t frame = IL_FRAME_INIT_DEF;
 
-	static uint8_t rbuf[IL_FRAME_MAX_SZ];
-	static size_t rbuf_cnt;
-
 	while (!done) {
 		int r;
 		size_t i, rbuf_free, rbuf_added;
 
 		/* read */
-		rbuf_free = sizeof(rbuf) - rbuf_cnt;
+		rbuf_free = sizeof(net->rbuf) - net->rbuf_cnt;
 
-		r = ser_read(net->ser, &rbuf[rbuf_cnt], rbuf_free, &rbuf_added);
+		r = ser_read(net->ser, &net->rbuf[net->rbuf_cnt], rbuf_free,
+			     &rbuf_added);
 		if (r == SER_EEMPTY) {
 			r = ser_read_wait(net->ser);
 			if (r < 0)
@@ -117,14 +113,14 @@ int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 		}
 
 		/* produce */
-		rbuf_cnt += rbuf_added;
+		net->rbuf_cnt += rbuf_added;
 
 		/* consume (until valid frame is reached) */
-		for (i = 0; rbuf_cnt; i++) {
-			rbuf_cnt--;
+		for (i = 0; net->rbuf_cnt; i++) {
+			net->rbuf_cnt--;
 
 			/* push to the frame (and update its state) */
-			r = il_frame__push(&frame, rbuf[i]);
+			r = il_frame__push(&frame, net->rbuf[i]);
 			if (r < 0) {
 				/* likely garbage (reset to retry, will
 				 * eventually timeout)
@@ -132,7 +128,7 @@ int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 				il_frame__reset(&frame);
 
 				/* push current byte again (may be ID) */
-				(void)il_frame__push(&frame, rbuf[i]);
+				(void)il_frame__push(&frame, net->rbuf[i]);
 
 				continue;
 			}
@@ -204,6 +200,8 @@ il_net_t *il_net_create(const char *port, unsigned int timeout)
 		return NULL;
 	}
 
+	net->rbuf_cnt = 0;
+
 #ifdef IL_THREADSAFE
 	net->lock = osal_mutex_create();
 	if (!net->lock) {
@@ -231,6 +229,9 @@ il_net_t *il_net_create(const char *port, unsigned int timeout)
 		goto cleanup_ser;
 	}
 
+	/* QUIRK: drive may not be operative immediately */
+	osal_sleep_ms(INIT_WAIT_TIME);
+
 	/* send ascii message to force binary */
 	r = ser_write(net->ser, MSG_A2B, sizeof(MSG_A2B) - 1, NULL);
 	if (r < 0) {
@@ -243,9 +244,6 @@ il_net_t *il_net_create(const char *port, unsigned int timeout)
 	val = 1;
 	(void)il_net__send(net, 0, UARTCFG_BIN_IDX, UARTCFG_BIN_SIDX, &val,
 			   sizeof(val));
-
-	/* QUIRK: binary reads not operative immediately */
-	osal_sleep_ms(INIT_WAIT_TIME);
 
 	return net;
 

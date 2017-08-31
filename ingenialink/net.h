@@ -25,6 +25,7 @@
 #ifndef NET_H_
 #define NET_H_
 
+#include "ingenialink/frame.h"
 #include "ingenialink/net.h"
 
 #ifdef IL_THREADSAFE
@@ -61,6 +62,10 @@
 struct il_net {
 	/** Serial communications channel */
 	ser_t *ser;
+	/** Reception buffer. */
+	uint8_t rbuf[IL_FRAME_MAX_SZ];
+	/** Buffer count. */
+	size_t rbuf_cnt;
 #ifdef IL_THREADSAFE
 	/** Network lock. */
 	osal_mutex_t *lock;
