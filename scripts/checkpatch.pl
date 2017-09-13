@@ -60,6 +60,14 @@ my $typedefsfile = "";
 my $color = "auto";
 my $allow_c99_comments = 1;
 
+# setup null device
+my $null = "/dev/null";
+
+my $osname = $^O;
+if ($osname eq "MSWin32") {
+	$null = "NUL";
+}
+
 sub help {
 	my ($exitcode) = @_;
 
@@ -944,7 +952,7 @@ for my $filename (@ARGV) {
 		open($FILE, '-|', "git format-patch -M --stdout -1 $filename") ||
 			die "$P: $filename: git format-patch failed - $!\n";
 	} elsif ($file) {
-		open($FILE, '-|', "diff -u /dev/null $filename") ||
+		open($FILE, '-|', "diff -u $null $filename") ||
 			die "$P: $filename: diff failed - $!\n";
 	} elsif ($filename eq '-') {
 		open($FILE, '<&STDIN');

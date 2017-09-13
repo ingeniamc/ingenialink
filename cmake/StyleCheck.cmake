@@ -10,6 +10,7 @@
 #       fix them anyway.
 #     - MACRO_ARG_REUSE: Should be allowd in some constructs (e.g. stuff like
 #       MIN(a,b))
+#     - BIT_MACRO: We do not have it here.
 #
 # Adding style check (only once):
 #   include(StyleCheck)
@@ -45,7 +46,7 @@ function(add_style_check)
   set(CHECKPATCH_ARGS
     --no-tree --terse --strict --subjective
     --ignore NEW_TYPEDEFS,PREFER_KERNEL_TYPES,CONST_STRUCT,CAMELCASE
-    --ignore MACRO_ARG_REUSE --file
+    --ignore MACRO_ARG_REUSE,BIT_MACRO --file
   )
 
   file(
@@ -54,9 +55,21 @@ function(add_style_check)
     ${ARGN}
   )
 
+  foreach(CHECKPATCH_FILE ${CHECKPATCH_FILES})
+    add_custom_command(
+      OUTPUT
+        ${CHECKPATCH_FILE}.style
+      COMMAND
+        ${PERL_EXECUTABLE} ${CHECKPATCH} ${CHECKPATCH_ARGS} ${CHECKPATCH_FILE}
+        || true
+      COMMENT "Checking coding style of ${CHECKPATCH_FILE}..." VERBATIM
+    )
+
+    list(APPEND CHECKPATCH_STYLE "${CHECKPATCH_FILE}.style")
+  endforeach()
+
   add_custom_target(
     style_check
-    ${PERL_EXECUTABLE} ${CHECKPATCH} ${CHECKPATCH_ARGS} ${CHECKPATCH_FILES}
-    COMMENT "Checking coding style..." VERBATIM
+    DEPENDS ${CHECKPATCH_STYLE}
   )
 endfunction()

@@ -55,6 +55,10 @@ IL_BEGIN_DECL
 #define IL_EFAULT	-6
 /** Device disconnected */
 #define IL_EDISCONN	-7
+/** Access error */
+#define IL_EACCESS	-8
+/** State error */
+#define IL_ESTATE	-9
 
 /**
  * Obtain library last error details.

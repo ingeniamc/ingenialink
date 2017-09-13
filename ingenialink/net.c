@@ -25,15 +25,182 @@
 #include "net.h"
 
 #include <string.h>
-#include <errno.h>
 
-#include "osal/sleep.h"
+#include "osal/clock.h"
 
 #include "ingenialink/err.h"
+#include "ingenialink/utils.h"
 
 /*******************************************************************************
  * Private
  ******************************************************************************/
+
+/**
+ * Process asynchronous statusword messages.
+ *
+ * @param [in] net
+ *	IngeniaLink network instance.
+ * @param [in] frame
+ *	IngeniaLink frame.
+ */
+void process_statusword(il_net_t *net, il_frame_t *frame)
+{
+	uint16_t idx;
+	uint8_t sidx;
+
+	idx = il_frame__get_idx(frame);
+	sidx = il_frame__get_sidx(frame);
+
+	if (idx == STATUSWORD_IDX && sidx == STATUSWORD_SIDX) {
+		size_t i;
+		uint8_t id;
+		uint16_t sw;
+
+		id = il_frame__get_id(frame);
+		sw = __swap_16(*(uint16_t *)il_frame__get_data(frame));
+
+		osal_mutex_lock(net->sw_subs.lock);
+
+		for (i = 0; i < net->sw_subs.cnt; i++) {
+			if (net->sw_subs.subs[i].id == id) {
+				void *ctx;
+
+				ctx = net->sw_subs.subs[i].ctx;
+				net->sw_subs.subs[i].cb(ctx, sw);
+			}
+		}
+
+		osal_mutex_unlock(net->sw_subs.lock);
+	}
+}
+
+/**
+ * Process synchronous messages.
+ *
+ * @param [in] net
+ *	IngeniaLink network instance.
+ * @param [in] frame
+ *	IngeniaLink frame.
+ */
+void process_sync(il_net_t *net, il_frame_t *frame)
+{
+	osal_mutex_lock(net->sync.lock);
+
+	if (!net->sync.complete) {
+		uint8_t id = il_frame__get_id(frame);
+		uint16_t idx = il_frame__get_idx(frame);
+		uint8_t sidx = il_frame__get_sidx(frame);
+		size_t sz = il_frame__get_sz(frame);
+
+		if (((net->sync.id == id) || (net->sync.id == 0)) &&
+		    (net->sync.idx == idx) && (net->sync.sidx == sidx) &&
+		    (net->sync.sz >= sz)) {
+			void *data = il_frame__get_data(frame);
+
+			memcpy(net->sync.buf, data, sz);
+
+			if (net->sync.recvd)
+				*net->sync.recvd = sz;
+
+			net->sync.complete = 1;
+			osal_cond_signal(net->sync.cond);
+		}
+	}
+
+	osal_mutex_unlock(net->sync.lock);
+}
+
+/**
+ * Process reception buffer.
+ *
+ * @param [in] net
+ *	IngeniaLink network instance.
+ * @param [in] rbuf
+ *	Reception buffer.
+ * @param [in, out] cnt
+ *	Buffer contents size.
+ * @param [in, out] frame
+ *	IngeniaLink frame.
+ */
+void process_rbuf(il_net_t *net, uint8_t *rbuf, size_t *cnt, il_frame_t *frame)
+{
+	size_t i;
+
+	for (i = 0; *cnt; i++) {
+		int r;
+
+		(*cnt)--;
+
+		/* push to the frame (and update its state) */
+		r = il_frame__push(frame, rbuf[i]);
+		if (r < 0) {
+			/* likely garbage, reset keeping current */
+			il_frame__reset(frame);
+			(void)il_frame__push(frame, rbuf[i]);
+
+			continue;
+		}
+
+		/* validate */
+		if (frame->state == IL_FRAME_STATE_COMPLETE) {
+			if (il_frame__is_resp(frame)) {
+				process_statusword(net, frame);
+				process_sync(net, frame);
+			}
+
+			il_frame__reset(frame);
+		}
+	}
+}
+
+/**
+ * Listener thread.
+ *
+ * @param [in] args
+ *	IngeniaLink network (il_net_t *).
+ */
+int listener(void *args)
+{
+	il_net_t *net = args;
+
+	il_frame_t frame = IL_FRAME_INIT_DEF;
+
+	uint8_t rbuf[IL_FRAME_MAX_SZ];
+	size_t rbuf_cnt = 0;
+
+	while (!net->stop) {
+		int r;
+		size_t rbuf_free, rbuf_added;
+
+		/* process current buffer content */
+		process_rbuf(net, rbuf, &rbuf_cnt, &frame);
+
+		/* read more bytes */
+		rbuf_free = sizeof(rbuf) - rbuf_cnt;
+
+		r = ser_read(net->ser, &rbuf[rbuf_cnt], rbuf_free, &rbuf_added);
+		if (r == SER_EEMPTY) {
+			r = ser_read_wait(net->ser);
+			if (r == SER_ETIMEDOUT)
+				continue;
+			else if (r < 0)
+				goto err;
+		} else if ((r < 0) || ((r == 0) && (rbuf_added == 0))) {
+			goto err;
+		} else {
+			rbuf_cnt += rbuf_added;
+		}
+	}
+
+	return 0;
+
+err:
+	osal_mutex_lock(net->state_lock);
+	net->state = IL_NET_STATE_FAULTY;
+	osal_mutex_unlock(net->state_lock);
+
+	return IL_EFAIL;
+}
 
 /**
  * Monitor event callback.
@@ -52,130 +219,153 @@ void on_ser_evt(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
  * Internal
  ******************************************************************************/
 
-void il_net__lock(il_net_t *net)
-{
-#ifdef IL_THREADSAFE
-	osal_mutex_lock(net->lock);
-#else
-	(void)net;
-#endif
-}
-
-void il_net__unlock(il_net_t *net)
-{
-#ifdef IL_THREADSAFE
-	osal_mutex_unlock(net->lock);
-#else
-	(void)net;
-#endif
-}
-
-int il_net__send(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		 const void *buf, size_t sz)
+int il_net__write(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
+		  const void *buf, size_t sz)
 {
 	int r;
 	il_frame_t frame;
+
+	/* check network state */
+	if (il_net_state_get(net) != IL_NET_STATE_OPERATIVE) {
+		ilerr__set("Network is not operative");
+		return IL_ESTATE;
+	}
+
+	osal_mutex_lock(net->lock);
 
 	il_frame__init(&frame, id, idx, sidx, buf, sz);
 
 	r = ser_write(net->ser, frame.buf, frame.sz, NULL);
 	if (r < 0)
-		return ilerr__ser(r);
+		ilerr__ser(r);
 
-	return 0;
+	osal_mutex_unlock(net->lock);
+
+	return r;
 }
 
-int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		 void *buf, size_t sz, size_t *recvd)
+int il_net__read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
+		 void *buf, size_t sz, size_t *recvd, int timeout)
 {
-	int done = 0;
-	il_frame_t frame = IL_FRAME_INIT_DEF;
+	int r;
+	il_frame_t frame;
 
-	while (!done) {
-		int r;
-		size_t i, rbuf_free, rbuf_added;
+	/* check network state */
+	if (il_net_state_get(net) != IL_NET_STATE_OPERATIVE) {
+		ilerr__set("Network is not operative");
+		return IL_ESTATE;
+	}
 
-		/* read */
-		rbuf_free = sizeof(net->rbuf) - net->rbuf_cnt;
+	osal_mutex_lock(net->lock);
 
-		r = ser_read(net->ser, &net->rbuf[net->rbuf_cnt], rbuf_free,
-			     &rbuf_added);
-		if (r == SER_EEMPTY) {
-			r = ser_read_wait(net->ser);
-			if (r < 0)
-				return ilerr__ser(r);
-			continue;
+	/* register synchronous transfer */
+	osal_mutex_lock(net->sync.lock);
+
+	net->sync.id = id;
+	net->sync.idx = idx;
+	net->sync.sidx = sidx;
+	net->sync.buf = buf;
+	net->sync.sz = sz;
+	net->sync.recvd = recvd;
+	net->sync.complete = 0;
+
+	/* send synchronous read petition */
+	il_frame__init(&frame, id, idx, sidx, NULL, 0);
+
+	r = ser_write(net->ser, frame.buf, frame.sz, NULL);
+	if (r < 0) {
+		ilerr__ser(r);
+		goto unlock;
+	}
+
+	osal_mutex_unlock(net->sync.lock);
+
+	/* wait for response */
+	osal_mutex_lock(net->sync.lock);
+
+	if (!net->sync.complete) {
+		r = osal_cond_wait(net->sync.cond, net->sync.lock, timeout);
+		if (r == OSAL_ETIMEDOUT) {
+			ilerr__set("Reception timed out");
+			r = IL_ETIMEDOUT;
 		} else if (r < 0) {
-			return ilerr__ser(r);
-		} else if ((r == 0) && (rbuf_added == 0) && (rbuf_free)) {
-			ilerr__set("Device was disconnected");
-			return IL_EDISCONN;
+			ilerr__set("Reception failed");
+			r = IL_EFAIL;
+		}
+	} else {
+		r = 0;
+	}
+
+unlock:
+	net->sync.complete = 1;
+
+	osal_mutex_unlock(net->sync.lock);
+	osal_mutex_unlock(net->lock);
+
+	return r;
+}
+
+int il_net__sw_subscribe(il_net_t *net, uint8_t id,
+			 il_net_sw_subscriber_cb_t cb, void *ctx)
+{
+	int r = 0;
+
+	osal_mutex_lock(net->sw_subs.lock);
+
+	/* increase array if no space left */
+	if (net->sw_subs.cnt == net->sw_subs.sz) {
+		size_t sz;
+		il_net_sw_subscriber_t *subs;
+
+		/* double in size on each realloc */
+		sz = 2 * net->sw_subs.sz * sizeof(*subs);
+		subs = realloc(net->sw_subs.subs, sz);
+		if (!subs) {
+			ilerr__set("Subscribers re-allocation failed");
+			r = IL_ENOMEM;
+			goto unlock;
 		}
 
-		/* produce */
-		net->rbuf_cnt += rbuf_added;
+		net->sw_subs.subs = subs;
+		net->sw_subs.sz = sz;
+	}
 
-		/* consume (until valid frame is reached) */
-		for (i = 0; net->rbuf_cnt; i++) {
-			net->rbuf_cnt--;
+	net->sw_subs.subs[net->sw_subs.cnt].id = id;
+	net->sw_subs.subs[net->sw_subs.cnt].cb = cb;
+	net->sw_subs.subs[net->sw_subs.cnt].ctx = ctx;
 
-			/* push to the frame (and update its state) */
-			r = il_frame__push(&frame, net->rbuf[i]);
-			if (r < 0) {
-				/* likely garbage (reset to retry, will
-				 * eventually timeout)
-				 */
-				il_frame__reset(&frame);
+	net->sw_subs.cnt++;
 
-				/* push current byte again (may be ID) */
-				(void)il_frame__push(&frame, net->rbuf[i]);
+unlock:
+	osal_mutex_unlock(net->sw_subs.lock);
 
-				continue;
-			}
+	return r;
+}
 
-			/* validate */
-			if (frame.state == IL_FRAME_STATE_COMPLETE) {
-				uint8_t id_ = il_frame__get_id(&frame);
-				uint16_t idx_ = il_frame__get_idx(&frame);
-				uint8_t sidx_ = il_frame__get_sidx(&frame);
-				size_t sz_ = il_frame__get_sz(&frame);
-				void *data = il_frame__get_data(&frame);
+void il_net__sw_unsubscribe(il_net_t *net, uint8_t id)
+{
+	size_t i;
 
-				int resp = il_frame__is_resp(&frame);
+	osal_mutex_lock(net->sw_subs.lock);
 
-				/* skip any async EMCY frame or daisy chain */
-				if (((id != id_) && (id != 0)) ||
-				    (idx != idx_) || (sidx != sidx_) ||
-				    (!resp)) {
-					il_frame__reset(&frame);
-					continue;
-				}
-
-				if (sz < sz_) {
-					ilerr__set("Buffer too small");
-					return IL_ENOMEM;
-				}
-
-				memcpy(buf, data, sz_);
-
-				if (recvd)
-					*recvd = sz_;
-
-				done = 1;
-
-				break;
-			}
+	for (i = 0; i < net->sw_subs.cnt; i++) {
+		if (net->sw_subs.subs[i].id == id) {
+			/* move last to the current position, decrease */
+			net->sw_subs.subs[i] =
+				net->sw_subs.subs[net->sw_subs.cnt - 1];
+			net->sw_subs.cnt--;
+			break;
 		}
 	}
 
-	return 0;
+	osal_mutex_unlock(net->sw_subs.lock);
 }
 
 /*******************************************************************************
  * Public
  ******************************************************************************/
 
-il_net_t *il_net_create(const char *port, unsigned int timeout)
+il_net_t *il_net_create(const char *port)
 {
 	il_net_t *net;
 	ser_opts_t sopts = SER_OPTS_INIT;
@@ -188,62 +378,103 @@ il_net_t *il_net_create(const char *port, unsigned int timeout)
 		return NULL;
 	}
 
-	if (!timeout) {
-		ilerr__set("Invalid timeout (zero)");
-		return NULL;
-	}
-
 	/* allocate net */
 	net = malloc(sizeof(*net));
 	if (!net) {
-		ilerr__set("Could not allocate network (%s)", strerror(errno));
+		ilerr__set("Network allocation failed");
 		return NULL;
 	}
 
-	net->rbuf_cnt = 0;
-
-#ifdef IL_THREADSAFE
 	net->lock = osal_mutex_create();
 	if (!net->lock) {
-		ilerr__set("Could not allocate network lock");
+		ilerr__set("Network lock allocation failed");
 		goto cleanup_net;
 	}
-#endif
+
+	/* initialize network state */
+	net->state_lock = osal_mutex_create();
+	if (!net->state_lock) {
+		ilerr__set("Network state lock allocation failed");
+		goto cleanup_lock;
+	}
+
+	net->state = IL_NET_STATE_OPERATIVE;
+
+	/* initialize synchronous transfers context */
+	net->sync.lock = osal_mutex_create();
+	if (!net->sync.lock) {
+		ilerr__set("Network sync lock allocation failed");
+		goto cleanup_state_lock;
+	}
+
+	net->sync.cond = osal_cond_create();
+	if (!net->sync.cond) {
+		ilerr__set("Network sync condition allocation failed");
+		goto cleanup_sync_lock;
+	}
+
+	net->sync.complete = 1;
+
+	/* initialize statusword update subscribers */
+	net->sw_subs.subs = malloc(sizeof(*net->sw_subs.subs) * SW_SUBS_SZ_DEF);
+	if (!net->sw_subs.subs) {
+		ilerr__set("Network statusword subscribers allocation failed");
+		goto cleanup_sync_cond;
+	}
+
+	net->sw_subs.lock = osal_mutex_create();
+	if (!net->sw_subs.lock) {
+		ilerr__set("Network statusword lock allocation failed");
+		goto cleanup_sw_subs_subs;
+	}
+
+	net->sw_subs.cnt = 0;
+	net->sw_subs.sz = SW_SUBS_SZ_DEF;
 
 	/* allocate serial port */
 	net->ser = ser_create();
 	if (!net->ser) {
-		ilerr__set("Could not create serial port(%s)", sererr_last());
-		goto cleanup_lock;
+		ilerr__set("Serial port allocation failed (%s)", sererr_last());
+		goto cleanup_sw_subs_lock;
 	}
 
 	/* open serial port */
 	sopts.port = port;
 	sopts.baudrate = BAUDRATE_DEF;
-	sopts.timeouts.rd = timeout;
+	sopts.timeouts.rd = TIMEOUT_RD_DEF;
 	sopts.timeouts.wr = TIMEOUT_WR_DEF;
 
 	r = ser_open(net->ser, &sopts);
 	if (r < 0) {
-		ilerr__set("Could not open port (%s)", sererr_last());
+		ilerr__set("Serial port open failed (%s)", sererr_last());
 		goto cleanup_ser;
 	}
 
 	/* QUIRK: drive may not be operative immediately */
-	osal_sleep_ms(INIT_WAIT_TIME);
+	osal_clock_sleep_ms(INIT_WAIT_TIME);
 
 	/* send ascii message to force binary */
 	r = ser_write(net->ser, MSG_A2B, sizeof(MSG_A2B) - 1, NULL);
 	if (r < 0) {
-		ilerr__set("Could not boadcast ascii to binary message (%s)",
-			   sererr_last());
+		ilerr__set("Binary configuration failed (%s)", sererr_last());
 		goto close_ser;
 	}
 
 	/* send the same message in binary (will flush if already on binary) */
 	val = 1;
-	(void)il_net__send(net, 0, UARTCFG_BIN_IDX, UARTCFG_BIN_SIDX, &val,
-			   sizeof(val));
+	r = il_net__write(net, 0, UARTCFG_BIN_IDX, UARTCFG_BIN_SIDX, &val,
+			  sizeof(val));
+	if (r < 0)
+		goto close_ser;
+
+	/* start listener thread */
+	net->stop = 0;
+
+	net->listener = osal_thread_create(listener, net);
+	if (!net->listener) {
+		ilerr__set("Listener thread creation failed");
+		goto close_ser;
+	}
 
 	return net;
 
@@ -253,12 +484,23 @@ close_ser:
 cleanup_ser:
 	ser_destroy(net->ser);
 
+cleanup_sw_subs_lock:
+	osal_mutex_destroy(net->sw_subs.lock);
+
+cleanup_sw_subs_subs:
+	free(net->sw_subs.subs);
+
+cleanup_sync_cond:
+	osal_cond_destroy(net->sync.cond);
+
+cleanup_sync_lock:
+	osal_mutex_destroy(net->sync.lock);
+
+cleanup_state_lock:
+	osal_mutex_destroy(net->state_lock);
+
 cleanup_lock:
-#ifdef IL_THREADSAFE
 	osal_mutex_destroy(net->lock);
-#else
-	goto cleanup_net;
-#endif
 
 cleanup_net:
 	free(net);
@@ -273,14 +515,37 @@ void il_net_destroy(il_net_t *net)
 		return;
 
 	/* free resources */
+	net->stop = 1;
+	osal_thread_join(net->listener, NULL);
+
 	ser_close(net->ser);
 
-#ifdef IL_THREADSAFE
+	osal_mutex_destroy(net->sw_subs.lock);
+	free(net->sw_subs.subs);
+
+	osal_cond_destroy(net->sync.cond);
+	osal_mutex_destroy(net->sync.lock);
+
+	osal_mutex_destroy(net->state_lock);
+
 	osal_mutex_destroy(net->lock);
-#endif
 
 	ser_destroy(net->ser);
 	free(net);
+}
+
+il_net_state_t il_net_state_get(il_net_t *net)
+{
+	il_net_state_t state;
+
+	if (!net)
+		return IL_NET_STATE_UNKNOWN;
+
+	osal_mutex_lock(net->state_lock);
+	state = net->state;
+	osal_mutex_unlock(net->state_lock);
+
+	return state;
 }
 
 il_net_dev_list_t *il_net_dev_list_get()
@@ -338,7 +603,7 @@ il_net_dev_mon_t *il_net_dev_mon_create()
 	/* allocate monitor */
 	mon = malloc(sizeof(*mon));
 	if (!mon) {
-		ilerr__set("Could not allocate monitor (%s)", strerror(errno));
+		ilerr__set("Monitor allocation failed");
 		return NULL;
 	}
 
@@ -403,16 +668,16 @@ void il_net_dev_mon_destroy(il_net_dev_mon_t *mon)
 	free(mon);
 }
 
-il_net_nodes_list_t *il_net_nodes_list_get(il_net_t *net,
-					   il_net_nodes_on_found_t on_found,
-					   void *ctx)
+il_net_axes_list_t *il_net_axes_list_get(il_net_t *net,
+					 il_net_axes_on_found_t on_found,
+					 void *ctx)
 {
 	int r;
 	uint8_t id;
-	size_t recvd;
+	il_frame_t frame;
 
-	il_net_nodes_list_t *lst = NULL;
-	il_net_nodes_list_t *prev;
+	il_net_axes_list_t *lst = NULL;
+	il_net_axes_list_t *prev;
 
 	/* validate network */
 	if (!net) {
@@ -420,34 +685,48 @@ il_net_nodes_list_t *il_net_nodes_list_get(il_net_t *net,
 		return NULL;
 	}
 
-	il_net__lock(net);
+	/* check network state */
+	if (il_net_state_get(net) != IL_NET_STATE_OPERATIVE) {
+		ilerr__set("Network is not operative");
+		return NULL;
+	}
 
-	/* QUIRK: firmware may send an improper binary message after sending a
-	 * broadcast for the first time. The reason why this happens is unclear,
-	 * but a dirty way to fix it is to read twice (ignoring the first try).
-	 */
-	r = il_net__send(net, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, NULL, 0);
-	if (r < 0)
+	osal_mutex_lock(net->lock);
+
+	/* register synchronous transfer */
+	osal_mutex_lock(net->sync.lock);
+
+	net->sync.id = 0;
+	net->sync.idx = UARTCFG_ID_IDX;
+	net->sync.sidx = UARTCFG_ID_SIDX;
+	net->sync.buf = &id;
+	net->sync.sz = sizeof(id);
+	net->sync.recvd = NULL;
+	net->sync.complete = 0;
+
+	il_frame__init(&frame, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, NULL, 0);
+
+	/* broadcast "read node id" */
+	r = ser_write(net->ser, frame.buf, frame.sz, NULL);
+	if (r < 0) {
+		ilerr__ser(r);
 		goto unlock;
+	}
 
-	while (il_net__recv(net, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, &id,
-			    sizeof(id), &recvd) == 0);
+	osal_mutex_unlock(net->sync.lock);
 
-	/* broadcast "read node id" message */
-	r = il_net__send(net, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, NULL, 0);
-	if (r < 0)
-		goto unlock;
+	/* wait for responses */
+	osal_mutex_lock(net->sync.lock);
 
-	/* read any response until error (likely timeout) */
 	while (r == 0) {
-		r = il_net__recv(net, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, &id,
-				 sizeof(id), &recvd);
-		if ((r == 0) && (recvd > 0)) {
+		if (net->sync.complete) {
+			net->sync.complete = 0;
+
 			/* allocate new list entry */
 			prev = lst;
 			lst = malloc(sizeof(*lst));
 			if (!lst) {
-				il_net_nodes_list_destroy(prev);
+				il_net_axes_list_destroy(prev);
 				break;
 			}
 
@@ -456,22 +735,27 @@ il_net_nodes_list_t *il_net_nodes_list_get(il_net_t *net,
 
 			if (on_found)
 				on_found(ctx, id);
+		} else {
+			r = osal_cond_wait(net->sync.cond, net->sync.lock,
+					   SCAN_TIMEOUT);
 		}
 	}
 
+	osal_mutex_unlock(net->sync.lock);
+
 unlock:
-	il_net__unlock(net);
+	osal_mutex_unlock(net->lock);
 
 	return lst;
 }
 
-void il_net_nodes_list_destroy(il_net_nodes_list_t *lst)
+void il_net_axes_list_destroy(il_net_axes_list_t *lst)
 {
-	il_net_nodes_list_t *curr;
+	il_net_axes_list_t *curr;
 
 	curr = lst;
 	while (curr) {
-		il_net_nodes_list_t *tmp;
+		il_net_axes_list_t *tmp;
 
 		tmp = curr->next;
 		free(curr);

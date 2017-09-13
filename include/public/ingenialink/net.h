@@ -40,8 +40,15 @@ IL_BEGIN_DECL
 /** IngeniaLink network instance. */
 typedef struct il_net il_net_t;
 
-/** Default IngeniaLink communications timeout (ms). */
-#define IL_NET_TIMEOUT_DEF	100
+/** IngeniaLink network state. */
+typedef enum {
+	/** Operative. */
+	IL_NET_STATE_OPERATIVE,
+	/** Faulty (eg disconnected or non-operative). */
+	IL_NET_STATE_FAULTY,
+	/** Unknown. */
+	IL_NET_STATE_UNKNOWN
+} il_net_state_t;
 
 /** IngeniaLink port maximum size. */
 #define IL_NET_PORT_SZ		128U
@@ -54,16 +61,16 @@ typedef struct il_net_dev_list {
 	struct il_net_dev_list *next;
 } il_net_dev_list_t;
 
-/** IngeniaLink network nodes list. */
-typedef struct il_net_nodes_list {
+/** IngeniaLink network axes list. */
+typedef struct il_net_axes_list {
 	/** Node id. */
 	uint8_t id;
 	/** Next node. */
-	struct il_net_nodes_list *next;
-} il_net_nodes_list_t;
+	struct il_net_axes_list *next;
+} il_net_axes_list_t;
 
 /** IngeniaLink node found callback. */
-typedef void (*il_net_nodes_on_found_t)(void *ctx, uint8_t id);
+typedef void (*il_net_axes_on_found_t)(void *ctx, uint8_t id);
 
 /** Device monitor event types. */
 typedef enum {
@@ -85,24 +92,30 @@ typedef void (*il_net_dev_on_evt_t)(void *ctx, il_net_dev_evt_t evt,
  *
  * @param [in] port
  *	Port.
- * @param [in] timeout
- *	Communications timeout (ms, must be > 0).
  *
  * @return
  *	  Network instance (NULL if it could not be created).
  */
-IL_EXPORT il_net_t *il_net_create(const char *port, unsigned int timeout);
+IL_EXPORT il_net_t *il_net_create(const char *port);
 
 /**
  * Destroy an IngeniaLink network instance.
- *
- * @note
- *	If the network is up, it will be brought down before destroying it.
  *
  * @param [in] net
  *	  IngeniaLink network instance.
  */
 IL_EXPORT void il_net_destroy(il_net_t *net);
+
+/**
+ * Obtain IngeniaLink network state.
+ *
+ * @param [in] net
+ *	  IngeniaLink network instance.
+ *
+ * @returns
+ *	Network state (IL_NET_STATE_UNKNOWN is net is not valid).
+ */
+IL_EXPORT il_net_state_t il_net_state_get(il_net_t *net);
 
 /**
  * Obtain IngeniaLink network devices list.
@@ -176,10 +189,10 @@ IL_EXPORT void il_net_dev_mon_stop(il_net_dev_mon_t *mon);
 IL_EXPORT void il_net_dev_mon_destroy(il_net_dev_mon_t *mon);
 
 /**
- * Obtain IngeniaLink network nodes list.
+ * Obtain IngeniaLink network axes list.
  *
  * @note
- *	A callback can be given to obtain *real-time* nodes information. This
+ *	A callback can be given to obtain *real-time* axes information. This
  *	may be useful for GUIs.
  *
  * @param [in] net
@@ -190,28 +203,28 @@ IL_EXPORT void il_net_dev_mon_destroy(il_net_dev_mon_t *mon);
  *	Callback context (optional).
  *
  * @returns
- *	IngeniaLink network nodes list (NULL if none are found or any error
+ *	IngeniaLink network axes list (NULL if none are found or any error
  *	occurs).
  *
  * @see
- *	il_net_nodes_list_destroy
+ *	il_net_axes_list_destroy
  */
-IL_EXPORT il_net_nodes_list_t *il_net_nodes_list_get(
-		il_net_t *net, il_net_nodes_on_found_t on_found, void *ctx);
+IL_EXPORT il_net_axes_list_t *il_net_axes_list_get(
+		il_net_t *net, il_net_axes_on_found_t on_found, void *ctx);
 
 /**
- * Destroy IngeniaLink network nodes list.
+ * Destroy IngeniaLink network axes list.
  *
  * @param [in, out] lst
- *	IngeniaLink network nodes list.
+ *	IngeniaLink network axes list.
  *
  * @see
- *	il_net_nodes_list_get
+ *	il_net_axes_list_get
  */
-IL_EXPORT void il_net_nodes_list_destroy(il_net_nodes_list_t *lst);
+IL_EXPORT void il_net_axes_list_destroy(il_net_axes_list_t *lst);
 
-/** Utility macro to iterate over a list of IngeniaLink network nodes list. */
-#define il_net_nodes_list_foreach(item, lst) \
+/** Utility macro to iterate over a list of IngeniaLink network axes list. */
+#define il_net_axes_list_foreach(item, lst) \
 	for ((item) = (lst); (item); (item) = (item)->next)
 
 /** @} */

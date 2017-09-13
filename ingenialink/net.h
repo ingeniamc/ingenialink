@@ -28,9 +28,7 @@
 #include "ingenialink/frame.h"
 #include "ingenialink/net.h"
 
-#ifdef IL_THREADSAFE
-#  include "osal/mutex.h"
-#endif
+#include "osal/osal.h"
 
 #define _SER_NO_LEGACY_STDINT
 #include <sercomm/sercomm.h>
@@ -38,11 +36,17 @@
 /** Default baudrate. */
 #define BAUDRATE_DEF		115200
 
+/** Default read timeout (ms) */
+#define TIMEOUT_RD_DEF		1000
+
 /** Default write timeout (ms) */
 #define TIMEOUT_WR_DEF		1000
 
 /** Binary mode ON message (ASCII protocol). */
 #define MSG_A2B			"\r0 W 0x82000 1\r"
+
+/** Node scanner timeout (ms) */
+#define SCAN_TIMEOUT		1000
 
 /** UART node id (index) */
 #define UARTCFG_ID_IDX		0x2000
@@ -52,24 +56,90 @@
 
 /** UART configuration, binary mode (index). */
 #define UARTCFG_BIN_IDX		0x2000
+
 /** UART configuration, binary mode (subindex). */
 #define UARTCFG_BIN_SIDX	0x08
 
+/** Statusword (index). */
+#define STATUSWORD_IDX		0x6041
+
+/** Statusword (subindex). */
+#define STATUSWORD_SIDX		0x00
+
 /** Initialization wait time (ms). */
-#define INIT_WAIT_TIME		100
+#define INIT_WAIT_TIME		500
+
+/** Statusword subscribers default array size. */
+#define SW_SUBS_SZ_DEF		1
+
+/** IngeniaLink synchronous transfer context. */
+typedef struct {
+	/** Node ID. */
+	uint8_t id;
+	/** Index. */
+	uint16_t idx;
+	/** Subindex. */
+	uint8_t sidx;
+	/** Buffer. */
+	void *buf;
+	/** Buffer size. */
+	size_t sz;
+	/** Received bytes. */
+	size_t *recvd;
+	/** Completed flag. */
+	int complete;
+	/** Lock. */
+	osal_mutex_t *lock;
+	/** Completed condition variable. */
+	osal_cond_t *cond;
+} il_net_sync_t;
+
+/** IngeniaLink statusword update subscriber. */
+struct il_net_sw_subscriber {
+	/** Node ID. */
+	uint8_t id;
+	/** Callback. */
+	il_net_sw_subscriber_cb_t cb;
+	/** Callback context. */
+	void *ctx;
+};
+
+/**
+ * IngeniaLink statusword update subscribers.
+ *
+ * @note
+ *	This is implemented using a dynamic array so that traverse is more
+ *	efficient.
+ */
+typedef struct {
+	/** Array of subscribers. */
+	il_net_sw_subscriber_t *subs;
+	/** Array size. */
+	size_t sz;
+	/** Number of subscribers. */
+	size_t cnt;
+	/** Lock. */
+	osal_mutex_t *lock;
+} il_net_sw_subscriber_lst_t;
 
 /** IngeniaLink network. */
 struct il_net {
 	/** Serial communications channel */
 	ser_t *ser;
-	/** Reception buffer. */
-	uint8_t rbuf[IL_FRAME_MAX_SZ];
-	/** Buffer count. */
-	size_t rbuf_cnt;
-#ifdef IL_THREADSAFE
+	/** Network state. */
+	il_net_state_t state;
+	/** Network state lock. */
+	osal_mutex_t *state_lock;
+	/** Listener thread. */
+	osal_thread_t *listener;
+	/** Listener stop flag. */
+	int stop;
 	/** Network lock. */
 	osal_mutex_t *lock;
-#endif
+	/** Network synchronous transfers context. */
+	il_net_sync_t sync;
+	/** Statusword updates subcribers. */
+	il_net_sw_subscriber_lst_t sw_subs;
 };
 
 /** IngeniaLink network device monitor */

@@ -1,17 +1,19 @@
-# libingenialink - Communications library for Ingenia servodrives
+# libingenialink - Motion and communications library for Ingenia servodrives
 
 [![Build Status](https://travis-ci.org/ingeniamc/ingenialink.svg?branch=master)](https://travis-ci.org/ingeniamc/ingenialink)
 [![Build status](https://ci.appveyor.com/api/projects/status/wjysv351u0of92xt?svg=true)](https://ci.appveyor.com/project/gmarull/ingenialink)
 
-`libingenialink` is a portable, pure C implementation library for communicating
-with Ingenia drives via the IngeniaLink protocol.
+`libingenialink` is a portable, pure C implementation library for simple motion
+control tasks and communications with Ingenia drives.
 
 ## What it can do
 
 The library provides:
 
+* Simple motion control functions (homing, profile position, etc.)
 * Communications API for Ingenia drives using the IngeniaLink protocol
   (available on the USB/RS232/RS485 interfaces)
+* Register poller
 * Object oriented interface
 * Supports single link and daisy-chain topologies
 * Device listing and monitor
@@ -42,12 +44,9 @@ cmake --build _build
 
 The following build options are available:
 
-- `WITH_GITINFO` (OFF): When enabled, the current Git commit hash will be
-  included in version. This may be useful to trace installed development builds.
 - `WITH_EXAMPLES` (OFF): When enabled, the library usage example applications
   will be built.
 - `WITH_DOCS` (OFF): When enabled the API documentation can be built.
-- `WITH_THREADSAFE` (ON): When enabled, the communications will be thread-safe.
 - `WITH_PIC` (OFF): When enabled, generated code will be position independent.
   This may be useful if you want to embed ingenialink into a dynamic library.
 

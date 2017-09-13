@@ -46,22 +46,9 @@ endif()
 #-------------------------------------------------------------------------------
 # Build options
 
-option(WITH_GITINFO     "Include Git commit hash in version"      OFF)
 option(WITH_EXAMPLES    "Build library usage example apps"        OFF)
 option(WITH_DOCS        "Build library public API documentation"  OFF)
-option(WITH_THREADSAFE  "Make ingenialink thread-safe"            ON)
 option(WITH_PIC         "Generate position independent code"      OFF)
-
-if(WITH_GITINFO)
-  find_package(Git REQUIRED)
-
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE PROJECT_VERSION_EXTRA
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-endif()
 
 # Build a shared library by default
 if(NOT DEFINED BUILD_SHARED_LIBS)
@@ -82,26 +69,32 @@ configure_file("config.h.in" "${CMAKE_BINARY_DIR}/config.h")
 
 # Sources
 set(ingenialink_srcs
+  ingenialink/axis.c
   ingenialink/err.c
   ingenialink/frame.c
   ingenialink/net.c
-  ingenialink/node.c
+  ingenialink/poller.c
+  ingenialink/registers.c
   ingenialink/version.c
 )
 
 # Sources (osal)
 if(UNIX)
-  list(APPEND ingenialink_srcs osal/posix/sleep.c)
-
-  if(WITH_THREADSAFE)
-    list(APPEND ingenialink_srcs osal/posix/mutex.c)
-  endif()
+  list(APPEND ingenialink_srcs
+    osal/posix/clock.c
+    osal/posix/cond.c
+    osal/posix/mutex.c
+    osal/posix/thread.c
+    osal/posix/timer.c
+  )
 elseif(WIN32)
-  list(APPEND ingenialink_srcs osal/win/sleep.c)
-
-  if(WITH_THREADSAFE)
-    list(APPEND ingenialink_srcs osal/win/mutex.c)
-  endif()
+  list(APPEND ingenialink_srcs
+    osal/win/clock.c
+    osal/win/cond.c
+    osal/win/mutex.c
+    osal/win/thread.c
+    osal/win/timer.c
+  )
 else()
   message(FATAL_ERROR "Unsupported platform")
 endif()
@@ -127,17 +120,11 @@ target_include_directories(
 # Definitions (common)
 target_compile_definitions(ingenialink PRIVATE IL_BUILDING)
 
-# Definitions (conditional)
-if(WITH_THREADSAFE)
-  target_compile_definitions(ingenialink PRIVATE IL_THREADSAFE)
-endif()
-
 # Dependencies
 find_package(sercomm CONFIG REQUIRED)
 target_link_libraries(ingenialink PRIVATE sercomm)
 
-# Dependencies (conditional)
-if(WITH_THREADSAFE)
+if(UNIX)
   # FIX: disable TRY_RUN for pthreads when cross-compiling
   if(CMAKE_CROSSCOMPILING)
     set(THREADS_PTHREAD_ARG OFF)
@@ -153,7 +140,12 @@ endif()
 
 include(StyleCheck)
 if(STYLE_CHECK_AVAILABLE)
-  add_style_check("ingenialink/*" "osal/**/*" "include/**/*")
+  add_style_check(
+    "ingenialink/*.c"
+    "ingenialink/*.h"
+    "osal/**/*.c"
+    "osal/**/*.h"
+    "include/**/*.h")
 endif()
 
 #-------------------------------------------------------------------------------
@@ -269,12 +261,8 @@ endif()
 #-------------------------------------------------------------------------------
 # Packaging
 
-if(WITH_GITINFO)
-  set(PACKAGE_VERSION_EXTRA "-${PROJECT_VERSION_EXTRA}")
-endif()
-
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}${PACKAGE_VERSION_EXTRA}")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 
 if(WIN32)
   set(CPACK_GENERATOR "ZIP")

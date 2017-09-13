@@ -26,7 +26,7 @@
 #define PUBLIC_INGENIALINK_INGENIALINK_H_
 
 #include "err.h"
-#include "node.h"
+#include "poller.h"
 #include "version.h"
 
 /**

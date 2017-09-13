@@ -26,7 +26,7 @@
 #define PUBLIC_INGENIALINK_CONFIG_H_
 
 /** Library version. */
-#define IL_VERSION "${PROJECT_VERSION}${PROJECT_VERSION_EXTRA}"
+#define IL_VERSION "${PROJECT_VERSION}"
 
 /** Library is static. */
 #cmakedefine IL_STATIC

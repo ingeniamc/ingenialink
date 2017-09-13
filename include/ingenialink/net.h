@@ -27,14 +27,14 @@
 
 #include "public/ingenialink/net.h"
 
-/** Lock network. */
-void il_net__lock(il_net_t *net);
+/** Statusword updates subcriber. */
+typedef struct il_net_sw_subscriber il_net_sw_subscriber_t;
 
-/** Unlock network. */
-void il_net__unlock(il_net_t *net);
+/** Statusword updates subcriber callback. */
+typedef void (*il_net_sw_subscriber_cb_t)(void *ctx, uint16_t sw);
 
 /**
- * Send a frame.
+ * Write.
  *
  * @param [in] net
  *	IngeniaLink network.
@@ -52,11 +52,11 @@ void il_net__unlock(il_net_t *net);
  * @returns
  *	0 on success, error code otherwise.
  */
-int il_net__send(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		 const void *buf, size_t sz);
+int il_net__write(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
+		  const void *buf, size_t sz);
 
 /**
- * Receive a frame.
+ * Read.
  *
  * @param [in] net
  *	IngeniaLink network.
@@ -72,11 +72,41 @@ int il_net__send(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
  *	Data buffer size.
  * @param [out] recvd
  *	Actual number of received data bytes (optional).
+ * @param [in] timeout
+ *	Timeout (ms).
  *
  * @returns
  *	0 on success, error code otherwise.
  */
-int il_net__recv(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		 void *buf, size_t sz, size_t *recvd);
+int il_net__read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
+		 void *buf, size_t sz, size_t *recvd, int timeout);
+
+/**
+ * Subscribe to statusword updates.
+ *
+ * @param [in] net
+ *	IngeniaLink network.
+ * @param [in] id
+ *	Node ID.
+ * @param [in] cb
+ *	Callback.
+ * @param [in] ctx
+ *	Callback context.
+ *
+ * @returns
+ *	0 on success, error code otherwise.
+ */
+int il_net__sw_subscribe(il_net_t *net, uint8_t id,
+			 il_net_sw_subscriber_cb_t cb, void *ctx);
+
+/**
+ * Unubscribe to statusword updates.
+ *
+ * @param [in] net
+ *	IngeniaLink network.
+ * @param [in] id
+ *	Node ID.
+ */
+void il_net__sw_unsubscribe(il_net_t *net, uint8_t id);
 
 #endif

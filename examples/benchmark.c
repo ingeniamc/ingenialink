@@ -43,31 +43,40 @@ static int run(int loops, const char *port, uint8_t id, uint16_t idx,
 	int32_t r = 0;
 
 	il_net_t *net;
-	il_node_t *node;
+	il_axis_t *axis;
+	il_reg_t reg;
 
 	double elapsed;
 
 	/* create network */
-	net = il_net_create(port, IL_NET_TIMEOUT_DEF);
+	net = il_net_create(port);
 	if (!net) {
 		fprintf(stderr, "Could not create network: %s\n", ilerr_last());
 		r = 1;
 		goto out;
 	}
 
-	/* create node */
-	node = il_node_create(net, id);
-	if (!node) {
-		fprintf(stderr, "Could not create node: %s\n", ilerr_last());
+	/* create axis */
+	axis = il_axis_create(net, id, IL_AXIS_TIMEOUT_DEF);
+	if (!axis) {
+		fprintf(stderr, "Could not create axis: %s\n", ilerr_last());
 		goto cleanup_net;
 	}
 
 	/* run benchmark */
+	reg.idx = idx;
+	reg.sidx = sidx;
+	reg.dtype = IL_REG_DTYPE_S32;
+	reg.access = IL_REG_ACCESS_RO;
+	reg.phy = IL_REG_PHY_NONE;
+
 	benchmark_init(loops)
 	{
 		uint8_t buf[BUF_SZ];
+		/*double dbl;*/
 
-		r = il_node_read(node, idx, sidx, buf, sizeof(buf), NULL);
+		r = il_axis_raw_read(axis, &reg, buf, sizeof(buf), NULL);
+		/*r = il_axis_read_dbl(axis, &reg, &dbl);*/
 		if (r < 0) {
 			fprintf(stderr, "Error while reading: %s\n",
 				ilerr_last());
@@ -81,7 +90,7 @@ static int run(int loops, const char *port, uint8_t id, uint16_t idx,
 		       elapsed, ((double)loops / elapsed) * 1000.0);
 	}
 
-	il_node_destroy(node);
+	il_axis_destroy(axis);
 
 cleanup_net:
 	il_net_destroy(net);
@@ -100,7 +109,7 @@ int main(int argc, char **argv)
 
 	if (argc < 6) {
 		fprintf(stderr,
-			"Usage: benchmark LOOPS PORT NODE_ID INDEX SUBINDEX\n");
+			"Usage: benchmark LOOPS PORT AXIS_ID INDEX SUBINDEX\n");
 		return 1;
 	}
 
