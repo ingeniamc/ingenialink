@@ -472,7 +472,6 @@ il_axis_t *il_axis_create(il_net_t *net, uint8_t id, int timeout)
 	int r;
 
 	il_axis_t *axis;
-	il_units_t default_units;
 	uint16_t sw;
 
 	/* validate network */
@@ -498,12 +497,10 @@ il_axis_t *il_axis_create(il_net_t *net, uint8_t id, int timeout)
 	axis->id = id;
 	axis->timeout = timeout;
 
-	default_units.torque = IL_UNITS_TORQUE_NATIVE;
-	default_units.pos = IL_UNITS_POS_NATIVE;
-	default_units.vel = IL_UNITS_VEL_NATIVE;
-	default_units.acc = IL_UNITS_ACC_NATIVE;
-
-	il_axis_units_set(axis, &default_units);
+	axis->units.torque = IL_UNITS_TORQUE_NATIVE;
+	axis->units.pos = IL_UNITS_POS_NATIVE;
+	axis->units.vel = IL_UNITS_VEL_NATIVE;
+	axis->units.acc = IL_UNITS_ACC_NATIVE;
 
 	/* update axis config */
 	r = update_config(axis);
@@ -561,40 +558,68 @@ void il_axis_destroy(il_axis_t *axis)
 	free(axis);
 }
 
-int il_axis_units_set(il_axis_t *axis, const il_units_t *units)
+il_units_torque_t il_axis_units_torque_get(il_axis_t *axis)
 {
-	/* validate axis, units */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
+	if (!axis)
+		return IL_UNITS_TORQUE_NATIVE;
 
-	if (!units) {
-		ilerr__set("Invalid units (NULL)");
-		return IL_EFAULT;
-	}
-
-	memcpy(&axis->units, units, sizeof(axis->units));
-
-	return 0;
+	return axis->units.torque;
 }
 
-int il_axis_units_get(il_axis_t *axis, il_units_t *units)
+void il_axis_units_torque_set(il_axis_t *axis, il_units_torque_t units)
 {
-	/* validate axis, units */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
+	if (!axis)
+		return;
 
-	if (!units) {
-		ilerr__set("Invalid units (NULL)");
-		return IL_EFAULT;
-	}
+	axis->units.torque = units;
+}
 
-	memcpy(units, &axis->units, sizeof(*units));
+il_units_pos_t il_axis_units_pos_get(il_axis_t *axis)
+{
+	if (!axis)
+		return IL_UNITS_POS_NATIVE;
 
-	return 0;
+	return axis->units.pos;
+}
+
+void il_axis_units_pos_set(il_axis_t *axis, il_units_pos_t units)
+{
+	if (!axis)
+		return;
+
+	axis->units.pos = units;
+}
+
+il_units_vel_t il_axis_units_vel_get(il_axis_t *axis)
+{
+	if (!axis)
+		return IL_UNITS_VEL_NATIVE;
+
+	return axis->units.vel;
+}
+
+void il_axis_units_vel_set(il_axis_t *axis, il_units_vel_t units)
+{
+	if (!axis)
+		return;
+
+	axis->units.vel = units;
+}
+
+il_units_acc_t il_axis_units_acc_get(il_axis_t *axis)
+{
+	if (!axis)
+		return IL_UNITS_ACC_NATIVE;
+
+	return axis->units.acc;
+}
+
+void il_axis_units_acc_set(il_axis_t *axis, il_units_acc_t units)
+{
+	if (!axis)
+		return;
+
+	axis->units.acc = units;
 }
 
 int il_axis_raw_read(il_axis_t *axis, const il_reg_t *reg, void *buf, size_t sz,

@@ -69,6 +69,18 @@
 #define PWM_CONSTANT		65535
 #define RESOLVER_CONSTANT	65535
 
+/** Axis units. */
+typedef struct {
+	/** Torque. */
+	il_units_torque_t torque;
+	/** Position. */
+	il_units_pos_t pos;
+	/** Velocity. */
+	il_units_vel_t vel;
+	/** Acceleration. */
+	il_units_acc_t acc;
+} il_axis_units_t;
+
 /** Axis configuration. */
 typedef struct {
 	/** Rated torque (N). */
@@ -102,7 +114,7 @@ struct il_axis {
 	/** Communications timeout (ms). */
 	int timeout;
 	/** Units. */
-	il_units_t units;
+	il_axis_units_t units;
 	/** Configuration. */
 	il_axis_cfg_t cfg;
 	/** Statusword subscription. */

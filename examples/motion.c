@@ -22,13 +22,6 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	il_axis_t *axis;
 	il_poller_t *poller;
 
-	il_units_t units = {
-		.torque = IL_UNITS_TORQUE_MN,
-		.pos = IL_UNITS_POS_DEG,
-		.vel = IL_UNITS_VEL_DEG_S,
-		.acc = IL_UNITS_ACC_DEG_S2,
-	};
-
 	const il_reg_t IL_REG_POS_ACT = {
 		.idx = 0x6064, .sidx = 0x00, .dtype = IL_REG_DTYPE_S32,
 		.access = IL_REG_ACCESS_RW, .phy = IL_REG_PHY_POS
@@ -57,7 +50,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	}
 
 
-	il_axis_units_set(axis, &units);
+	il_axis_units_pos_set(axis, IL_UNITS_POS_DEG);
 
 	/* create poller */
 	poller = il_poller_create(axis, &IL_REG_POS_ACT, 2, 2000);

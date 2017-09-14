@@ -122,18 +122,6 @@ typedef enum {
 	IL_UNITS_ACC_M_S2,
 } il_units_acc_t;
 
-/** IngeniaLink units. */
-typedef struct {
-	/** Torque. */
-	il_units_torque_t torque;
-	/** Position. */
-	il_units_pos_t pos;
-	/** Velocity. */
-	il_units_vel_t vel;
-	/** Acceleration. */
-	il_units_acc_t acc;
-} il_units_t;
-
 /**
  * Create IngeniaLink axis instance.
  *
@@ -156,6 +144,91 @@ IL_EXPORT il_axis_t *il_axis_create(il_net_t *net, uint8_t id, int timeout);
  *	IngeniaLink axis instance.
  */
 IL_EXPORT void il_axis_destroy(il_axis_t *axis);
+
+/**
+ * Get the torque units.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ *
+ * @return
+ *	Torque units (IL_UNITS_TORQUE_NATIVE if axis is not valid).
+ */
+IL_EXPORT il_units_torque_t il_axis_units_torque_get(il_axis_t *axis);
+
+/**
+ * Set the torque units.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] units
+ *	Units.
+ */
+IL_EXPORT void il_axis_units_torque_set(il_axis_t *axis,
+					il_units_torque_t units);
+
+/**
+ * Get the position units.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ *
+ * @return
+ *	Position units (IL_UNITS_POS_NATIVE if axis is not valid).
+ */
+IL_EXPORT il_units_pos_t il_axis_units_pos_get(il_axis_t *axis);
+
+/**
+ * Set the position units.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] units
+ *	Units.
+ */
+IL_EXPORT void il_axis_units_pos_set(il_axis_t *axis, il_units_pos_t units);
+
+/**
+ * Get the velocity units.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ *
+ * @return
+ *	Velocity units (IL_UNITS_VEL_NATIVE if axis is not valid).
+ */
+IL_EXPORT il_units_vel_t il_axis_units_vel_get(il_axis_t *axis);
+
+/**
+ * Set the velocity units.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] units
+ *	Units.
+ */
+IL_EXPORT void il_axis_units_vel_set(il_axis_t *axis, il_units_vel_t units);
+
+/**
+ * Get the acceleration units.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ *
+ * @return
+ *	Acceleration units (IL_UNITS_ACC_NATIVE if axis is not valid).
+ */
+IL_EXPORT il_units_acc_t il_axis_units_acc_get(il_axis_t *axis);
+
+/**
+ * Set the acceleration units.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] units
+ *	Units.
+ */
+IL_EXPORT void il_axis_units_acc_set(il_axis_t *axis, il_units_acc_t units);
 
 /**
  * Read data from a register.
@@ -486,32 +559,6 @@ IL_EXPORT int il_axis_raw_write_s64(il_axis_t *axis, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_axis_write(il_axis_t *axis, const il_reg_t *reg, double val);
-
-/**
- * Set the operating units of an axis.
- *
- * @param [in] axis
- *	IngeniaLink axis.
- * @param [in] units
- *	Units.
- *
- * @returns
- *	0 on success, error code otherwise.
- */
-IL_EXPORT int il_axis_units_set(il_axis_t *axis, const il_units_t *units);
-
-/**
- * Obtain the operating units of an axis.
- *
- * @param [in] axis
- *	IngeniaLink axis.
- * @param [out] units
- *	Where current units will be stored.
- *
- * @returns
- *	0 on success, error code otherwise.
- */
-IL_EXPORT int il_axis_units_get(il_axis_t *axis, il_units_t *units);
 
 /**
  * Disable axis PDS.
