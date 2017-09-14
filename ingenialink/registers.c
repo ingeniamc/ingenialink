@@ -29,6 +29,22 @@
  ******************************************************************************/
 
 /* Vendor specific (Ingenia) */
+const il_reg_t IL_REG_PAIR_POLES = {
+	0x2301, 0x00, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+const il_reg_t IL_REG_FB_VEL_SENSOR = {
+	0x2310, 0x01, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+const il_reg_t IL_REG_FB_POS_SENSOR = {
+	0x2310, 0x03, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+const il_reg_t IL_REG_SSI_STURNBITS = {
+	0x2380, 0x05, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
 const il_reg_t IL_REG_MOTPARAM_PPITCH = {
 	0x2701, 0x03, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
 };

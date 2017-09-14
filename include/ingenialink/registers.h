@@ -31,6 +31,18 @@
  * Vendor specific (Ingenia)
  */
 
+/** Motor pair poles. */
+extern const il_reg_t IL_REG_PAIR_POLES;
+
+/** Feedbacks: velocity sensor. */
+extern const il_reg_t IL_REG_FB_VEL_SENSOR;
+
+/** Feedbacks: position sensor. */
+extern const il_reg_t IL_REG_FB_POS_SENSOR;
+
+/** SSI: single-turn bits. */
+extern const il_reg_t IL_REG_SSI_STURNBITS;
+
 /** Motor parameters: pole pitch. */
 extern const il_reg_t IL_REG_MOTPARAM_PPITCH;
 

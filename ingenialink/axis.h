@@ -42,6 +42,34 @@
 /** Set-point acknowledge timeout (ms). */
 #define SPACK_TIMEOUT		1000
 
+/*
+ * Types of velocity and position feedbacks and associated constants.
+ *
+ * References:
+ *	http://doc.ingeniamc.com/display/i14402/0x2310+-+Feedbacks
+ */
+#define FB_VEL_POS		0x00
+#define FB_VEL_TACHOMETER	0x01
+
+#define FB_POS_DIGITAL_ENCODER	0x00
+#define FB_POS_DIGITAL_HALLS	0x01
+#define FB_POS_ANALOG_HALLS	0x02
+#define FB_POS_ANALOG_INPUT	0x04
+#define FB_POS_SSI		0x05
+#define FB_POS_SINCOS		0x06
+#define FB_POS_PWM		0x07
+#define FB_POS_RESOLVER		0x08
+#define FB_POS_NONE		0x09
+#define FB_POS_SIMULATED	0x0B
+
+#define DIGITAL_HALLS_CONSTANT	6
+#define ANALOG_HALLS_CONSTANT	4096
+#define ANALOG_INPUT_CONSTANT	4096
+#define SINCOS_CONSTANT		1024
+#define PWM_CONSTANT		65535
+#define RESOLVER_CONSTANT	65535
+
+/** Axis configuration. */
 typedef struct {
 	/** Rated torque (N). */
 	double rated_torque;

@@ -162,6 +162,9 @@ static int sw_wait_value(il_axis_t *axis, uint16_t msk, uint16_t val,
 /**
  * Update axis configuration.
  *
+ * References:
+ *	http://doc.ingeniamc.com/display/EMCL/Position+units
+ *
  * @param [in] axis
  *	IngeniaLink axis.
  *
@@ -173,6 +176,7 @@ static int update_config(il_axis_t *axis)
 	int r;
 
 	uint32_t rated_torque, incrs, revs, ppitch;
+	uint8_t fb, ppoles, turnbits;
 
 	/* obtain rated torque (N) */
 	r = il_axis_raw_read_u32(axis, &IL_REG_RATED_TORQUE, &rated_torque);
@@ -181,25 +185,110 @@ static int update_config(il_axis_t *axis)
 
 	axis->cfg.rated_torque = (double)rated_torque;
 
-	/* FIXME: Assumes digital halls! */
 	/* compute position resolution (counts/rev) */
-	r = il_axis_raw_read_u32(axis, &IL_REG_PRES_ENC_INCR, &incrs);
+	r = il_axis_raw_read_u8(axis, &IL_REG_FB_POS_SENSOR, &fb);
 	if (r < 0)
 		return r;
 
-	r = il_axis_raw_read_u32(axis, &IL_REG_PRES_MOTOR_REVS, &revs);
-	if (r < 0)
-		return r;
+	switch (fb) {
+	case FB_POS_DIGITAL_ENCODER:
+		r = il_axis_raw_read_u32(axis, &IL_REG_PRES_ENC_INCR, &incrs);
+		if (r < 0)
+			return r;
 
-	axis->cfg.pos_res = (double)(incrs / revs);
+		r = il_axis_raw_read_u32(axis, &IL_REG_PRES_MOTOR_REVS, &revs);
+		if (r < 0)
+			return r;
+
+		axis->cfg.pos_res = (double)(incrs / revs);
+		break;
+
+	case FB_POS_DIGITAL_HALLS:
+		r = il_axis_raw_read_u8(axis, &IL_REG_PAIR_POLES, &ppoles);
+		if (r < 0)
+			return r;
+
+		axis->cfg.pos_res = (double)(ppoles * DIGITAL_HALLS_CONSTANT);
+		break;
+
+	case FB_POS_ANALOG_HALLS:
+		r = il_axis_raw_read_u8(axis, &IL_REG_PAIR_POLES, &ppoles);
+		if (r < 0)
+			return r;
+
+		axis->cfg.pos_res = (double)(ppoles * ANALOG_HALLS_CONSTANT);
+		break;
+
+	case FB_POS_ANALOG_INPUT:
+		r = il_axis_raw_read_u8(axis, &IL_REG_PAIR_POLES, &ppoles);
+		if (r < 0)
+			return r;
+
+		axis->cfg.pos_res = (double)(ppoles * ANALOG_INPUT_CONSTANT);
+		break;
+
+	case FB_POS_SINCOS:
+		r = il_axis_raw_read_u32(axis, &IL_REG_PRES_ENC_INCR, &incrs);
+		if (r < 0)
+			return r;
+
+		r = il_axis_raw_read_u32(axis, &IL_REG_PRES_MOTOR_REVS, &revs);
+		if (r < 0)
+			return r;
+
+		axis->cfg.pos_res = (double)((incrs / revs) * SINCOS_CONSTANT);
+		break;
+
+	case FB_POS_PWM:
+		axis->cfg.pos_res = PWM_CONSTANT;
+		break;
+
+	case FB_POS_RESOLVER:
+		axis->cfg.pos_res = RESOLVER_CONSTANT;
+		break;
+
+	case FB_POS_SSI:
+		r = il_axis_raw_read_u8(axis, &IL_REG_SSI_STURNBITS, &turnbits);
+		if (r < 0)
+			return r;
+
+		axis->cfg.pos_res = (double)(2 << turnbits);
+		break;
+
+	default:
+		axis->cfg.pos_res = 1.;
+	}
 
 	/* compute velocity resolution (counts/rev/s) */
-	axis->cfg.vel_res = axis->cfg.pos_res;
+	r = il_axis_raw_read_u8(axis, &IL_REG_FB_VEL_SENSOR, &fb);
+	if (r < 0)
+		return r;
 
-	/* compute acceleration resolution (counts/rev/s^2) */
+	switch (fb) {
+	case FB_VEL_POS:
+		axis->cfg.vel_res = axis->cfg.pos_res;
+		break;
+
+	case FB_VEL_TACHOMETER:
+		r = il_axis_raw_read_u32(axis, &IL_REG_VRES_ENC_INCR, &incrs);
+		if (r < 0)
+			return r;
+
+		r = il_axis_raw_read_u32(axis, &IL_REG_VRES_MOTOR_REVS, &revs);
+		if (r < 0)
+			return r;
+
+		axis->cfg.pos_res = (double)(incrs / revs);
+		break;
+
+	default:
+		axis->cfg.vel_res = 1.;
+	}
+
+	/* acceleration resolution, same as position (counts/rev/s^2) */
 	axis->cfg.acc_res = axis->cfg.pos_res;
 
-	/* store magnetic pole pitch */
+	/* store magnetic pole pitch (um -> m) */
 	r = il_axis_raw_read_u32(axis, &IL_REG_MOTPARAM_PPITCH, &ppitch);
 	if (r < 0)
 		return r;
