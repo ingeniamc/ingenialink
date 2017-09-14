@@ -6,6 +6,8 @@
 `libingenialink` is a portable, pure C implementation library for simple motion
 control tasks and communications with Ingenia drives.
 
+[![Ingenia Servodrives](https://s3.eu-central-1.amazonaws.com/ingeniamc-cdn/images/all-servodrives.png)](http://www.ingeniamc.com)
+
 ## What it can do
 
 The library provides:
