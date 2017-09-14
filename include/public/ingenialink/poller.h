@@ -86,11 +86,11 @@ IL_EXPORT int il_poller_start(il_poller_t *poller);
 IL_EXPORT void il_poller_stop(il_poller_t *poller);
 
 /**
- * Obtain a pointer to the current.
+ * Obtain current time and data vectors.
  *
  * @note
  *	Pollers use a double buffering mechanism, so you can access the data
- *	contained in the buffer safely.
+ *	contained in the buffer safely until next call to this function.
  *
  * @param [in] poller
  *	Poller instance.
