@@ -46,7 +46,7 @@
 #define MSG_A2B			"\r0 W 0x82000 1\r"
 
 /** Node scanner timeout (ms) */
-#define SCAN_TIMEOUT		1000
+#define SCAN_TIMEOUT		100
 
 /** UART node id (index) */
 #define UARTCFG_ID_IDX		0x2000
