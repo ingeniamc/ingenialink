@@ -1129,20 +1129,20 @@ int il_axis_position_set(il_axis_t *axis, double pos, int immediate,
 	if (r < 0)
 		return r;
 
-	/* wait for set-point acknowledge (1) */
+	return 0;
+}
+
+int il_axis_position_wait_ack(il_axis_t *axis, int timeout)
+{
+	int r;
+
+	/* wait for set-point acknowledge (->1->0) */
 	r = sw_wait_value(axis, IL_MC_PP_SW_SPACK, IL_MC_PP_SW_SPACK,
-			  SPACK_TIMEOUT);
+			  timeout);
 	if (r < 0)
 		return r;
 
-	/* clear set point (1->0) */
-	cmd = IL_MC_PDS_CMD_EO;
-	r = il_axis_raw_write_u16(axis, &IL_REG_CTL_WORD, cmd);
-	if (r < 0)
-		return r;
-
-	/* wait for set-point acknowledge clear (0) */
-	return sw_wait_value(axis, IL_MC_PP_SW_SPACK, 0, SPACK_TIMEOUT);
+	return sw_wait_value(axis, IL_MC_PP_SW_SPACK, 0, timeout);
 }
 
 int il_axis_velocity_get(il_axis_t *axis, double *vel)

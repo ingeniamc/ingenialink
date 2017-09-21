@@ -692,6 +692,24 @@ IL_EXPORT int il_axis_position_set(il_axis_t *axis, double pos, int immediate,
 				   int relative);
 
 /**
+ * Wait until the axis acknowledges a position.
+ *
+ * @note
+ *	This may only be useful for multi-point movements, where the ACK can be
+ *	kept high until positions buffer is empty. On any other case, ACK will
+ *	always be received.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] timeout
+ *	Timeout (ms).
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_axis_position_wait_ack(il_axis_t *axis, int timeout);
+
+/**
  * Get the actual axis velocity.
  *
  * @param [in] axis
