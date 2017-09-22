@@ -1136,6 +1136,12 @@ int il_axis_position_wait_ack(il_axis_t *axis, int timeout)
 {
 	int r;
 
+	/* validate axis */
+	if (!axis) {
+		ilerr__set("Invalid axis (NULL)");
+		return IL_EFAULT;
+	}
+
 	/* wait for set-point acknowledge (->1->0) */
 	r = sw_wait_value(axis, IL_MC_PP_SW_SPACK, IL_MC_PP_SW_SPACK,
 			  timeout);
