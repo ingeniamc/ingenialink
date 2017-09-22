@@ -199,6 +199,7 @@ int il_watcher_subscribe(il_watcher_t *watcher, const il_reg_t *reg, int period,
 			 il_watcher_subscriber_cb_t cb, void *ctx)
 {
 	int r = 0;
+	size_t i;
 
 	if (!watcher) {
 		ilerr__set("Invalid watcher (NULL)");
@@ -210,12 +211,16 @@ int il_watcher_subscribe(il_watcher_t *watcher, const il_reg_t *reg, int period,
 		return IL_EFAULT;
 	}
 
-	if (period < watcher->base_period) {
-		ilerr__set("Period is less than base period");
-		return IL_EINVAL;
-	}
-
 	osal_mutex_lock(watcher->subs.lock);
+
+	/* check if already subscribed */
+	for (i = 0; i < watcher->subs.cnt; i++) {
+		if (watcher->subs.subs[i].reg == reg) {
+			ilerr__set("Register already being watched");
+			r = IL_EALREADY;
+			goto unlock;
+		}
+	}
 
 	/* increase array if no space left */
 	if (watcher->subs.cnt == watcher->subs.sz) {
