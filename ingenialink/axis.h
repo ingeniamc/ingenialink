@@ -71,6 +71,8 @@
 
 /** Axis units. */
 typedef struct {
+	/** Lock. */
+	osal_mutex_t *lock;
 	/** Torque. */
 	il_units_torque_t torque;
 	/** Position. */

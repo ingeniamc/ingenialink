@@ -313,6 +313,8 @@ static double units_factor(il_axis_t *axis, const il_reg_t *reg)
 {
 	double factor;
 
+	osal_mutex_lock(axis->units.lock);
+
 	switch (reg->phy) {
 	case IL_REG_PHY_TORQUE:
 		switch (axis->units.torque) {
@@ -429,6 +431,8 @@ static double units_factor(il_axis_t *axis, const il_reg_t *reg)
 		break;
 	}
 
+	osal_mutex_unlock(axis->units.lock);
+
 	return factor;
 }
 
@@ -497,21 +501,27 @@ il_axis_t *il_axis_create(il_net_t *net, uint8_t id, int timeout)
 	axis->id = id;
 	axis->timeout = timeout;
 
+	/* configure units */
+	axis->units.lock = osal_mutex_create();
+	if (!axis->units.lock) {
+		ilerr__set("Units lock allocation failed");
+		goto cleanup_axis;
+	}
+
+	r = update_config(axis);
+	if (r < 0)
+		goto cleanup_axis;
+
 	axis->units.torque = IL_UNITS_TORQUE_NATIVE;
 	axis->units.pos = IL_UNITS_POS_NATIVE;
 	axis->units.vel = IL_UNITS_VEL_NATIVE;
 	axis->units.acc = IL_UNITS_ACC_NATIVE;
 
-	/* update axis config */
-	r = update_config(axis);
-	if (r < 0)
-		goto cleanup_axis;
-
-	/* configure statusword subcription */
+	/* configure statusword subscription */
 	axis->sw.lock = osal_mutex_create();
 	if (!axis->sw.lock) {
 		ilerr__set("Statusword subscriber lock allocation failed");
-		goto cleanup_axis;
+		goto cleanup_units_lock;
 	}
 
 	axis->sw.changed = osal_cond_create();
@@ -537,6 +547,9 @@ cleanup_sw_changed:
 cleanup_sw_lock:
 	osal_mutex_destroy(axis->sw.lock);
 
+cleanup_units_lock:
+	osal_mutex_destroy(axis->units.lock);
+
 cleanup_axis:
 	free(axis);
 
@@ -555,15 +568,23 @@ void il_axis_destroy(il_axis_t *axis)
 	osal_cond_destroy(axis->sw.changed);
 	osal_mutex_destroy(axis->sw.lock);
 
+	osal_mutex_destroy(axis->units.lock);
+
 	free(axis);
 }
 
 il_units_torque_t il_axis_units_torque_get(il_axis_t *axis)
 {
+	il_units_torque_t units;
+
 	if (!axis)
 		return IL_UNITS_TORQUE_NATIVE;
 
-	return axis->units.torque;
+	osal_mutex_lock(axis->units.lock);
+	units = axis->units.torque;
+	osal_mutex_unlock(axis->units.lock);
+
+	return units;
 }
 
 void il_axis_units_torque_set(il_axis_t *axis, il_units_torque_t units)
@@ -571,15 +592,23 @@ void il_axis_units_torque_set(il_axis_t *axis, il_units_torque_t units)
 	if (!axis)
 		return;
 
+	osal_mutex_lock(axis->units.lock);
 	axis->units.torque = units;
+	osal_mutex_unlock(axis->units.lock);
 }
 
 il_units_pos_t il_axis_units_pos_get(il_axis_t *axis)
 {
+	il_units_pos_t units;
+
 	if (!axis)
 		return IL_UNITS_POS_NATIVE;
 
-	return axis->units.pos;
+	osal_mutex_lock(axis->units.lock);
+	units = axis->units.pos;
+	osal_mutex_unlock(axis->units.lock);
+
+	return units;
 }
 
 void il_axis_units_pos_set(il_axis_t *axis, il_units_pos_t units)
@@ -587,15 +616,23 @@ void il_axis_units_pos_set(il_axis_t *axis, il_units_pos_t units)
 	if (!axis)
 		return;
 
+	osal_mutex_lock(axis->units.lock);
 	axis->units.pos = units;
+	osal_mutex_unlock(axis->units.lock);
 }
 
 il_units_vel_t il_axis_units_vel_get(il_axis_t *axis)
 {
+	il_units_vel_t units;
+
 	if (!axis)
 		return IL_UNITS_VEL_NATIVE;
 
-	return axis->units.vel;
+	osal_mutex_lock(axis->units.lock);
+	units = axis->units.vel;
+	osal_mutex_unlock(axis->units.lock);
+
+	return units;
 }
 
 void il_axis_units_vel_set(il_axis_t *axis, il_units_vel_t units)
@@ -603,15 +640,23 @@ void il_axis_units_vel_set(il_axis_t *axis, il_units_vel_t units)
 	if (!axis)
 		return;
 
+	osal_mutex_lock(axis->units.lock);
 	axis->units.vel = units;
+	osal_mutex_unlock(axis->units.lock);
 }
 
 il_units_acc_t il_axis_units_acc_get(il_axis_t *axis)
 {
+	il_units_acc_t units;
+
 	if (!axis)
 		return IL_UNITS_ACC_NATIVE;
 
-	return axis->units.acc;
+	osal_mutex_lock(axis->units.lock);
+	units = axis->units.acc;
+	osal_mutex_unlock(axis->units.lock);
+
+	return units;
 }
 
 void il_axis_units_acc_set(il_axis_t *axis, il_units_acc_t units)
@@ -619,7 +664,9 @@ void il_axis_units_acc_set(il_axis_t *axis, il_units_acc_t units)
 	if (!axis)
 		return;
 
+	osal_mutex_lock(axis->units.lock);
 	axis->units.acc = units;
+	osal_mutex_unlock(axis->units.lock);
 }
 
 int il_axis_raw_read(il_axis_t *axis, const il_reg_t *reg, void *buf, size_t sz,
