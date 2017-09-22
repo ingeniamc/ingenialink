@@ -76,6 +76,7 @@ set(ingenialink_srcs
   ingenialink/poller.c
   ingenialink/registers.c
   ingenialink/version.c
+  ingenialink/watcher.c
 )
 
 # Sources (osal)

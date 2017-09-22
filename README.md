@@ -15,7 +15,7 @@ The library provides:
 * Simple motion control functions (homing, profile position, etc.)
 * Communications API for Ingenia drives using the IngeniaLink protocol
   (available on the USB/RS232/RS485 interfaces)
-* Register poller
+* Register poller and watcher
 * Object oriented interface
 * Supports single link and daisy-chain topologies
 * Device listing and monitor

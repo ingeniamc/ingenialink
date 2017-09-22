@@ -28,6 +28,7 @@
 #include "err.h"
 #include "poller.h"
 #include "version.h"
+#include "watcher.h"
 
 /**
  * @file ingenialink/ingenialink.h
