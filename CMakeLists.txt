@@ -27,7 +27,7 @@
 # General
 
 cmake_minimum_required(VERSION 3.0)
-project(ingenialink LANGUAGES C VERSION 1.1.1)
+project(ingenialink LANGUAGES C VERSION 2.0.0)
 
 set(CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake
