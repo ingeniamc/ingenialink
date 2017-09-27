@@ -706,16 +706,36 @@ il_net_axes_list_t *il_net_axes_list_get(il_net_t *net,
 
 	il_frame__init(&frame, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, NULL, 0);
 
-	/* broadcast "read node id" */
+	/* QUIRK: ignore first run, as on cold-boot firmware may issue
+	 * improperly formatted binary messages, leading to no axes found.
+	 */
 	r = ser_write(net->ser, frame.buf, frame.sz, NULL);
 	if (r < 0) {
 		ilerr__ser(r);
-		goto unlock;
+		goto sync_unlock;
 	}
 
 	osal_mutex_unlock(net->sync.lock);
+	osal_mutex_lock(net->sync.lock);
 
-	/* wait for responses */
+	while (r == 0) {
+		if (net->sync.complete)
+			net->sync.complete = 0;
+		else
+			r = osal_cond_wait(net->sync.cond, net->sync.lock,
+					   SCAN_TIMEOUT);
+	}
+
+	/* second try */
+	net->sync.complete = 0;
+
+	r = ser_write(net->ser, frame.buf, frame.sz, NULL);
+	if (r < 0) {
+		ilerr__ser(r);
+		goto sync_unlock;
+	}
+
+	osal_mutex_unlock(net->sync.lock);
 	osal_mutex_lock(net->sync.lock);
 
 	while (r == 0) {
@@ -741,9 +761,9 @@ il_net_axes_list_t *il_net_axes_list_get(il_net_t *net,
 		}
 	}
 
+sync_unlock:
 	osal_mutex_unlock(net->sync.lock);
 
-unlock:
 	osal_mutex_unlock(net->lock);
 
 	return lst;
