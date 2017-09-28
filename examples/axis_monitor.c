@@ -1,5 +1,5 @@
 /**
- * @example monitor.c
+ * @example axis_monitor.c
  *
  * This example monitors the connection of IngeniaLink devices/axes.
  */

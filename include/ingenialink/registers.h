@@ -46,6 +46,66 @@ extern const il_reg_t IL_REG_SSI_STURNBITS;
 /** Motor parameters: pole pitch. */
 extern const il_reg_t IL_REG_MOTPARAM_PPITCH;
 
+/** Monitor config: sampling rage (period). */
+extern const il_reg_t IL_REG_MONITOR_CFG_T_S;
+
+/** Monitor config: enable mode. */
+extern const il_reg_t IL_REG_MONITOR_CFG_ENABLE;
+
+/** Monitor config: trigger delay in samples. */
+extern const il_reg_t IL_REG_MONITOR_CFG_DELAY_SAMPLES;
+
+/** Monitor result: max entry number. */
+extern const il_reg_t IL_REG_MONITOR_RESULT_SZ;
+
+/** Monitor result: filled entry values. */
+extern const il_reg_t IL_REG_MONITOR_RESULT_FILLED;
+
+/** Monitor result: filled entry values. */
+extern const il_reg_t IL_REG_MONITOR_RESULT_ENTRY;
+
+/** Monitor result: actual entry 1. */
+extern const il_reg_t IL_REG_MONITOR_RESULT_CH_1;
+
+/** Monitor result: actual entry 2. */
+extern const il_reg_t IL_REG_MONITOR_RESULT_CH_2;
+
+/** Monitor result: actual entry 3. */
+extern const il_reg_t IL_REG_MONITOR_RESULT_CH_3;
+
+/** Monitor result: actual entry 4. */
+extern const il_reg_t IL_REG_MONITOR_RESULT_CH_4;
+
+/** Monitor mapping: channel 1. */
+extern const il_reg_t IL_REG_MONITOR_MAP_CH_1;
+
+/** Monitor mapping: channel 2. */
+extern const il_reg_t IL_REG_MONITOR_MAP_CH_2;
+
+/** Monitor mapping: channel 3. */
+extern const il_reg_t IL_REG_MONITOR_MAP_CH_3;
+
+/** Monitor mapping: channel 4. */
+extern const il_reg_t IL_REG_MONITOR_MAP_CH_4;
+
+/** Monitor trigger, mode. */
+extern const il_reg_t IL_REG_MONITOR_TRIG_MODE;
+
+/** Monitor trigger, source register. */
+extern const il_reg_t IL_REG_MONITOR_TRIG_SRC;
+
+/** Monitor trigger, positive threshold. */
+extern const il_reg_t IL_REG_MONITOR_TRIG_TH_POS;
+
+/** Monitor trigger, negative threshold. */
+extern const il_reg_t IL_REG_MONITOR_TRIG_TH_NEG;
+
+/** Monitor trigger, digital input mask. */
+extern const il_reg_t IL_REG_MONITOR_TRIG_DIN_MSK;
+
+/** Monitor trigger, delay in samples. */
+extern const il_reg_t IL_REG_MONITOR_TRIG_DELAY;
+
 /*
  * CiA 402
  */

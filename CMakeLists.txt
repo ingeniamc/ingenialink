@@ -72,6 +72,7 @@ set(ingenialink_srcs
   ingenialink/axis.c
   ingenialink/err.c
   ingenialink/frame.c
+  ingenialink/monitor.c
   ingenialink/net.c
   ingenialink/poller.c
   ingenialink/registers.c

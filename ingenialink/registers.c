@@ -49,6 +49,106 @@ const il_reg_t IL_REG_MOTPARAM_PPITCH = {
 	0x2701, 0x03, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
 };
 
+/** Monitor config: sampling rage (period). */
+const il_reg_t IL_REG_MONITOR_CFG_T_S = {
+	0x2c50, 0x01, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor config: enable mode. */
+const il_reg_t IL_REG_MONITOR_CFG_ENABLE = {
+	0x2c50, 0x02, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor config: trigger delay in samples. */
+const il_reg_t IL_REG_MONITOR_CFG_DELAY_SAMPLES = {
+	0x2c50, 0x03, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor result: max entry number. */
+const il_reg_t IL_REG_MONITOR_RESULT_SZ = {
+	0x2c51, 0x01, IL_REG_DTYPE_U16, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
+};
+
+/** Monitor result: filled entry values. */
+const il_reg_t IL_REG_MONITOR_RESULT_FILLED = {
+	0x2c51, 0x02, IL_REG_DTYPE_U16, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
+};
+
+/** Monitor result: filled entry values. */
+const il_reg_t IL_REG_MONITOR_RESULT_ENTRY = {
+	0x2c51, 0x03, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor result: actual entry 1. */
+const il_reg_t IL_REG_MONITOR_RESULT_CH_1 = {
+	0x2c51, 0x04, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
+};
+
+/** Monitor result: actual entry 2. */
+const il_reg_t IL_REG_MONITOR_RESULT_CH_2 = {
+	0x2c51, 0x05, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
+};
+
+/** Monitor result: actual entry 3. */
+const il_reg_t IL_REG_MONITOR_RESULT_CH_3 = {
+	0x2c51, 0x06, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
+};
+
+/** Monitor result: actual entry 4. */
+const il_reg_t IL_REG_MONITOR_RESULT_CH_4 = {
+	0x2c51, 0x07, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
+};
+
+/** Monitor mapping: channel 1. */
+const il_reg_t IL_REG_MONITOR_MAP_CH_1 = {
+	0x2c52, 0x01, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor mapping: channel 2. */
+const il_reg_t IL_REG_MONITOR_MAP_CH_2 = {
+	0x2c52, 0x02, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor mapping: channel 3. */
+const il_reg_t IL_REG_MONITOR_MAP_CH_3 = {
+	0x2c52, 0x03, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor mapping: channel 4. */
+const il_reg_t IL_REG_MONITOR_MAP_CH_4 = {
+	0x2c52, 0x04, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor trigger, mode. */
+const il_reg_t IL_REG_MONITOR_TRIG_MODE = {
+	0x2c55, 0x01, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor trigger, source register. */
+const il_reg_t IL_REG_MONITOR_TRIG_SRC = {
+	0x2c55, 0x02, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor trigger, positive threshold. */
+const il_reg_t IL_REG_MONITOR_TRIG_TH_POS = {
+	0x2c55, 0x03, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor trigger, negative threshold. */
+const il_reg_t IL_REG_MONITOR_TRIG_TH_NEG = {
+	0x2c55, 0x04, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor trigger, digital input mask. */
+const il_reg_t IL_REG_MONITOR_TRIG_DIN_MSK = {
+	0x2c55, 0x05, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+/** Monitor trigger, delay in samples. */
+const il_reg_t IL_REG_MONITOR_TRIG_DELAY = {
+	0x2c55, 0x06, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
 /* CiA 402 */
 const il_reg_t IL_REG_CTL_WORD = {
 	0x6040, 0x00, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
