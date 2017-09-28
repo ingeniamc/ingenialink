@@ -299,144 +299,6 @@ static int update_config(il_axis_t *axis)
 }
 
 /**
- * Obtain the units scale factor.
- *
- * @param [in] axis
- *	IngeniaLink axis.
- * @param [in] reg
- *	Register.
- *
- * @return
- *	Scale factor.
- */
-static double units_factor(il_axis_t *axis, const il_reg_t *reg)
-{
-	double factor;
-
-	osal_mutex_lock(axis->units.lock);
-
-	switch (reg->phy) {
-	case IL_REG_PHY_TORQUE:
-		switch (axis->units.torque) {
-		case IL_UNITS_TORQUE_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_TORQUE_MN:
-			factor = axis->cfg.rated_torque / 1000000.;
-			break;
-		case IL_UNITS_TORQUE_N:
-			factor = axis->cfg.rated_torque / 1000.;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	case IL_REG_PHY_POS:
-		switch (axis->units.pos) {
-		case IL_UNITS_POS_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_POS_REV:
-			factor = 1. / axis->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_RAD:
-			factor = 2. * M_PI / axis->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_DEG:
-			factor = 360. / axis->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_UM:
-			factor = 1000000. * axis->cfg.ppitch /
-				 axis->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_MM:
-			factor = 1000. * axis->cfg.ppitch / axis->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_M:
-			factor = 1. * axis->cfg.ppitch / axis->cfg.pos_res;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	case IL_REG_PHY_VEL:
-		switch (axis->units.vel) {
-		case IL_UNITS_VEL_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_VEL_RPS:
-			factor = 1. / axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_RPM:
-			factor = 60. / axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_RAD_S:
-			factor = 2. * M_PI / axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_DEG_S:
-			factor = 360. / axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_UM_S:
-			factor = 1000000. * axis->cfg.ppitch /
-				 axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_MM_S:
-			factor = 1000. * axis->cfg.ppitch / axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_M_S:
-			factor = 1. * axis->cfg.ppitch / axis->cfg.vel_res;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	case IL_REG_PHY_ACC:
-		switch (axis->units.acc) {
-		case IL_UNITS_ACC_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_ACC_REV_S2:
-			factor = 1. / axis->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_RAD_S2:
-			factor = 2. * M_PI / axis->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_DEG_S2:
-			factor = 360. / axis->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_UM_S2:
-			factor = 1000000. * axis->cfg.ppitch /
-				 axis->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_MM_S2:
-			factor = 1000. * axis->cfg.ppitch / axis->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_M_S2:
-			factor = 1. * axis->cfg.ppitch / axis->cfg.acc_res;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	default:
-		factor = 1.;
-		break;
-	}
-
-	osal_mutex_unlock(axis->units.lock);
-
-	return factor;
-}
-
-/**
  * Decode the PDS state.
  *
  * @param [in] sw
@@ -571,6 +433,144 @@ void il_axis_destroy(il_axis_t *axis)
 	osal_mutex_destroy(axis->units.lock);
 
 	free(axis);
+}
+
+/**
+ * Obtain the units scale factor.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] reg
+ *	Register.
+ *
+ * @return
+ *	Scale factor.
+ */
+double il_axis_units_factor(il_axis_t *axis, const il_reg_t *reg)
+{
+	double factor;
+
+	osal_mutex_lock(axis->units.lock);
+
+	switch (reg->phy) {
+	case IL_REG_PHY_TORQUE:
+		switch (axis->units.torque) {
+		case IL_UNITS_TORQUE_NATIVE:
+			factor = 1.;
+			break;
+		case IL_UNITS_TORQUE_MN:
+			factor = axis->cfg.rated_torque / 1000000.;
+			break;
+		case IL_UNITS_TORQUE_N:
+			factor = axis->cfg.rated_torque / 1000.;
+			break;
+		default:
+			factor = 1.;
+			break;
+		}
+
+		break;
+	case IL_REG_PHY_POS:
+		switch (axis->units.pos) {
+		case IL_UNITS_POS_NATIVE:
+			factor = 1.;
+			break;
+		case IL_UNITS_POS_REV:
+			factor = 1. / axis->cfg.pos_res;
+			break;
+		case IL_UNITS_POS_RAD:
+			factor = 2. * M_PI / axis->cfg.pos_res;
+			break;
+		case IL_UNITS_POS_DEG:
+			factor = 360. / axis->cfg.pos_res;
+			break;
+		case IL_UNITS_POS_UM:
+			factor = 1000000. * axis->cfg.ppitch /
+				 axis->cfg.pos_res;
+			break;
+		case IL_UNITS_POS_MM:
+			factor = 1000. * axis->cfg.ppitch / axis->cfg.pos_res;
+			break;
+		case IL_UNITS_POS_M:
+			factor = 1. * axis->cfg.ppitch / axis->cfg.pos_res;
+			break;
+		default:
+			factor = 1.;
+			break;
+		}
+
+		break;
+	case IL_REG_PHY_VEL:
+		switch (axis->units.vel) {
+		case IL_UNITS_VEL_NATIVE:
+			factor = 1.;
+			break;
+		case IL_UNITS_VEL_RPS:
+			factor = 1. / axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_RPM:
+			factor = 60. / axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_RAD_S:
+			factor = 2. * M_PI / axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_DEG_S:
+			factor = 360. / axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_UM_S:
+			factor = 1000000. * axis->cfg.ppitch /
+				 axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_MM_S:
+			factor = 1000. * axis->cfg.ppitch / axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_M_S:
+			factor = 1. * axis->cfg.ppitch / axis->cfg.vel_res;
+			break;
+		default:
+			factor = 1.;
+			break;
+		}
+
+		break;
+	case IL_REG_PHY_ACC:
+		switch (axis->units.acc) {
+		case IL_UNITS_ACC_NATIVE:
+			factor = 1.;
+			break;
+		case IL_UNITS_ACC_REV_S2:
+			factor = 1. / axis->cfg.acc_res;
+			break;
+		case IL_UNITS_ACC_RAD_S2:
+			factor = 2. * M_PI / axis->cfg.acc_res;
+			break;
+		case IL_UNITS_ACC_DEG_S2:
+			factor = 360. / axis->cfg.acc_res;
+			break;
+		case IL_UNITS_ACC_UM_S2:
+			factor = 1000000. * axis->cfg.ppitch /
+				 axis->cfg.acc_res;
+			break;
+		case IL_UNITS_ACC_MM_S2:
+			factor = 1000. * axis->cfg.ppitch / axis->cfg.acc_res;
+			break;
+		case IL_UNITS_ACC_M_S2:
+			factor = 1. * axis->cfg.ppitch / axis->cfg.acc_res;
+			break;
+		default:
+			factor = 1.;
+			break;
+		}
+
+		break;
+	default:
+		factor = 1.;
+		break;
+	}
+
+	osal_mutex_unlock(axis->units.lock);
+
+	return factor;
 }
 
 il_units_torque_t il_axis_units_torque_get(il_axis_t *axis)
@@ -837,7 +837,7 @@ int il_axis_read(il_axis_t *axis, const il_reg_t *reg, double *buf)
 		return r;
 
 	/* store converted value to buffer */
-	*buf = buf_ * units_factor(axis, reg);
+	*buf = buf_ * il_axis_units_factor(axis, reg);
 
 	return 0;
 }
@@ -945,7 +945,7 @@ int il_axis_write(il_axis_t *axis, const il_reg_t *reg, double val)
 	}
 
 	/* convert to native units */
-	val_ = (int64_t)(val / units_factor(axis, reg));
+	val_ = (int64_t)(val / il_axis_units_factor(axis, reg));
 
 	/* write using the appropriate native type */
 	switch (reg->dtype) {

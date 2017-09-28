@@ -146,6 +146,19 @@ IL_EXPORT il_axis_t *il_axis_create(il_net_t *net, uint8_t id, int timeout);
 IL_EXPORT void il_axis_destroy(il_axis_t *axis);
 
 /**
+ * Obtain the units scale factor associated with the given register.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] reg
+ *	Register.
+ *
+ * @return
+ *	Scale factor.
+ */
+IL_EXPORT double il_axis_units_factor(il_axis_t *axis, const il_reg_t *reg);
+
+/**
  * Get the torque units.
  *
  * @param [in] axis
