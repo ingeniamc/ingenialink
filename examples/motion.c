@@ -18,13 +18,14 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 {
 	int r = 0;
 
+	size_t i;
+
 	il_net_t *net;
 	il_axis_t *axis;
 	il_poller_t *poller;
 
 	const il_reg_t IL_REG_POS_ACT = {
-		.idx = 0x6064, .sidx = 0x00, .dtype = IL_REG_DTYPE_S32,
-		.access = IL_REG_ACCESS_RW, .phy = IL_REG_PHY_POS
+		0x6064, 0x00, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_POS
 	};
 
 	double *t, *d;
@@ -123,7 +124,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_poller;
 	}
 
-	for (size_t i = 1; i < 5; i++) {
+	for (i = 1; i < 5; i++) {
 		r = il_axis_position_set(axis, 90 * i, 0, 0);
 		if (r < 0) {
 			fprintf(stderr, "Could not set position: %s\n",
@@ -152,7 +153,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_poller;
 	}
 
-	for (size_t i = 0; i < cnt; i++)
+	for (i = 0; i < cnt; i++)
 		fprintf(log_f, "%f, %f\n", t[i], d[i]);
 
 	fclose(log_f);

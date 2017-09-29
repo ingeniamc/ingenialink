@@ -46,8 +46,6 @@ typedef enum {
 	IL_NET_STATE_OPERATIVE,
 	/** Faulty (eg disconnected or non-operative). */
 	IL_NET_STATE_FAULTY,
-	/** Unknown. */
-	IL_NET_STATE_UNKNOWN
 } il_net_state_t;
 
 /** IngeniaLink port maximum size. */
@@ -113,7 +111,7 @@ IL_EXPORT void il_net_destroy(il_net_t *net);
  *	  IngeniaLink network instance.
  *
  * @returns
- *	Network state (IL_NET_STATE_UNKNOWN is net is not valid).
+ *	Network state.
  */
 IL_EXPORT il_net_state_t il_net_state_get(il_net_t *net);
 

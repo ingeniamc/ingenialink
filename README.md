@@ -16,7 +16,7 @@ The library provides:
 * Communications API for Ingenia drives using the IngeniaLink protocol
   (available on the USB/RS232/RS485 interfaces)
 * Operate directly using units (e.g. degrees, rad/s, etc.)
-* Register poller
+* Register polling and monitoring
 * Object oriented interface
 * Supports single link and daisy-chain topologies
 * Device listing and monitor

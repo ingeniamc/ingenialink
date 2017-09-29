@@ -25,6 +25,7 @@
 #include "axis.h"
 #include "mc.h"
 
+#include <assert.h>
 #include <string.h>
 
 #define _USE_MATH_DEFINES
@@ -299,144 +300,6 @@ static int update_config(il_axis_t *axis)
 }
 
 /**
- * Obtain the units scale factor.
- *
- * @param [in] axis
- *	IngeniaLink axis.
- * @param [in] reg
- *	Register.
- *
- * @return
- *	Scale factor.
- */
-static double units_factor(il_axis_t *axis, const il_reg_t *reg)
-{
-	double factor;
-
-	osal_mutex_lock(axis->units.lock);
-
-	switch (reg->phy) {
-	case IL_REG_PHY_TORQUE:
-		switch (axis->units.torque) {
-		case IL_UNITS_TORQUE_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_TORQUE_MN:
-			factor = axis->cfg.rated_torque / 1000000.;
-			break;
-		case IL_UNITS_TORQUE_N:
-			factor = axis->cfg.rated_torque / 1000.;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	case IL_REG_PHY_POS:
-		switch (axis->units.pos) {
-		case IL_UNITS_POS_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_POS_REV:
-			factor = 1. / axis->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_RAD:
-			factor = 2. * M_PI / axis->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_DEG:
-			factor = 360. / axis->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_UM:
-			factor = 1000000. * axis->cfg.ppitch /
-				 axis->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_MM:
-			factor = 1000. * axis->cfg.ppitch / axis->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_M:
-			factor = 1. * axis->cfg.ppitch / axis->cfg.pos_res;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	case IL_REG_PHY_VEL:
-		switch (axis->units.vel) {
-		case IL_UNITS_VEL_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_VEL_RPS:
-			factor = 1. / axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_RPM:
-			factor = 60. / axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_RAD_S:
-			factor = 2. * M_PI / axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_DEG_S:
-			factor = 360. / axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_UM_S:
-			factor = 1000000. * axis->cfg.ppitch /
-				 axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_MM_S:
-			factor = 1000. * axis->cfg.ppitch / axis->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_M_S:
-			factor = 1. * axis->cfg.ppitch / axis->cfg.vel_res;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	case IL_REG_PHY_ACC:
-		switch (axis->units.acc) {
-		case IL_UNITS_ACC_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_ACC_REV_S2:
-			factor = 1. / axis->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_RAD_S2:
-			factor = 2. * M_PI / axis->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_DEG_S2:
-			factor = 360. / axis->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_UM_S2:
-			factor = 1000000. * axis->cfg.ppitch /
-				 axis->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_MM_S2:
-			factor = 1000. * axis->cfg.ppitch / axis->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_M_S2:
-			factor = 1. * axis->cfg.ppitch / axis->cfg.acc_res;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	default:
-		factor = 1.;
-		break;
-	}
-
-	osal_mutex_unlock(axis->units.lock);
-
-	return factor;
-}
-
-/**
  * Decode the PDS state.
  *
  * @param [in] sw
@@ -573,6 +436,144 @@ void il_axis_destroy(il_axis_t *axis)
 	free(axis);
 }
 
+/**
+ * Obtain the units scale factor.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] reg
+ *	Register.
+ *
+ * @return
+ *	Scale factor.
+ */
+double il_axis_units_factor(il_axis_t *axis, const il_reg_t *reg)
+{
+	double factor;
+
+	osal_mutex_lock(axis->units.lock);
+
+	switch (reg->phy) {
+	case IL_REG_PHY_TORQUE:
+		switch (axis->units.torque) {
+		case IL_UNITS_TORQUE_NATIVE:
+			factor = 1.;
+			break;
+		case IL_UNITS_TORQUE_MN:
+			factor = axis->cfg.rated_torque / 1000000.;
+			break;
+		case IL_UNITS_TORQUE_N:
+			factor = axis->cfg.rated_torque / 1000.;
+			break;
+		default:
+			factor = 1.;
+			break;
+		}
+
+		break;
+	case IL_REG_PHY_POS:
+		switch (axis->units.pos) {
+		case IL_UNITS_POS_NATIVE:
+			factor = 1.;
+			break;
+		case IL_UNITS_POS_REV:
+			factor = 1. / axis->cfg.pos_res;
+			break;
+		case IL_UNITS_POS_RAD:
+			factor = 2. * M_PI / axis->cfg.pos_res;
+			break;
+		case IL_UNITS_POS_DEG:
+			factor = 360. / axis->cfg.pos_res;
+			break;
+		case IL_UNITS_POS_UM:
+			factor = 1000000. * axis->cfg.ppitch /
+				 axis->cfg.pos_res;
+			break;
+		case IL_UNITS_POS_MM:
+			factor = 1000. * axis->cfg.ppitch / axis->cfg.pos_res;
+			break;
+		case IL_UNITS_POS_M:
+			factor = 1. * axis->cfg.ppitch / axis->cfg.pos_res;
+			break;
+		default:
+			factor = 1.;
+			break;
+		}
+
+		break;
+	case IL_REG_PHY_VEL:
+		switch (axis->units.vel) {
+		case IL_UNITS_VEL_NATIVE:
+			factor = 1.;
+			break;
+		case IL_UNITS_VEL_RPS:
+			factor = 1. / axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_RPM:
+			factor = 60. / axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_RAD_S:
+			factor = 2. * M_PI / axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_DEG_S:
+			factor = 360. / axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_UM_S:
+			factor = 1000000. * axis->cfg.ppitch /
+				 axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_MM_S:
+			factor = 1000. * axis->cfg.ppitch / axis->cfg.vel_res;
+			break;
+		case IL_UNITS_VEL_M_S:
+			factor = 1. * axis->cfg.ppitch / axis->cfg.vel_res;
+			break;
+		default:
+			factor = 1.;
+			break;
+		}
+
+		break;
+	case IL_REG_PHY_ACC:
+		switch (axis->units.acc) {
+		case IL_UNITS_ACC_NATIVE:
+			factor = 1.;
+			break;
+		case IL_UNITS_ACC_REV_S2:
+			factor = 1. / axis->cfg.acc_res;
+			break;
+		case IL_UNITS_ACC_RAD_S2:
+			factor = 2. * M_PI / axis->cfg.acc_res;
+			break;
+		case IL_UNITS_ACC_DEG_S2:
+			factor = 360. / axis->cfg.acc_res;
+			break;
+		case IL_UNITS_ACC_UM_S2:
+			factor = 1000000. * axis->cfg.ppitch /
+				 axis->cfg.acc_res;
+			break;
+		case IL_UNITS_ACC_MM_S2:
+			factor = 1000. * axis->cfg.ppitch / axis->cfg.acc_res;
+			break;
+		case IL_UNITS_ACC_M_S2:
+			factor = 1. * axis->cfg.ppitch / axis->cfg.acc_res;
+			break;
+		default:
+			factor = 1.;
+			break;
+		}
+
+		break;
+	default:
+		factor = 1.;
+		break;
+	}
+
+	osal_mutex_unlock(axis->units.lock);
+
+	return factor;
+}
+
 il_units_torque_t il_axis_units_torque_get(il_axis_t *axis)
 {
 	il_units_torque_t units;
@@ -672,25 +673,13 @@ void il_axis_units_acc_set(il_axis_t *axis, il_units_acc_t units)
 int il_axis_raw_read(il_axis_t *axis, const il_reg_t *reg, void *buf, size_t sz,
 		     size_t *recvd)
 {
-	/* validate axis, register, buffer */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
-
-	if (!reg) {
-		ilerr__set("Invalid register (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
+	assert(reg);
+	assert(buf);
 
 	if (reg->access == IL_REG_ACCESS_WO) {
 		ilerr__set("Register is write-only");
 		return IL_EACCESS;
-	}
-
-	if (!buf) {
-		ilerr__set("Invalid buffer (NULL)");
-		return IL_EFAULT;
 	}
 
 	/* read */
@@ -789,11 +778,7 @@ int il_axis_read(il_axis_t *axis, const il_reg_t *reg, double *buf)
 
 	int64_t buf_;
 
-	/* validate buffer */
-	if (!buf) {
-		ilerr__set("Invalid buffer (NULL)");
-		return IL_EFAULT;
-	}
+	assert(buf);
 
 	/* read */
 	switch (reg->dtype) {
@@ -837,7 +822,7 @@ int il_axis_read(il_axis_t *axis, const il_reg_t *reg, double *buf)
 		return r;
 
 	/* store converted value to buffer */
-	*buf = buf_ * units_factor(axis, reg);
+	*buf = buf_ * il_axis_units_factor(axis, reg);
 
 	return 0;
 }
@@ -845,16 +830,8 @@ int il_axis_read(il_axis_t *axis, const il_reg_t *reg, double *buf)
 int il_axis_raw_write(il_axis_t *axis, const il_reg_t *reg, const void *data,
 		      size_t sz)
 {
-	/* validate axis, register */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
-
-	if (!reg) {
-		ilerr__set("Invalid register (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
+	assert(reg);
 
 	if (reg->access == IL_REG_ACCESS_RO) {
 		ilerr__set("Register is read-only");
@@ -933,19 +910,11 @@ int il_axis_write(il_axis_t *axis, const il_reg_t *reg, double val)
 {
 	int64_t val_;
 
-	/* validate arguments */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
-
-	if (!reg) {
-		ilerr__set("Invalid register (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
+	assert(reg);
 
 	/* convert to native units */
-	val_ = (int64_t)(val / units_factor(axis, reg));
+	val_ = (int64_t)(val / il_axis_units_factor(axis, reg));
 
 	/* write using the appropriate native type */
 	switch (reg->dtype) {
@@ -1098,11 +1067,7 @@ int il_axis_homing_wait(il_axis_t *axis, int timeout)
 	int r;
 	uint16_t sw, state;
 
-	/* validate axis */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
 
 	/* wait until finished */
 	do {
@@ -1183,11 +1148,7 @@ int il_axis_position_wait_ack(il_axis_t *axis, int timeout)
 {
 	int r;
 
-	/* validate axis */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
 
 	/* wait for set-point acknowledge (->1->0) */
 	r = sw_wait_value(axis, IL_MC_PP_SW_SPACK, IL_MC_PP_SW_SPACK,
@@ -1210,11 +1171,7 @@ int il_axis_velocity_set(il_axis_t *axis, double vel)
 
 int il_axis_wait_reached(il_axis_t *axis, int timeout)
 {
-	/* validate axis */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
 
 	/* wait until target reached */
 	return sw_wait_value(axis, IL_MC_SW_TR, IL_MC_SW_TR, timeout);

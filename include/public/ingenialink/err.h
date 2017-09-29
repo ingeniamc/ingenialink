@@ -51,14 +51,12 @@ IL_BEGIN_DECL
 #define IL_ENOMEM	-4
 /** Already initialized. */
 #define IL_EALREADY	-5
-/** Invalid memory address. */
-#define IL_EFAULT	-6
 /** Device disconnected */
-#define IL_EDISCONN	-7
+#define IL_EDISCONN	-6
 /** Access error */
-#define IL_EACCESS	-8
+#define IL_EACCESS	-7
 /** State error */
-#define IL_ESTATE	-9
+#define IL_ESTATE	-8
 
 /**
  * Obtain library last error details.
