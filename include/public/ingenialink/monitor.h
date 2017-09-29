@@ -79,8 +79,8 @@ typedef enum {
 /** Monitor acquisition results.
  *
  * @note
- *	On successful acquisitions, sz and valid should be equal. In case of
- *	timeout, valid may be less than sz.
+ *	On successful acquisitions, sz and n_samples should be equal. In case of
+ *	timeout, n_samples may be less than sz.
  */
 typedef struct {
 	/** Samples buffers. */

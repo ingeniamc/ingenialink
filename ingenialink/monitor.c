@@ -53,6 +53,28 @@ static const il_reg_t *map_regs[] = {
 };
 
 /**
+ * Check if the current acquisition has finished.
+ *
+ * @param [in] monitor
+ *	Monitor instance.
+ *
+ * @return
+ *	1 if finished, 0 if not.
+ */
+static int acquisition_has_finished(il_monitor_t *monitor)
+{
+	int r;
+
+	osal_mutex_lock(monitor->acq.lock);
+
+	r = monitor->acq.finished;
+
+	osal_mutex_unlock(monitor->acq.lock);
+
+	return r;
+}
+
+/**
  * Acquisition thread
  *
  * @param [in] args
@@ -222,6 +244,8 @@ il_monitor_t *il_monitor_create(il_axis_t *axis)
 		goto cleanup_acq_lock;
 	}
 
+	monitor->acq.finished = 1;
+
 	monitor->axis = axis;
 
 	return monitor;
@@ -264,6 +288,14 @@ int il_monitor_start(il_monitor_t *monitor)
 
 	assert(monitor);
 
+	if (!acquisition_has_finished(monitor)) {
+		ilerr__set("Acquisition already in progress");
+		return IL_EALREADY;
+	}
+
+	/* clear previous acquisition resources */
+	il_monitor_stop(monitor);
+
 	/* enable monitoring (0 -> 1) */
 	r = il_axis_raw_write_u8(monitor->axis, &IL_REG_MONITOR_CFG_ENABLE, 0);
 	if (r < 0)
@@ -279,6 +311,8 @@ int il_monitor_start(il_monitor_t *monitor)
 
 	monitor->acq.td = osal_thread_create(acquisition, monitor);
 	if (!monitor->acq.td) {
+		monitor->acq.finished = 1;
+
 		ilerr__set("Acquisition thread creation failed");
 		return IL_EFAIL;
 	}
@@ -344,6 +378,11 @@ int il_monitor_configure(il_monitor_t *monitor, unsigned int t_s,
 
 	assert(monitor);
 
+	if (!acquisition_has_finished(monitor)) {
+		ilerr__set("Acquisition in progress");
+		return IL_ESTATE;
+	}
+
 	r = il_axis_raw_write_u16(monitor->axis, &IL_REG_MONITOR_CFG_T_S,
 				  (uint16_t)(t_s / BASE_PERIOD));
 	if (r < 0)
@@ -368,6 +407,11 @@ int il_monitor_ch_configure(il_monitor_t *monitor, il_monitor_ch_t ch,
 
 	assert(monitor);
 	assert(reg);
+
+	if (!acquisition_has_finished(monitor)) {
+		ilerr__set("Acquisition in progress");
+		return IL_ESTATE;
+	}
 
 	/* compute mapping, configure it */
 	switch (reg->dtype) {
@@ -405,6 +449,11 @@ int il_monitor_ch_disable(il_monitor_t *monitor, il_monitor_ch_t ch)
 
 	assert(monitor);
 
+	if (!acquisition_has_finished(monitor)) {
+		ilerr__set("Acquisition in progress");
+		return IL_ESTATE;
+	}
+
 	r = il_axis_raw_write_s32(monitor->axis, map_regs[ch], 0);
 	if (r < 0)
 		return r;
@@ -437,6 +486,11 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	int r;
 
 	assert(monitor);
+
+	if (!acquisition_has_finished(monitor)) {
+		ilerr__set("Acquisition in progress");
+		return IL_ESTATE;
+	}
 
 	/* mode */
 	r = il_axis_raw_write_u8(monitor->axis, &IL_REG_MONITOR_TRIG_MODE,
