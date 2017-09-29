@@ -198,10 +198,11 @@ static int update_buffers(il_monitor_t *monitor)
 		il_monitor_acq_t *acq = &monitor->acq.acq[i];
 
 		for (ch = 0; ch < IL_MONITOR_CH_NUM; ch++) {
-			if (acq->samples[ch] &&
-			    !monitor->mappings[ch]) {
-				free(acq->samples[ch]);
-				acq->samples[ch] = NULL;
+			if (!monitor->mappings[ch]) {
+				if (acq->samples[ch]) {
+					free(acq->samples[ch]);
+					acq->samples[ch] = NULL;
+				}
 			} else {
 				acq->samples[ch] = realloc(
 					acq->samples[ch],
