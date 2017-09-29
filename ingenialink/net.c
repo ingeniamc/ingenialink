@@ -24,6 +24,7 @@
 
 #include "net.h"
 
+#include <assert.h>
 #include <string.h>
 
 #include "osal/clock.h"
@@ -510,9 +511,7 @@ cleanup_net:
 
 void il_net_destroy(il_net_t *net)
 {
-	/* validate net */
-	if (!net)
-		return;
+	assert(net);
 
 	/* free resources */
 	net->stop = 1;
@@ -538,8 +537,7 @@ il_net_state_t il_net_state_get(il_net_t *net)
 {
 	il_net_state_t state;
 
-	if (!net)
-		return IL_NET_STATE_UNKNOWN;
+	assert(net);
 
 	osal_mutex_lock(net->state_lock);
 	state = net->state;
@@ -612,23 +610,24 @@ il_net_dev_mon_t *il_net_dev_mon_create()
 	return mon;
 }
 
+void il_net_dev_mon_destroy(il_net_dev_mon_t *mon)
+{
+	assert(mon);
+
+	il_net_dev_mon_stop(mon);
+
+	free(mon);
+}
+
 int il_net_dev_mon_start(il_net_dev_mon_t *mon, il_net_dev_on_evt_t on_evt,
 			 void *ctx)
 {
-	/* validate arguments */
-	if (!mon) {
-		ilerr__set("Invalid monitor (NULL)");
-		return IL_EFAULT;
-	}
+	assert(mon);
+	assert(on_evt);
 
 	if (mon->running) {
 		ilerr__set("Monitor already running");
 		return IL_EALREADY;
-	}
-
-	if (!on_evt) {
-		ilerr__set("Invalid callback (NULL)");
-		return IL_EINVAL;
 	}
 
 	/* store context and bring up monitor */
@@ -647,25 +646,12 @@ int il_net_dev_mon_start(il_net_dev_mon_t *mon, il_net_dev_on_evt_t on_evt,
 
 void il_net_dev_mon_stop(il_net_dev_mon_t *mon)
 {
-	/* validate arguments */
-	if (!mon)
-		return;
+	assert(mon);
 
 	if (mon->running) {
 		ser_dev_monitor_stop(mon->mon);
 		mon->running = 0;
 	}
-}
-
-void il_net_dev_mon_destroy(il_net_dev_mon_t *mon)
-{
-	/* validate arguments */
-	if (!mon)
-		return;
-
-	il_net_dev_mon_stop(mon);
-
-	free(mon);
 }
 
 il_net_axes_list_t *il_net_axes_list_get(il_net_t *net,
@@ -679,11 +665,7 @@ il_net_axes_list_t *il_net_axes_list_get(il_net_t *net,
 	il_net_axes_list_t *lst = NULL;
 	il_net_axes_list_t *prev;
 
-	/* validate network */
-	if (!net) {
-		ilerr__set("Invalid network (NULL)");
-		return NULL;
-	}
+	assert(net);
 
 	/* check network state */
 	if (il_net_state_get(net) != IL_NET_STATE_OPERATIVE) {

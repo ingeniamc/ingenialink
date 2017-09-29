@@ -24,6 +24,7 @@
 
 #include "poller.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -163,6 +164,8 @@ cleanup_poller:
 
 void il_poller_destroy(il_poller_t *poller)
 {
+	assert(poller);
+
 	if (poller->running)
 		il_poller_stop(poller);
 
@@ -181,10 +184,7 @@ void il_poller_destroy(il_poller_t *poller)
 
 int il_poller_start(il_poller_t *poller)
 {
-	if (!poller) {
-		ilerr__set("Invalid poller (NULL)");
-		return IL_EFAULT;
-	}
+	assert(poller);
 
 	if (poller->running) {
 		ilerr__set("Poller already running");
@@ -219,8 +219,7 @@ int il_poller_start(il_poller_t *poller)
 
 void il_poller_stop(il_poller_t *poller)
 {
-	if (!poller)
-		return;
+	assert(poller);
 
 	if (!poller->running)
 		return;
@@ -234,26 +233,10 @@ void il_poller_stop(il_poller_t *poller)
 int il_poller_data_get(il_poller_t *poller, double **t_buf, double **d_buf,
 		       size_t *cnt, int *lost)
 {
-	/* validate arguments */
-	if (!poller) {
-		ilerr__set("Invalid poller (NULL)");
-		return IL_EFAULT;
-	}
-
-	if (!t_buf) {
-		ilerr__set("Invalid time buffer pointer (NULL)");
-		return IL_EFAULT;
-	}
-
-	if (!d_buf) {
-		ilerr__set("Invalid data buffer pointer (NULL)");
-		return IL_EFAULT;
-	}
-
-	if (!cnt) {
-		ilerr__set("Invalid buffer data count pointer (NULL)");
-		return IL_EFAULT;
-	}
+	assert(poller);
+	assert(t_buf);
+	assert(d_buf);
+	assert(cnt);
 
 	osal_mutex_lock(poller->buf_lock);
 

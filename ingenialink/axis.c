@@ -25,6 +25,7 @@
 #include "axis.h"
 #include "mc.h"
 
+#include <assert.h>
 #include <string.h>
 
 #define _USE_MATH_DEFINES
@@ -672,25 +673,13 @@ void il_axis_units_acc_set(il_axis_t *axis, il_units_acc_t units)
 int il_axis_raw_read(il_axis_t *axis, const il_reg_t *reg, void *buf, size_t sz,
 		     size_t *recvd)
 {
-	/* validate axis, register, buffer */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
-
-	if (!reg) {
-		ilerr__set("Invalid register (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
+	assert(reg);
+	assert(buf);
 
 	if (reg->access == IL_REG_ACCESS_WO) {
 		ilerr__set("Register is write-only");
 		return IL_EACCESS;
-	}
-
-	if (!buf) {
-		ilerr__set("Invalid buffer (NULL)");
-		return IL_EFAULT;
 	}
 
 	/* read */
@@ -789,11 +778,7 @@ int il_axis_read(il_axis_t *axis, const il_reg_t *reg, double *buf)
 
 	int64_t buf_;
 
-	/* validate buffer */
-	if (!buf) {
-		ilerr__set("Invalid buffer (NULL)");
-		return IL_EFAULT;
-	}
+	assert(buf);
 
 	/* read */
 	switch (reg->dtype) {
@@ -845,16 +830,8 @@ int il_axis_read(il_axis_t *axis, const il_reg_t *reg, double *buf)
 int il_axis_raw_write(il_axis_t *axis, const il_reg_t *reg, const void *data,
 		      size_t sz)
 {
-	/* validate axis, register */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
-
-	if (!reg) {
-		ilerr__set("Invalid register (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
+	assert(reg);
 
 	if (reg->access == IL_REG_ACCESS_RO) {
 		ilerr__set("Register is read-only");
@@ -933,16 +910,8 @@ int il_axis_write(il_axis_t *axis, const il_reg_t *reg, double val)
 {
 	int64_t val_;
 
-	/* validate arguments */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
-
-	if (!reg) {
-		ilerr__set("Invalid register (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
+	assert(reg);
 
 	/* convert to native units */
 	val_ = (int64_t)(val / il_axis_units_factor(axis, reg));
@@ -1098,11 +1067,7 @@ int il_axis_homing_wait(il_axis_t *axis, int timeout)
 	int r;
 	uint16_t sw, state;
 
-	/* validate axis */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
 
 	/* wait until finished */
 	do {
@@ -1183,11 +1148,7 @@ int il_axis_position_wait_ack(il_axis_t *axis, int timeout)
 {
 	int r;
 
-	/* validate axis */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
 
 	/* wait for set-point acknowledge (->1->0) */
 	r = sw_wait_value(axis, IL_MC_PP_SW_SPACK, IL_MC_PP_SW_SPACK,
@@ -1210,11 +1171,7 @@ int il_axis_velocity_set(il_axis_t *axis, double vel)
 
 int il_axis_wait_reached(il_axis_t *axis, int timeout)
 {
-	/* validate axis */
-	if (!axis) {
-		ilerr__set("Invalid axis (NULL)");
-		return IL_EFAULT;
-	}
+	assert(axis);
 
 	/* wait until target reached */
 	return sw_wait_value(axis, IL_MC_SW_TR, IL_MC_SW_TR, timeout);
