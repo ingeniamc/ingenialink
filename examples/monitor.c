@@ -29,8 +29,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	il_monitor_t *monitor;
 
 	const il_reg_t IL_REG_VEL_ACT = {
-		.idx = 0x606c, .sidx = 0x00, .dtype = IL_REG_DTYPE_S32,
-		.access = IL_REG_ACCESS_RW, .phy = IL_REG_PHY_VEL
+		0x606c, 0x00, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_VEL
 	};
 
 	il_monitor_acq_t *acq;
