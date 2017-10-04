@@ -69,6 +69,9 @@
 #define PWM_CONSTANT		65535
 #define RESOLVER_CONSTANT	65535
 
+/** Relative voltage range. */
+#define VOLT_REL_RANGE		32767
+
 /** Axis units. */
 typedef struct {
 	/** Lock. */

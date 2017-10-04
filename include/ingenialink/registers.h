@@ -106,6 +106,12 @@ extern const il_reg_t IL_REG_MONITOR_TRIG_DIN_MSK;
 /** Monitor trigger, delay in samples. */
 extern const il_reg_t IL_REG_MONITOR_TRIG_DELAY;
 
+/** Open loop parameters, target voltage. */
+extern const il_reg_t IL_REG_OL_VOLTAGE;
+
+/** Open loop parameters, target frequency. */
+extern const il_reg_t IL_REG_OL_FREQUENCY;
+
 /*
  * CiA 402
  */

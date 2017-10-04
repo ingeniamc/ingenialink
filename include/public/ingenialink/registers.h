@@ -80,7 +80,11 @@ typedef enum {
 	/** Velocity. */
 	IL_REG_PHY_VEL,
 	/** Acceleration. */
-	IL_REG_PHY_ACC
+	IL_REG_PHY_ACC,
+	/** Voltage (relative to DC bus). */
+	IL_REG_PHY_VOLT_REL,
+	/** Frequency (mHz). */
+	IL_REG_PHY_FREQ_M
 } il_reg_phy_t;
 
 /** IngeniaLink register. */

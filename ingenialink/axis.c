@@ -564,6 +564,9 @@ double il_axis_units_factor(il_axis_t *axis, const il_reg_t *reg)
 		}
 
 		break;
+	case IL_REG_PHY_VOLT_REL:
+		factor = 1. / VOLT_REL_RANGE;
+		break;
 	default:
 		factor = 1.;
 		break;
@@ -1053,7 +1056,27 @@ int il_axis_fault_reset(il_axis_t *axis)
 
 int il_axis_mode_set(il_axis_t *axis, il_axis_mode_t mode)
 {
-	return il_axis_raw_write_u8(axis, &IL_REG_OP_MODE, (uint8_t)mode);
+	return il_axis_raw_write_s8(axis, &IL_REG_OP_MODE, (int8_t)mode);
+}
+
+int il_axis_ol_voltage_get(il_axis_t *axis, double *voltage)
+{
+	return il_axis_read(axis, &IL_REG_OL_VOLTAGE, voltage);
+}
+
+int il_axis_ol_voltage_set(il_axis_t *axis, double voltage)
+{
+	return il_axis_write(axis, &IL_REG_OL_VOLTAGE, voltage);
+}
+
+int il_axis_ol_frequency_get(il_axis_t *axis, double *freq)
+{
+	return il_axis_read(axis, &IL_REG_OL_FREQUENCY, freq);
+}
+
+int il_axis_ol_frequency_set(il_axis_t *axis, double freq)
+{
+	return il_axis_write(axis, &IL_REG_OL_FREQUENCY, freq);
 }
 
 int il_axis_homing_start(il_axis_t *axis)

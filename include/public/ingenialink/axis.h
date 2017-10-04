@@ -46,6 +46,10 @@ typedef struct il_axis il_axis_t;
 
 /** Axis operation modes. */
 typedef enum {
+	/** Open loop (vector mode). */
+	IL_AXIS_MODE_OLV = -2,
+	/** Open loop (scalar mode). */
+	IL_AXIS_MODE_OLS = -1,
 	/** Profile position. */
 	IL_AXIS_MODE_PP = 1,
 	/** Profile velocity. */
@@ -616,6 +620,58 @@ IL_EXPORT int il_axis_fault_reset(il_axis_t *axis);
  *
  */
 IL_EXPORT int il_axis_mode_set(il_axis_t *axis, il_axis_mode_t mode);
+
+/**
+ * Get the open loop voltage.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [out] voltage
+ *	Voltage buffer (% relative to DC-Bus, -1...1).
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_axis_ol_voltage_get(il_axis_t *axis, double *voltage);
+
+/**
+ * Set the open loop voltage.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] voltage
+ *	Voltage (% relative to DC-Bus, -1...1).
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_axis_ol_voltage_set(il_axis_t *axis, double voltage);
+
+/**
+ * Get the open loop frequency.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] freq
+ *	Frequency buffer (mHz).
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_axis_ol_frequency_get(il_axis_t *axis, double *freq);
+
+/**
+ * Set the open loop frequency.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] freq
+ *	Frequency (mHz).
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_axis_ol_frequency_set(il_axis_t *axis, double freq);
 
 /**
  * Start homing.
