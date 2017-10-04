@@ -601,6 +601,17 @@ IL_EXPORT int il_axis_raw_write_s64(il_axis_t *axis, const il_reg_t *reg,
 IL_EXPORT int il_axis_write(il_axis_t *axis, const il_reg_t *reg, double val);
 
 /**
+ * Obtain current axis PDS state.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ *
+ * @return
+ *	Current PDS state.
+ */
+il_axis_state_t il_axis_state_get(il_axis_t *axis);
+
+/**
  * Disable axis PDS.
  *
  * @param [in] axis
