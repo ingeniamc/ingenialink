@@ -108,7 +108,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_monitor;
 	}
 
-	r = il_axis_enable(axis);
+	r = il_axis_enable(axis, IL_AXIS_PDS_TIMEOUT_DEF);
 	if (r < 0) {
 		fprintf(stderr, "Could not enable axis: %s\n", ilerr_last());
 		goto cleanup_monitor;

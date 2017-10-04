@@ -306,28 +306,28 @@ static int update_config(il_axis_t *axis)
  *	Statusword value.
  *
  * @return
- *	PDS state.
+ *	PDS state (IL_AXIS_STATE_NRDY if unknown).
  */
-static uint16_t pds_state_decode(uint16_t sw)
+static il_axis_state_t pds_state_decode(uint16_t sw)
 {
 	if ((sw & IL_MC_PDS_STA_NRTSO_MSK) == IL_MC_PDS_STA_NRTSO)
-		return IL_MC_PDS_STA_NRTSO;
+		return IL_AXIS_STATE_NRDY;
 	else if ((sw & IL_MC_PDS_STA_SOD_MSK) == IL_MC_PDS_STA_SOD)
-		return IL_MC_PDS_STA_SOD;
+		return IL_AXIS_STATE_DISABLED;
 	else if ((sw & IL_MC_PDS_STA_RTSO_MSK) == IL_MC_PDS_STA_RTSO)
-		return IL_MC_PDS_STA_RTSO;
+		return IL_AXIS_STATE_RDY;
 	else if ((sw & IL_MC_PDS_STA_SO_MSK) == IL_MC_PDS_STA_SO)
-		return IL_MC_PDS_STA_SO;
+		return IL_AXIS_STATE_ON;
 	else if ((sw & IL_MC_PDS_STA_OE_MSK) == IL_MC_PDS_STA_OE)
-		return IL_MC_PDS_STA_OE;
+		return IL_AXIS_STATE_ENABLED;
 	else if ((sw & IL_MC_PDS_STA_QSA_MSK) == IL_MC_PDS_STA_QSA)
-		return IL_MC_PDS_STA_QSA;
+		return IL_AXIS_STATE_QSTOP;
 	else if ((sw & IL_MC_PDS_STA_FRA_MSK) == IL_MC_PDS_STA_FRA)
-		return IL_MC_PDS_STA_FRA;
+		return IL_AXIS_STATE_FAULTR;
 	else if ((sw & IL_MC_PDS_STA_F_MSK) == IL_MC_PDS_STA_F)
-		return IL_MC_PDS_STA_F;
+		return IL_AXIS_STATE_FAULT;
 
-	return IL_MC_PDS_STA_UNKNOWN;
+	return IL_AXIS_STATE_NRDY;
 }
 
 /*******************************************************************************
@@ -341,11 +341,7 @@ il_axis_t *il_axis_create(il_net_t *net, uint8_t id, int timeout)
 	il_axis_t *axis;
 	uint16_t sw;
 
-	/* validate network */
-	if (!net) {
-		ilerr__set("Invalid network (NULL)");
-		return NULL;
-	}
+	assert(net);
 
 	/* validate node id */
 	if ((id < AXISID_MIN) || (id > AXISID_MAX)) {
@@ -943,29 +939,32 @@ int il_axis_write(il_axis_t *axis, const il_reg_t *reg, double val)
 	}
 }
 
+il_axis_state_t il_axis_state_get(il_axis_t *axis)
+{
+	assert(axis);
+
+	return pds_state_decode(sw_get(axis));
+}
+
 int il_axis_disable(il_axis_t *axis)
 {
 	int r;
-	uint16_t sw, state;
+	uint16_t sw;
+	il_axis_state_t state;
 
 	do {
 		sw = sw_get(axis);
 		state = pds_state_decode(sw);
 
-		/* check if faulty or unknown */
-		if ((state == IL_MC_PDS_STA_F) ||
-		    (state == IL_MC_PDS_STA_FRA)) {
+		/* check if faulty */
+		if ((state == IL_AXIS_STATE_FAULT) ||
+		    (state == IL_AXIS_STATE_FAULTR)) {
 			ilerr__set("Axis is in fault state");
-			return IL_EFAIL;
-		}
-
-		if (state == IL_MC_PDS_STA_UNKNOWN) {
-			ilerr__set("Axis state is unknown");
 			return IL_ESTATE;
 		}
 
 		/* check state and command action */
-		if (state != IL_MC_PDS_STA_SOD) {
+		if (state != IL_AXIS_STATE_DISABLED) {
 			r = il_axis_raw_write_u16(axis, &IL_REG_CTL_WORD,
 						  IL_MC_PDS_CMD_DV);
 			if (r < 0)
@@ -976,39 +975,79 @@ int il_axis_disable(il_axis_t *axis)
 			if (r < 0)
 				return r;
 		}
-	} while (state != IL_MC_PDS_STA_SOD);
+	} while (state != IL_AXIS_STATE_DISABLED);
 
 	return 0;
 }
 
-int il_axis_enable(il_axis_t *axis)
+int il_axis_switch_on(il_axis_t *axis, int timeout)
 {
 	int r;
-	uint16_t sw, state, cmd;
+	uint16_t sw, cmd;
+	il_axis_state_t state;
 
 	do {
 		sw = sw_get(axis);
 		state = pds_state_decode(sw);
 
-		/* check if faulty or unknown */
-		if ((state == IL_MC_PDS_STA_F) ||
-		    (state == IL_MC_PDS_STA_FRA)) {
+		/* check if faulty */
+		if ((state == IL_AXIS_STATE_FAULT) ||
+		    (state == IL_AXIS_STATE_FAULTR)) {
 			ilerr__set("Axis is in fault state");
 			return IL_ESTATE;
 		}
 
-		if (state == IL_MC_PDS_STA_UNKNOWN) {
-			ilerr__set("Axis state is unknown");
+		/* check state and command action */
+		if (state != IL_AXIS_STATE_ON) {
+			if (state == IL_AXIS_STATE_NRDY)
+				cmd = IL_MC_PDS_CMD_DV;
+			else if (state == IL_AXIS_STATE_DISABLED)
+				cmd = IL_MC_PDS_CMD_SD;
+			else if (state == IL_AXIS_STATE_RDY)
+				cmd = IL_MC_PDS_CMD_SO;
+			else if (state == IL_AXIS_STATE_ENABLED)
+				cmd = IL_MC_PDS_CMD_DO;
+			else
+				cmd = IL_MC_PDS_CMD_DV;
+
+			r = il_axis_raw_write_u16(axis, &IL_REG_CTL_WORD, cmd);
+			if (r < 0)
+				return r;
+
+			/* wait until statusword changes */
+			r = sw_wait_change(axis, sw, timeout);
+			if (r < 0)
+				return r;
+		}
+	} while (state != IL_AXIS_STATE_ON);
+
+	return 0;
+}
+
+int il_axis_enable(il_axis_t *axis, int timeout)
+{
+	int r;
+	uint16_t sw, cmd;
+	il_axis_state_t state;
+
+	do {
+		sw = sw_get(axis);
+		state = pds_state_decode(sw);
+
+		/* check if faulty */
+		if ((state == IL_AXIS_STATE_FAULT) ||
+		    (state == IL_AXIS_STATE_FAULTR)) {
+			ilerr__set("Axis is in fault state");
 			return IL_ESTATE;
 		}
 
 		/* check state and command action */
-		if (state != IL_MC_PDS_STA_OE) {
-			if (state == IL_MC_PDS_STA_NRTSO)
+		if (state != IL_AXIS_STATE_ENABLED) {
+			if (state == IL_AXIS_STATE_NRDY)
 				cmd = IL_MC_PDS_CMD_DV;
-			else if (state == IL_MC_PDS_STA_SOD)
+			else if (state == IL_AXIS_STATE_DISABLED)
 				cmd = IL_MC_PDS_CMD_SD;
-			else if (state == IL_MC_PDS_STA_RTSO)
+			else if (state == IL_AXIS_STATE_RDY)
 				cmd = IL_MC_PDS_CMD_SOEO;
 			else
 				cmd = IL_MC_PDS_CMD_EO;
@@ -1018,11 +1057,11 @@ int il_axis_enable(il_axis_t *axis)
 				return r;
 
 			/* wait until statusword changes */
-			r = sw_wait_change(axis, sw, PDS_TIMEOUT);
+			r = sw_wait_change(axis, sw, timeout);
 			if (r < 0)
 				return r;
 		}
-	} while (state != IL_MC_PDS_STA_OE);
+	} while (state != IL_AXIS_STATE_ENABLED);
 
 	return 0;
 }
@@ -1030,15 +1069,16 @@ int il_axis_enable(il_axis_t *axis)
 int il_axis_fault_reset(il_axis_t *axis)
 {
 	int r;
-	uint16_t sw, state;
+	uint16_t sw;
+	il_axis_state_t state;
 
 	do {
 		sw = sw_get(axis);
 		state = pds_state_decode(sw);
 
 		/* check if faulty, if so try to reset */
-		if ((state == IL_MC_PDS_STA_F) ||
-		    (state == IL_MC_PDS_STA_FRA)) {
+		if ((state == IL_AXIS_STATE_FAULT) ||
+		    (state == IL_AXIS_STATE_FAULTR)) {
 			r = il_axis_raw_write_u16(axis, &IL_REG_CTL_WORD,
 						  IL_MC_PDS_CMD_FR);
 			if (r < 0)
@@ -1049,7 +1089,8 @@ int il_axis_fault_reset(il_axis_t *axis)
 			if (r < 0)
 				return r;
 		}
-	} while ((state == IL_MC_PDS_STA_F) || (state == IL_MC_PDS_STA_FRA));
+	} while ((state == IL_AXIS_STATE_FAULT) ||
+		 (state == IL_AXIS_STATE_FAULTR));
 
 	return 0;
 }

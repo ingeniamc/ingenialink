@@ -36,7 +36,7 @@
 /** Maximum axis id. */
 #define AXISID_MAX		127
 
-/** PDS timeout (ms). */
+/** PDS default timeout (ms). */
 #define PDS_TIMEOUT		1000
 
 /** Set-point acknowledge timeout (ms). */

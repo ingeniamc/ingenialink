@@ -44,6 +44,29 @@ typedef struct il_axis il_axis_t;
 /** Default communications timeout (ms). */
 #define IL_AXIS_TIMEOUT_DEF	1000
 
+/** Axis states (CiA 402 PDS states). */
+typedef enum {
+	/** Not ready to switch on. */
+	IL_AXIS_STATE_NRDY,
+	/** Switch on disabled. */
+	IL_AXIS_STATE_DISABLED,
+	/** Ready to be switched on. */
+	IL_AXIS_STATE_RDY,
+	/** Power switched on. */
+	IL_AXIS_STATE_ON,
+	/** Enabled. */
+	IL_AXIS_STATE_ENABLED,
+	/** Quick stop. */
+	IL_AXIS_STATE_QSTOP,
+	/** Fault reactive. */
+	IL_AXIS_STATE_FAULTR,
+	/** Fault. */
+	IL_AXIS_STATE_FAULT
+} il_axis_state_t;
+
+/** Default PDS operations timeout (ms). */
+#define IL_AXIS_PDS_TIMEOUT_DEF	1000
+
 /** Axis operation modes. */
 typedef enum {
 	/** Open loop (vector mode). */
@@ -589,15 +612,36 @@ IL_EXPORT int il_axis_write(il_axis_t *axis, const il_reg_t *reg, double val);
 IL_EXPORT int il_axis_disable(il_axis_t *axis);
 
 /**
- * Enable axis PDS.
+ * Switch on axis PDS.
+ *
+ * @note
+ *	The timeout is the timeout between state changes.
  *
  * @param [in] axis
  *	IngeniaLink axis.
+ * @param [in] timeout
+ *	Timeout (ms).
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_enable(il_axis_t *axis);
+IL_EXPORT int il_axis_switch_on(il_axis_t *axis, int timeout);
+
+/**
+ * Enable axis PDS.
+ *
+ * @note
+ *	The timeout is the timeout between state changes.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] timeout
+ *	Timeout (ms).
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_axis_enable(il_axis_t *axis, int timeout);
 
 /**
  * Reset the drive fault state.
