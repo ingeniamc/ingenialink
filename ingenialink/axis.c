@@ -31,8 +31,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#include "public/ingenialink/registers.h"
 #include "ingenialink/err.h"
-#include "ingenialink/registers.h"
 #include "ingenialink/utils.h"
 
 /*******************************************************************************
