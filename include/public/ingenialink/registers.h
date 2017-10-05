@@ -407,6 +407,9 @@ extern const il_reg_t IL_REG_RATED_TORQUE;
 /** Torque actual value. */
 extern const il_reg_t IL_REG_TORQUE_ACT;
 
+/** DC link circuit voltage. */
+extern const il_reg_t IL_REG_DC_VOLTAGE;
+
 /** Target position. */
 extern const il_reg_t IL_REG_POS_TGT;
 
