@@ -127,9 +127,7 @@ typedef struct {
 	/** Array of subscribers. */
 	il_net_sw_subscriber_t *subs;
 	/** Array size. */
-	size_t sz;
-	/** Number of subscribers. */
-	size_t cnt;
+	int sz;
 	/** Lock. */
 	osal_mutex_t *lock;
 } il_net_sw_subscriber_lst_t;
@@ -155,9 +153,7 @@ typedef struct {
 	/** Array of subscribers. */
 	il_net_emcy_subscriber_t *subs;
 	/** Array size. */
-	size_t sz;
-	/** Number of subscribers. */
-	size_t cnt;
+	int sz;
 	/** Lock. */
 	osal_mutex_t *lock;
 } il_net_emcy_subscriber_lst_t;

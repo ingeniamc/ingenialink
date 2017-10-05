@@ -53,7 +53,7 @@ void process_statusword(il_net_t *net, il_frame_t *frame)
 	sidx = il_frame__get_sidx(frame);
 
 	if (idx == STATUSWORD_IDX && sidx == STATUSWORD_SIDX) {
-		size_t i;
+		int i;
 		uint8_t id;
 		uint16_t sw;
 
@@ -62,8 +62,9 @@ void process_statusword(il_net_t *net, il_frame_t *frame)
 
 		osal_mutex_lock(net->sw_subs.lock);
 
-		for (i = 0; i < net->sw_subs.cnt; i++) {
-			if (net->sw_subs.subs[i].id == id) {
+		for (i = 0; i < net->sw_subs.sz; i++) {
+			if (net->sw_subs.subs[i].id == id &&
+			    net->sw_subs.subs[i].cb) {
 				void *ctx;
 
 				ctx = net->sw_subs.subs[i].ctx;
@@ -92,7 +93,7 @@ void process_emcy(il_net_t *net, il_frame_t *frame)
 	sidx = il_frame__get_sidx(frame);
 
 	if (idx == EMCY_IDX && sidx == EMCY_SIDX) {
-		size_t i;
+		int i;
 		uint8_t id;
 		uint32_t code;
 
@@ -101,8 +102,9 @@ void process_emcy(il_net_t *net, il_frame_t *frame)
 
 		osal_mutex_lock(net->emcy_subs.lock);
 
-		for (i = 0; i < net->emcy_subs.cnt; i++) {
-			if (net->emcy_subs.subs[i].id == id) {
+		for (i = 0; i < net->emcy_subs.sz; i++) {
+			if (net->emcy_subs.subs[i].id == id &&
+			    net->emcy_subs.subs[i].cb) {
 				void *ctx;
 
 				ctx = net->emcy_subs.subs[i].ctx;
@@ -350,11 +352,18 @@ int il_net__sw_subscribe(il_net_t *net, uint8_t id,
 			 il_net_sw_subscriber_cb_t cb, void *ctx)
 {
 	int r = 0;
+	int slot;
 
 	osal_mutex_lock(net->sw_subs.lock);
 
+	/* look for the first empty slot */
+	for (slot = 0; slot < net->sw_subs.sz; slot++) {
+		if (!net->sw_subs.subs[slot].cb)
+			break;
+	}
+
 	/* increase array if no space left */
-	if (net->sw_subs.cnt == net->sw_subs.sz) {
+	if (slot == net->sw_subs.sz) {
 		size_t sz;
 		il_net_sw_subscriber_t *subs;
 
@@ -369,13 +378,14 @@ int il_net__sw_subscribe(il_net_t *net, uint8_t id,
 
 		net->sw_subs.subs = subs;
 		net->sw_subs.sz = sz;
+		slot++;
 	}
 
-	net->sw_subs.subs[net->sw_subs.cnt].id = id;
-	net->sw_subs.subs[net->sw_subs.cnt].cb = cb;
-	net->sw_subs.subs[net->sw_subs.cnt].ctx = ctx;
+	net->sw_subs.subs[slot].id = id;
+	net->sw_subs.subs[slot].cb = cb;
+	net->sw_subs.subs[slot].ctx = ctx;
 
-	net->sw_subs.cnt++;
+	r = slot;
 
 unlock:
 	osal_mutex_unlock(net->sw_subs.lock);
@@ -383,21 +393,17 @@ unlock:
 	return r;
 }
 
-void il_net__sw_unsubscribe(il_net_t *net, il_net_sw_subscriber_cb_t cb)
+void il_net__sw_unsubscribe(il_net_t *net, int slot)
 {
-	size_t i;
-
 	osal_mutex_lock(net->sw_subs.lock);
 
-	for (i = 0; i < net->sw_subs.cnt; i++) {
-		if (net->sw_subs.subs[i].cb == cb) {
-			/* move last to the current position, decrease */
-			net->sw_subs.subs[i] =
-				net->sw_subs.subs[net->sw_subs.cnt - 1];
-			net->sw_subs.cnt--;
-			break;
-		}
-	}
+	/* skip out of range slot */
+	if (slot >= net->sw_subs.sz)
+		return;
+
+	net->sw_subs.subs[slot].id = 0;
+	net->sw_subs.subs[slot].cb = NULL;
+	net->sw_subs.subs[slot].ctx = NULL;
 
 	osal_mutex_unlock(net->sw_subs.lock);
 }
@@ -405,12 +411,19 @@ void il_net__sw_unsubscribe(il_net_t *net, il_net_sw_subscriber_cb_t cb)
 int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
 			   il_net_emcy_subscriber_cb_t cb, void *ctx)
 {
-	int r = 0;
+	int r;
+	int slot;
 
 	osal_mutex_lock(net->emcy_subs.lock);
 
+	/* look for the first empty slot */
+	for (slot = 0; slot < net->emcy_subs.sz; slot++) {
+		if (!net->emcy_subs.subs[slot].cb)
+			break;
+	}
+
 	/* increase array if no space left */
-	if (net->emcy_subs.cnt == net->emcy_subs.sz) {
+	if (slot == net->emcy_subs.sz) {
 		size_t sz;
 		il_net_emcy_subscriber_t *subs;
 
@@ -425,13 +438,14 @@ int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
 
 		net->emcy_subs.subs = subs;
 		net->emcy_subs.sz = sz;
+		slot++;
 	}
 
-	net->emcy_subs.subs[net->emcy_subs.cnt].id = id;
-	net->emcy_subs.subs[net->emcy_subs.cnt].cb = cb;
-	net->emcy_subs.subs[net->emcy_subs.cnt].ctx = ctx;
+	net->emcy_subs.subs[slot].id = id;
+	net->emcy_subs.subs[slot].cb = cb;
+	net->emcy_subs.subs[slot].ctx = ctx;
 
-	net->emcy_subs.cnt++;
+	r = slot;
 
 unlock:
 	osal_mutex_unlock(net->emcy_subs.lock);
@@ -439,21 +453,17 @@ unlock:
 	return r;
 }
 
-void il_net__emcy_unsubscribe(il_net_t *net, il_net_emcy_subscriber_cb_t cb)
+void il_net__emcy_unsubscribe(il_net_t *net, int slot)
 {
-	size_t i;
-
 	osal_mutex_lock(net->emcy_subs.lock);
 
-	for (i = 0; i < net->emcy_subs.cnt; i++) {
-		if (net->emcy_subs.subs[i].cb == cb) {
-			/* move last to the current position, decrease */
-			net->emcy_subs.subs[i] =
-				net->emcy_subs.subs[net->emcy_subs.cnt - 1];
-			net->emcy_subs.cnt--;
-			break;
-		}
-	}
+	/* skip out of range slot */
+	if (slot >= net->emcy_subs.sz)
+		return;
+
+	net->emcy_subs.subs[slot].id = 0;
+	net->emcy_subs.subs[slot].cb = NULL;
+	net->emcy_subs.subs[slot].ctx = NULL;
 
 	osal_mutex_unlock(net->emcy_subs.lock);
 }
@@ -513,7 +523,7 @@ il_net_t *il_net_create(const char *port)
 	net->sync.complete = 1;
 
 	/* initialize statusword update subscribers */
-	net->sw_subs.subs = malloc(sizeof(*net->sw_subs.subs) * SW_SUBS_SZ_DEF);
+	net->sw_subs.subs = calloc(SW_SUBS_SZ_DEF, sizeof(*net->sw_subs.subs));
 	if (!net->sw_subs.subs) {
 		ilerr__set("Network statusword subscribers allocation failed");
 		goto cleanup_sync_cond;
@@ -525,12 +535,11 @@ il_net_t *il_net_create(const char *port)
 		goto cleanup_sw_subs_subs;
 	}
 
-	net->sw_subs.cnt = 0;
 	net->sw_subs.sz = SW_SUBS_SZ_DEF;
 
 	/* initialize emcy update subscribers */
-	net->emcy_subs.subs = malloc(sizeof(*net->emcy_subs.subs)
-				     * EMCY_SUBS_SZ_DEF);
+	net->emcy_subs.subs = calloc(EMCY_SUBS_SZ_DEF,
+				     sizeof(*net->emcy_subs.subs));
 	if (!net->emcy_subs.subs) {
 		ilerr__set("Network emergency subscribers allocation failed");
 		goto cleanup_sw_subs_lock;
@@ -542,7 +551,6 @@ il_net_t *il_net_create(const char *port)
 		goto cleanup_emcy_subs_subs;
 	}
 
-	net->emcy_subs.cnt = 0;
 	net->emcy_subs.sz = EMCY_SUBS_SZ_DEF;
 
 	/* allocate serial port */

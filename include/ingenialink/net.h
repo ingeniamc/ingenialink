@@ -100,7 +100,7 @@ int il_net__read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
  *	Callback context.
  *
  * @returns
- *	0 on success, error code otherwise.
+ *	Assigned slot (>=0) or error code (< 0).
  */
 int il_net__sw_subscribe(il_net_t *net, uint8_t id,
 			 il_net_sw_subscriber_cb_t cb, void *ctx);
@@ -110,10 +110,10 @@ int il_net__sw_subscribe(il_net_t *net, uint8_t id,
  *
  * @param [in] net
  *	IngeniaLink network.
- * @param [in] cb
- *	Callback used when subscribed.
+ * @param [in] slot
+ *	Slot assigned when subscribed.
  */
-void il_net__sw_unsubscribe(il_net_t *net, il_net_sw_subscriber_cb_t cb);
+void il_net__sw_unsubscribe(il_net_t *net, int slot);
 
 /**
  * Subscribe to emergency messages.
@@ -128,7 +128,7 @@ void il_net__sw_unsubscribe(il_net_t *net, il_net_sw_subscriber_cb_t cb);
  *	Callback context.
  *
  * @returns
- *	0 on success, error code otherwise.
+ *	Assigned slot (>=0) or error code (< 0).
  */
 int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
 			   il_net_emcy_subscriber_cb_t cb, void *ctx);
@@ -138,9 +138,9 @@ int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
  *
  * @param [in] net
  *	IngeniaLink network.
- * @param [in] cb
- *	Callback used when subscribed.
+ * @param [in] slot
+ *	Slot assigned when subscribed.
  */
-void il_net__emcy_unsubscribe(il_net_t *net, il_net_emcy_subscriber_cb_t cb);
+void il_net__emcy_unsubscribe(il_net_t *net, int slot);
 
 #endif

@@ -29,8 +29,8 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 
 	il_net_t *net;
 	il_axis_t *axis;
-	il_poller_t *poller;
 
+	il_poller_t *poller;
 	double *t, *d;
 	size_t cnt;
 	int lost;
@@ -52,7 +52,6 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		r = 1;
 		goto cleanup_net;
 	}
-
 
 	r = il_axis_emcy_subscribe(axis, on_emcy, NULL);
 	if (r < 0) {
@@ -147,8 +146,6 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	if (r < 0) {
 		fprintf(stderr, "Could not reach target: %s\n", ilerr_last());
 	}
-
-	sleep(5);
 
 	(void)il_axis_disable(axis);
 	(void)il_poller_stop(poller);

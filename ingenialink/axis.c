@@ -395,6 +395,8 @@ il_axis_t *il_axis_create(il_net_t *net, uint8_t id, int timeout)
 	if (r < 0)
 		goto cleanup_sw_changed;
 
+	axis->sw.slot = r;
+
 	/* trigger update (with manual read) */
 	(void)il_axis_raw_read_u16(axis, &IL_REG_STS_WORD, &sw);
 
@@ -420,7 +422,7 @@ void il_axis_destroy(il_axis_t *axis)
 	assert(axis);
 
 	/* de-allocate resources */
-	il_net__sw_unsubscribe(axis->net, sw_update);
+	il_net__sw_unsubscribe(axis->net, axis->sw.slot);
 
 	osal_cond_destroy(axis->sw.changed);
 	osal_mutex_destroy(axis->sw.lock);
@@ -440,11 +442,11 @@ int il_axis_emcy_subscribe(il_axis_t *axis, il_axis_emcy_subscriber_cb_t cb,
 				      (il_net_emcy_subscriber_cb_t)cb, ctx);
 }
 
-void il_axis_emcy_unsubscribe(il_axis_t *axis, il_axis_emcy_subscriber_cb_t cb)
+void il_axis_emcy_unsubscribe(il_axis_t *axis, int slot)
 {
 	assert(axis);
 
-	il_net__emcy_unsubscribe(axis->net, (il_net_emcy_subscriber_cb_t)cb);
+	il_net__emcy_unsubscribe(axis->net, slot);
 }
 
 double il_axis_units_factor(il_axis_t *axis, const il_reg_t *reg)

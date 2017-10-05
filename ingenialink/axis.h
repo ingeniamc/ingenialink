@@ -108,6 +108,8 @@ typedef struct {
 	osal_mutex_t *lock;
 	/** Changed condition. */
 	osal_cond_t *changed;
+	/** Assigned subscription slot. */
+	int slot;
 } il_axis_sw_t;
 
 /** IngeniaLink axis. */

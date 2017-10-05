@@ -186,7 +186,7 @@ IL_EXPORT void il_axis_destroy(il_axis_t *axis);
  *	Callback context.
  *
  * @returns
- *	0 on success, error code otherwise.
+ *	Assigned slot (>= 0) or error code (< 0).
  */
 IL_EXPORT int il_axis_emcy_subscribe(il_axis_t *axis,
 				     il_axis_emcy_subscriber_cb_t cb,
@@ -197,11 +197,10 @@ IL_EXPORT int il_axis_emcy_subscribe(il_axis_t *axis,
  *
  * @param [in] axis
  *	IngeniaLink axis.
- * @param [in] cb
- *	Callback used when subscribed.
+ * @param [in] slot
+ *	Assigned slot when subscribed.
  */
-IL_EXPORT void il_axis_emcy_unsubscribe(il_axis_t *axis,
-					il_axis_emcy_subscriber_cb_t cb);
+IL_EXPORT void il_axis_emcy_unsubscribe(il_axis_t *axis, int slot);
 
 /**
  * Obtain the units scale factor associated with the given register.
