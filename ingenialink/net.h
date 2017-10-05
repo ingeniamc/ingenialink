@@ -60,17 +60,29 @@
 /** UART configuration, binary mode (subindex). */
 #define UARTCFG_BIN_SIDX	0x08
 
+/** Number of binary messages to flush. */
+#define BIN_FLUSH		2
+
 /** Statusword (index). */
 #define STATUSWORD_IDX		0x6041
 
 /** Statusword (subindex). */
 #define STATUSWORD_SIDX		0x00
 
+/** Emergency (index). */
+#define EMCY_IDX		0x1003
+
+/** Emergency (subindex). */
+#define EMCY_SIDX		0x01
+
 /** Initialization wait time (ms). */
 #define INIT_WAIT_TIME		500
 
 /** Statusword subscribers default array size. */
-#define SW_SUBS_SZ_DEF		1
+#define SW_SUBS_SZ_DEF		10
+
+/** Emergency subscribers default array size. */
+#define EMCY_SUBS_SZ_DEF	10
 
 /** IngeniaLink synchronous transfer context. */
 typedef struct {
@@ -122,6 +134,34 @@ typedef struct {
 	osal_mutex_t *lock;
 } il_net_sw_subscriber_lst_t;
 
+/** IngeniaLink emergency subscriber. */
+struct il_net_emcy_subscriber {
+	/** Node ID. */
+	uint8_t id;
+	/** Callback. */
+	il_net_emcy_subscriber_cb_t cb;
+	/** Callback context. */
+	void *ctx;
+};
+
+/**
+ * IngeniaLink emergency subscribers.
+ *
+ * @note
+ *	This is implemented using a dynamic array so that traverse is more
+ *	efficient.
+ */
+typedef struct {
+	/** Array of subscribers. */
+	il_net_emcy_subscriber_t *subs;
+	/** Array size. */
+	size_t sz;
+	/** Number of subscribers. */
+	size_t cnt;
+	/** Lock. */
+	osal_mutex_t *lock;
+} il_net_emcy_subscriber_lst_t;
+
 /** IngeniaLink network. */
 struct il_net {
 	/** Serial communications channel */
@@ -140,6 +180,8 @@ struct il_net {
 	il_net_sync_t sync;
 	/** Statusword updates subcribers. */
 	il_net_sw_subscriber_lst_t sw_subs;
+	/** Emergency subcribers. */
+	il_net_emcy_subscriber_lst_t emcy_subs;
 };
 
 /** IngeniaLink network device monitor */

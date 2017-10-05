@@ -76,6 +76,45 @@ void process_statusword(il_net_t *net, il_frame_t *frame)
 }
 
 /**
+ * Process asynchronous emergency messages.
+ *
+ * @param [in] net
+ *	IngeniaLink network instance.
+ * @param [in] frame
+ *	IngeniaLink frame.
+ */
+void process_emcy(il_net_t *net, il_frame_t *frame)
+{
+	uint16_t idx;
+	uint8_t sidx;
+
+	idx = il_frame__get_idx(frame);
+	sidx = il_frame__get_sidx(frame);
+
+	if (idx == EMCY_IDX && sidx == EMCY_SIDX) {
+		size_t i;
+		uint8_t id;
+		uint32_t code;
+
+		id = il_frame__get_id(frame);
+		code = __swap_32(*(uint32_t *)il_frame__get_data(frame));
+
+		osal_mutex_lock(net->emcy_subs.lock);
+
+		for (i = 0; i < net->emcy_subs.cnt; i++) {
+			if (net->emcy_subs.subs[i].id == id) {
+				void *ctx;
+
+				ctx = net->emcy_subs.subs[i].ctx;
+				net->emcy_subs.subs[i].cb(ctx, code);
+			}
+		}
+
+		osal_mutex_unlock(net->emcy_subs.lock);
+	}
+}
+
+/**
  * Process synchronous messages.
  *
  * @param [in] net
@@ -146,6 +185,7 @@ void process_rbuf(il_net_t *net, uint8_t *rbuf, size_t *cnt, il_frame_t *frame)
 		if (frame->state == IL_FRAME_STATE_COMPLETE) {
 			if (il_frame__is_resp(frame)) {
 				process_statusword(net, frame);
+				process_emcy(net, frame);
 				process_sync(net, frame);
 			}
 
@@ -343,14 +383,14 @@ unlock:
 	return r;
 }
 
-void il_net__sw_unsubscribe(il_net_t *net, uint8_t id)
+void il_net__sw_unsubscribe(il_net_t *net, il_net_sw_subscriber_cb_t cb)
 {
 	size_t i;
 
 	osal_mutex_lock(net->sw_subs.lock);
 
 	for (i = 0; i < net->sw_subs.cnt; i++) {
-		if (net->sw_subs.subs[i].id == id) {
+		if (net->sw_subs.subs[i].cb == cb) {
 			/* move last to the current position, decrease */
 			net->sw_subs.subs[i] =
 				net->sw_subs.subs[net->sw_subs.cnt - 1];
@@ -362,6 +402,62 @@ void il_net__sw_unsubscribe(il_net_t *net, uint8_t id)
 	osal_mutex_unlock(net->sw_subs.lock);
 }
 
+int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
+			   il_net_emcy_subscriber_cb_t cb, void *ctx)
+{
+	int r = 0;
+
+	osal_mutex_lock(net->emcy_subs.lock);
+
+	/* increase array if no space left */
+	if (net->emcy_subs.cnt == net->emcy_subs.sz) {
+		size_t sz;
+		il_net_emcy_subscriber_t *subs;
+
+		/* double in size on each realloc */
+		sz = 2 * net->emcy_subs.sz * sizeof(*subs);
+		subs = realloc(net->emcy_subs.subs, sz);
+		if (!subs) {
+			ilerr__set("Subscribers re-allocation failed");
+			r = IL_ENOMEM;
+			goto unlock;
+		}
+
+		net->emcy_subs.subs = subs;
+		net->emcy_subs.sz = sz;
+	}
+
+	net->emcy_subs.subs[net->emcy_subs.cnt].id = id;
+	net->emcy_subs.subs[net->emcy_subs.cnt].cb = cb;
+	net->emcy_subs.subs[net->emcy_subs.cnt].ctx = ctx;
+
+	net->emcy_subs.cnt++;
+
+unlock:
+	osal_mutex_unlock(net->emcy_subs.lock);
+
+	return r;
+}
+
+void il_net__emcy_unsubscribe(il_net_t *net, il_net_emcy_subscriber_cb_t cb)
+{
+	size_t i;
+
+	osal_mutex_lock(net->emcy_subs.lock);
+
+	for (i = 0; i < net->emcy_subs.cnt; i++) {
+		if (net->emcy_subs.subs[i].cb == cb) {
+			/* move last to the current position, decrease */
+			net->emcy_subs.subs[i] =
+				net->emcy_subs.subs[net->emcy_subs.cnt - 1];
+			net->emcy_subs.cnt--;
+			break;
+		}
+	}
+
+	osal_mutex_unlock(net->emcy_subs.lock);
+}
+
 /*******************************************************************************
  * Public
  ******************************************************************************/
@@ -370,7 +466,7 @@ il_net_t *il_net_create(const char *port)
 {
 	il_net_t *net;
 	ser_opts_t sopts = SER_OPTS_INIT;
-	int r;
+	int r, i;
 	uint8_t val;
 
 	/* validate options */
@@ -432,11 +528,28 @@ il_net_t *il_net_create(const char *port)
 	net->sw_subs.cnt = 0;
 	net->sw_subs.sz = SW_SUBS_SZ_DEF;
 
+	/* initialize emcy update subscribers */
+	net->emcy_subs.subs = malloc(sizeof(*net->emcy_subs.subs)
+				     * EMCY_SUBS_SZ_DEF);
+	if (!net->emcy_subs.subs) {
+		ilerr__set("Network emergency subscribers allocation failed");
+		goto cleanup_sw_subs_lock;
+	}
+
+	net->emcy_subs.lock = osal_mutex_create();
+	if (!net->emcy_subs.lock) {
+		ilerr__set("Network emergency lock allocation failed");
+		goto cleanup_emcy_subs_subs;
+	}
+
+	net->emcy_subs.cnt = 0;
+	net->emcy_subs.sz = EMCY_SUBS_SZ_DEF;
+
 	/* allocate serial port */
 	net->ser = ser_create();
 	if (!net->ser) {
 		ilerr__set("Serial port allocation failed (%s)", sererr_last());
-		goto cleanup_sw_subs_lock;
+		goto cleanup_emcy_subs_lock;
 	}
 
 	/* open serial port */
@@ -461,12 +574,14 @@ il_net_t *il_net_create(const char *port)
 		goto close_ser;
 	}
 
-	/* send the same message in binary (will flush if already on binary) */
+	/* send the same message twice in binary (will flush) */
 	val = 1;
-	r = il_net__write(net, 0, UARTCFG_BIN_IDX, UARTCFG_BIN_SIDX, &val,
-			  sizeof(val));
-	if (r < 0)
-		goto close_ser;
+	for (i = 0; i < BIN_FLUSH; i++) {
+		r = il_net__write(net, 0, UARTCFG_BIN_IDX, UARTCFG_BIN_SIDX,
+				  &val, sizeof(val));
+		if (r < 0)
+			goto close_ser;
+	}
 
 	/* start listener thread */
 	net->stop = 0;
@@ -484,6 +599,12 @@ close_ser:
 
 cleanup_ser:
 	ser_destroy(net->ser);
+
+cleanup_emcy_subs_lock:
+	osal_mutex_destroy(net->emcy_subs.lock);
+
+cleanup_emcy_subs_subs:
+	free(net->emcy_subs.subs);
 
 cleanup_sw_subs_lock:
 	osal_mutex_destroy(net->sw_subs.lock);
@@ -513,11 +634,13 @@ void il_net_destroy(il_net_t *net)
 {
 	assert(net);
 
-	/* free resources */
 	net->stop = 1;
 	osal_thread_join(net->listener, NULL);
 
 	ser_close(net->ser);
+
+	osal_mutex_destroy(net->emcy_subs.lock);
+	free(net->emcy_subs.subs);
 
 	osal_mutex_destroy(net->sw_subs.lock);
 	free(net->sw_subs.subs);

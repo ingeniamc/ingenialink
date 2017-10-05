@@ -14,6 +14,13 @@
 /** Position reach timeout (ms). */
 #define POS_TIMEOUT	5000
 
+void on_emcy(void *ctx, uint32_t code)
+{
+	(void)ctx;
+
+	printf("Emergency occurred (0x%04x)\n", code);
+}
+
 static int run(const char *port, uint8_t id, const char *log_fname)
 {
 	int r = 0;
@@ -46,6 +53,13 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_net;
 	}
 
+
+	r = il_axis_emcy_subscribe(axis, on_emcy, NULL);
+	if (r < 0) {
+		fprintf(stderr, "Could not subscribe to emergencies: %s\n",
+			ilerr_last());
+		goto cleanup_axis;
+	}
 
 	il_axis_units_pos_set(axis, IL_UNITS_POS_DEG);
 
@@ -134,6 +148,8 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		fprintf(stderr, "Could not reach target: %s\n", ilerr_last());
 	}
 
+	sleep(5);
+
 	(void)il_axis_disable(axis);
 	(void)il_poller_stop(poller);
 
@@ -141,11 +157,11 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	il_poller_data_get(poller, &t, &d, &cnt, &lost);
 
 	if (lost)
-		fprintf(stderr, "Warning: poller data was lost");
+		fprintf(stderr, "Warning: poller data was lost\n");
 
 	log_f = fopen(log_fname, "w");
 	if (!log_f) {
-		fprintf(stderr, "Could not open log file");
+		fprintf(stderr, "Could not open log file\n");
 		goto cleanup_poller;
 	}
 

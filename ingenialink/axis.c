@@ -417,12 +417,10 @@ cleanup_axis:
 
 void il_axis_destroy(il_axis_t *axis)
 {
-	/* validate axis */
-	if (!axis)
-		return;
+	assert(axis);
 
 	/* de-allocate resources */
-	il_net__sw_unsubscribe(axis->net, axis->id);
+	il_net__sw_unsubscribe(axis->net, sw_update);
 
 	osal_cond_destroy(axis->sw.changed);
 	osal_mutex_destroy(axis->sw.lock);
@@ -432,17 +430,23 @@ void il_axis_destroy(il_axis_t *axis)
 	free(axis);
 }
 
-/**
- * Obtain the units scale factor.
- *
- * @param [in] axis
- *	IngeniaLink axis.
- * @param [in] reg
- *	Register.
- *
- * @return
- *	Scale factor.
- */
+int il_axis_emcy_subscribe(il_axis_t *axis, il_axis_emcy_subscriber_cb_t cb,
+			   void *ctx)
+{
+	assert(axis);
+	assert(cb);
+
+	return il_net__emcy_subscribe(axis->net, axis->id,
+				      (il_net_emcy_subscriber_cb_t)cb, ctx);
+}
+
+void il_axis_emcy_unsubscribe(il_axis_t *axis, il_axis_emcy_subscriber_cb_t cb)
+{
+	assert(axis);
+
+	il_net__emcy_unsubscribe(axis->net, (il_net_emcy_subscriber_cb_t)cb);
+}
+
 double il_axis_units_factor(il_axis_t *axis, const il_reg_t *reg)
 {
 	double factor;

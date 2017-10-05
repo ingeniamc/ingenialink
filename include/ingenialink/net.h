@@ -33,6 +33,12 @@ typedef struct il_net_sw_subscriber il_net_sw_subscriber_t;
 /** Statusword updates subcriber callback. */
 typedef void (*il_net_sw_subscriber_cb_t)(void *ctx, uint16_t sw);
 
+/** Emergency subcriber. */
+typedef struct il_net_emcy_subscriber il_net_emcy_subscriber_t;
+
+/** Emergency subcriber callback. */
+typedef void (*il_net_emcy_subscriber_cb_t)(void *ctx, uint32_t code);
+
 /**
  * Write.
  *
@@ -104,9 +110,37 @@ int il_net__sw_subscribe(il_net_t *net, uint8_t id,
  *
  * @param [in] net
  *	IngeniaLink network.
+ * @param [in] cb
+ *	Callback used when subscribed.
+ */
+void il_net__sw_unsubscribe(il_net_t *net, il_net_sw_subscriber_cb_t cb);
+
+/**
+ * Subscribe to emergency messages.
+ *
+ * @param [in] net
+ *	IngeniaLink network.
  * @param [in] id
  *	Node ID.
+ * @param [in] cb
+ *	Callback.
+ * @param [in] ctx
+ *	Callback context.
+ *
+ * @returns
+ *	0 on success, error code otherwise.
  */
-void il_net__sw_unsubscribe(il_net_t *net, uint8_t id);
+int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
+			   il_net_emcy_subscriber_cb_t cb, void *ctx);
+
+/**
+ * Unubscribe from emergency messages.
+ *
+ * @param [in] net
+ *	IngeniaLink network.
+ * @param [in] cb
+ *	Callback used when subscribed.
+ */
+void il_net__emcy_unsubscribe(il_net_t *net, il_net_emcy_subscriber_cb_t cb);
 
 #endif

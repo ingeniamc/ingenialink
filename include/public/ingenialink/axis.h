@@ -44,6 +44,9 @@ typedef struct il_axis il_axis_t;
 /** Default communications timeout (ms). */
 #define IL_AXIS_TIMEOUT_DEF	1000
 
+/** Emergency subscriber callback. */
+typedef void (*il_axis_emcy_subscriber_cb_t)(void *ctx, uint32_t code);
+
 /** Axis states (CiA 402 PDS states). */
 typedef enum {
 	/** Not ready to switch on. */
@@ -171,6 +174,34 @@ IL_EXPORT il_axis_t *il_axis_create(il_net_t *net, uint8_t id, int timeout);
  *	IngeniaLink axis instance.
  */
 IL_EXPORT void il_axis_destroy(il_axis_t *axis);
+
+/**
+ * Subscribe to emergency messages.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] cb
+ *	Callback.
+ * @param [in] ctx
+ *	Callback context.
+ *
+ * @returns
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_axis_emcy_subscribe(il_axis_t *axis,
+				     il_axis_emcy_subscriber_cb_t cb,
+				     void *ctx);
+
+/**
+ * Unubscribe from emergency messages.
+ *
+ * @param [in] axis
+ *	IngeniaLink axis.
+ * @param [in] cb
+ *	Callback used when subscribed.
+ */
+IL_EXPORT void il_axis_emcy_unsubscribe(il_axis_t *axis,
+					il_axis_emcy_subscriber_cb_t cb);
 
 /**
  * Obtain the units scale factor associated with the given register.
