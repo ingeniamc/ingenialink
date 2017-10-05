@@ -24,10 +24,6 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	il_axis_t *axis;
 	il_poller_t *poller;
 
-	const il_reg_t IL_REG_POS_ACT = {
-		0x6064, 0x00, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_POS
-	};
-
 	double *t, *d;
 	size_t cnt;
 	int lost;

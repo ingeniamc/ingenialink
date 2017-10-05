@@ -28,10 +28,6 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	il_axis_t *axis;
 	il_monitor_t *monitor;
 
-	const il_reg_t IL_REG_VEL_ACT = {
-		0x606c, 0x00, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_VEL
-	};
-
 	il_monitor_acq_t *acq;
 	size_t i;
 	double t;
