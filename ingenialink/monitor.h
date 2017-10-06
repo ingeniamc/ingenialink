@@ -64,8 +64,8 @@ typedef struct {
 
 /** IngeniaLink monitor. */
 struct il_monitor {
-	/** Associated axis. */
-	il_axis_t *axis;
+	/** Associated servo. */
+	il_servo_t *servo;
 	/** Mapped registers. */
 	const il_reg_t *mappings[IL_MONITOR_CH_NUM];
 	/** Acquisition context. */

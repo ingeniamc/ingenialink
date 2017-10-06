@@ -25,7 +25,7 @@
 #ifndef PUBLIC_INGENIALINK_POLLER_H_
 #define PUBLIC_INGENIALINK_POLLER_H_
 
-#include "axis.h"
+#include "servo.h"
 
 IL_BEGIN_DECL
 
@@ -43,8 +43,8 @@ typedef struct il_poller il_poller_t;
 /**
  * Create a register poller.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register to be polled.
  * @param [in] period
@@ -55,7 +55,7 @@ typedef struct il_poller il_poller_t;
  * @return
  *	Poller instance (NULL if it could not be created).
  */
-IL_EXPORT il_poller_t *il_poller_create(il_axis_t *axis, const il_reg_t *reg,
+IL_EXPORT il_poller_t *il_poller_create(il_servo_t *servo, const il_reg_t *reg,
 					int period, size_t sz);
 
 /**

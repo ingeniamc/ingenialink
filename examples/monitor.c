@@ -25,7 +25,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	int r = 0;
 
 	il_net_t *net;
-	il_axis_t *axis;
+	il_servo_t *servo;
 	il_monitor_t *monitor;
 
 	il_monitor_acq_t *acq;
@@ -41,24 +41,24 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto out;
 	}
 
-	/* create axis */
-	axis = il_axis_create(net, id, IL_AXIS_TIMEOUT_DEF);
-	if (!axis) {
-		fprintf(stderr, "Could not create axis: %s\n", ilerr_last());
+	/* create servo */
+	servo = il_servo_create(net, id, IL_SERVO_TIMEOUT_DEF);
+	if (!servo) {
+		fprintf(stderr, "Could not create servo: %s\n", ilerr_last());
 		r = 1;
 		goto cleanup_net;
 	}
 
 
-	il_axis_units_vel_set(axis, IL_UNITS_VEL_RPS);
+	il_servo_units_vel_set(servo, IL_UNITS_VEL_RPS);
 
 	/* create monitor, configure to sample velocity @1ms after reaching a
 	 * 90 % of the target */
-	monitor = il_monitor_create(axis);
+	monitor = il_monitor_create(servo);
 	if (!monitor) {
 		fprintf(stderr, "Could not create monitor: %s\n", ilerr_last());
 		r = 1;
-		goto cleanup_axis;
+		goto cleanup_servo;
 	}
 
 	r = il_monitor_configure(monitor, T_S, 0, MAX_SAMPLES);
@@ -91,22 +91,22 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_monitor;
 	}
 
-	/* enable axis in PV mode */
-	r = il_axis_disable(axis);
+	/* enable servo in PV mode */
+	r = il_servo_disable(servo);
 	if (r < 0) {
-		fprintf(stderr, "Could not disable axis: %s\n", ilerr_last());
+		fprintf(stderr, "Could not disable servo: %s\n", ilerr_last());
 		goto cleanup_monitor;
 	}
 
-	r = il_axis_mode_set(axis, IL_AXIS_MODE_PV);
+	r = il_servo_mode_set(servo, IL_SERVO_MODE_PV);
 	if (r < 0) {
 		fprintf(stderr, "Could not set mode: %s\n", ilerr_last());
 		goto cleanup_monitor;
 	}
 
-	r = il_axis_enable(axis, IL_AXIS_PDS_TIMEOUT_DEF);
+	r = il_servo_enable(servo, IL_SERVO_PDS_TIMEOUT_DEF);
 	if (r < 0) {
-		fprintf(stderr, "Could not enable axis: %s\n", ilerr_last());
+		fprintf(stderr, "Could not enable servo: %s\n", ilerr_last());
 		goto cleanup_monitor;
 	}
 
@@ -114,13 +114,13 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	r = il_monitor_start(monitor);
 	if (r < 0) {
 		fprintf(stderr, "Could not start monitor: %s\n", ilerr_last());
-		goto axis_disable;
+		goto servo_disable;
 	}
 
-	r = il_axis_velocity_set(axis, TARGET_VEL);
+	r = il_servo_velocity_set(servo, TARGET_VEL);
 	if (r < 0) {
 		fprintf(stderr, "Could not set velocity: %s\n", ilerr_last());
-		goto axis_disable;
+		goto servo_disable;
 	}
 
 	/* wait for monitor to capture all samples, then store results */
@@ -129,7 +129,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	if (r < 0) {
 		fprintf(stderr, "Monitor acquisition failed: %s\n",
 			ilerr_last());
-		goto axis_disable;
+		goto servo_disable;
 	}
 
 	il_monitor_data_get(monitor, &acq);
@@ -141,7 +141,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	log_f = fopen(log_fname, "w");
 	if (!log_f) {
 		fprintf(stderr, "Could not open log file");
-		goto axis_disable;
+		goto servo_disable;
 	}
 
 	for (i = 0, t = 0.; i < acq->n_samples; i++, t += T_S / 1000000.)
@@ -150,14 +150,14 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 
 	fclose(log_f);
 
-axis_disable:
-	(void)il_axis_disable(axis);
+servo_disable:
+	(void)il_servo_disable(servo);
 
 cleanup_monitor:
 	il_monitor_destroy(monitor);
 
-cleanup_axis:
-	il_axis_destroy(axis);
+cleanup_servo:
+	il_servo_destroy(servo);
 
 cleanup_net:
 	il_net_destroy(net);
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 
 	if (argc < 4) {
 		fprintf(stderr,
-			"Usage: monitor PORT AXIS_ID LOG_FILE\n");
+			"Usage: monitor PORT SERVO_ID LOG_FILE\n");
 		return 1;
 	}
 

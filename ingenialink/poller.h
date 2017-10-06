@@ -31,8 +31,8 @@
 
 /** IngeniaLink register poller. */
 struct il_poller {
-	/** Associated axis. */
-	il_axis_t *axis;
+	/** Associated servo. */
+	il_servo_t *servo;
 	/** Register. */
 	const il_reg_t *reg;
 	/** Running flag. */

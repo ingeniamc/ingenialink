@@ -22,19 +22,19 @@
  * SOFTWARE.
  */
 
-#ifndef AXIS_H
-#define AXIS_H
+#ifndef SERVO_H
+#define SERVO_H
 
-#include "public/ingenialink/axis.h"
+#include "public/ingenialink/servo.h"
 
 #include "ingenialink/net.h"
 #include "osal/osal.h"
 
-/** Minimum axis id. */
-#define AXISID_MIN		1
+/** Minimum servo id. */
+#define SERVOID_MIN		1
 
-/** Maximum axis id. */
-#define AXISID_MAX		127
+/** Maximum servo id. */
+#define SERVOID_MAX		127
 
 /** PDS default timeout (ms). */
 #define PDS_TIMEOUT		1000
@@ -72,7 +72,7 @@
 /** Relative voltage range. */
 #define VOLT_REL_RANGE		32767
 
-/** Axis units. */
+/** Servo units. */
 typedef struct {
 	/** Lock. */
 	osal_mutex_t *lock;
@@ -84,9 +84,9 @@ typedef struct {
 	il_units_vel_t vel;
 	/** Acceleration. */
 	il_units_acc_t acc;
-} il_axis_units_t;
+} il_servo_units_t;
 
-/** Axis configuration. */
+/** Servo configuration. */
 typedef struct {
 	/** Rated torque (N). */
 	double rated_torque;
@@ -98,7 +98,7 @@ typedef struct {
 	double acc_res;
 	/** Pole pitch (m). */
 	double ppitch;
-} il_axis_cfg_t;
+} il_servo_cfg_t;
 
 /** Statusword updates subcription. */
 typedef struct {
@@ -110,22 +110,22 @@ typedef struct {
 	osal_cond_t *changed;
 	/** Assigned subscription slot. */
 	int slot;
-} il_axis_sw_t;
+} il_servo_sw_t;
 
-/** IngeniaLink axis. */
-struct il_axis {
+/** IngeniaLink servo. */
+struct il_servo {
 	/** Associated IngeniaLink network. */
 	il_net_t *net;
-	/** Axis id. */
+	/** Servo id. */
 	uint8_t id;
 	/** Communications timeout (ms). */
 	int timeout;
 	/** Units. */
-	il_axis_units_t units;
+	il_servo_units_t units;
 	/** Configuration. */
-	il_axis_cfg_t cfg;
+	il_servo_cfg_t cfg;
 	/** Statusword subscription. */
-	il_axis_sw_t sw;
+	il_servo_sw_t sw;
 };
 
 #endif

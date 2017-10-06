@@ -25,7 +25,7 @@
 #ifndef PUBLIC_INGENIALINK_MONITOR_H_
 #define PUBLIC_INGENIALINK_MONITOR_H_
 
-#include "axis.h"
+#include "servo.h"
 
 IL_BEGIN_DECL
 
@@ -94,13 +94,13 @@ typedef struct {
 /**
  * Create monitor instance.
  *
- * @param [in] axis
- *	Associated axis.
+ * @param [in] servo
+ *	Associated servo.
  *
  * @return
  *	Monitor instance (NULL if it could not be created).
  */
-IL_EXPORT il_monitor_t *il_monitor_create(il_axis_t *axis);
+IL_EXPORT il_monitor_t *il_monitor_create(il_servo_t *servo);
 
 /**
  * Destroy a monitor instance.

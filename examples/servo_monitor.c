@@ -1,7 +1,7 @@
 /**
- * @example axis_monitor.c
+ * @example servo_monitor.c
  *
- * This example monitors the connection of IngeniaLink devices/axes.
+ * This example monitors the connection of IngeniaLink devices/servos.
  */
 
 #include <stdio.h>
@@ -11,13 +11,13 @@ void on_found(void *ctx, uint8_t id)
 {
 	(void)ctx;
 
-	printf("Found axis with id 0x%02x\n", id);
+	printf("Found servo with id 0x%02x\n", id);
 }
 
 void on_evt(void *ctx, il_net_dev_evt_t evt, const char *port)
 {
 	il_net_t *net;
-	il_net_axes_list_t *axes;
+	il_net_servos_list_t *servos;
 
 	(void)ctx;
 
@@ -31,11 +31,11 @@ void on_evt(void *ctx, il_net_dev_evt_t evt, const char *port)
 
 		/* scan */
 		printf("Scanning...\n");
-		axes = il_net_axes_list_get(net, on_found, NULL);
+		servos = il_net_servos_list_get(net, on_found, NULL);
 		printf("Scanning finished\n");
 
 		/* free resources */
-		il_net_axes_list_destroy(axes);
+		il_net_servos_list_destroy(servos);
 		il_net_destroy(net);
 	} else {
 		printf("Unplugged device %s\n", port);

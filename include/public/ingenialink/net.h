@@ -59,16 +59,16 @@ typedef struct il_net_dev_list {
 	struct il_net_dev_list *next;
 } il_net_dev_list_t;
 
-/** IngeniaLink network axes list. */
-typedef struct il_net_axes_list {
+/** IngeniaLink network servos list. */
+typedef struct il_net_servos_list {
 	/** Node id. */
 	uint8_t id;
 	/** Next node. */
-	struct il_net_axes_list *next;
-} il_net_axes_list_t;
+	struct il_net_servos_list *next;
+} il_net_servos_list_t;
 
 /** IngeniaLink node found callback. */
-typedef void (*il_net_axes_on_found_t)(void *ctx, uint8_t id);
+typedef void (*il_net_servos_on_found_t)(void *ctx, uint8_t id);
 
 /** Device monitor event types. */
 typedef enum {
@@ -187,10 +187,10 @@ IL_EXPORT void il_net_dev_mon_stop(il_net_dev_mon_t *mon);
 IL_EXPORT void il_net_dev_mon_destroy(il_net_dev_mon_t *mon);
 
 /**
- * Obtain IngeniaLink network axes list.
+ * Obtain IngeniaLink network servos list.
  *
  * @note
- *	A callback can be given to obtain *real-time* axes information. This
+ *	A callback can be given to obtain *real-time* servos information. This
  *	may be useful for GUIs.
  *
  * @param [in] net
@@ -201,28 +201,28 @@ IL_EXPORT void il_net_dev_mon_destroy(il_net_dev_mon_t *mon);
  *	Callback context (optional).
  *
  * @returns
- *	IngeniaLink network axes list (NULL if none are found or any error
+ *	IngeniaLink network servos list (NULL if none are found or any error
  *	occurs).
  *
  * @see
- *	il_net_axes_list_destroy
+ *	il_net_servos_list_destroy
  */
-IL_EXPORT il_net_axes_list_t *il_net_axes_list_get(
-		il_net_t *net, il_net_axes_on_found_t on_found, void *ctx);
+IL_EXPORT il_net_servos_list_t *il_net_servos_list_get(
+		il_net_t *net, il_net_servos_on_found_t on_found, void *ctx);
 
 /**
- * Destroy IngeniaLink network axes list.
+ * Destroy IngeniaLink network servos list.
  *
  * @param [in, out] lst
- *	IngeniaLink network axes list.
+ *	IngeniaLink network servos list.
  *
  * @see
- *	il_net_axes_list_get
+ *	il_net_servos_list_get
  */
-IL_EXPORT void il_net_axes_list_destroy(il_net_axes_list_t *lst);
+IL_EXPORT void il_net_servos_list_destroy(il_net_servos_list_t *lst);
 
-/** Utility macro to iterate over a list of IngeniaLink network axes list. */
-#define il_net_axes_list_foreach(item, lst) \
+/** Utility macro to iterate over a list of IngeniaLink network servos list. */
+#define il_net_servos_list_foreach(item, lst) \
 	for ((item) = (lst); (item); (item) = (item)->next)
 
 /** @} */

@@ -19,7 +19,7 @@ The library provides:
 * Register polling and monitoring
 * Object oriented interface
 * Supports single link and daisy-chain topologies
-* Device listing and monitor
+* Servo listing and monitoring
 * Thread-safe communications
 * Descriptive and detailed error messages
 

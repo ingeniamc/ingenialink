@@ -43,7 +43,7 @@ static int run(int loops, const char *port, uint8_t id, uint16_t idx,
 	int32_t r = 0;
 
 	il_net_t *net;
-	il_axis_t *axis;
+	il_servo_t *servo;
 	il_reg_t reg;
 
 	double elapsed;
@@ -56,10 +56,10 @@ static int run(int loops, const char *port, uint8_t id, uint16_t idx,
 		goto out;
 	}
 
-	/* create axis */
-	axis = il_axis_create(net, id, IL_AXIS_TIMEOUT_DEF);
-	if (!axis) {
-		fprintf(stderr, "Could not create axis: %s\n", ilerr_last());
+	/* create servo */
+	servo = il_servo_create(net, id, IL_SERVO_TIMEOUT_DEF);
+	if (!servo) {
+		fprintf(stderr, "Could not create servo: %s\n", ilerr_last());
 		goto cleanup_net;
 	}
 
@@ -75,8 +75,8 @@ static int run(int loops, const char *port, uint8_t id, uint16_t idx,
 		uint8_t buf[BUF_SZ];
 		/*double dbl;*/
 
-		r = il_axis_raw_read(axis, &reg, buf, sizeof(buf), NULL);
-		/*r = il_axis_read_dbl(axis, &reg, &dbl);*/
+		r = il_servo_raw_read(servo, &reg, buf, sizeof(buf), NULL);
+		/*r = il_servo_read_dbl(servo, &reg, &dbl);*/
 		if (r < 0) {
 			fprintf(stderr, "Error while reading: %s\n",
 				ilerr_last());
@@ -90,7 +90,7 @@ static int run(int loops, const char *port, uint8_t id, uint16_t idx,
 		       elapsed, ((double)loops / elapsed) * 1000.0);
 	}
 
-	il_axis_destroy(axis);
+	il_servo_destroy(servo);
 
 cleanup_net:
 	il_net_destroy(net);
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 
 	if (argc < 6) {
 		fprintf(stderr,
-			"Usage: benchmark LOOPS PORT AXIS_ID INDEX SUBINDEX\n");
+			"Usage: benchmark LOOPS PORT SERVO_ID INDEX SUBINDEX\n");
 		return 1;
 	}
 

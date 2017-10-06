@@ -47,7 +47,7 @@ int poller_thread(void *args)
 		osal_clock_perf_get(poller->perf, &curr);
 
 		/* poll */
-		il_axis_read(poller->axis, poller->reg, &d);
+		il_servo_read(poller->servo, poller->reg, &d);
 		t = (double)curr.s + (double)curr.ns / 1000000000.;
 
 		/* push to the buffer */
@@ -72,8 +72,8 @@ int poller_thread(void *args)
  * Public
  ******************************************************************************/
 
-il_poller_t *il_poller_create(il_axis_t *axis, const il_reg_t *reg, int period,
-			      size_t sz)
+il_poller_t *il_poller_create(il_servo_t *servo, const il_reg_t *reg,
+			      int period, size_t sz)
 {
 	il_poller_t *poller;
 
@@ -130,7 +130,7 @@ il_poller_t *il_poller_create(il_axis_t *axis, const il_reg_t *reg, int period,
 		goto cleanup_d_buf1;
 	}
 
-	poller->axis = axis;
+	poller->servo = servo;
 	poller->reg = reg;
 	poller->period = period;
 	poller->stop = 0;

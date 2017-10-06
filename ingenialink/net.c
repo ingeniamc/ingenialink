@@ -785,16 +785,16 @@ void il_net_dev_mon_stop(il_net_dev_mon_t *mon)
 	}
 }
 
-il_net_axes_list_t *il_net_axes_list_get(il_net_t *net,
-					 il_net_axes_on_found_t on_found,
-					 void *ctx)
+il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
+					     il_net_servos_on_found_t on_found,
+					     void *ctx)
 {
 	int r;
 	uint8_t id;
 	il_frame_t frame;
 
-	il_net_axes_list_t *lst = NULL;
-	il_net_axes_list_t *prev;
+	il_net_servos_list_t *lst = NULL;
+	il_net_servos_list_t *prev;
 
 	assert(net);
 
@@ -820,7 +820,7 @@ il_net_axes_list_t *il_net_axes_list_get(il_net_t *net,
 	il_frame__init(&frame, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, NULL, 0);
 
 	/* QUIRK: ignore first run, as on cold-boot firmware may issue
-	 * improperly formatted binary messages, leading to no axes found.
+	 * improperly formatted binary messages, leading to no servos found.
 	 */
 	r = ser_write(net->ser, frame.buf, frame.sz, NULL);
 	if (r < 0) {
@@ -859,7 +859,7 @@ il_net_axes_list_t *il_net_axes_list_get(il_net_t *net,
 			prev = lst;
 			lst = malloc(sizeof(*lst));
 			if (!lst) {
-				il_net_axes_list_destroy(prev);
+				il_net_servos_list_destroy(prev);
 				break;
 			}
 
@@ -882,13 +882,13 @@ sync_unlock:
 	return lst;
 }
 
-void il_net_axes_list_destroy(il_net_axes_list_t *lst)
+void il_net_servos_list_destroy(il_net_servos_list_t *lst)
 {
-	il_net_axes_list_t *curr;
+	il_net_servos_list_t *curr;
 
 	curr = lst;
 	while (curr) {
-		il_net_axes_list_t *tmp;
+		il_net_servos_list_t *tmp;
 
 		tmp = curr->next;
 		free(curr);

@@ -28,7 +28,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	size_t i;
 
 	il_net_t *net;
-	il_axis_t *axis;
+	il_servo_t *servo;
 
 	il_poller_t *poller;
 	double *t, *d;
@@ -45,85 +45,85 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto out;
 	}
 
-	/* create axis */
-	axis = il_axis_create(net, id, IL_AXIS_TIMEOUT_DEF);
-	if (!axis) {
-		fprintf(stderr, "Could not create axis: %s\n", ilerr_last());
+	/* create servo */
+	servo = il_servo_create(net, id, IL_SERVO_TIMEOUT_DEF);
+	if (!servo) {
+		fprintf(stderr, "Could not create servo: %s\n", ilerr_last());
 		r = 1;
 		goto cleanup_net;
 	}
 
-	r = il_axis_emcy_subscribe(axis, on_emcy, NULL);
+	r = il_servo_emcy_subscribe(servo, on_emcy, NULL);
 	if (r < 0) {
 		fprintf(stderr, "Could not subscribe to emergencies: %s\n",
 			ilerr_last());
-		goto cleanup_axis;
+		goto cleanup_servo;
 	}
 
-	il_axis_units_pos_set(axis, IL_UNITS_POS_DEG);
+	il_servo_units_pos_set(servo, IL_UNITS_POS_DEG);
 
 	/* create poller */
-	poller = il_poller_create(axis, &IL_REG_POS_ACT, 2, 2000);
+	poller = il_poller_create(servo, &IL_REG_POS_ACT, 2, 2000);
 	if (!poller) {
 		fprintf(stderr, "Could not create poller: %s\n", ilerr_last());
 		r = 1;
-		goto cleanup_axis;
+		goto cleanup_servo;
 	}
 
 	/* reset faults, disable */
-	il_axis_fault_reset(axis);
+	il_servo_fault_reset(servo);
 	if (r < 0) {
 		fprintf(stderr, "Could not reset fault: %s\n", ilerr_last());
 		goto cleanup_poller;
 	}
 
-	r = il_axis_disable(axis);
+	r = il_servo_disable(servo);
 	if (r < 0) {
-		fprintf(stderr, "Could not disable axis: %s\n", ilerr_last());
+		fprintf(stderr, "Could not disable servo: %s\n", ilerr_last());
 		goto cleanup_poller;
 	}
 
 	/* perform homing */
-	r = il_axis_mode_set(axis, IL_AXIS_MODE_HOMING);
+	r = il_servo_mode_set(servo, IL_SERVO_MODE_HOMING);
 	if (r < 0) {
 		fprintf(stderr, "Could not set mode: %s\n", ilerr_last());
 		goto cleanup_poller;
 	}
 
-	r = il_axis_enable(axis, IL_AXIS_PDS_TIMEOUT_DEF);
+	r = il_servo_enable(servo, IL_SERVO_PDS_TIMEOUT_DEF);
 	if (r < 0) {
-		fprintf(stderr, "Could not enable axis: %s\n", ilerr_last());
+		fprintf(stderr, "Could not enable servo: %s\n", ilerr_last());
 		goto cleanup_poller;
 	}
 
-	r = il_axis_homing_start(axis);
+	r = il_servo_homing_start(servo);
 	if (r < 0) {
 		fprintf(stderr, "Could not start homing: %s\n", ilerr_last());
 		goto cleanup_poller;
 	}
 
-	r = il_axis_homing_wait(axis, HOMING_TIMEOUT);
+	r = il_servo_homing_wait(servo, HOMING_TIMEOUT);
 	if (r < 0) {
 		fprintf(stderr, "Homing did not succeed: %s\n", ilerr_last());
 		goto cleanup_poller;
 	}
 
 	/* perform PP movements */
-	r = il_axis_disable(axis);
+	r = il_servo_disable(servo);
 	if (r < 0) {
-		fprintf(stderr, "Could not disable axis: %s\n", ilerr_last());
+		fprintf(stderr, "Could not disable servo: %s\n", ilerr_last());
 		goto cleanup_poller;
 	}
 
-	r = il_axis_mode_set(axis, IL_AXIS_MODE_PP);
+	r = il_servo_mode_set(servo, IL_SERVO_MODE_PP);
 	if (r < 0) {
 		fprintf(stderr, "Could not set mode: %s\n", ilerr_last());
 		goto cleanup_poller;
 	}
 
-	r = il_axis_enable(axis, IL_AXIS_PDS_TIMEOUT_DEF);
+	r = il_servo_enable(servo, IL_SERVO_PDS_TIMEOUT_DEF);
 	if (r < 0) {
-		fprintf(stderr, "Could not enable axis: %s\n", ilerr_last());
+		fprintf(stderr, "Could not enable servo: %s\n", ilerr_last());
 		goto cleanup_poller;
 	}
 
@@ -134,7 +134,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	}
 
 	for (i = 1; i < 5; i++) {
-		r = il_axis_position_set(axis, 90 * i, 0, 0);
+		r = il_servo_position_set(servo, 90 * i, 0, 0);
 		if (r < 0) {
 			fprintf(stderr, "Could not set position: %s\n",
 				ilerr_last());
@@ -142,12 +142,12 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		}
 	}
 
-	r = il_axis_wait_reached(axis, POS_TIMEOUT);
+	r = il_servo_wait_reached(servo, POS_TIMEOUT);
 	if (r < 0) {
 		fprintf(stderr, "Could not reach target: %s\n", ilerr_last());
 	}
 
-	(void)il_axis_disable(axis);
+	(void)il_servo_disable(servo);
 	(void)il_poller_stop(poller);
 
 	/* obtain poller results and log to CSV file. */
@@ -170,8 +170,8 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 cleanup_poller:
 	il_poller_destroy(poller);
 
-cleanup_axis:
-	il_axis_destroy(axis);
+cleanup_servo:
+	il_servo_destroy(servo);
 
 cleanup_net:
 	il_net_destroy(net);
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
 
 	if (argc < 4) {
 		fprintf(stderr,
-			"Usage: motion PORT AXIS_ID LOG_FILE\n");
+			"Usage: motion PORT SERVO_ID LOG_FILE\n");
 		return 1;
 	}
 

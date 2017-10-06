@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef PUBLIC_INGENIALINK_AXIS_H_
-#define PUBLIC_INGENIALINK_AXIS_H_
+#ifndef PUBLIC_INGENIALINK_SERVO_H_
+#define PUBLIC_INGENIALINK_SERVO_H_
 
 #include "net.h"
 #include "registers.h"
@@ -31,60 +31,60 @@
 IL_BEGIN_DECL
 
 /**
- * @file ingenialink/axis.h
- * @brief Axis.
- * @defgroup IL_AXIS Axis
+ * @file ingenialink/servo.h
+ * @brief Servo.
+ * @defgroup IL_SERVO Servo
  * @ingroup IL
  * @{
  */
 
-/** IngeniaLink axis instance. */
-typedef struct il_axis il_axis_t;
+/** IngeniaLink servo instance. */
+typedef struct il_servo il_servo_t;
 
 /** Default communications timeout (ms). */
-#define IL_AXIS_TIMEOUT_DEF	1000
+#define IL_SERVO_TIMEOUT_DEF	1000
 
 /** Emergency subscriber callback. */
-typedef void (*il_axis_emcy_subscriber_cb_t)(void *ctx, uint32_t code);
+typedef void (*il_servo_emcy_subscriber_cb_t)(void *ctx, uint32_t code);
 
-/** Axis states (CiA 402 PDS states). */
+/** Servo states (CiA 402 PDS states). */
 typedef enum {
 	/** Not ready to switch on. */
-	IL_AXIS_STATE_NRDY,
+	IL_SERVO_STATE_NRDY,
 	/** Switch on disabled. */
-	IL_AXIS_STATE_DISABLED,
+	IL_SERVO_STATE_DISABLED,
 	/** Ready to be switched on. */
-	IL_AXIS_STATE_RDY,
+	IL_SERVO_STATE_RDY,
 	/** Power switched on. */
-	IL_AXIS_STATE_ON,
+	IL_SERVO_STATE_ON,
 	/** Enabled. */
-	IL_AXIS_STATE_ENABLED,
+	IL_SERVO_STATE_ENABLED,
 	/** Quick stop. */
-	IL_AXIS_STATE_QSTOP,
+	IL_SERVO_STATE_QSTOP,
 	/** Fault reactive. */
-	IL_AXIS_STATE_FAULTR,
+	IL_SERVO_STATE_FAULTR,
 	/** Fault. */
-	IL_AXIS_STATE_FAULT
-} il_axis_state_t;
+	IL_SERVO_STATE_FAULT
+} il_servo_state_t;
 
 /** Default PDS operations timeout (ms). */
-#define IL_AXIS_PDS_TIMEOUT_DEF	1000
+#define IL_SERVO_PDS_TIMEOUT_DEF	1000
 
-/** Axis operation modes. */
+/** Servo operation modes. */
 typedef enum {
 	/** Open loop (vector mode). */
-	IL_AXIS_MODE_OLV = -2,
+	IL_SERVO_MODE_OLV = -2,
 	/** Open loop (scalar mode). */
-	IL_AXIS_MODE_OLS = -1,
+	IL_SERVO_MODE_OLS = -1,
 	/** Profile position. */
-	IL_AXIS_MODE_PP = 1,
+	IL_SERVO_MODE_PP = 1,
 	/** Profile velocity. */
-	IL_AXIS_MODE_PV = 3,
+	IL_SERVO_MODE_PV = 3,
 	/** Profile torque. */
-	IL_AXIS_MODE_PT = 4,
+	IL_SERVO_MODE_PT = 4,
 	/** Homing. */
-	IL_AXIS_MODE_HOMING = 6
-} il_axis_mode_t;
+	IL_SERVO_MODE_HOMING = 6
+} il_servo_mode_t;
 
 /** Torque units. */
 typedef enum {
@@ -153,33 +153,33 @@ typedef enum {
 } il_units_acc_t;
 
 /**
- * Create IngeniaLink axis instance.
+ * Create IngeniaLink servo instance.
  *
  * @param [in] net
  *	IngeniaLink network.
  * @param [in] id
- *	Axis id.
+ *	Servo id.
  * @param [in] timeout
  *	Communications timeout (ms).
  *
  * @return
- *	Axis instance (NULL if it could not be created).
+ *	Servo instance (NULL if it could not be created).
  */
-IL_EXPORT il_axis_t *il_axis_create(il_net_t *net, uint8_t id, int timeout);
+IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint8_t id, int timeout);
 
 /**
- * Destroy an IngeniaLink axis instance.
+ * Destroy an IngeniaLink servo instance.
  *
- * @param [in] axis
- *	IngeniaLink axis instance.
+ * @param [in] servo
+ *	IngeniaLink servo instance.
  */
-IL_EXPORT void il_axis_destroy(il_axis_t *axis);
+IL_EXPORT void il_servo_destroy(il_servo_t *servo);
 
 /**
  * Subscribe to emergency messages.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] cb
  *	Callback.
  * @param [in] ctx
@@ -188,123 +188,123 @@ IL_EXPORT void il_axis_destroy(il_axis_t *axis);
  * @returns
  *	Assigned slot (>= 0) or error code (< 0).
  */
-IL_EXPORT int il_axis_emcy_subscribe(il_axis_t *axis,
-				     il_axis_emcy_subscriber_cb_t cb,
-				     void *ctx);
+IL_EXPORT int il_servo_emcy_subscribe(il_servo_t *servo,
+				      il_servo_emcy_subscriber_cb_t cb,
+				      void *ctx);
 
 /**
  * Unubscribe from emergency messages.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] slot
  *	Assigned slot when subscribed.
  */
-IL_EXPORT void il_axis_emcy_unsubscribe(il_axis_t *axis, int slot);
+IL_EXPORT void il_servo_emcy_unsubscribe(il_servo_t *servo, int slot);
 
 /**
  * Obtain the units scale factor associated with the given register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  *
  * @return
  *	Scale factor.
  */
-IL_EXPORT double il_axis_units_factor(il_axis_t *axis, const il_reg_t *reg);
+IL_EXPORT double il_servo_units_factor(il_servo_t *servo, const il_reg_t *reg);
 
 /**
  * Get the torque units.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  *
  * @return
- *	Torque units (IL_UNITS_TORQUE_NATIVE if axis is not valid).
+ *	Torque units (IL_UNITS_TORQUE_NATIVE if servo is not valid).
  */
-IL_EXPORT il_units_torque_t il_axis_units_torque_get(il_axis_t *axis);
+IL_EXPORT il_units_torque_t il_servo_units_torque_get(il_servo_t *servo);
 
 /**
  * Set the torque units.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] units
  *	Units.
  */
-IL_EXPORT void il_axis_units_torque_set(il_axis_t *axis,
-					il_units_torque_t units);
+IL_EXPORT void il_servo_units_torque_set(il_servo_t *servo,
+					 il_units_torque_t units);
 
 /**
  * Get the position units.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  *
  * @return
- *	Position units (IL_UNITS_POS_NATIVE if axis is not valid).
+ *	Position units (IL_UNITS_POS_NATIVE if servo is not valid).
  */
-IL_EXPORT il_units_pos_t il_axis_units_pos_get(il_axis_t *axis);
+IL_EXPORT il_units_pos_t il_servo_units_pos_get(il_servo_t *servo);
 
 /**
  * Set the position units.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] units
  *	Units.
  */
-IL_EXPORT void il_axis_units_pos_set(il_axis_t *axis, il_units_pos_t units);
+IL_EXPORT void il_servo_units_pos_set(il_servo_t *servo, il_units_pos_t units);
 
 /**
  * Get the velocity units.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  *
  * @return
- *	Velocity units (IL_UNITS_VEL_NATIVE if axis is not valid).
+ *	Velocity units (IL_UNITS_VEL_NATIVE if servo is not valid).
  */
-IL_EXPORT il_units_vel_t il_axis_units_vel_get(il_axis_t *axis);
+IL_EXPORT il_units_vel_t il_servo_units_vel_get(il_servo_t *servo);
 
 /**
  * Set the velocity units.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] units
  *	Units.
  */
-IL_EXPORT void il_axis_units_vel_set(il_axis_t *axis, il_units_vel_t units);
+IL_EXPORT void il_servo_units_vel_set(il_servo_t *servo, il_units_vel_t units);
 
 /**
  * Get the acceleration units.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  *
  * @return
- *	Acceleration units (IL_UNITS_ACC_NATIVE if axis is not valid).
+ *	Acceleration units (IL_UNITS_ACC_NATIVE if servo is not valid).
  */
-IL_EXPORT il_units_acc_t il_axis_units_acc_get(il_axis_t *axis);
+IL_EXPORT il_units_acc_t il_servo_units_acc_get(il_servo_t *servo);
 
 /**
  * Set the acceleration units.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] units
  *	Units.
  */
-IL_EXPORT void il_axis_units_acc_set(il_axis_t *axis, il_units_acc_t units);
+IL_EXPORT void il_servo_units_acc_set(il_servo_t *servo, il_units_acc_t units);
 
 /**
  * Read data from a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [out] buf
@@ -317,14 +317,14 @@ IL_EXPORT void il_axis_units_acc_set(il_axis_t *axis, il_units_acc_t units);
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_read(il_axis_t *axis, const il_reg_t *reg, void *buf,
-			       size_t sz, size_t *recvd);
+IL_EXPORT int il_servo_raw_read(il_servo_t *servo, const il_reg_t *reg,
+				void *buf, size_t sz, size_t *recvd);
 
 /**
  * Read unsigned 8-bit value from a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [out] buf
@@ -333,14 +333,14 @@ IL_EXPORT int il_axis_raw_read(il_axis_t *axis, const il_reg_t *reg, void *buf,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_read_u8(il_axis_t *axis, const il_reg_t *reg,
-				  uint8_t *buf);
+IL_EXPORT int il_servo_raw_read_u8(il_servo_t *servo, const il_reg_t *reg,
+				   uint8_t *buf);
 
 /**
  * Read signed 8-bit value from a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [out] buf
@@ -349,14 +349,14 @@ IL_EXPORT int il_axis_raw_read_u8(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_read_s8(il_axis_t *axis, const il_reg_t *reg,
-				  int8_t *buf);
+IL_EXPORT int il_servo_raw_read_s8(il_servo_t *servo, const il_reg_t *reg,
+				   int8_t *buf);
 
 /**
  * Read unsigned 16-bit value from a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [out] buf
@@ -365,14 +365,14 @@ IL_EXPORT int il_axis_raw_read_s8(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_read_u16(il_axis_t *axis, const il_reg_t *reg,
-				   uint16_t *buf);
+IL_EXPORT int il_servo_raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
+				    uint16_t *buf);
 
 /**
  * Read signed 16-bit value from a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [out] buf
@@ -381,14 +381,14 @@ IL_EXPORT int il_axis_raw_read_u16(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_read_s16(il_axis_t *axis, const il_reg_t *reg,
-				   int16_t *buf);
+IL_EXPORT int il_servo_raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
+				    int16_t *buf);
 
 /**
  * Read unsigned 32-bit value from a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [out] buf
@@ -397,14 +397,14 @@ IL_EXPORT int il_axis_raw_read_s16(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_read_u32(il_axis_t *axis, const il_reg_t *reg,
-				   uint32_t *buf);
+IL_EXPORT int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
+				    uint32_t *buf);
 
 /**
  * Read signed 32-bit value from a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [out] buf
@@ -413,14 +413,14 @@ IL_EXPORT int il_axis_raw_read_u32(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_read_s32(il_axis_t *axis, const il_reg_t *reg,
-				   int32_t *buf);
+IL_EXPORT int il_servo_raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
+				    int32_t *buf);
 
 /**
  * Read unsigned 64-bit value from a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [out] buf
@@ -429,14 +429,14 @@ IL_EXPORT int il_axis_raw_read_s32(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_read_u64(il_axis_t *axis, const il_reg_t *reg,
-				   uint64_t *buf);
+IL_EXPORT int il_servo_raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
+				    uint64_t *buf);
 
 /**
  * Read signed 64-bit value from a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [out] buf
@@ -445,8 +445,8 @@ IL_EXPORT int il_axis_raw_read_u64(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_read_s64(il_axis_t *axis, const il_reg_t *reg,
-				   int64_t *buf);
+IL_EXPORT int il_servo_raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
+				    int64_t *buf);
 
 /**
  * Read a register.
@@ -454,8 +454,8 @@ IL_EXPORT int il_axis_raw_read_s64(il_axis_t *axis, const il_reg_t *reg,
  * This function will read from a register and also perform a unit conversion to
  * match the current operating units.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [out] buf
@@ -464,13 +464,14 @@ IL_EXPORT int il_axis_raw_read_s64(il_axis_t *axis, const il_reg_t *reg,
  * @returns
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_read(il_axis_t *axis, const il_reg_t *reg, double *buf);
+IL_EXPORT int il_servo_read(il_servo_t *servo, const il_reg_t *reg,
+			    double *buf);
 
 /**
  * Write data to a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [in] buf
@@ -481,14 +482,14 @@ IL_EXPORT int il_axis_read(il_axis_t *axis, const il_reg_t *reg, double *buf);
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_write(il_axis_t *axis, const il_reg_t *reg,
-				const void *buf, size_t sz);
+IL_EXPORT int il_servo_raw_write(il_servo_t *servo, const il_reg_t *reg,
+				 const void *buf, size_t sz);
 
 /**
  * Write unsigned 8-bit integer to a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [in] val
@@ -497,14 +498,14 @@ IL_EXPORT int il_axis_raw_write(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_write_u8(il_axis_t *axis, const il_reg_t *reg,
-				   uint8_t val);
+IL_EXPORT int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
+				    uint8_t val);
 
 /**
  * Write signed 8-bit integer to a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [in] val
@@ -513,14 +514,14 @@ IL_EXPORT int il_axis_raw_write_u8(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_write_s8(il_axis_t *axis, const il_reg_t *reg,
-				   int8_t val);
+IL_EXPORT int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
+				    int8_t val);
 
 /**
  * Write unsigned 16-bit integer to a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [in] val
@@ -529,14 +530,14 @@ IL_EXPORT int il_axis_raw_write_s8(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_write_u16(il_axis_t *axis, const il_reg_t *reg,
-				    uint16_t val);
+IL_EXPORT int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
+				     uint16_t val);
 
 /**
  * Write signed 16-bit integer to a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [in] val
@@ -545,14 +546,14 @@ IL_EXPORT int il_axis_raw_write_u16(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_write_s16(il_axis_t *axis, const il_reg_t *reg,
-				    int16_t val);
+IL_EXPORT int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
+				     int16_t val);
 
 /**
  * Write unsigned 32-bit integer to a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [in] val
@@ -561,14 +562,14 @@ IL_EXPORT int il_axis_raw_write_s16(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_write_u32(il_axis_t *axis, const il_reg_t *reg,
-				    uint32_t val);
+IL_EXPORT int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
+				     uint32_t val);
 
 /**
  * Write signed 32-bit integer to a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [in] val
@@ -577,14 +578,14 @@ IL_EXPORT int il_axis_raw_write_u32(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_write_s32(il_axis_t *axis, const il_reg_t *reg,
-				    int32_t val);
+IL_EXPORT int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
+				     int32_t val);
 
 /**
  * Write unsigned 64-bit integer to a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [in] val
@@ -593,14 +594,14 @@ IL_EXPORT int il_axis_raw_write_s32(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_write_u64(il_axis_t *axis, const il_reg_t *reg,
-				    uint64_t val);
+IL_EXPORT int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
+				     uint64_t val);
 
 /**
  * Write signed 64-bit integer to a register.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [in] val
@@ -609,8 +610,8 @@ IL_EXPORT int il_axis_raw_write_u64(il_axis_t *axis, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_raw_write_s64(il_axis_t *axis, const il_reg_t *reg,
-				    int64_t val);
+IL_EXPORT int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
+				     int64_t val);
 
 /**
  * Write to a register.
@@ -618,8 +619,8 @@ IL_EXPORT int il_axis_raw_write_s64(il_axis_t *axis, const il_reg_t *reg,
  * This function will write to a register and also perform a unit conversion to
  * match the current operating units.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
  * @param [in] val
@@ -628,135 +629,136 @@ IL_EXPORT int il_axis_raw_write_s64(il_axis_t *axis, const il_reg_t *reg,
  * @returns
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_write(il_axis_t *axis, const il_reg_t *reg, double val);
+IL_EXPORT int il_servo_write(il_servo_t *servo, const il_reg_t *reg,
+			     double val);
 
 /**
- * Obtain current axis PDS state.
+ * Obtain current servo PDS state.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  *
  * @return
  *	Current PDS state.
  */
-il_axis_state_t il_axis_state_get(il_axis_t *axis);
+il_servo_state_t il_servo_state_get(il_servo_t *servo);
 
 /**
- * Disable axis PDS.
+ * Disable servo PDS.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_disable(il_axis_t *axis);
+IL_EXPORT int il_servo_disable(il_servo_t *servo);
 
 /**
- * Switch on axis PDS.
+ * Switch on servo PDS.
  *
  * @note
  *	The timeout is the timeout between state changes.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] timeout
  *	Timeout (ms).
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_switch_on(il_axis_t *axis, int timeout);
+IL_EXPORT int il_servo_switch_on(il_servo_t *servo, int timeout);
 
 /**
- * Enable axis PDS.
+ * Enable servo PDS.
  *
  * @note
  *	The timeout is the timeout between state changes.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] timeout
  *	Timeout (ms).
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_enable(il_axis_t *axis, int timeout);
+IL_EXPORT int il_servo_enable(il_servo_t *servo, int timeout);
 
 /**
  * Reset the drive fault state.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_fault_reset(il_axis_t *axis);
+IL_EXPORT int il_servo_fault_reset(il_servo_t *servo);
 
 /**
- * Set the axis operation mode.
+ * Set the servo operation mode.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] mode
  *	Mode.
  *
  */
-IL_EXPORT int il_axis_mode_set(il_axis_t *axis, il_axis_mode_t mode);
+IL_EXPORT int il_servo_mode_set(il_servo_t *servo, il_servo_mode_t mode);
 
 /**
  * Get the open loop voltage.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [out] voltage
  *	Voltage buffer (% relative to DC-Bus, -1...1).
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_ol_voltage_get(il_axis_t *axis, double *voltage);
+IL_EXPORT int il_servo_ol_voltage_get(il_servo_t *servo, double *voltage);
 
 /**
  * Set the open loop voltage.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] voltage
  *	Voltage (% relative to DC-Bus, -1...1).
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_ol_voltage_set(il_axis_t *axis, double voltage);
+IL_EXPORT int il_servo_ol_voltage_set(il_servo_t *servo, double voltage);
 
 /**
  * Get the open loop frequency.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] freq
  *	Frequency buffer (mHz).
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_ol_frequency_get(il_axis_t *axis, double *freq);
+IL_EXPORT int il_servo_ol_frequency_get(il_servo_t *servo, double *freq);
 
 /**
  * Set the open loop frequency.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] freq
  *	Frequency (mHz).
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_ol_frequency_set(il_axis_t *axis, double freq);
+IL_EXPORT int il_servo_ol_frequency_set(il_servo_t *servo, double freq);
 
 /**
  * Start homing.
@@ -765,76 +767,76 @@ IL_EXPORT int il_axis_ol_frequency_set(il_axis_t *axis, double freq);
  *	This assumes that the drive is in the appropriate mote and that the PDS
  *	is enabled.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_homing_start(il_axis_t *axis);
+IL_EXPORT int il_servo_homing_start(il_servo_t *servo);
 
 /**
  * Wait until homing completes.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] timeout
  *	Timeout (ms).
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_homing_wait(il_axis_t *axis, int timeout);
+IL_EXPORT int il_servo_homing_wait(il_servo_t *servo, int timeout);
 
 /**
- * Get the actual axis torque.
+ * Get the actual servo torque.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [out] torque
  *	Where the actual torque will be stored.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_torque_get(il_axis_t *axis, double *torque);
+IL_EXPORT int il_servo_torque_get(il_servo_t *servo, double *torque);
 
 /**
- * Set the axis target torque.
+ * Set the servo target torque.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] torque
  *	Torque.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_torque_set(il_axis_t *axis, double torque);
+IL_EXPORT int il_servo_torque_set(il_servo_t *servo, double torque);
 
 /**
- * Get the actual axis position.
+ * Get the actual servo position.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [out] pos
  *	Where the actual position will be stored.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_position_get(il_axis_t *axis, double *pos);
+IL_EXPORT int il_servo_position_get(il_servo_t *servo, double *pos);
 
 /**
- * Set the axis target position.
+ * Set the servo target position.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] pos
  *	Position.
  * @param [in] immediate
  *	If set, the position will be set immediately, otherwise will be added
- *	to the internal axis queue.
+ *	to the internal servo queue.
  * @param [in] relative
  *	If set, the position is taken as a relative value, otherwise it is taken
  *	as an absolute value.
@@ -842,65 +844,65 @@ IL_EXPORT int il_axis_position_get(il_axis_t *axis, double *pos);
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_position_set(il_axis_t *axis, double pos, int immediate,
-				   int relative);
+IL_EXPORT int il_servo_position_set(il_servo_t *servo, double pos,
+				    int immediate, int relative);
 
 /**
- * Wait until the axis acknowledges a position.
+ * Wait until the servo acknowledges a position.
  *
  * @note
  *	This may only be useful for multi-point movements, where the ACK can be
  *	kept high until positions buffer is empty. On any other case, ACK will
  *	always be received.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] timeout
  *	Timeout (ms).
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_position_wait_ack(il_axis_t *axis, int timeout);
+IL_EXPORT int il_servo_position_wait_ack(il_servo_t *servo, int timeout);
 
 /**
- * Get the actual axis velocity.
+ * Get the actual servo velocity.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [out] vel
  *	Where the actual velocity will be stored.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_velocity_get(il_axis_t *axis, double *vel);
+IL_EXPORT int il_servo_velocity_get(il_servo_t *servo, double *vel);
 
 /**
- * Set the axis target velocity.
+ * Set the servo target velocity.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] vel
  *	Velocity.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_velocity_set(il_axis_t *axis, double vel);
+IL_EXPORT int il_servo_velocity_set(il_servo_t *servo, double vel);
 
 /**
- * Wait until the axis does a target reach.
+ * Wait until the servo does a target reach.
  *
- * @param [in] axis
- *	IngeniaLink axis.
+ * @param [in] servo
+ *	IngeniaLink servo.
  * @param [in] timeout
  *	Timeout (ms).
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_axis_wait_reached(il_axis_t *axis, int timeout);
+IL_EXPORT int il_servo_wait_reached(il_servo_t *servo, int timeout);
 
 /** @} */
 
