@@ -110,7 +110,7 @@ static int acquisition(void *args)
 			goto out;
 
 		/* clip available (user may have requested less) */
-		available = MIN(available, monitor->acq.sz);
+		available = (uint16_t)MIN(available, monitor->acq.sz);
 
 		/* read available samples */
 		while (!monitor->acq.stop && (acquired < available)) {
