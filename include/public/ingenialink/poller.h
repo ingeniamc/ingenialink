@@ -40,23 +40,30 @@ IL_BEGIN_DECL
 /** IngeniaLink poller. */
 typedef struct il_poller il_poller_t;
 
+/** Poller acquisition results. */
+typedef struct {
+	/** Time vector. */
+	double *t;
+	/** Data vectors. */
+	double **d;
+	/** Number of actual samples in the time and data vectors. */
+	size_t cnt;
+	/** Data lost flag. */
+	int lost;
+} il_poller_acq_t;
+
 /**
  * Create a register poller.
  *
  * @param [in] servo
  *	IngeniaLink servo.
- * @param [in] reg
- *	Register to be polled.
- * @param [in] period
- *	Polling period (ms).
- * @param [in] sz
- *	Buffer size.
+ * @param [in] n_ch
+ *	Number of channels.
  *
  * @return
  *	Poller instance (NULL if it could not be created).
  */
-IL_EXPORT il_poller_t *il_poller_create(il_servo_t *servo, const il_reg_t *reg,
-					int period, size_t sz);
+IL_EXPORT il_poller_t *il_poller_create(il_servo_t *servo, size_t n_ch);
 
 /**
  * Destroy a register poller.
@@ -89,25 +96,78 @@ IL_EXPORT void il_poller_stop(il_poller_t *poller);
  * Obtain current time and data vectors.
  *
  * @note
- *	Pollers use a double buffering mechanism, so you can access the data
- *	contained in the buffer safely until next call to this function.
+ *	The obtained acquisition data can be used until the next call to this
+ *	function.
  *
  * @param [in] poller
  *	Poller instance.
- * @param [out] t_buf
- *	Time vector buffer.
- * @param [out] d_buf
- *	Data vector buffer.
- * @param [out] cnt
- *	Number of samples in the buffers.
- * @param [out] lost
- *	Will be set to 1 if data was lost (optional).
+ * @param [out] acq
+ *	Where the acquisition results will be left.
+ */
+IL_EXPORT void il_poller_data_get(il_poller_t *poller, il_poller_acq_t **acq);
+
+/**
+ * Configure poller parameters.
+ *
+ * @note
+ *	- The maximum stable polling rate is ~500 Hz (2 ms) for a single
+ *	  register when the servo is enabled.
+ *	- The buffer size must be set according to your application needs. It
+ *	  should be large enough so that it can store all samples collected
+ *	  between subsequent calls to `il_poller_data_get`.
+ *
+ * @param [in] poller
+ *	Poller instance.
+ * @param [in] t_s
+ *	Sampling period (ms).
+ * @param [in] buf_sz
+ *	Buffer size.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_poller_data_get(il_poller_t *poller, double **t_buf,
-				 double **d_buf, size_t *cnt, int *lost);
+IL_EXPORT int il_poller_configure(il_poller_t *poller, unsigned int t_s,
+				  size_t buf_sz);
+
+/**
+ * Configure a poller channel.
+ *
+ * @param [in] poller
+ *	Poller instance.
+ * @param [in] ch
+ *	Channel.
+ * @param [in] reg
+ *	Register to be polled on this channel.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_poller_ch_configure(il_poller_t *poller, unsigned int ch,
+				     const il_reg_t *reg);
+
+/**
+ * Disable a poller channel.
+ *
+ * @param [in] poller
+ *	Poller instance.
+ * @param [in] ch
+ *	Channel.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_poller_ch_disable(il_poller_t *poller, unsigned int ch);
+
+/**
+ * Disable all poller channels.
+ *
+ * @param [in] poller
+ *	Poller instance.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_poller_ch_disable_all(il_poller_t *poller);
 
 /** @} */
 

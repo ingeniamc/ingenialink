@@ -14,6 +14,12 @@
 /** Position reach timeout (ms). */
 #define POS_TIMEOUT	5000
 
+/** Sampling period (ms). */
+#define T_S		5
+
+/** Poller size. */
+#define POLLER_SZ	2000
+
 void on_emcy(void *ctx, uint32_t code)
 {
 	(void)ctx;
@@ -31,10 +37,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	il_servo_t *servo;
 
 	il_poller_t *poller;
-	double *t, *d;
-	size_t cnt;
-	int lost;
-
+	il_poller_acq_t *acq;
 	FILE *log_f;
 
 	/* create network */
@@ -61,13 +64,35 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	}
 
 	il_servo_units_pos_set(servo, IL_UNITS_POS_DEG);
+	il_servo_units_vel_set(servo, IL_UNITS_VEL_DEG_S);
 
 	/* create poller */
-	poller = il_poller_create(servo, &IL_REG_POS_ACT, 2, 2000);
+	poller = il_poller_create(servo, 2);
 	if (!poller) {
 		fprintf(stderr, "Could not create poller: %s\n", ilerr_last());
 		r = 1;
 		goto cleanup_servo;
+	}
+
+	r = il_poller_configure(poller, T_S, POLLER_SZ);
+	if (r < 0) {
+		fprintf(stderr, "Could not configure poller: %s\n",
+			ilerr_last());
+		goto cleanup_poller;
+	}
+
+	r = il_poller_ch_configure(poller, 0, &IL_REG_POS_ACT);
+	if (r < 0) {
+		fprintf(stderr, "Could not configure poller channel: %s\n",
+			ilerr_last());
+		goto cleanup_poller;
+	}
+
+	r = il_poller_ch_configure(poller, 1, &IL_REG_VEL_ACT);
+	if (r < 0) {
+		fprintf(stderr, "Could not configure poller channel: %s\n",
+			ilerr_last());
+		goto cleanup_poller;
 	}
 
 	/* reset faults, disable */
@@ -151,9 +176,9 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	(void)il_poller_stop(poller);
 
 	/* obtain poller results and log to CSV file. */
-	il_poller_data_get(poller, &t, &d, &cnt, &lost);
+	il_poller_data_get(poller, &acq);
 
-	if (lost)
+	if (acq->lost)
 		fprintf(stderr, "Warning: poller data was lost\n");
 
 	log_f = fopen(log_fname, "w");
@@ -162,8 +187,9 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_poller;
 	}
 
-	for (i = 0; i < cnt; i++)
-		fprintf(log_f, "%f, %f\n", t[i], d[i]);
+	for (i = 0; i < acq->cnt; i++)
+		fprintf(log_f, "%f, %f, %f\n",
+			acq->t[i], acq->d[0][i], acq->d[1][i]);
 
 	fclose(log_f);
 

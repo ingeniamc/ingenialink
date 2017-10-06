@@ -34,35 +34,47 @@
  * Private
  ******************************************************************************/
 
-int poller_thread(void *args)
+int poller_td(void *args)
 {
 	il_poller_t *poller = args;
 	osal_timespec_t curr;
 
 	while (!poller->stop) {
-		double t, d;
+		il_poller_acq_t *acq;
+		double t;
 
-		/* wait until next period, obtain current time */
+		/* wait until next period */
 		osal_timer_wait(poller->timer);
-		osal_clock_perf_get(poller->perf, &curr);
 
-		/* poll */
-		il_servo_read(poller->servo, poller->reg, &d);
+		/* obtain current time */
+		osal_clock_perf_get(poller->perf, &curr);
 		t = (double)curr.s + (double)curr.ns / 1000000000.;
 
-		/* push to the buffer */
-		osal_mutex_lock(poller->buf_lock);
+		/* acquire all configured channels */
+		osal_mutex_lock(poller->lock);
 
-		if (poller->buf_cnt < poller->buf_sz) {
-			poller->t_buf[poller->buf_curr][poller->buf_cnt] = t;
-			poller->d_buf[poller->buf_curr][poller->buf_cnt] = d;
+		acq = &poller->acq[poller->acq_curr];
 
-			poller->buf_cnt++;
+		if (acq->cnt >= poller->sz) {
+			acq->lost = 1;
 		} else {
-			poller->lost = 1;
+			size_t ch;
+
+			acq->t[acq->cnt] = t;
+
+			for (ch = 0; ch < poller->n_ch; ch++) {
+				if (!poller->mappings[ch])
+					continue;
+
+				il_servo_read(poller->servo,
+					      poller->mappings[ch],
+					      &acq->d[ch][acq->cnt]);
+			}
+
+			acq->cnt++;
 		}
 
-		osal_mutex_unlock(poller->buf_lock);
+		osal_mutex_unlock(poller->lock);
 	}
 
 	return 0;
@@ -72,12 +84,11 @@ int poller_thread(void *args)
  * Public
  ******************************************************************************/
 
-il_poller_t *il_poller_create(il_servo_t *servo, const il_reg_t *reg,
-			      int period, size_t sz)
+il_poller_t *il_poller_create(il_servo_t *servo, size_t n_ch)
 {
 	il_poller_t *poller;
 
-	poller = malloc(sizeof(*poller));
+	poller = calloc(1, sizeof(*poller));
 	if (!poller) {
 		ilerr__set("Poller allocation failed");
 		return NULL;
@@ -95,60 +106,44 @@ il_poller_t *il_poller_create(il_servo_t *servo, const il_reg_t *reg,
 		goto cleanup_timer;
 	}
 
-	/* allocate buffers and its associated resources */
-	poller->t_buf[0] = malloc(sizeof(poller->t_buf[0]) * sz);
-	if (!poller->t_buf[0]) {
-		ilerr__set("Poller buffer allocation failed");
+	poller->lock = osal_mutex_create();
+	if (!poller->lock) {
+		ilerr__set("Poller lock allocation failed");
 		goto cleanup_perf;
 	}
 
-	poller->t_buf[1] = malloc(sizeof(poller->t_buf[1]) * sz);
-	if (!poller->t_buf[1]) {
-		ilerr__set("Poller buffer allocation failed");
-		goto cleanup_t_buf0;
+	poller->mappings = calloc(n_ch, sizeof(*poller->mappings));
+	if (!poller->mappings) {
+		ilerr__set("Poller mappings allocation failed");
+		goto cleanup_lock;
 	}
 
-	poller->d_buf[0] = malloc(sizeof(poller->d_buf[0]) * sz);
-	if (!poller->t_buf[0]) {
-		ilerr__set("Poller buffer allocation failed");
-		goto cleanup_t_buf1;
+	poller->acq[0].d = calloc(n_ch, sizeof(*poller->acq[0].d));
+	if (!poller->acq[0].d) {
+		ilerr__set("Poller acquisition data allocation failed");
+		goto cleanup_mappings;
 	}
 
-	poller->d_buf[1] = malloc(sizeof(poller->d_buf[1]) * sz);
-	if (!poller->d_buf[1]) {
-		ilerr__set("Poller buffer allocation failed");
-		goto cleanup_d_buf0;
-	}
-
-	poller->buf_curr = 0;
-	poller->buf_cnt = 0;
-	poller->buf_sz = sz;
-
-	poller->buf_lock = osal_mutex_create();
-	if (!poller->buf_lock) {
-		ilerr__set("Buffer lock allocation failed");
-		goto cleanup_d_buf1;
+	poller->acq[1].d = calloc(n_ch, sizeof(*poller->acq[1].d));
+	if (!poller->acq[1].d) {
+		ilerr__set("Poller acquisition data allocation failed");
+		goto cleanup_acq_d_0;
 	}
 
 	poller->servo = servo;
-	poller->reg = reg;
-	poller->period = period;
-	poller->stop = 0;
-	poller->running = 0;
+
+	poller->n_ch = n_ch;
 
 	return poller;
 
-cleanup_d_buf1:
-	free(poller->d_buf[1]);
+cleanup_acq_d_0:
+	free(poller->acq[0].d);
 
-cleanup_d_buf0:
-	free(poller->d_buf[0]);
+cleanup_mappings:
+	free(poller->mappings);
 
-cleanup_t_buf1:
-	free(poller->t_buf[1]);
-
-cleanup_t_buf0:
-	free(poller->t_buf[0]);
+cleanup_lock:
+	osal_mutex_destroy(poller->lock);
 
 cleanup_perf:
 	osal_clock_perf_destroy(poller->perf);
@@ -164,17 +159,32 @@ cleanup_poller:
 
 void il_poller_destroy(il_poller_t *poller)
 {
+	int i;
+
 	assert(poller);
 
 	if (poller->running)
 		il_poller_stop(poller);
 
-	osal_mutex_destroy(poller->buf_lock);
+	for (i = 0; i < 2; i++) {
+		size_t ch;
+		il_poller_acq_t *acq = &poller->acq[i];
 
-	free(poller->d_buf[1]);
-	free(poller->d_buf[0]);
-	free(poller->t_buf[1]);
-	free(poller->t_buf[0]);
+		if (acq->t)
+			free(acq->t);
+
+		for (ch = 0; ch < poller->n_ch; ch++) {
+			if (acq->d[ch])
+				free(acq->d[ch]);
+		}
+	}
+
+	free(poller->acq[1].d);
+	free(poller->acq[0].d);
+
+	free(poller->mappings);
+
+	osal_mutex_destroy(poller->lock);
 
 	osal_clock_perf_destroy(poller->perf);
 	osal_timer_destroy(poller->timer);
@@ -191,23 +201,24 @@ int il_poller_start(il_poller_t *poller)
 		return IL_EALREADY;
 	}
 
-	poller->lost = 0;
-
 	/* activate timer, reset performance counter */
 	if (osal_timer_set(poller->timer,
-			   poller->period * OSAL_TIMER_NANOSPERMSEC) < 0) {
+			   poller->t_s * OSAL_TIMER_NANOSPERMSEC) < 0) {
 		ilerr__set("Timer activation failed");
 		return IL_EFAIL;
 	}
 
 	if (osal_clock_perf_reset(poller->perf) < 0) {
-		ilerr__set("Could not reset performance counter");
+		ilerr__set("Performance counter reset failed");
 		return IL_EFAIL;
 	}
 
 	/* start polling thread */
-	poller->thread = osal_thread_create(poller_thread, poller);
-	if (!poller->thread) {
+	poller->acq[poller->acq_curr].cnt = 0;
+	poller->acq[poller->acq_curr].lost = 0;
+
+	poller->td = osal_thread_create(poller_td, poller);
+	if (!poller->td) {
 		ilerr__set("Poller thread creation failed");
 		return IL_EFAIL;
 	}
@@ -225,34 +236,101 @@ void il_poller_stop(il_poller_t *poller)
 		return;
 
 	poller->stop = 1;
-	osal_thread_join(poller->thread, NULL);
+	osal_thread_join(poller->td, NULL);
 
 	poller->running = 0;
 }
 
-int il_poller_data_get(il_poller_t *poller, double **t_buf, double **d_buf,
-		       size_t *cnt, int *lost)
+void il_poller_data_get(il_poller_t *poller, il_poller_acq_t **acq)
 {
 	assert(poller);
-	assert(t_buf);
-	assert(d_buf);
-	assert(cnt);
+	assert(acq);
 
-	osal_mutex_lock(poller->buf_lock);
+	osal_mutex_lock(poller->lock);
 
-	*t_buf = poller->t_buf[poller->buf_curr];
-	*d_buf = poller->d_buf[poller->buf_curr];
-	*cnt = poller->buf_cnt;
+	*acq = &poller->acq[poller->acq_curr];
 
-	if (lost)
-		*lost = poller->lost;
+	poller->acq_curr = poller->acq_curr ? 0 : 1;
+	poller->acq[poller->acq_curr].cnt = 0;
+	poller->acq[poller->acq_curr].lost = 0;
 
-	/* switch buffers, reset counters */
-	poller->buf_curr = poller->buf_curr ? 0 : 1;
-	poller->buf_cnt = 0;
-	poller->lost = 0;
+	osal_mutex_unlock(poller->lock);
+}
 
-	osal_mutex_unlock(poller->buf_lock);
+int il_poller_configure(il_poller_t *poller, unsigned int t_s, size_t sz)
+{
+	int i;
+
+	assert(poller);
+
+	if (poller->running) {
+		ilerr__set("Poller is running");
+		return IL_ESTATE;
+	}
+
+	for (i = 0; i < 2; i++) {
+		size_t ch;
+		il_poller_acq_t *acq = &poller->acq[i];
+
+		acq->t = realloc(acq->t, sz * sizeof(*acq->t));
+		if (!acq->t) {
+			ilerr__set("Time buffer allocation failed");
+			return IL_ENOMEM;
+		}
+
+		for (ch = 0; ch < poller->n_ch; ch++) {
+			acq->d[ch] = realloc(acq->d[ch],
+					     sz * sizeof(*acq->d[ch]));
+			if (!acq->d[ch]) {
+				ilerr__set("Data buffer allocation failed");
+				return IL_ENOMEM;
+			}
+		}
+	}
+
+	poller->t_s = t_s;
+	poller->sz = sz;
 
 	return 0;
 }
+
+int il_poller_ch_configure(il_poller_t *poller, unsigned int ch,
+			   const il_reg_t *reg)
+{
+	assert(poller);
+
+	if (poller->running) {
+		ilerr__set("Poller is running");
+		return IL_ESTATE;
+	}
+
+	if (ch >= poller->n_ch) {
+		ilerr__set("Channel out of range");
+		return IL_EINVAL;
+	}
+
+	poller->mappings[ch] = reg;
+
+	return 0;
+}
+
+int il_poller_ch_disable(il_poller_t *poller, unsigned int ch)
+{
+	return il_poller_ch_configure(poller, ch, NULL);
+}
+
+int il_poller_ch_disable_all(il_poller_t *poller)
+{
+	size_t ch;
+
+	for (ch = 0; ch < poller->n_ch; ch++) {
+		int r;
+
+		r = il_poller_ch_configure(poller, ch, NULL);
+		if (r < 0)
+			return r;
+	}
+
+	return 0;
+}
+

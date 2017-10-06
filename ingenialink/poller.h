@@ -33,34 +33,30 @@
 struct il_poller {
 	/** Associated servo. */
 	il_servo_t *servo;
-	/** Register. */
-	const il_reg_t *reg;
-	/** Running flag. */
-	int running;
-	/** Period (ms). */
-	int period;
+	/** Number of channels. */
+	size_t n_ch;
+	/** Mapped registers to each channel. */
+	const il_reg_t **mappings;
+	/** Acquisition (uses double buffering mechanism). */
+	il_poller_acq_t acq[2];
+	/** Current acquisition. */
+	int acq_curr;
+	/** Sampling period (ms). */
+	int t_s;
+	/** Buffer size. */
+	size_t sz;
 	/** Timer. */
 	osal_timer_t *timer;
 	/** Performance counter. */
 	osal_clock_perf_t *perf;
+	/** Lock. */
+	osal_mutex_t *lock;
+	/** Thread. */
+	osal_thread_t *td;
+	/** Running flag. */
+	int running;
 	/** Stop flag. */
 	int stop;
-	/** Polling thread. */
-	osal_thread_t *thread;
-	/** Time buffers. */
-	double *t_buf[2];
-	/** Data buffers. */
-	double *d_buf[2];
-	/** Current buffer. */
-	int buf_curr;
-	/** Number of samples in buffer. */
-	size_t buf_cnt;
-	/** Size of the buffers. */
-	size_t buf_sz;
-	/** Buffer lock. */
-	osal_mutex_t *buf_lock;
-	/** Data lost flag. */
-	int lost;
 };
 
 #endif
