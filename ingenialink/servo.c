@@ -457,6 +457,9 @@ double il_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 {
 	double factor;
 
+	assert(servo);
+	assert(reg);
+
 	osal_mutex_lock(servo->units.lock);
 
 	switch (reg->phy) {
@@ -587,8 +590,7 @@ il_units_torque_t il_servo_units_torque_get(il_servo_t *servo)
 {
 	il_units_torque_t units;
 
-	if (!servo)
-		return IL_UNITS_TORQUE_NATIVE;
+	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	units = servo->units.torque;
@@ -599,8 +601,7 @@ il_units_torque_t il_servo_units_torque_get(il_servo_t *servo)
 
 void il_servo_units_torque_set(il_servo_t *servo, il_units_torque_t units)
 {
-	if (!servo)
-		return;
+	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	servo->units.torque = units;
@@ -611,8 +612,7 @@ il_units_pos_t il_servo_units_pos_get(il_servo_t *servo)
 {
 	il_units_pos_t units;
 
-	if (!servo)
-		return IL_UNITS_POS_NATIVE;
+	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	units = servo->units.pos;
@@ -623,8 +623,7 @@ il_units_pos_t il_servo_units_pos_get(il_servo_t *servo)
 
 void il_servo_units_pos_set(il_servo_t *servo, il_units_pos_t units)
 {
-	if (!servo)
-		return;
+	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	servo->units.pos = units;
@@ -635,8 +634,7 @@ il_units_vel_t il_servo_units_vel_get(il_servo_t *servo)
 {
 	il_units_vel_t units;
 
-	if (!servo)
-		return IL_UNITS_VEL_NATIVE;
+	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	units = servo->units.vel;
@@ -647,8 +645,7 @@ il_units_vel_t il_servo_units_vel_get(il_servo_t *servo)
 
 void il_servo_units_vel_set(il_servo_t *servo, il_units_vel_t units)
 {
-	if (!servo)
-		return;
+	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	servo->units.vel = units;
@@ -659,8 +656,7 @@ il_units_acc_t il_servo_units_acc_get(il_servo_t *servo)
 {
 	il_units_acc_t units;
 
-	if (!servo)
-		return IL_UNITS_ACC_NATIVE;
+	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	units = servo->units.acc;
@@ -671,8 +667,7 @@ il_units_acc_t il_servo_units_acc_get(il_servo_t *servo)
 
 void il_servo_units_acc_set(il_servo_t *servo, il_units_acc_t units)
 {
-	if (!servo)
-		return;
+	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	servo->units.acc = units;
