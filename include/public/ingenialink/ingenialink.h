@@ -25,6 +25,7 @@
 #ifndef PUBLIC_INGENIALINK_INGENIALINK_H_
 #define PUBLIC_INGENIALINK_INGENIALINK_H_
 
+#include "const.h"
 #include "err.h"
 #include "monitor.h"
 #include "poller.h"

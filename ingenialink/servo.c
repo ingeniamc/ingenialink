@@ -192,7 +192,7 @@ static int update_config(il_servo_t *servo)
 		return r;
 
 	switch (fb) {
-	case FB_POS_DIGITAL_ENCODER:
+	case IL_POS_SENSOR_DIGITAL_ENCODER:
 		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, &incrs);
 		if (r < 0)
 			return r;
@@ -205,7 +205,7 @@ static int update_config(il_servo_t *servo)
 		servo->cfg.pos_res = (double)(incrs / revs);
 		break;
 
-	case FB_POS_DIGITAL_HALLS:
+	case IL_POS_SENSOR_DIGITAL_HALLS:
 		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
 		if (r < 0)
 			return r;
@@ -213,7 +213,7 @@ static int update_config(il_servo_t *servo)
 		servo->cfg.pos_res = (double)(ppoles * DIGITAL_HALLS_CONSTANT);
 		break;
 
-	case FB_POS_ANALOG_HALLS:
+	case IL_POS_SENSOR_ANALOG_HALLS:
 		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
 		if (r < 0)
 			return r;
@@ -221,7 +221,7 @@ static int update_config(il_servo_t *servo)
 		servo->cfg.pos_res = (double)(ppoles * ANALOG_HALLS_CONSTANT);
 		break;
 
-	case FB_POS_ANALOG_INPUT:
+	case IL_POS_SENSOR_ANALOG_INPUT:
 		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
 		if (r < 0)
 			return r;
@@ -229,7 +229,7 @@ static int update_config(il_servo_t *servo)
 		servo->cfg.pos_res = (double)(ppoles * ANALOG_INPUT_CONSTANT);
 		break;
 
-	case FB_POS_SINCOS:
+	case IL_POS_SENSOR_SINCOS:
 		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, &incrs);
 		if (r < 0)
 			return r;
@@ -242,15 +242,15 @@ static int update_config(il_servo_t *servo)
 		servo->cfg.pos_res = (double)((incrs / revs) * SINCOS_CONSTANT);
 		break;
 
-	case FB_POS_PWM:
+	case IL_POS_SENSOR_PWM:
 		servo->cfg.pos_res = PWM_CONSTANT;
 		break;
 
-	case FB_POS_RESOLVER:
+	case IL_POS_SENSOR_RESOLVER:
 		servo->cfg.pos_res = RESOLVER_CONSTANT;
 		break;
 
-	case FB_POS_SSI:
+	case IL_POS_SENSOR_SSI:
 		r = il_servo_raw_read_u8(
 				servo, &IL_REG_SSI_STURNBITS, &turnbits);
 		if (r < 0)
@@ -269,11 +269,11 @@ static int update_config(il_servo_t *servo)
 		return r;
 
 	switch (fb) {
-	case FB_VEL_POS:
+	case IL_VEL_SENSOR_POS:
 		servo->cfg.vel_res = servo->cfg.pos_res;
 		break;
 
-	case FB_VEL_TACHOMETER:
+	case IL_VEL_SENSOR_TACHOMETER:
 		r = il_servo_raw_read_u32(servo, &IL_REG_VRES_ENC_INCR, &incrs);
 		if (r < 0)
 			return r;
