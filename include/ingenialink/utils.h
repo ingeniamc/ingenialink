@@ -65,4 +65,54 @@
 #define __swap_64(x) (x)
 #endif
 
+/*
+ * Reference counting
+ */
+
+/** Reference counter. */
+typedef struct refcnt refcnt_t;
+
+/** De-allocation callback. */
+typedef void (*refcnt_destroy_t)(void *ctx);
+
+/**
+ * Create a reference counter.
+ *
+ * @param [in] destroy
+ *	De-allocation callback.
+ * @param [in] ctx
+ *	Callback context.
+ *
+ * @return
+ *	Reference counter (NULL if it could not be created).
+ */
+refcnt_t *refcnt__create(refcnt_destroy_t destroy, void *ctx);
+
+/**
+ * Destroy a reference counter.
+ *
+ * @note
+ *	It is automatically called by refcnt__release once it hits 0.
+ *
+ * @param [in]
+ *	Reference counter instance.
+ */
+void refcnt__destroy(refcnt_t *refcnt);
+
+/**
+ * Retain a reference.
+ *
+ * @param [in]
+ *	Reference counter instance.
+ */
+void refcnt__retain(refcnt_t *refcnt);
+
+/**
+ * Release a reference.
+ *
+ * @param [in]
+ *	Reference counter instance.
+ */
+void refcnt__release(refcnt_t *refcnt);
+
 #endif

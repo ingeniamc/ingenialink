@@ -30,6 +30,7 @@
 
 #include "ingenialink/err.h"
 #include "ingenialink/registers.h"
+#include "ingenialink/servo.h"
 #include "ingenialink/utils.h"
 
 /*******************************************************************************
@@ -237,6 +238,9 @@ il_monitor_t *il_monitor_create(il_servo_t *servo)
 		return NULL;
 	}
 
+	monitor->servo = servo;
+	il_servo__retain(monitor->servo);
+
 	/* setup acquisition resources */
 	monitor->acq.lock = osal_mutex_create();
 	if (!monitor->acq.lock) {
@@ -252,14 +256,13 @@ il_monitor_t *il_monitor_create(il_servo_t *servo)
 
 	monitor->acq.finished = 1;
 
-	monitor->servo = servo;
-
 	return monitor;
 
 cleanup_acq_lock:
 	osal_mutex_destroy(monitor->acq.lock);
 
 cleanup_monitor:
+	il_servo__release(monitor->servo);
 	free(monitor);
 
 	return NULL;
@@ -284,6 +287,8 @@ void il_monitor_destroy(il_monitor_t *monitor)
 				free(acq->samples[ch]);
 		}
 	}
+
+	il_servo__release(monitor->servo);
 
 	free(monitor);
 }

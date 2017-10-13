@@ -30,7 +30,6 @@
 #include "osal/clock.h"
 
 #include "ingenialink/err.h"
-#include "ingenialink/utils.h"
 
 /*******************************************************************************
  * Private
@@ -259,6 +258,38 @@ void on_ser_evt(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
 }
 
 /**
+ * Destroy network.
+ *
+ * @param [in] ctx
+ *	Context (il_net_t *).
+ */
+static void net_destroy(void *ctx)
+{
+	il_net_t *net = ctx;
+
+	net->stop = 1;
+	osal_thread_join(net->listener, NULL);
+
+	ser_close(net->ser);
+
+	osal_mutex_destroy(net->emcy_subs.lock);
+	free(net->emcy_subs.subs);
+
+	osal_mutex_destroy(net->sw_subs.lock);
+	free(net->sw_subs.subs);
+
+	osal_cond_destroy(net->sync.cond);
+	osal_mutex_destroy(net->sync.lock);
+
+	osal_mutex_destroy(net->state_lock);
+
+	osal_mutex_destroy(net->lock);
+
+	ser_destroy(net->ser);
+	free(net);
+}
+
+/**
  * Read (non-threadsafe).
  *
  * @param [in] net
@@ -336,6 +367,16 @@ unlock:
 /*******************************************************************************
  * Internal
  ******************************************************************************/
+
+void il_net__retain(il_net_t *net)
+{
+	refcnt__retain(net->refcnt);
+}
+
+void il_net__release(il_net_t *net)
+{
+	refcnt__release(net->refcnt);
+}
 
 int il_net__read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 		 void *buf, size_t sz, size_t *recvd, int timeout)
@@ -550,10 +591,15 @@ il_net_t *il_net_create(const char *port)
 		return NULL;
 	}
 
+	/* setup refcnt */
+	net->refcnt = refcnt__create(net_destroy, net);
+	if (!net->refcnt)
+		goto cleanup_net;
+
 	net->lock = osal_mutex_create();
 	if (!net->lock) {
 		ilerr__set("Network lock allocation failed");
-		goto cleanup_net;
+		goto cleanup_refcnt;
 	}
 
 	/* initialize network state */
@@ -658,6 +704,7 @@ il_net_t *il_net_create(const char *port)
 		goto close_ser;
 	}
 
+
 	return net;
 
 close_ser:
@@ -690,6 +737,9 @@ cleanup_state_lock:
 cleanup_lock:
 	osal_mutex_destroy(net->lock);
 
+cleanup_refcnt:
+	refcnt__destroy(net->refcnt);
+
 cleanup_net:
 	free(net);
 
@@ -700,26 +750,7 @@ void il_net_destroy(il_net_t *net)
 {
 	assert(net);
 
-	net->stop = 1;
-	osal_thread_join(net->listener, NULL);
-
-	ser_close(net->ser);
-
-	osal_mutex_destroy(net->emcy_subs.lock);
-	free(net->emcy_subs.subs);
-
-	osal_mutex_destroy(net->sw_subs.lock);
-	free(net->sw_subs.subs);
-
-	osal_cond_destroy(net->sync.cond);
-	osal_mutex_destroy(net->sync.lock);
-
-	osal_mutex_destroy(net->state_lock);
-
-	osal_mutex_destroy(net->lock);
-
-	ser_destroy(net->ser);
-	free(net);
+	refcnt__release(net->refcnt);
 }
 
 il_net_state_t il_net_state_get(il_net_t *net)

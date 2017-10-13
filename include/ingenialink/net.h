@@ -40,6 +40,22 @@ typedef struct il_net_emcy_subscriber il_net_emcy_subscriber_t;
 typedef void (*il_net_emcy_subscriber_cb_t)(void *ctx, uint32_t code);
 
 /**
+ * Retain a reference of the network.
+ *
+ * @param [in] net
+ *	IngeniaLink network.
+ */
+void il_net__retain(il_net_t *net);
+
+/**
+ * Release a reference of the network.
+ *
+ * @param [in] net
+ *	IngeniaLink network.
+ */
+void il_net__release(il_net_t *net);
+
+/**
  * Write.
  *
  * @param [in] net

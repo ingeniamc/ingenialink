@@ -25,9 +25,11 @@
 #ifndef SERVO_H
 #define SERVO_H
 
-#include "public/ingenialink/servo.h"
+#include "ingenialink/servo.h"
 
 #include "ingenialink/net.h"
+#include "ingenialink/utils.h"
+
 #include "osal/osal.h"
 
 /** Minimum servo id. */
@@ -103,6 +105,8 @@ typedef struct {
 struct il_servo {
 	/** Associated IngeniaLink network. */
 	il_net_t *net;
+	/** Reference counter. */
+	refcnt_t *refcnt;
 	/** Servo id. */
 	uint8_t id;
 	/** Communications timeout (ms). */

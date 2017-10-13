@@ -27,6 +27,7 @@
 
 #include "ingenialink/frame.h"
 #include "ingenialink/net.h"
+#include "ingenialink/utils.h"
 
 #include "osal/osal.h"
 
@@ -160,8 +161,10 @@ typedef struct {
 
 /** IngeniaLink network. */
 struct il_net {
-	/** Serial communications channel */
+	/** Serial communications channel. */
 	ser_t *ser;
+	/** Reference counter. */
+	refcnt_t *refcnt;
 	/** Network state. */
 	il_net_state_t state;
 	/** Network state lock. */

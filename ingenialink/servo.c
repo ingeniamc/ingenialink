@@ -34,7 +34,6 @@
 #include "public/ingenialink/const.h"
 #include "public/ingenialink/registers.h"
 #include "ingenialink/err.h"
-#include "ingenialink/utils.h"
 
 /*******************************************************************************
  * Private
@@ -335,6 +334,41 @@ static il_servo_state_t pds_state_decode(uint16_t sw)
 	return IL_SERVO_STATE_NRDY;
 }
 
+/**
+ * Destroy servo instance.
+ *
+ * @param [in] ctx
+ *	Context (il_servo_t *).
+ */
+void servo_destroy(void *ctx)
+{
+	il_servo_t *servo = ctx;
+
+	il_net__sw_unsubscribe(servo->net, servo->sw.slot);
+	il_net__release(servo->net);
+
+	osal_cond_destroy(servo->sw.changed);
+	osal_mutex_destroy(servo->sw.lock);
+
+	osal_mutex_destroy(servo->units.lock);
+
+	free(servo);
+}
+
+/*******************************************************************************
+ * Internal
+ ******************************************************************************/
+
+void il_servo__retain(il_servo_t *servo)
+{
+	refcnt__retain(servo->refcnt);
+}
+
+void il_servo__release(il_servo_t *servo)
+{
+	refcnt__release(servo->refcnt);
+}
+
 /*******************************************************************************
  * Public
  ******************************************************************************/
@@ -362,19 +396,25 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, int timeout)
 	}
 
 	servo->net = net;
+	il_net__retain(servo->net);
 	servo->id = id;
 	servo->timeout = timeout;
+
+	/* setup refcnt */
+	servo->refcnt = refcnt__create(servo_destroy, servo);
+	if (!servo->refcnt)
+		goto cleanup_servo;
 
 	/* configure units */
 	servo->units.lock = osal_mutex_create();
 	if (!servo->units.lock) {
 		ilerr__set("Units lock allocation failed");
-		goto cleanup_servo;
+		goto cleanup_refcnt;
 	}
 
 	r = update_config(servo);
 	if (r < 0)
-		goto cleanup_servo;
+		goto cleanup_units_lock;
 
 	servo->units.torque = IL_UNITS_TORQUE_NATIVE;
 	servo->units.pos = IL_UNITS_POS_NATIVE;
@@ -416,7 +456,11 @@ cleanup_sw_lock:
 cleanup_units_lock:
 	osal_mutex_destroy(servo->units.lock);
 
+cleanup_refcnt:
+	refcnt__destroy(servo->refcnt);
+
 cleanup_servo:
+	il_net__release(servo->net);
 	free(servo);
 
 	return NULL;
@@ -426,15 +470,7 @@ void il_servo_destroy(il_servo_t *servo)
 {
 	assert(servo);
 
-	/* de-allocate resources */
-	il_net__sw_unsubscribe(servo->net, servo->sw.slot);
-
-	osal_cond_destroy(servo->sw.changed);
-	osal_mutex_destroy(servo->sw.lock);
-
-	osal_mutex_destroy(servo->units.lock);
-
-	free(servo);
+	refcnt__release(servo->refcnt);
 }
 
 int il_servo_emcy_subscribe(il_servo_t *servo, il_servo_emcy_subscriber_cb_t cb,
