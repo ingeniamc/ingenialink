@@ -76,6 +76,7 @@ set(ingenialink_srcs
   ingenialink/poller.c
   ingenialink/registers.c
   ingenialink/servo.c
+  ingenialink/utils.c
   ingenialink/version.c
 )
 

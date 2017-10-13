@@ -30,6 +30,7 @@
 
 #include "ingenialink/err.h"
 #include "ingenialink/registers.h"
+#include "ingenialink/servo.h"
 #include "ingenialink/utils.h"
 
 /*******************************************************************************
@@ -116,10 +117,14 @@ static int acquisition(void *args)
 		while (!monitor->acq.stop && (acquired < available)) {
 			il_monitor_acq_t *acq;
 
-			/* set index */
+			/* set index
+			 * NOTE: not confirmed as performance is important here,
+			 *       the worst it can happen is to obtain a bad
+			 *       sample
+			 */
 			r = il_servo_raw_write_u16(monitor->servo,
 						   &IL_REG_MONITOR_RESULT_ENTRY,
-						   acquired);
+						   acquired, 0);
 			if (r < 0)
 				goto out;
 
@@ -157,7 +162,7 @@ static int acquisition(void *args)
 out:
 	/* disable monitor */
 	(void)il_servo_raw_write_u8(
-			monitor->servo, &IL_REG_MONITOR_CFG_ENABLE, 0);
+			monitor->servo, &IL_REG_MONITOR_CFG_ENABLE, 0, 0);
 
 	/* signal finished */
 	osal_mutex_lock(monitor->acq.lock);
@@ -233,6 +238,9 @@ il_monitor_t *il_monitor_create(il_servo_t *servo)
 		return NULL;
 	}
 
+	monitor->servo = servo;
+	il_servo__retain(monitor->servo);
+
 	/* setup acquisition resources */
 	monitor->acq.lock = osal_mutex_create();
 	if (!monitor->acq.lock) {
@@ -248,14 +256,13 @@ il_monitor_t *il_monitor_create(il_servo_t *servo)
 
 	monitor->acq.finished = 1;
 
-	monitor->servo = servo;
-
 	return monitor;
 
 cleanup_acq_lock:
 	osal_mutex_destroy(monitor->acq.lock);
 
 cleanup_monitor:
+	il_servo__release(monitor->servo);
 	free(monitor);
 
 	return NULL;
@@ -281,6 +288,8 @@ void il_monitor_destroy(il_monitor_t *monitor)
 		}
 	}
 
+	il_servo__release(monitor->servo);
+
 	free(monitor);
 }
 
@@ -300,12 +309,12 @@ int il_monitor_start(il_monitor_t *monitor)
 
 	/* enable monitoring (0 -> 1) */
 	r = il_servo_raw_write_u8(
-			monitor->servo, &IL_REG_MONITOR_CFG_ENABLE, 0);
+			monitor->servo, &IL_REG_MONITOR_CFG_ENABLE, 0, 1);
 	if (r < 0)
 		return r;
 
 	r = il_servo_raw_write_u8(
-			monitor->servo, &IL_REG_MONITOR_CFG_ENABLE, 1);
+			monitor->servo, &IL_REG_MONITOR_CFG_ENABLE, 1, 1);
 	if (r < 0)
 		return r;
 
@@ -388,13 +397,13 @@ int il_monitor_configure(il_monitor_t *monitor, unsigned int t_s,
 	}
 
 	r = il_servo_raw_write_u16(monitor->servo, &IL_REG_MONITOR_CFG_T_S,
-				   (uint16_t)(t_s / BASE_PERIOD));
+				   (uint16_t)(t_s / BASE_PERIOD), 1);
 	if (r < 0)
 		return r;
 
 	r = il_servo_raw_write_u32(monitor->servo,
 				   &IL_REG_MONITOR_CFG_DELAY_SAMPLES,
-				   (uint32_t)delay_samples);
+				   (uint32_t)delay_samples, 1);
 
 	monitor->acq.max_samples = max_samples;
 
@@ -438,7 +447,7 @@ int il_monitor_ch_configure(il_monitor_t *monitor, il_monitor_ch_t ch,
 	mapping = (reg->idx << MAPPING_IDX_OFFSET) |
 		  (reg->sidx << MAPPING_SIDX_OFFSET) | bits;
 
-	r = il_servo_raw_write_s32(monitor->servo, map_regs[ch], mapping);
+	r = il_servo_raw_write_s32(monitor->servo, map_regs[ch], mapping, 1);
 	if (r < 0)
 		return r;
 
@@ -458,7 +467,7 @@ int il_monitor_ch_disable(il_monitor_t *monitor, il_monitor_ch_t ch)
 		return IL_ESTATE;
 	}
 
-	r = il_servo_raw_write_s32(monitor->servo, map_regs[ch], 0);
+	r = il_servo_raw_write_s32(monitor->servo, map_regs[ch], 0, 1);
 	if (r < 0)
 		return r;
 
@@ -498,13 +507,13 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 
 	/* mode */
 	r = il_servo_raw_write_u8(monitor->servo, &IL_REG_MONITOR_TRIG_MODE,
-				  (uint8_t)mode);
+				  (uint8_t)mode, 1);
 	if (r < 0)
 		return r;
 
 	/* delay samples */
 	r = il_servo_raw_write_u32(monitor->servo, &IL_REG_MONITOR_TRIG_DELAY,
-				   (uint32_t)delay_samples);
+				   (uint32_t)delay_samples, 1);
 	if (r < 0)
 		return r;
 
@@ -518,8 +527,8 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 
 		src = (source->sidx << TRIGSRC_SIDX_OFFSET) | source->idx;
 
-		r = il_servo_raw_write_u32(
-				monitor->servo, &IL_REG_MONITOR_TRIG_SRC, src);
+		r = il_servo_raw_write_u32(monitor->servo,
+					   &IL_REG_MONITOR_TRIG_SRC, src, 1);
 		if (r < 0)
 			return r;
 	}
@@ -532,7 +541,7 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 
 		r = il_servo_raw_write_s32(
 				monitor->servo, &IL_REG_MONITOR_TRIG_TH_POS,
-				th_pos_);
+				th_pos_, 1);
 		if (r < 0)
 			return r;
 	}
@@ -545,7 +554,7 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 
 		r = il_servo_raw_write_s32(
 				monitor->servo, &IL_REG_MONITOR_TRIG_TH_NEG,
-				th_neg_);
+				th_neg_, 1);
 		if (r < 0)
 			return r;
 	}
@@ -554,7 +563,7 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	if (mode == IL_MONITOR_TRIGGER_DIN) {
 		r = il_servo_raw_write_u32(
 				monitor->servo, &IL_REG_MONITOR_TRIG_DIN_MSK,
-				din_msk);
+				din_msk, 1);
 		if (r < 0)
 			return r;
 	}

@@ -30,7 +30,6 @@
 #include "osal/clock.h"
 
 #include "ingenialink/err.h"
-#include "ingenialink/utils.h"
 
 /*******************************************************************************
  * Private
@@ -258,48 +257,66 @@ void on_ser_evt(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
 		mon->on_evt(mon->ctx, IL_NET_DEV_EVT_REMOVED, dev->path);
 }
 
-/*******************************************************************************
- * Internal
- ******************************************************************************/
-
-int il_net__write(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		  const void *buf, size_t sz)
+/**
+ * Destroy network.
+ *
+ * @param [in] ctx
+ *	Context (il_net_t *).
+ */
+static void net_destroy(void *ctx)
 {
-	int r;
-	il_frame_t frame;
+	il_net_t *net = ctx;
 
-	/* check network state */
-	if (il_net_state_get(net) != IL_NET_STATE_OPERATIVE) {
-		ilerr__set("Network is not operative");
-		return IL_ESTATE;
-	}
+	net->stop = 1;
+	osal_thread_join(net->listener, NULL);
 
-	osal_mutex_lock(net->lock);
+	ser_close(net->ser);
 
-	il_frame__init(&frame, id, idx, sidx, buf, sz);
+	osal_mutex_destroy(net->emcy_subs.lock);
+	free(net->emcy_subs.subs);
 
-	r = ser_write(net->ser, frame.buf, frame.sz, NULL);
-	if (r < 0)
-		ilerr__ser(r);
+	osal_mutex_destroy(net->sw_subs.lock);
+	free(net->sw_subs.subs);
 
-	osal_mutex_unlock(net->lock);
+	osal_cond_destroy(net->sync.cond);
+	osal_mutex_destroy(net->sync.lock);
 
-	return r;
+	osal_mutex_destroy(net->state_lock);
+
+	osal_mutex_destroy(net->lock);
+
+	ser_destroy(net->ser);
+	free(net);
 }
 
-int il_net__read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		 void *buf, size_t sz, size_t *recvd, int timeout)
+/**
+ * Read (non-threadsafe).
+ *
+ * @param [in] net
+ *	IngeniaLink network.
+ * @param [in] id
+ *	Expected node id (0 to match any).
+ * @param [in] idx
+ *	Expected index.
+ * @param [in] sidx
+ *	Expected subindex.
+ * @param [out] buf
+ *	Data output buffer.
+ * @param [in] sz
+ *	Data buffer size.
+ * @param [out] recvd
+ *	Actual number of received data bytes (optional).
+ * @param [in] timeout
+ *	Timeout (ms).
+ *
+ * @returns
+ *	0 on success, error code otherwise.
+ */
+static int net_read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
+		    void *buf, size_t sz, size_t *recvd, int timeout)
 {
 	int r;
 	il_frame_t frame;
-
-	/* check network state */
-	if (il_net_state_get(net) != IL_NET_STATE_OPERATIVE) {
-		ilerr__set("Network is not operative");
-		return IL_ESTATE;
-	}
-
-	osal_mutex_lock(net->lock);
 
 	/* register synchronous transfer */
 	osal_mutex_lock(net->sync.lock);
@@ -343,6 +360,88 @@ unlock:
 	net->sync.complete = 1;
 
 	osal_mutex_unlock(net->sync.lock);
+
+	return r;
+}
+
+/*******************************************************************************
+ * Internal
+ ******************************************************************************/
+
+void il_net__retain(il_net_t *net)
+{
+	refcnt__retain(net->refcnt);
+}
+
+void il_net__release(il_net_t *net)
+{
+	refcnt__release(net->refcnt);
+}
+
+int il_net__read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
+		 void *buf, size_t sz, size_t *recvd, int timeout)
+{
+	int r;
+
+	if (il_net_state_get(net) != IL_NET_STATE_OPERATIVE) {
+		ilerr__set("Network is not operative");
+		return IL_ESTATE;
+	}
+
+	osal_mutex_lock(net->lock);
+
+	r = net_read(net, id, idx, sidx, buf, sz, recvd, timeout);
+
+	osal_mutex_unlock(net->lock);
+
+	return r;
+}
+
+int il_net__write(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
+		  const void *buf, size_t sz, int confirmed, int timeout)
+{
+	int r;
+	il_frame_t frame;
+
+	if (il_net_state_get(net) != IL_NET_STATE_OPERATIVE) {
+		ilerr__set("Network is not operative");
+		return IL_ESTATE;
+	}
+
+	osal_mutex_lock(net->lock);
+
+	/* write */
+	il_frame__init(&frame, id, idx, sidx, buf, sz);
+
+	r = ser_write(net->ser, frame.buf, frame.sz, NULL);
+	if (r < 0) {
+		ilerr__ser(r);
+		goto unlock;
+	}
+
+	/* read back if confirmed */
+	if (confirmed) {
+		void *buf_;
+
+		buf_ = malloc(sz);
+		if (!buf_) {
+			ilerr__set("Buffer allocation failed");
+			r = IL_ENOMEM;
+			goto unlock;
+		}
+
+		r = net_read(net, id, idx, sidx, buf_, sz, NULL, timeout);
+		if (r == 0) {
+			if (memcmp(buf, buf_, sz) != 0) {
+				ilerr__set("Write failed (content mismatch)");
+				r = IL_EIO;
+			}
+		}
+
+		free(buf_);
+	}
+
+unlock:
 	osal_mutex_unlock(net->lock);
 
 	return r;
@@ -492,10 +591,15 @@ il_net_t *il_net_create(const char *port)
 		return NULL;
 	}
 
+	/* setup refcnt */
+	net->refcnt = refcnt__create(net_destroy, net);
+	if (!net->refcnt)
+		goto cleanup_net;
+
 	net->lock = osal_mutex_create();
 	if (!net->lock) {
 		ilerr__set("Network lock allocation failed");
-		goto cleanup_net;
+		goto cleanup_refcnt;
 	}
 
 	/* initialize network state */
@@ -586,7 +690,7 @@ il_net_t *il_net_create(const char *port)
 	val = 1;
 	for (i = 0; i < BIN_FLUSH; i++) {
 		r = il_net__write(net, 0, UARTCFG_BIN_IDX, UARTCFG_BIN_SIDX,
-				  &val, sizeof(val));
+				  &val, sizeof(val), 0, 0);
 		if (r < 0)
 			goto close_ser;
 	}
@@ -632,6 +736,9 @@ cleanup_state_lock:
 cleanup_lock:
 	osal_mutex_destroy(net->lock);
 
+cleanup_refcnt:
+	refcnt__destroy(net->refcnt);
+
 cleanup_net:
 	free(net);
 
@@ -642,26 +749,7 @@ void il_net_destroy(il_net_t *net)
 {
 	assert(net);
 
-	net->stop = 1;
-	osal_thread_join(net->listener, NULL);
-
-	ser_close(net->ser);
-
-	osal_mutex_destroy(net->emcy_subs.lock);
-	free(net->emcy_subs.subs);
-
-	osal_mutex_destroy(net->sw_subs.lock);
-	free(net->sw_subs.subs);
-
-	osal_cond_destroy(net->sync.cond);
-	osal_mutex_destroy(net->sync.lock);
-
-	osal_mutex_destroy(net->state_lock);
-
-	osal_mutex_destroy(net->lock);
-
-	ser_destroy(net->ser);
-	free(net);
+	refcnt__release(net->refcnt);
 }
 
 il_net_state_t il_net_state_get(il_net_t *net)

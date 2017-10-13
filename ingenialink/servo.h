@@ -25,9 +25,11 @@
 #ifndef SERVO_H
 #define SERVO_H
 
-#include "public/ingenialink/servo.h"
+#include "ingenialink/servo.h"
 
 #include "ingenialink/net.h"
+#include "ingenialink/utils.h"
+
 #include "osal/osal.h"
 
 /** Minimum servo id. */
@@ -43,24 +45,11 @@
 #define SPACK_TIMEOUT		1000
 
 /*
- * Types of velocity and position feedbacks and associated constants.
+ * Constants associated to types of velocity and position feedbacks.
  *
  * References:
  *	http://doc.ingeniamc.com/display/i14402/0x2310+-+Feedbacks
  */
-#define FB_VEL_POS		0x00
-#define FB_VEL_TACHOMETER	0x01
-
-#define FB_POS_DIGITAL_ENCODER	0x00
-#define FB_POS_DIGITAL_HALLS	0x01
-#define FB_POS_ANALOG_HALLS	0x02
-#define FB_POS_ANALOG_INPUT	0x04
-#define FB_POS_SSI		0x05
-#define FB_POS_SINCOS		0x06
-#define FB_POS_PWM		0x07
-#define FB_POS_RESOLVER		0x08
-#define FB_POS_NONE		0x09
-#define FB_POS_SIMULATED	0x0B
 
 #define DIGITAL_HALLS_CONSTANT	6
 #define ANALOG_HALLS_CONSTANT	4096
@@ -116,6 +105,8 @@ typedef struct {
 struct il_servo {
 	/** Associated IngeniaLink network. */
 	il_net_t *net;
+	/** Reference counter. */
+	refcnt_t *refcnt;
 	/** Servo id. */
 	uint8_t id;
 	/** Communications timeout (ms). */

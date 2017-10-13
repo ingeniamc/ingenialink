@@ -57,6 +57,8 @@ IL_BEGIN_DECL
 #define IL_EACCESS	-7
 /** State error */
 #define IL_ESTATE	-8
+/** I/O error */
+#define IL_EIO		-9
 
 /**
  * Obtain library last error details.

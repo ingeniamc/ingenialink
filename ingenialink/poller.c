@@ -29,6 +29,7 @@
 #include <string.h>
 
 #include "ingenialink/err.h"
+#include "ingenialink/servo.h"
 
 /*******************************************************************************
  * Private
@@ -66,9 +67,9 @@ int poller_td(void *args)
 				if (!poller->mappings[ch])
 					continue;
 
-				il_servo_read(poller->servo,
-					      poller->mappings[ch],
-					      &acq->d[ch][acq->cnt]);
+				(void)il_servo_read(poller->servo,
+						    poller->mappings[ch],
+						    &acq->d[ch][acq->cnt]);
 			}
 
 			acq->cnt++;
@@ -93,6 +94,10 @@ il_poller_t *il_poller_create(il_servo_t *servo, size_t n_ch)
 		ilerr__set("Poller allocation failed");
 		return NULL;
 	}
+
+	poller->servo = servo;
+	il_servo__retain(poller->servo);
+	poller->n_ch = n_ch;
 
 	poller->timer = osal_timer_create();
 	if (!poller->timer) {
@@ -130,10 +135,6 @@ il_poller_t *il_poller_create(il_servo_t *servo, size_t n_ch)
 		goto cleanup_acq_d_0;
 	}
 
-	poller->servo = servo;
-
-	poller->n_ch = n_ch;
-
 	return poller;
 
 cleanup_acq_d_0:
@@ -152,6 +153,7 @@ cleanup_timer:
 	osal_timer_destroy(poller->timer);
 
 cleanup_poller:
+	il_servo__release(poller->servo);
 	free(poller);
 
 	return NULL;
@@ -188,6 +190,8 @@ void il_poller_destroy(il_poller_t *poller)
 
 	osal_clock_perf_destroy(poller->perf);
 	osal_timer_destroy(poller->timer);
+
+	il_servo__release(poller->servo);
 
 	free(poller);
 }

@@ -478,12 +478,14 @@ IL_EXPORT int il_servo_read(il_servo_t *servo, const il_reg_t *reg,
  *	Buffer where to pick data from.
  * @param [in] sz
  *	Buffer size.
+ * @param [in] confirm
+ *	Confirm the write.
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write(il_servo_t *servo, const il_reg_t *reg,
-				 const void *buf, size_t sz);
+				 const void *buf, size_t sz, int confirm);
 
 /**
  * Write unsigned 8-bit integer to a register.
@@ -494,12 +496,14 @@ IL_EXPORT int il_servo_raw_write(il_servo_t *servo, const il_reg_t *reg,
  *	Register.
  * @param [in] val
  *	Value.
+ * @param [in] confirm
+ *	Confirm the write.
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
-				    uint8_t val);
+				    uint8_t val, int confirm);
 
 /**
  * Write signed 8-bit integer to a register.
@@ -510,12 +514,14 @@ IL_EXPORT int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
  *	Register.
  * @param [in] val
  *	Value.
+ * @param [in] confirm
+ *	Confirm the write.
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
-				    int8_t val);
+				    int8_t val, int confirm);
 
 /**
  * Write unsigned 16-bit integer to a register.
@@ -526,12 +532,14 @@ IL_EXPORT int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
  *	Register.
  * @param [in] val
  *	Value.
+ * @param [in] confirm
+ *	Confirm the write.
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
-				     uint16_t val);
+				     uint16_t val, int confirm);
 
 /**
  * Write signed 16-bit integer to a register.
@@ -542,12 +550,14 @@ IL_EXPORT int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
  *	Register.
  * @param [in] val
  *	Value.
+ * @param [in] confirm
+ *	Confirm the write.
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
-				     int16_t val);
+				     int16_t val, int confirm);
 
 /**
  * Write unsigned 32-bit integer to a register.
@@ -558,12 +568,14 @@ IL_EXPORT int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
  *	Register.
  * @param [in] val
  *	Value.
+ * @param [in] confirm
+ *	Confirm the write.
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
-				     uint32_t val);
+				     uint32_t val, int confirm);
 
 /**
  * Write signed 32-bit integer to a register.
@@ -574,12 +586,14 @@ IL_EXPORT int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
  *	Register.
  * @param [in] val
  *	Value.
+ * @param [in] confirm
+ *	Confirm the write.
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
-				     int32_t val);
+				     int32_t val, int confirm);
 
 /**
  * Write unsigned 64-bit integer to a register.
@@ -590,12 +604,14 @@ IL_EXPORT int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
  *	Register.
  * @param [in] val
  *	Value.
+ * @param [in] confirm
+ *	Confirm the write.
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
-				     uint64_t val);
+				     uint64_t val, int confirm);
 
 /**
  * Write signed 64-bit integer to a register.
@@ -606,12 +622,14 @@ IL_EXPORT int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
  *	Register.
  * @param [in] val
  *	Value.
+ * @param [in] confirm
+ *	Confirm the write.
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
-				     int64_t val);
+				     int64_t val, int confirm);
 
 /**
  * Write to a register.
@@ -625,12 +643,14 @@ IL_EXPORT int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
  *	Register.
  * @param [in] val
  *	Value.
+ * @param [in] confirm
+ *	Confirm the write.
  *
  * @returns
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_write(il_servo_t *servo, const il_reg_t *reg,
-			     double val);
+			     double val, int confirm);
 
 /**
  * Obtain current servo PDS state.

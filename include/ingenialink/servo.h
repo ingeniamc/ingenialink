@@ -22,19 +22,26 @@
  * SOFTWARE.
  */
 
-#ifndef PUBLIC_INGENIALINK_INGENIALINK_H_
-#define PUBLIC_INGENIALINK_INGENIALINK_H_
+#ifndef INGENIALINK_SERVO_H_
+#define INGENIALINK_SERVO_H_
 
-#include "const.h"
-#include "err.h"
-#include "monitor.h"
-#include "poller.h"
-#include "version.h"
+#include "public/ingenialink/servo.h"
 
 /**
- * @file ingenialink/ingenialink.h
- * @brief IngeniaLink main header.
- * @defgroup IL IngeniaLink
+ * Retain a reference of the servo.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
  */
+void il_servo__retain(il_servo_t *servo);
+
+/**
+ * Release a reference of the servo.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ */
+void il_servo__release(il_servo_t *servo);
 
 #endif
+

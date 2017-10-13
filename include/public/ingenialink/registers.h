@@ -106,6 +106,24 @@ typedef struct {
 /** Motor pair poles. */
 extern const il_reg_t IL_REG_PAIR_POLES;
 
+/** Commutation sensor. */
+extern const il_reg_t IL_REG_COMMUTATION_SENSOR;
+
+/** Commutation: initial angle determination method. */
+extern const il_reg_t IL_REG_COMMUTATION_ANGLE_INIT_DET;
+
+/** Commutation: actual system angle. */
+extern const il_reg_t IL_REG_COMMUTATION_ANGLE_ACT;
+
+/** Commutation: reference sensor. */
+extern const il_reg_t IL_REG_COMMUTATION_REF_SENSOR;
+
+/** Commutation: angle offset. */
+extern const il_reg_t IL_REG_COMMUTATION_ANGLE_OFF;
+
+/** Feedbacks: torque sensor. */
+extern const il_reg_t IL_REG_FB_TORQUE_SENSOR;
+
 /** Feedbacks: velocity sensor. */
 extern const il_reg_t IL_REG_FB_VEL_SENSOR;
 
@@ -427,6 +445,9 @@ extern const il_reg_t IL_REG_VRES_MOTOR_REVS;
 
 /** Target velocity. */
 extern const il_reg_t IL_REG_VEL_TGT;
+
+/** Motor type. */
+extern const il_reg_t IL_REG_MOTOR_TYPE;
 
 /** @} */
 

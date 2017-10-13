@@ -22,19 +22,23 @@
  * SOFTWARE.
  */
 
-#ifndef PUBLIC_INGENIALINK_INGENIALINK_H_
-#define PUBLIC_INGENIALINK_INGENIALINK_H_
+#ifndef UTILS_H_
+#define UTILS_H_
 
-#include "const.h"
-#include "err.h"
-#include "monitor.h"
-#include "poller.h"
-#include "version.h"
+#include "ingenialink/utils.h"
 
-/**
- * @file ingenialink/ingenialink.h
- * @brief IngeniaLink main header.
- * @defgroup IL IngeniaLink
- */
+#include <osal/osal.h>
+
+/** Reference counter. */
+struct refcnt {
+	/** De-allocation callback. */
+	refcnt_destroy_t destroy;
+	/** Callback context. */
+	void *ctx;
+	/** Lock. */
+	osal_mutex_t *lock;
+	/** Counter. */
+	int cnt;
+};
 
 #endif
