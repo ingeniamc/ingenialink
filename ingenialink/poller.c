@@ -66,9 +66,9 @@ int poller_td(void *args)
 				if (!poller->mappings[ch])
 					continue;
 
-				il_servo_read(poller->servo,
-					      poller->mappings[ch],
-					      &acq->d[ch][acq->cnt]);
+				(void)il_servo_read(poller->servo,
+						    poller->mappings[ch],
+						    &acq->d[ch][acq->cnt]);
 			}
 
 			acq->cnt++;

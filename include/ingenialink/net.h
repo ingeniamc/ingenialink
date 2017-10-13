@@ -54,12 +54,16 @@ typedef void (*il_net_emcy_subscriber_cb_t)(void *ctx, uint32_t code);
  *	Data buffer (optional).
  * @param [in] sz
  *	Data buffer size.
+ * @param [in] confirmed
+ *	Flag to confirm the write.
+ * @param [in] timeout
+ *	Confirmation timeout (ms).
  *
  * @returns
  *	0 on success, error code otherwise.
  */
 int il_net__write(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		  const void *buf, size_t sz);
+		  const void *buf, size_t sz, int confirmed, int timeout);
 
 /**
  * Read.

@@ -89,7 +89,6 @@
 
 /** @} */
 
-
 /**
  * @defgroup IL_CONST_VEL_SENSOR Velocity sensors
  * @{
