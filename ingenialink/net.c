@@ -704,7 +704,6 @@ il_net_t *il_net_create(const char *port)
 		goto close_ser;
 	}
 
-
 	return net;
 
 close_ser:
