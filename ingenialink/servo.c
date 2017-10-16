@@ -1016,6 +1016,8 @@ int il_servo_disable(il_servo_t *servo)
 	uint16_t sw;
 	il_servo_state_t state;
 
+	assert(servo);
+
 	do {
 		sw = sw_get(servo);
 		state = pds_state_decode(sw);
@@ -1049,6 +1051,8 @@ int il_servo_switch_on(il_servo_t *servo, int timeout)
 	int r;
 	uint16_t sw, cmd;
 	il_servo_state_t state;
+
+	assert(servo);
 
 	do {
 		sw = sw_get(servo);
@@ -1095,6 +1099,8 @@ int il_servo_enable(il_servo_t *servo, int timeout)
 	uint16_t sw, cmd;
 	il_servo_state_t state;
 
+	assert(servo);
+
 	do {
 		sw = sw_get(servo);
 		state = pds_state_decode(sw);
@@ -1121,13 +1127,16 @@ int il_servo_enable(il_servo_t *servo, int timeout)
 					servo, &IL_REG_CTL_WORD, cmd, 1);
 			if (r < 0)
 				return r;
+		}
 
-			/* wait until statusword changes */
+		/* wait for state change */
+		if ((state != IL_SERVO_STATE_ENABLED) ||
+		    !(sw & IL_MC_SW_IANGLE)) {
 			r = sw_wait_change(servo, sw, timeout);
 			if (r < 0)
 				return r;
 		}
-	} while (state != IL_SERVO_STATE_ENABLED);
+	} while ((state != IL_SERVO_STATE_ENABLED) || !(sw & IL_MC_SW_IANGLE));
 
 	return 0;
 }
@@ -1137,6 +1146,8 @@ int il_servo_fault_reset(il_servo_t *servo)
 	int r;
 	uint16_t sw;
 	il_servo_state_t state;
+
+	assert(servo);
 
 	do {
 		sw = sw_get(servo);
@@ -1281,12 +1292,19 @@ int il_servo_position_wait_ack(il_servo_t *servo, int timeout)
 
 	assert(servo);
 
-	/* wait for set-point acknowledge (->1->0) */
+	/* wait for SP acknowledge (->1) */
 	r = sw_wait_value(servo, IL_MC_PP_SW_SPACK, IL_MC_PP_SW_SPACK,
 			  timeout);
 	if (r < 0)
 		return r;
 
+	/* clear SP */
+	r = il_servo_raw_write_u16(
+			servo, &IL_REG_CTL_WORD, IL_MC_PDS_CMD_EO, 1);
+	if (r < 0)
+		return r;
+
+	/* wait SP clear (->0) */
 	return sw_wait_value(servo, IL_MC_PP_SW_SPACK, 0, timeout);
 }
 

@@ -61,6 +61,7 @@
 #define IL_MC_SW_RM	(1 << 9)
 #define IL_MC_SW_TR	(1 << 10)
 #define IL_MC_SW_ILA	(1 << 11)
+#define IL_MC_SW_IANGLE (1 << 14)
 
 /*
  * PDS FSA states
