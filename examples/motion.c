@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <ingenialink/ingenialink.h>
 
+/** Enable timeout. */
+#define ENABLE_TIMEOUT  2000
+
 /** Homing timeout. */
 #define HOMING_TIMEOUT	15000
 
@@ -115,7 +118,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_poller;
 	}
 
-	r = il_servo_enable(servo, IL_SERVO_PDS_TIMEOUT_DEF);
+	r = il_servo_enable(servo, ENABLE_TIMEOUT);
 	if (r < 0) {
 		fprintf(stderr, "Could not enable servo: %s\n", ilerr_last());
 		goto cleanup_poller;
@@ -146,7 +149,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_poller;
 	}
 
-	r = il_servo_enable(servo, IL_SERVO_PDS_TIMEOUT_DEF);
+	r = il_servo_enable(servo, ENABLE_TIMEOUT);
 	if (r < 0) {
 		fprintf(stderr, "Could not enable servo: %s\n", ilerr_last());
 		goto cleanup_poller;
@@ -162,6 +165,13 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		r = il_servo_position_set(servo, 90 * i, 0, 0);
 		if (r < 0) {
 			fprintf(stderr, "Could not set position: %s\n",
+				ilerr_last());
+			goto cleanup_poller;
+		}
+
+		r = il_servo_position_wait_ack(servo, 1000);
+		if (r < 0) {
+			fprintf(stderr, "Position not acknowledged: %s\n",
 				ilerr_last());
 			goto cleanup_poller;
 		}

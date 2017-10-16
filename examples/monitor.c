@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <ingenialink/ingenialink.h>
 
+/** Enable timeout. */
+#define ENABLE_TIMEOUT	2000
+
 /** Sampling period (us). */
 #define T_S		1000
 
@@ -104,7 +107,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_monitor;
 	}
 
-	r = il_servo_enable(servo, IL_SERVO_PDS_TIMEOUT_DEF);
+	r = il_servo_enable(servo, ENABLE_TIMEOUT);
 	if (r < 0) {
 		fprintf(stderr, "Could not enable servo: %s\n", ilerr_last());
 		goto cleanup_monitor;

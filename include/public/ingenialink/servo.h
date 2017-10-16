@@ -67,9 +67,6 @@ typedef enum {
 	IL_SERVO_STATE_FAULT
 } il_servo_state_t;
 
-/** Default PDS operations timeout (ms). */
-#define IL_SERVO_PDS_TIMEOUT_DEF	1000
-
 /** Servo operation modes. */
 typedef enum {
 	/** Open loop (vector mode). */
