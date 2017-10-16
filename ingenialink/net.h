@@ -38,10 +38,10 @@
 #define BAUDRATE_DEF		115200
 
 /** Default read timeout (ms) */
-#define TIMEOUT_RD_DEF		1000
+#define TIMEOUT_RD_DEF		100
 
 /** Default write timeout (ms) */
-#define TIMEOUT_WR_DEF		1000
+#define TIMEOUT_WR_DEF		100
 
 /** Binary mode ON message (ASCII protocol). */
 #define MSG_A2B			"\r0 W 0x82000 1\r"

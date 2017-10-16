@@ -42,7 +42,7 @@ IL_BEGIN_DECL
 typedef struct il_servo il_servo_t;
 
 /** Default communications timeout (ms). */
-#define IL_SERVO_TIMEOUT_DEF	1000
+#define IL_SERVO_TIMEOUT_DEF	100
 
 /** Emergency subscriber callback. */
 typedef void (*il_servo_emcy_subscriber_cb_t)(void *ctx, uint32_t code);
