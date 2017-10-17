@@ -110,7 +110,7 @@ extern const il_reg_t IL_REG_PAIR_POLES;
 extern const il_reg_t IL_REG_COMMUTATION_SENSOR;
 
 /** Commutation: initial angle determination method. */
-extern const il_reg_t IL_REG_COMMUTATION_ANGLE_INIT_DET;
+extern const il_reg_t IL_REG_COMMUTATION_IANGLE_METHOD;
 
 /** Commutation: actual system angle. */
 extern const il_reg_t IL_REG_COMMUTATION_ANGLE_ACT;

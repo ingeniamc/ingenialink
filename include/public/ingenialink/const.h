@@ -135,6 +135,20 @@
 
 /** @} */
 
+/**
+ * @defgroup IL_CONST_IANGLE_METHOD Initial angle determination methods
+ * @{
+ */
+
+/** Forced alignment method. */
+#define IL_IANGLE_METHOD_FORCED_ALIGN	0x00
+/** Non incremental sensor used. */
+#define IL_IANGLE_METHOD_NINCR_SENSOR	0x01
+/** Initial rotor position known. */
+#define IL_IANGLE_METHOD_POS_KNOWN	0x02
+
+/** @} */
+
 /** @} */
 
 #endif
