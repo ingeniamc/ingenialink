@@ -613,6 +613,9 @@ double il_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 	case IL_REG_PHY_VOLT_REL:
 		factor = 1. / VOLT_REL_RANGE;
 		break;
+	case IL_REG_PHY_RAD:
+		factor = 2. * M_PI / RAD_RANGE;
+		break;
 	default:
 		factor = 1.;
 		break;

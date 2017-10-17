@@ -83,6 +83,8 @@ typedef enum {
 	IL_REG_PHY_ACC,
 	/** Voltage (relative to DC bus). */
 	IL_REG_PHY_VOLT_REL,
+	/** Radians. */
+	IL_REG_PHY_RAD,
 } il_reg_phy_t;
 
 /** IngeniaLink register. */
@@ -121,6 +123,9 @@ extern const il_reg_t IL_REG_COMMUTATION_REF_SENSOR;
 /** Commutation: angle offset. */
 extern const il_reg_t IL_REG_COMMUTATION_ANGLE_OFF;
 
+/** Non-incremental alignment: offset from phase A. */
+extern const il_reg_t IL_REG_NINCR_ALIGN_OFFSET_PHASE_A;
+
 /** Feedbacks: torque sensor. */
 extern const il_reg_t IL_REG_FB_TORQUE_SENSOR;
 
@@ -132,6 +137,27 @@ extern const il_reg_t IL_REG_FB_POS_SENSOR;
 
 /** SSI: single-turn bits. */
 extern const il_reg_t IL_REG_SSI_STURNBITS;
+
+/** Control loops configuration: bypass torque loop. */
+extern const il_reg_t IL_REG_CL_TORQUE_BYPASS;
+
+/** Control loops configuration: position feedback openloop. */
+extern const il_reg_t IL_REG_CL_FB_POS_OPEN;
+
+/** Control loops configuration: velocity feedback openloop. */
+extern const il_reg_t IL_REG_CL_FB_VEL_OPEN;
+
+/** Control loops configuration: torque feedback openloop. */
+extern const il_reg_t IL_REG_CL_FB_TORQUE_OPEN;
+
+/** Control loops configuration: velocity mode use position loop. */
+extern const il_reg_t IL_REG_CL_VEL_USE_POS;
+
+/** Torque window. */
+extern const il_reg_t IL_REG_TORQUE_WINDOW;
+
+/** Torque window time (0.1 ms). */
+extern const il_reg_t IL_REG_TORQUE_WINDOW_TIME;
 
 /** Motor parameters: pole pitch. */
 extern const il_reg_t IL_REG_MOTPARAM_PPITCH;
@@ -430,6 +456,9 @@ extern const il_reg_t IL_REG_DC_VOLTAGE;
 
 /** Target position. */
 extern const il_reg_t IL_REG_POS_TGT;
+
+/** Torque slope. */
+extern const il_reg_t IL_REG_TORQUE_SLOPE;
 
 /** Position encoder resolution: encoder increments. */
 extern const il_reg_t IL_REG_PRES_ENC_INCR;
