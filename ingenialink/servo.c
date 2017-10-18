@@ -874,6 +874,8 @@ int il_servo_read(il_servo_t *servo, const il_reg_t *reg, double *buf)
 int il_servo_raw_write(il_servo_t *servo, const il_reg_t *reg, const void *data,
 		       size_t sz, int confirmed)
 {
+	int confirmed_;
+
 	assert(servo);
 	assert(reg);
 
@@ -882,13 +884,11 @@ int il_servo_raw_write(il_servo_t *servo, const il_reg_t *reg, const void *data,
 		return IL_EACCESS;
 	}
 
-	if (reg->access == IL_REG_ACCESS_WO && confirmed) {
-		ilerr__set("Cannot confirm write-only register");
-		return IL_EACCESS;
-	}
+	/* skip confirmation on write-only registers */
+	confirmed_ = (reg->access == IL_REG_ACCESS_WO) ? 0 : confirmed;
 
 	return il_net__write(servo->net, servo->id, reg->idx, reg->sidx, data,
-			     sz, confirmed, servo->timeout);
+			     sz, confirmed_, servo->timeout);
 }
 
 int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg, uint8_t val,
