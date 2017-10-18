@@ -149,6 +149,48 @@
 
 /** @} */
 
+/**
+ * @defgroup IL_CONST_DENC_SINCOS_PARAM Digital encoder / SinCos parameters
+ * @{
+ */
+
+/** Not swapped. */
+#define IL_DENC_SINCOS_NSWAPPED		0x00
+/** Swapped. */
+#define IL_DENC_SINCOS_SWAPPED		0x01
+
+/** No encoder. */
+#define IL_DENC_SINCOS_TYPE_NONE	0x00
+/** 2 channels encoder (single ended). */
+#define IL_DENC_SINCOS_TYPE_2CH_S	0x01
+/** 2 channels + index encoder (single ended). */
+#define IL_DENC_SINCOS_TYPE_2CH_S_IDX	0x02
+/** 2 channels encoder (differential). */
+#define IL_DENC_SINCOS_TYPE_2CH_D	0x03
+/** 2 channels + index encoder (differential). */
+#define IL_DENC_SINCOS_TYPE_2CH_D_IDX	0x04
+
+/** Maximum encoder frequency, 30 MHz. */
+#define IL_DENC_SINCOS_FILTER_30MHZ	0x00
+/** Maximum encoder frequency, 10 MHz. */
+#define IL_DENC_SINCOS_FILTER_10MHZ	0x01
+/** Maximum encoder frequency, 5 MHz. */
+#define IL_DENC_SINCOS_FILTER_5MHZ	0x02
+/** Maximum encoder frequency, 2 MHz. */
+#define IL_DENC_SINCOS_FILTER_2MHZ	0x03
+/** Maximum encoder frequency, 1 MHz. */
+#define IL_DENC_SINCOS_FILTER_1MHZ	0x04
+/** Maximum encoder frequency, 625 KHz. */
+#define IL_DENC_SINCOS_FILTER_625KHZ	0x05
+/** Maximum encoder frequency, 312,5 KHz. */
+#define IL_DENC_SINCOS_FILTER_312_5KHZ	0x06
+/** Maximum encoder frequency, 156,25 KHz. */
+#define IL_DENC_SINCOS_FILTER_156_25KHZ	0x07
+/** Maximum encoder frequency, 39,06 KHz. */
+#define IL_DENC_SINCOS_FILTER_39_06KHZ	0x08
+
+/** @} */
+
 /** @} */
 
 #endif

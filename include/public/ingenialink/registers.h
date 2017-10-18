@@ -135,6 +135,15 @@ extern const il_reg_t IL_REG_FB_VEL_SENSOR;
 /** Feedbacks: position sensor. */
 extern const il_reg_t IL_REG_FB_POS_SENSOR;
 
+/** Digital encoder/SinCos swap mode. */
+extern const il_reg_t IL_REG_DENC_SINCOS_SWAP;
+
+/** Digital encoder/SinCos type. */
+extern const il_reg_t IL_REG_DENC_SINCOS_TYPE;
+
+/** Digital encoder/SinCos glitch filter. */
+extern const il_reg_t IL_REG_DENC_SINCOS_FILTER;
+
 /** SSI: single-turn bits. */
 extern const il_reg_t IL_REG_SSI_STURNBITS;
 
