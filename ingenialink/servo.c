@@ -161,149 +161,6 @@ static int sw_wait_value(il_servo_t *servo, uint16_t msk, uint16_t val,
 }
 
 /**
- * Update servo configuration.
- *
- * References:
- *	http://doc.ingeniamc.com/display/EMCL/Position+units
- *
- * @param [in] servo
- *	IngeniaLink servo.
- *
- * @return
- *	0 on success, error code otherwise.
- */
-static int update_config(il_servo_t *servo)
-{
-	int r;
-
-	uint32_t rated_torque, incrs, revs, ppitch;
-	uint8_t fb, ppoles, turnbits;
-
-	/* obtain rated torque (N) */
-	r = il_servo_raw_read_u32(servo, &IL_REG_RATED_TORQUE, &rated_torque);
-	if (r < 0)
-		return r;
-
-	servo->cfg.rated_torque = (double)rated_torque;
-
-	/* compute position resolution (counts/rev) */
-	r = il_servo_raw_read_u8(servo, &IL_REG_FB_POS_SENSOR, &fb);
-	if (r < 0)
-		return r;
-
-	switch (fb) {
-	case IL_POS_SENSOR_DIGITAL_ENCODER:
-		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, &incrs);
-		if (r < 0)
-			return r;
-
-		r = il_servo_raw_read_u32(
-				servo, &IL_REG_PRES_MOTOR_REVS, &revs);
-		if (r < 0)
-			return r;
-
-		servo->cfg.pos_res = (double)(incrs / revs);
-		break;
-
-	case IL_POS_SENSOR_DIGITAL_HALLS:
-		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
-		if (r < 0)
-			return r;
-
-		servo->cfg.pos_res = (double)(ppoles * DIGITAL_HALLS_CONSTANT);
-		break;
-
-	case IL_POS_SENSOR_ANALOG_HALLS:
-		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
-		if (r < 0)
-			return r;
-
-		servo->cfg.pos_res = (double)(ppoles * ANALOG_HALLS_CONSTANT);
-		break;
-
-	case IL_POS_SENSOR_ANALOG_INPUT:
-		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
-		if (r < 0)
-			return r;
-
-		servo->cfg.pos_res = (double)(ppoles * ANALOG_INPUT_CONSTANT);
-		break;
-
-	case IL_POS_SENSOR_SINCOS:
-		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, &incrs);
-		if (r < 0)
-			return r;
-
-		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_MOTOR_REVS,
-					  &revs);
-		if (r < 0)
-			return r;
-
-		servo->cfg.pos_res = (double)((incrs / revs) * SINCOS_CONSTANT);
-		break;
-
-	case IL_POS_SENSOR_PWM:
-		servo->cfg.pos_res = PWM_CONSTANT;
-		break;
-
-	case IL_POS_SENSOR_RESOLVER:
-		servo->cfg.pos_res = RESOLVER_CONSTANT;
-		break;
-
-	case IL_POS_SENSOR_SSI:
-		r = il_servo_raw_read_u8(
-				servo, &IL_REG_SSI_STURNBITS, &turnbits);
-		if (r < 0)
-			return r;
-
-		servo->cfg.pos_res = (double)(2 << turnbits);
-		break;
-
-	default:
-		servo->cfg.pos_res = 1.;
-	}
-
-	/* compute velocity resolution (counts/rev/s) */
-	r = il_servo_raw_read_u8(servo, &IL_REG_FB_VEL_SENSOR, &fb);
-	if (r < 0)
-		return r;
-
-	switch (fb) {
-	case IL_VEL_SENSOR_POS:
-		servo->cfg.vel_res = servo->cfg.pos_res;
-		break;
-
-	case IL_VEL_SENSOR_TACHOMETER:
-		r = il_servo_raw_read_u32(servo, &IL_REG_VRES_ENC_INCR, &incrs);
-		if (r < 0)
-			return r;
-
-		r = il_servo_raw_read_u32(
-				servo, &IL_REG_VRES_MOTOR_REVS, &revs);
-		if (r < 0)
-			return r;
-
-		servo->cfg.pos_res = (double)(incrs / revs);
-		break;
-
-	default:
-		servo->cfg.vel_res = 1.;
-	}
-
-	/* acceleration resolution, same as position (counts/rev/s^2) */
-	servo->cfg.acc_res = servo->cfg.pos_res;
-
-	/* store magnetic pole pitch (um -> m) */
-	r = il_servo_raw_read_u32(servo, &IL_REG_MOTPARAM_PPITCH, &ppitch);
-	if (r < 0)
-		return r;
-
-	servo->cfg.ppitch = (double)ppitch / 1000000;
-
-	return 0;
-}
-
-/**
  * Decode the PDS state.
  *
  * @param [in] sw
@@ -412,7 +269,7 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, int timeout)
 		goto cleanup_refcnt;
 	}
 
-	r = update_config(servo);
+	r = il_servo_units_update(servo);
 	if (r < 0)
 		goto cleanup_units_lock;
 
@@ -488,6 +345,38 @@ void il_servo_emcy_unsubscribe(il_servo_t *servo, int slot)
 	assert(servo);
 
 	il_net__emcy_unsubscribe(servo->net, slot);
+}
+
+int il_servo_units_update(il_servo_t *servo)
+{
+	int r;
+	uint32_t rated_torque, pos_res, vel_res, ppitch;
+
+	assert(servo);
+
+	r = il_servo_raw_read_u32(servo, &IL_REG_RATED_TORQUE, &rated_torque);
+	if (r < 0)
+		return r;
+
+	r = il_servo_position_res_get(servo, &pos_res);
+	if (r < 0)
+		return r;
+
+	r = il_servo_velocity_res_get(servo, &vel_res);
+	if (r < 0)
+		return r;
+
+	r = il_servo_raw_read_u32(servo, &IL_REG_MOTPARAM_PPITCH, &ppitch);
+	if (r < 0)
+		return r;
+
+	servo->cfg.rated_torque = (double)rated_torque;
+	servo->cfg.pos_res = (double)pos_res;
+	servo->cfg.vel_res = (double)vel_res;
+	servo->cfg.acc_res = servo->cfg.pos_res;
+	servo->cfg.ppitch = (double)ppitch / 1000000;
+
+	return 0;
 }
 
 double il_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
@@ -612,6 +501,9 @@ double il_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 		break;
 	case IL_REG_PHY_VOLT_REL:
 		factor = 1. / VOLT_REL_RANGE;
+		break;
+	case IL_REG_PHY_RAD:
+		factor = 2. * M_PI / RAD_RANGE;
 		break;
 	default:
 		factor = 1.;
@@ -871,6 +763,8 @@ int il_servo_read(il_servo_t *servo, const il_reg_t *reg, double *buf)
 int il_servo_raw_write(il_servo_t *servo, const il_reg_t *reg, const void *data,
 		       size_t sz, int confirmed)
 {
+	int confirmed_;
+
 	assert(servo);
 	assert(reg);
 
@@ -879,13 +773,11 @@ int il_servo_raw_write(il_servo_t *servo, const il_reg_t *reg, const void *data,
 		return IL_EACCESS;
 	}
 
-	if (reg->access == IL_REG_ACCESS_WO && confirmed) {
-		ilerr__set("Cannot confirm write-only register");
-		return IL_EACCESS;
-	}
+	/* skip confirmation on write-only registers */
+	confirmed_ = (reg->access == IL_REG_ACCESS_WO) ? 0 : confirmed;
 
 	return il_net__write(servo->net, servo->id, reg->idx, reg->sidx, data,
-			     sz, confirmed, servo->timeout);
+			     sz, confirmed_, servo->timeout);
 }
 
 int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg, uint8_t val,
@@ -1153,9 +1045,14 @@ int il_servo_fault_reset(il_servo_t *servo)
 		sw = sw_get(servo);
 		state = pds_state_decode(sw);
 
-		/* check if faulty, if so try to reset */
+		/* check if faulty, if so try to reset (0->1) */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
+			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
+						   0, 1);
+			if (r < 0)
+				return r;
+
 			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
 						   IL_MC_PDS_CMD_FR, 1);
 			if (r < 0)
@@ -1308,6 +1205,94 @@ int il_servo_position_wait_ack(il_servo_t *servo, int timeout)
 	return sw_wait_value(servo, IL_MC_PP_SW_SPACK, 0, timeout);
 }
 
+int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
+{
+	int r;
+	uint8_t fb, ppoles, turnbits;
+	uint32_t incrs, revs;
+
+	assert(servo);
+	assert(res);
+
+	r = il_servo_raw_read_u8(servo, &IL_REG_FB_POS_SENSOR, &fb);
+	if (r < 0)
+		return r;
+
+	switch (fb) {
+	case IL_POS_SENSOR_DIGITAL_ENCODER:
+		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, &incrs);
+		if (r < 0)
+			return r;
+
+		r = il_servo_raw_read_u32(
+				servo, &IL_REG_PRES_MOTOR_REVS, &revs);
+		if (r < 0)
+			return r;
+
+		*res = incrs / revs;
+		break;
+
+	case IL_POS_SENSOR_DIGITAL_HALLS:
+		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
+		if (r < 0)
+			return r;
+
+		*res = ppoles * DIGITAL_HALLS_CONSTANT;
+		break;
+
+	case IL_POS_SENSOR_ANALOG_HALLS:
+		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
+		if (r < 0)
+			return r;
+
+		*res = ppoles * ANALOG_HALLS_CONSTANT;
+		break;
+
+	case IL_POS_SENSOR_ANALOG_INPUT:
+		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
+		if (r < 0)
+			return r;
+
+		*res = ppoles * ANALOG_INPUT_CONSTANT;
+		break;
+
+	case IL_POS_SENSOR_SINCOS:
+		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, &incrs);
+		if (r < 0)
+			return r;
+
+		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_MOTOR_REVS,
+					  &revs);
+		if (r < 0)
+			return r;
+
+		*res = (incrs / revs) * SINCOS_CONSTANT;
+		break;
+
+	case IL_POS_SENSOR_PWM:
+		*res = PWM_CONSTANT;
+		break;
+
+	case IL_POS_SENSOR_RESOLVER:
+		*res = RESOLVER_CONSTANT;
+		break;
+
+	case IL_POS_SENSOR_SSI:
+		r = il_servo_raw_read_u8(
+				servo, &IL_REG_SSI_STURNBITS, &turnbits);
+		if (r < 0)
+			return r;
+
+		*res = 2 << turnbits;
+		break;
+
+	default:
+		*res = 1;
+	}
+
+	return 0;
+}
+
 int il_servo_velocity_get(il_servo_t *servo, double *vel)
 {
 	return il_servo_read(servo, &IL_REG_VEL_ACT, vel);
@@ -1316,6 +1301,44 @@ int il_servo_velocity_get(il_servo_t *servo, double *vel)
 int il_servo_velocity_set(il_servo_t *servo, double vel)
 {
 	return il_servo_write(servo, &IL_REG_VEL_TGT, vel, 1);
+}
+
+int il_servo_velocity_res_get(il_servo_t *servo, uint32_t *res)
+{
+	int r;
+	uint8_t fb;
+	uint32_t incrs, revs;
+
+	assert(servo);
+	assert(res);
+
+	r = il_servo_raw_read_u8(servo, &IL_REG_FB_VEL_SENSOR, &fb);
+	if (r < 0)
+		return r;
+
+	switch (fb) {
+	case IL_VEL_SENSOR_POS:
+		r = il_servo_position_res_get(servo, res);
+		break;
+
+	case IL_VEL_SENSOR_TACHOMETER:
+		r = il_servo_raw_read_u32(servo, &IL_REG_VRES_ENC_INCR, &incrs);
+		if (r < 0)
+			return r;
+
+		r = il_servo_raw_read_u32(
+				servo, &IL_REG_VRES_MOTOR_REVS, &revs);
+		if (r < 0)
+			return r;
+
+		*res = incrs / revs;
+		break;
+
+	default:
+		*res = 1;
+	}
+
+	return 0;
 }
 
 int il_servo_wait_reached(il_servo_t *servo, int timeout)

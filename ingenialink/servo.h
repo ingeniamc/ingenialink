@@ -61,6 +61,9 @@
 /** Relative voltage range. */
 #define VOLT_REL_RANGE		32767
 
+/** Radians range. */
+#define RAD_RANGE		65535
+
 /** Servo units. */
 typedef struct {
 	/** Lock. */
