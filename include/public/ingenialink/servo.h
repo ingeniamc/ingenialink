@@ -200,6 +200,21 @@ IL_EXPORT int il_servo_emcy_subscribe(il_servo_t *servo,
 IL_EXPORT void il_servo_emcy_unsubscribe(il_servo_t *servo, int slot);
 
 /**
+ * Update units scaling factors.
+ *
+ * @note
+ *	This must be called if any encoder parameter, rated torque or pole pitch
+ *	are changed, otherwise, the readings conversions will not be correct.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_units_update(il_servo_t *servo);
+
+/**
  * Obtain the units scale factor associated with the given register.
  *
  * @param [in] servo
@@ -883,6 +898,19 @@ IL_EXPORT int il_servo_position_set(il_servo_t *servo, double pos,
 IL_EXPORT int il_servo_position_wait_ack(il_servo_t *servo, int timeout);
 
 /**
+ * Obtain position resolution.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [out] res
+ *	Position resolution (c/rev, c/ppitch).
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_position_res_get(il_servo_t *servo, uint32_t *res);
+
+/**
  * Get the actual servo velocity.
  *
  * @param [in] servo
@@ -907,6 +935,20 @@ IL_EXPORT int il_servo_velocity_get(il_servo_t *servo, double *vel);
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_velocity_set(il_servo_t *servo, double vel);
+
+
+/**
+ * Obtain velocity resolution.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [out] res
+ *	Velocity resolution (c/rev/s).
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_velocity_res_get(il_servo_t *servo, uint32_t *res);
 
 /**
  * Wait until the servo does a target reach.
