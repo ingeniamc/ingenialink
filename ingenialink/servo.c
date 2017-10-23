@@ -1045,9 +1045,14 @@ int il_servo_fault_reset(il_servo_t *servo)
 		sw = sw_get(servo);
 		state = pds_state_decode(sw);
 
-		/* check if faulty, if so try to reset */
+		/* check if faulty, if so try to reset (0->1) */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
+			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
+						   0, 1);
+			if (r < 0)
+				return r;
+
 			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
 						   IL_MC_PDS_CMD_FR, 1);
 			if (r < 0)
