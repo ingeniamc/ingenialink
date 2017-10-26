@@ -168,6 +168,30 @@ extern const il_reg_t IL_REG_TORQUE_WINDOW;
 /** Torque window time (0.1 ms). */
 extern const il_reg_t IL_REG_TORQUE_WINDOW_TIME;
 
+/** Disturbance signal: maximum entries. */
+extern const il_reg_t IL_REG_DSIG_MAX_ENTRIES;
+
+/** Disturbance signal: filled entries. */
+extern const il_reg_t IL_REG_DSIG_FILLED_ENTRIES;
+
+/** Disturbance signal: entry number. */
+extern const il_reg_t IL_REG_DSIG_ENTRY_NUM;
+
+/** Disturbance signal: entry value. */
+extern const il_reg_t IL_REG_DSIG_ENTRY_VAL;
+
+/** Disturbance signal: injection point. */
+extern const il_reg_t IL_REG_DSIG_INJ_POINT;
+
+/** Disturbance signal: number of cycles. */
+extern const il_reg_t IL_REG_DSIG_NCYCLES;
+
+/** Disturbance signal: injection rate. */
+extern const il_reg_t IL_REG_DSIG_RATE;
+
+/** Disturbance signal: output signal. */
+extern const il_reg_t IL_REG_DSIG_OUT;
+
 /** Motor parameters: pole pitch. */
 extern const il_reg_t IL_REG_MOTPARAM_PPITCH;
 

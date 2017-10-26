@@ -191,6 +191,34 @@
 
 /** @} */
 
+/**
+ * @defgroup IL_CONST_DSIG_INJ Disturbance signal injection points
+ * @{
+ */
+
+/** None. */
+#define IL_DSIG_INJ_NONE		0x00
+/** Torque command source. */
+#define IL_DSIG_INJ_CSRC_TOR		0x01
+/** Torque demand. */
+#define IL_DSIG_INJ_DEMAND_TOR		0x02
+/** Torque control loop. */
+#define IL_DSIG_INJ_CLOOP_TOR		0x03
+/** Velocity command source. */
+#define IL_DSIG_INJ_CSRC_VEL		0x04
+/** Velocity demand. */
+#define IL_DSIG_INJ_DEMAND_VEL		0x05
+/** Velocity control loop. */
+#define IL_DSIG_INJ_CLOOP_VEL		0x06
+/** Position command source. */
+#define IL_DSIG_INJ_CSRC_POS		0x07
+/** Position command source. */
+#define IL_DSIG_INJ_DEMAND_POS		0x08
+/** Position control loop. */
+#define IL_DSIG_INJ_CLOOP_POS		0x09
+
+/** @} */
+
 /** @} */
 
 #endif
