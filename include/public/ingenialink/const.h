@@ -219,6 +219,26 @@
 
 /** @} */
 
+/**
+ * @defgroup IL_CONST_CMD_SRC Command sources
+ * @{
+ */
+
+/** Network. */
+#define IL_CMD_SRC_NETWORK		0x00
+/** Analog input. */
+#define IL_CMD_SRC_AIN			0x01
+/** PWM or PWM & direction. */
+#define IL_CMD_SRC_PWM			0x02
+/** Step & direction. */
+#define IL_CMD_SRC_STEPDIR		0x03
+/** Electronic gearing. */
+#define IL_CMD_SRC_EGEARING		0x05
+/** Integral generator. */
+#define IL_CMD_SRC_INTEGRAL_GEN		0x06
+
+/** @} */
+
 /** @} */
 
 #endif

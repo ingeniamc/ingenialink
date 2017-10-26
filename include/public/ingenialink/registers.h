@@ -147,6 +147,15 @@ extern const il_reg_t IL_REG_DENC_SINCOS_FILTER;
 /** SSI: single-turn bits. */
 extern const il_reg_t IL_REG_SSI_STURNBITS;
 
+/** Command reference source. */
+extern const il_reg_t IL_REG_CMD_SRC;
+
+/** Torque demand low pass filter: enabled. */
+extern const il_reg_t IL_REG_TORQUE_DEM_LPF_ENABLED;
+
+/** Torque demand low pass filter: cutoff frequency. */
+extern const il_reg_t IL_REG_TORQUE_DEM_LPF_CFREQ;
+
 /** Control loops configuration: bypass torque loop. */
 extern const il_reg_t IL_REG_CL_TORQUE_BYPASS;
 
@@ -192,8 +201,23 @@ extern const il_reg_t IL_REG_DSIG_RATE;
 /** Disturbance signal: output signal. */
 extern const il_reg_t IL_REG_DSIG_OUT;
 
+/** Motor parameters: resistance phase-to-phase. */
+extern const il_reg_t IL_REG_MOTPARAM_RES_PHTOPH;
+
+/** Motor parameters: inductance phase-to-phase. */
+extern const il_reg_t IL_REG_MOTPARAM_IND_PHTOPH;
+
 /** Motor parameters: pole pitch. */
 extern const il_reg_t IL_REG_MOTPARAM_PPITCH;
+
+/** Motor parameters: motor backemf constant (Kv). */
+extern const il_reg_t IL_REG_MOTPARAM_KV;
+
+/** Motor parameters: stroke. */
+extern const il_reg_t IL_REG_MOTPARAM_STROKE;
+
+/** Motor parameters: torque constant (Km). */
+extern const il_reg_t IL_REG_MOTPARAM_KM;
 
 /** Monitor config: sampling rage (period). */
 extern const il_reg_t IL_REG_MONITOR_CFG_T_S;
@@ -477,6 +501,9 @@ extern const il_reg_t IL_REG_VEL_ACT;
 
 /** Target torque. */
 extern const il_reg_t IL_REG_TORQUE_TGT;
+
+/** Maximum torque. */
+extern const il_reg_t IL_REG_TORQUE_MAX;
 
 /** Motor rated torque. */
 extern const il_reg_t IL_REG_RATED_TORQUE;
