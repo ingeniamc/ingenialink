@@ -936,7 +936,6 @@ IL_EXPORT int il_servo_velocity_get(il_servo_t *servo, double *vel);
  */
 IL_EXPORT int il_servo_velocity_set(il_servo_t *servo, double vel);
 
-
 /**
  * Obtain velocity resolution.
  *
