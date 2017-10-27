@@ -95,17 +95,27 @@ typedef enum {
 /** Servo operation modes. */
 typedef enum {
 	/** Open loop (vector mode). */
-	IL_SERVO_MODE_OLV = -2,
+	IL_SERVO_MODE_OLV,
 	/** Open loop (scalar mode). */
-	IL_SERVO_MODE_OLS = -1,
+	IL_SERVO_MODE_OLS,
 	/** Profile position. */
-	IL_SERVO_MODE_PP = 1,
+	IL_SERVO_MODE_PP,
+	/** Velocity */
+	IL_SERVO_MODE_VEL,
 	/** Profile velocity. */
-	IL_SERVO_MODE_PV = 3,
+	IL_SERVO_MODE_PV,
 	/** Profile torque. */
-	IL_SERVO_MODE_PT = 4,
+	IL_SERVO_MODE_PT,
 	/** Homing. */
-	IL_SERVO_MODE_HOMING = 6
+	IL_SERVO_MODE_HOMING,
+	/** Interpolated position. */
+	IL_SERVO_MODE_IP,
+	/** Cyclic sync position mode. */
+	IL_SERVO_MODE_CSP,
+	/** Cyclic sync velocity mode. */
+	IL_SERVO_MODE_CSV,
+	/** Cyclic sync torque mode. */
+	IL_SERVO_MODE_CST,
 } il_servo_mode_t;
 
 /** Torque units. */
@@ -829,6 +839,19 @@ IL_EXPORT int il_servo_enable(il_servo_t *servo, int timeout);
 IL_EXPORT int il_servo_fault_reset(il_servo_t *servo);
 
 /**
+ * Get the servo operation mode.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [out] mode
+ *	Where mode will be stored.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode);
+
+/**
  * Set the servo operation mode.
  *
  * @param [in] servo
@@ -836,6 +859,8 @@ IL_EXPORT int il_servo_fault_reset(il_servo_t *servo);
  * @param [in] mode
  *	Mode.
  *
+ * @return
+ *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_mode_set(il_servo_t *servo, il_servo_mode_t mode);
 

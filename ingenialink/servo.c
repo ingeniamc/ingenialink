@@ -263,6 +263,11 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, int timeout)
 	if (!servo->refcnt)
 		goto cleanup_servo;
 
+	/* obtain current operation mode */
+	r = il_servo_mode_get(servo, &servo->mode);
+	if (r < 0)
+		goto cleanup_refcnt;
+
 	/* configure units */
 	servo->units.lock = osal_mutex_create();
 	if (!servo->units.lock) {
@@ -1158,9 +1163,110 @@ int il_servo_fault_reset(il_servo_t *servo)
 	return 0;
 }
 
+int il_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode)
+{
+	int r;
+	int8_t code;
+
+	assert(mode);
+
+	r = il_servo_raw_read_s8(servo, &IL_REG_OP_MODE_DISP, &code);
+	if (r < 0)
+		return r;
+
+	switch (code) {
+	case ILK_OP_MODE_OLV:
+		*mode = IL_SERVO_MODE_OLV;
+		break;
+	case ILK_OP_MODE_OLS:
+		*mode = IL_SERVO_MODE_OLS;
+		break;
+	case ILK_OP_MODE_PP:
+		*mode = IL_SERVO_MODE_PP;
+		break;
+	case ILK_OP_MODE_VEL:
+		*mode = IL_SERVO_MODE_VEL;
+		break;
+	case ILK_OP_MODE_PV:
+		*mode = IL_SERVO_MODE_PV;
+		break;
+	case ILK_OP_MODE_PT:
+		*mode = IL_SERVO_MODE_PT;
+		break;
+	case ILK_OP_MODE_HOMING:
+		*mode = IL_SERVO_MODE_HOMING;
+		break;
+	case ILK_OP_MODE_IP:
+		*mode = IL_SERVO_MODE_IP;
+		break;
+	case ILK_OP_MODE_CSP:
+		*mode = IL_SERVO_MODE_CSP;
+		break;
+	case ILK_OP_MODE_CSV:
+		*mode = IL_SERVO_MODE_CSV;
+		break;
+	case ILK_OP_MODE_CST:
+		*mode = IL_SERVO_MODE_CST;
+		break;
+	default:
+		ilerr__set("Unknown operation mode: %d", code);
+		return IL_EINVAL;
+	}
+
+	return 0;
+}
+
 int il_servo_mode_set(il_servo_t *servo, il_servo_mode_t mode)
 {
-	return il_servo_raw_write_s8(servo, &IL_REG_OP_MODE, (int8_t)mode, 1);
+	int r;
+	int8_t code;
+
+	switch (mode) {
+	case IL_SERVO_MODE_OLV:
+		code = ILK_OP_MODE_OLV;
+		break;
+	case IL_SERVO_MODE_OLS:
+		code = ILK_OP_MODE_OLS;
+		break;
+	case IL_SERVO_MODE_PP:
+		code = ILK_OP_MODE_PP;
+		break;
+	case IL_SERVO_MODE_VEL:
+		code = ILK_OP_MODE_VEL;
+		break;
+	case IL_SERVO_MODE_PV:
+		code = ILK_OP_MODE_PV;
+		break;
+	case IL_SERVO_MODE_PT:
+		code = ILK_OP_MODE_PT;
+		break;
+	case IL_SERVO_MODE_HOMING:
+		code = ILK_OP_MODE_HOMING;
+		break;
+	case IL_SERVO_MODE_IP:
+		code = ILK_OP_MODE_IP;
+		break;
+	case IL_SERVO_MODE_CSP:
+		code = ILK_OP_MODE_CSP;
+		break;
+	case IL_SERVO_MODE_CSV:
+		code = ILK_OP_MODE_CSV;
+		break;
+	case IL_SERVO_MODE_CST:
+		code = ILK_OP_MODE_CST;
+		break;
+	default:
+		ilerr__set("Invalid mode");
+		return IL_EINVAL;
+	}
+
+	r = il_servo_raw_write_s8(servo, &IL_REG_OP_MODE, code, 1);
+	if (r < 0)
+		return r;
+
+	servo->mode = mode;
+
+	return 0;
 }
 
 int il_servo_ol_voltage_get(il_servo_t *servo, double *voltage)
@@ -1251,23 +1357,25 @@ int il_servo_position_set(il_servo_t *servo, double pos, int immediate,
 	if (r < 0)
 		return r;
 
-	/* new set-point (0->1) */
-	cmd = IL_MC_PDS_CMD_EO;
-	r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD, cmd, 1);
-	if (r < 0)
-		return r;
+	if (servo->mode == IL_SERVO_MODE_PP) {
+		/* new set-point (0->1) */
+		cmd = IL_MC_PDS_CMD_EO;
+		r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD, cmd, 1);
+		if (r < 0)
+			return r;
 
-	cmd |= IL_MC_PP_CW_NEWSP;
+		cmd |= IL_MC_PP_CW_NEWSP;
 
-	if (immediate)
-		cmd |= IL_MC_PP_CW_IMMEDIATE;
+		if (immediate)
+			cmd |= IL_MC_PP_CW_IMMEDIATE;
 
-	if (relative)
-		cmd |= IL_MC_PP_CW_REL;
+		if (relative)
+			cmd |= IL_MC_PP_CW_REL;
 
-	r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD, cmd, 1);
-	if (r < 0)
-		return r;
+		r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD, cmd, 1);
+		if (r < 0)
+			return r;
+	}
 
 	return 0;
 }

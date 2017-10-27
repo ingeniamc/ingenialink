@@ -47,6 +47,36 @@
 /** @} */
 
 /**
+ * @defgroup IL_CONST_OP_MODE Operation modes
+ * @{
+ */
+
+/** Open loop (vector mode). */
+#define ILK_OP_MODE_OLV		-2
+/** Open loop (scalar mode). */
+#define ILK_OP_MODE_OLS		-1
+/** Profile position. */
+#define ILK_OP_MODE_PP		1
+/** Velocity. */
+#define ILK_OP_MODE_VEL		2
+/** Profile velocity. */
+#define ILK_OP_MODE_PV		3
+/** Profile torque. */
+#define ILK_OP_MODE_PT		4
+/** Homing. */
+#define ILK_OP_MODE_HOMING	6
+/** Interpolated position mode. */
+#define ILK_OP_MODE_IP		7
+/** Cyclic sync position mode. */
+#define ILK_OP_MODE_CSP		8
+/** Cyclic sync velocity mode. */
+#define ILK_OP_MODE_CSV		9
+/** Cyclic sync torque mode. */
+#define ILK_OP_MODE_CST		10
+
+/** @} */
+
+/**
  * @defgroup IL_CONST_MOTOR Motor types
  * @{
  */

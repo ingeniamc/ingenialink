@@ -120,6 +120,8 @@ struct il_servo {
 	il_servo_cfg_t cfg;
 	/** Statusword subscription. */
 	il_servo_sw_t sw;
+	/** Operation mode. */
+	il_servo_mode_t mode;
 };
 
 #endif
