@@ -330,6 +330,24 @@ void il_servo_destroy(il_servo_t *servo)
 	refcnt__release(servo->refcnt);
 }
 
+int il_servo_store_all(il_servo_t *servo)
+{
+	return il_servo_raw_write_u32(servo, &IL_REG_STORE_ALL,
+				      ILK_SIGNATURE_STORE, 0);
+}
+
+int il_servo_store_comm(il_servo_t *servo)
+{
+	return il_servo_raw_write_u32(servo, &IL_REG_STORE_COMM,
+				      ILK_SIGNATURE_STORE, 0);
+}
+
+int il_servo_store_app(il_servo_t *servo)
+{
+	return il_servo_raw_write_u32(servo, &IL_REG_STORE_APP,
+				      ILK_SIGNATURE_STORE, 0);
+}
+
 int il_servo_emcy_subscribe(il_servo_t *servo, il_servo_emcy_subscriber_cb_t cb,
 			    void *ctx)
 {

@@ -173,6 +173,39 @@ IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint8_t id, int timeout);
 IL_EXPORT void il_servo_destroy(il_servo_t *servo);
 
 /**
+ * Store all servo current parameters to the NVM.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo instance.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_store_all(il_servo_t *servo);
+
+/**
+ * Store all servo current communications parameters to the NVM.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo instance.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_store_comm(il_servo_t *servo);
+
+/**
+ * Store all servo current application parameters to the NVM.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo instance.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_store_app(il_servo_t *servo);
+
+/**
  * Subscribe to emergency messages.
  *
  * @param [in] servo
