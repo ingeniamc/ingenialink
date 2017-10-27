@@ -44,6 +44,9 @@ typedef struct il_servo il_servo_t;
 /** Default communications timeout (ms). */
 #define IL_SERVO_TIMEOUT_DEF	100
 
+/** Servo name size (includes null termination). */
+#define IL_SERVO_NAME_SZ	9
+
 /** Emergency subscriber callback. */
 typedef void (*il_servo_emcy_subscriber_cb_t)(void *ctx, uint32_t code);
 
@@ -171,6 +174,34 @@ IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint8_t id, int timeout);
  *	IngeniaLink servo instance.
  */
 IL_EXPORT void il_servo_destroy(il_servo_t *servo);
+
+/**
+ * Obtain servo name.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo instance.
+ * @param [out] name
+ *	Buffer where the actual name (null-terminated) will be stored.
+ * @param [in] sz
+ *	Buffer size (must be >= IL_SERVO_NAME_SZ).
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_name_get(il_servo_t *servo, char *name, size_t sz);
+
+/**
+ * Set servo name.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo instance.
+ * @param [in] name
+ *	Servo name (null-terminated string).
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_name_set(il_servo_t *servo, const char *name);
 
 /**
  * Store all servo current parameters to the NVM.

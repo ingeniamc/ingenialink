@@ -34,6 +34,7 @@
 #include "public/ingenialink/const.h"
 #include "public/ingenialink/registers.h"
 #include "ingenialink/err.h"
+#include "ingenialink/utils.h"
 
 /*******************************************************************************
  * Private
@@ -328,6 +329,41 @@ void il_servo_destroy(il_servo_t *servo)
 	assert(servo);
 
 	refcnt__release(servo->refcnt);
+}
+
+int il_servo_name_get(il_servo_t *servo, char *name, size_t sz)
+{
+	int r;
+
+	assert(name);
+
+	if (sz < IL_SERVO_NAME_SZ) {
+		ilerr__set("Insufficient name buffer size");
+		return IL_ENOMEM;
+	}
+
+	r = il_servo_raw_read(servo, &IL_REG_DRIVE_NAME, name, sz, NULL);
+	if (r < 0)
+		return r;
+
+	name[IL_SERVO_NAME_SZ] = '\0';
+
+	return 0;
+}
+
+int il_servo_name_set(il_servo_t *servo, const char *name)
+{
+	size_t sz;
+	char name_[IL_SERVO_NAME_SZ] = { '\0' };
+
+	assert(name);
+
+	/* clip name to the maximum size */
+	sz = MIN(strlen(name), IL_SERVO_NAME_SZ - 1);
+	memcpy(name_, name, sz);
+
+	return il_servo_raw_write(servo, &IL_REG_DRIVE_NAME, name_,
+				  sizeof(name_) - 1, 1);
 }
 
 int il_servo_store_all(il_servo_t *servo)
