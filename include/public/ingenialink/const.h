@@ -34,30 +34,43 @@
  */
 
 /**
+ * @defgroup IL_CONST_SIGNATURES Signatures
+ * @{
+ */
+
+/** Store signature. */
+#define ILK_SIGNATURE_STORE	0x65766173
+
+/** Reset signature. */
+#define ILK_SIGNATURE_RESET	0x64747372
+
+/** @} */
+
+/**
  * @defgroup IL_CONST_MOTOR Motor types
  * @{
  */
 
 /** Squirrel cage induction. */
-#define IL_MOTOR_SQUIRREL	0x0007
+#define ILK_MOTOR_SQUIRREL	0x0007
 /** Stepper with microstepping capability. */
-#define IL_MOTOR_STEPPER	0x0009
+#define ILK_MOTOR_STEPPER	0x0009
 /** Rotary brushless AC. */
-#define IL_MOTOR_ROT_BLAC	0x000A
+#define ILK_MOTOR_ROT_BLAC	0x000A
 /** Rotary brushless DC. */
-#define IL_MOTOR_ROT_BLDC	0x000B
+#define ILK_MOTOR_ROT_BLDC	0x000B
 /** Rotary DC. */
-#define IL_MOTOR_ROT_DC		0x000D
+#define ILK_MOTOR_ROT_DC	0x000D
 /** Rotary voice coil. */
-#define IL_MOTOR_ROT_VC		0x8000
+#define ILK_MOTOR_ROT_VC	0x8000
 /** Linear brushless AC. */
-#define IL_MOTOR_LIN_BLAC	0x8001
+#define ILK_MOTOR_LIN_BLAC	0x8001
 /** Linear brushless DC. */
-#define IL_MOTOR_LIN_BLDC	0x8002
+#define ILK_MOTOR_LIN_BLDC	0x8002
 /** Linear voice coil. */
-#define IL_MOTOR_LIN_VC		0x8003
+#define ILK_MOTOR_LIN_VC	0x8003
 /** Linear DC */
-#define IL_MOTOR_LIN_DC		0x8004
+#define ILK_MOTOR_LIN_DC	0x8004
 
 /** @} */
 
@@ -67,25 +80,25 @@
  */
 
 /** Digital encoder. */
-#define IL_FB_DIGITAL_ENCODER	0x00
+#define ILK_FB_DIGITAL_ENCODER	0x00
 /** Digital halls. */
-#define IL_FB_DIGITAL_HALLS	0x01
+#define ILK_FB_DIGITAL_HALLS	0x01
 /** Analog halls. */
-#define IL_FB_ANALOG_HALLS	0x02
+#define ILK_FB_ANALOG_HALLS	0x02
 /** Analog input. */
-#define IL_FB_ANALOG_INPUT	0x04
+#define ILK_FB_ANALOG_INPUT	0x04
 /** SSI. */
-#define IL_FB_SSI		0x05
+#define ILK_FB_SSI		0x05
 /** SinCos. */
-#define IL_FB_SINCOS		0x06
+#define ILK_FB_SINCOS		0x06
 /** PWM. */
-#define IL_FB_PWM		0x07
+#define ILK_FB_PWM		0x07
 /** Resolver. */
-#define IL_FB_RESOLVER		0x08
+#define ILK_FB_RESOLVER		0x08
 /** None. */
-#define IL_FB_NONE		0x09
+#define ILK_FB_NONE		0x09
 /** Simulated. */
-#define IL_FB_SIMULATED		0x0B
+#define ILK_FB_SIMULATED	0x0B
 
 /** @} */
 
@@ -95,13 +108,13 @@
  */
 
 /** Position sensor. */
-#define IL_VEL_SENSOR_POS		0x00
+#define ILK_VEL_SENSOR_POS		0x00
 /** External DC tachometer. */
-#define IL_VEL_SENSOR_TACHOMETER	0x01
+#define ILK_VEL_SENSOR_TACHOMETER	0x01
 /** None. */
-#define IL_VEL_SENSOR_NONE		0x02
+#define ILK_VEL_SENSOR_NONE		0x02
 /** Digital halls. */
-#define IL_VEL_SENSOR_DIGITAL_HALLS	0x04
+#define ILK_VEL_SENSOR_DIGITAL_HALLS	0x04
 
 /** @} */
 
@@ -111,27 +124,27 @@
  */
 
 /** Digital encoder. */
-#define IL_POS_SENSOR_DIGITAL_ENCODER	0x00
+#define ILK_POS_SENSOR_DIGITAL_ENCODER	0x00
 /** Digital halls. */
-#define IL_POS_SENSOR_DIGITAL_HALLS	0x01
+#define ILK_POS_SENSOR_DIGITAL_HALLS	0x01
 /** Analog halls. */
-#define IL_POS_SENSOR_ANALOG_HALLS	0x02
+#define ILK_POS_SENSOR_ANALOG_HALLS	0x02
 /** Analog input. */
-#define IL_POS_SENSOR_ANALOG_INPUT	0x04
+#define ILK_POS_SENSOR_ANALOG_INPUT	0x04
 /** SSI. */
-#define IL_POS_SENSOR_SSI		0x05
+#define ILK_POS_SENSOR_SSI		0x05
 /** SinCos. */
-#define IL_POS_SENSOR_SINCOS		0x06
+#define ILK_POS_SENSOR_SINCOS		0x06
 /** PWM. */
-#define IL_POS_SENSOR_PWM		0x07
+#define ILK_POS_SENSOR_PWM		0x07
 /** Resolver. */
-#define IL_POS_SENSOR_RESOLVER		0x08
+#define ILK_POS_SENSOR_RESOLVER		0x08
 /** None. */
-#define IL_POS_SENSOR_NONE		0x09
+#define ILK_POS_SENSOR_NONE		0x09
 /** Simulated. */
-#define IL_POS_SENSOR_SIMULATED		0x0B
+#define ILK_POS_SENSOR_SIMULATED	0x0B
 /** Digital tachometer. */
-#define IL_POS_SENSOR_TACHOMETER	0x0C
+#define ILK_POS_SENSOR_TACHOMETER	0x0C
 
 /** @} */
 
@@ -141,11 +154,11 @@
  */
 
 /** Forced alignment method. */
-#define IL_IANGLE_METHOD_FORCED_ALIGN	0x00
+#define ILK_IANGLE_METHOD_FORCED_ALIGN	0x00
 /** Non incremental sensor used. */
-#define IL_IANGLE_METHOD_NINCR_SENSOR	0x01
+#define ILK_IANGLE_METHOD_NINCR_SENSOR	0x01
 /** Initial rotor position known. */
-#define IL_IANGLE_METHOD_POS_KNOWN	0x02
+#define ILK_IANGLE_METHOD_POS_KNOWN	0x02
 
 /** @} */
 
@@ -155,39 +168,39 @@
  */
 
 /** Not swapped. */
-#define IL_DENC_SINCOS_NSWAPPED		0x00
+#define ILK_DENC_SINCOS_NSWAPPED		0x00
 /** Swapped. */
-#define IL_DENC_SINCOS_SWAPPED		0x01
+#define ILK_DENC_SINCOS_SWAPPED			0x01
 
 /** No encoder. */
-#define IL_DENC_SINCOS_TYPE_NONE	0x00
+#define ILK_DENC_SINCOS_TYPE_NONE		0x00
 /** 2 channels encoder (single ended). */
-#define IL_DENC_SINCOS_TYPE_2CH_S	0x01
+#define ILK_DENC_SINCOS_TYPE_2CH_S		0x01
 /** 2 channels + index encoder (single ended). */
-#define IL_DENC_SINCOS_TYPE_2CH_S_IDX	0x02
+#define ILK_DENC_SINCOS_TYPE_2CH_S_IDX		0x02
 /** 2 channels encoder (differential). */
-#define IL_DENC_SINCOS_TYPE_2CH_D	0x03
+#define ILK_DENC_SINCOS_TYPE_2CH_D		0x03
 /** 2 channels + index encoder (differential). */
-#define IL_DENC_SINCOS_TYPE_2CH_D_IDX	0x04
+#define ILK_DENC_SINCOS_TYPE_2CH_D_IDX		0x04
 
 /** Maximum encoder frequency, 30 MHz. */
-#define IL_DENC_SINCOS_FILTER_30MHZ	0x00
+#define ILK_DENC_SINCOS_FILTER_30MHZ		0x00
 /** Maximum encoder frequency, 10 MHz. */
-#define IL_DENC_SINCOS_FILTER_10MHZ	0x01
+#define ILK_DENC_SINCOS_FILTER_10MHZ		0x01
 /** Maximum encoder frequency, 5 MHz. */
-#define IL_DENC_SINCOS_FILTER_5MHZ	0x02
+#define ILK_DENC_SINCOS_FILTER_5MHZ		0x02
 /** Maximum encoder frequency, 2 MHz. */
-#define IL_DENC_SINCOS_FILTER_2MHZ	0x03
+#define ILK_DENC_SINCOS_FILTER_2MHZ		0x03
 /** Maximum encoder frequency, 1 MHz. */
-#define IL_DENC_SINCOS_FILTER_1MHZ	0x04
+#define ILK_DENC_SINCOS_FILTER_1MHZ		0x04
 /** Maximum encoder frequency, 625 KHz. */
-#define IL_DENC_SINCOS_FILTER_625KHZ	0x05
+#define ILK_DENC_SINCOS_FILTER_625KHZ		0x05
 /** Maximum encoder frequency, 312,5 KHz. */
-#define IL_DENC_SINCOS_FILTER_312_5KHZ	0x06
+#define ILK_DENC_SINCOS_FILTER_312_5KHZ		0x06
 /** Maximum encoder frequency, 156,25 KHz. */
-#define IL_DENC_SINCOS_FILTER_156_25KHZ	0x07
+#define ILK_DENC_SINCOS_FILTER_156_25KHZ	0x07
 /** Maximum encoder frequency, 39,06 KHz. */
-#define IL_DENC_SINCOS_FILTER_39_06KHZ	0x08
+#define ILK_DENC_SINCOS_FILTER_39_06KHZ		0x08
 
 /** @} */
 
@@ -197,25 +210,25 @@
  */
 
 /** None. */
-#define IL_DSIG_INJ_NONE		0x00
+#define ILK_DSIG_INJ_NONE		0x00
 /** Torque command source. */
-#define IL_DSIG_INJ_CSRC_TOR		0x01
+#define ILK_DSIG_INJ_CSRC_TOR		0x01
 /** Torque demand. */
-#define IL_DSIG_INJ_DEMAND_TOR		0x02
+#define ILK_DSIG_INJ_DEMAND_TOR		0x02
 /** Torque control loop. */
-#define IL_DSIG_INJ_CLOOP_TOR		0x03
+#define ILK_DSIG_INJ_CLOOP_TOR		0x03
 /** Velocity command source. */
-#define IL_DSIG_INJ_CSRC_VEL		0x04
+#define ILK_DSIG_INJ_CSRC_VEL		0x04
 /** Velocity demand. */
-#define IL_DSIG_INJ_DEMAND_VEL		0x05
+#define ILK_DSIG_INJ_DEMAND_VEL		0x05
 /** Velocity control loop. */
-#define IL_DSIG_INJ_CLOOP_VEL		0x06
+#define ILK_DSIG_INJ_CLOOP_VEL		0x06
 /** Position command source. */
-#define IL_DSIG_INJ_CSRC_POS		0x07
+#define ILK_DSIG_INJ_CSRC_POS		0x07
 /** Position command source. */
-#define IL_DSIG_INJ_DEMAND_POS		0x08
+#define ILK_DSIG_INJ_DEMAND_POS		0x08
 /** Position control loop. */
-#define IL_DSIG_INJ_CLOOP_POS		0x09
+#define ILK_DSIG_INJ_CLOOP_POS		0x09
 
 /** @} */
 
@@ -225,17 +238,17 @@
  */
 
 /** Network. */
-#define IL_CMD_SRC_NETWORK		0x00
+#define ILK_CMD_SRC_NETWORK		0x00
 /** Analog input. */
-#define IL_CMD_SRC_AIN			0x01
+#define ILK_CMD_SRC_AIN			0x01
 /** PWM or PWM & direction. */
-#define IL_CMD_SRC_PWM			0x02
+#define ILK_CMD_SRC_PWM			0x02
 /** Step & direction. */
-#define IL_CMD_SRC_STEPDIR		0x03
+#define ILK_CMD_SRC_STEPDIR		0x03
 /** Electronic gearing. */
-#define IL_CMD_SRC_EGEARING		0x05
+#define ILK_CMD_SRC_EGEARING		0x05
 /** Integral generator. */
-#define IL_CMD_SRC_INTEGRAL_GEN		0x06
+#define ILK_CMD_SRC_INTEGRAL_GEN	0x06
 
 /** @} */
 

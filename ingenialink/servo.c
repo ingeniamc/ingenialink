@@ -1219,7 +1219,7 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		return r;
 
 	switch (fb) {
-	case IL_POS_SENSOR_DIGITAL_ENCODER:
+	case ILK_POS_SENSOR_DIGITAL_ENCODER:
 		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, &incrs);
 		if (r < 0)
 			return r;
@@ -1232,7 +1232,7 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		*res = incrs / revs;
 		break;
 
-	case IL_POS_SENSOR_DIGITAL_HALLS:
+	case ILK_POS_SENSOR_DIGITAL_HALLS:
 		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
 		if (r < 0)
 			return r;
@@ -1240,7 +1240,7 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		*res = ppoles * DIGITAL_HALLS_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_ANALOG_HALLS:
+	case ILK_POS_SENSOR_ANALOG_HALLS:
 		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
 		if (r < 0)
 			return r;
@@ -1248,7 +1248,7 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		*res = ppoles * ANALOG_HALLS_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_ANALOG_INPUT:
+	case ILK_POS_SENSOR_ANALOG_INPUT:
 		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
 		if (r < 0)
 			return r;
@@ -1256,7 +1256,7 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		*res = ppoles * ANALOG_INPUT_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_SINCOS:
+	case ILK_POS_SENSOR_SINCOS:
 		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, &incrs);
 		if (r < 0)
 			return r;
@@ -1269,15 +1269,15 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		*res = (incrs / revs) * SINCOS_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_PWM:
+	case ILK_POS_SENSOR_PWM:
 		*res = PWM_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_RESOLVER:
+	case ILK_POS_SENSOR_RESOLVER:
 		*res = RESOLVER_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_SSI:
+	case ILK_POS_SENSOR_SSI:
 		r = il_servo_raw_read_u8(
 				servo, &IL_REG_SSI_STURNBITS, &turnbits);
 		if (r < 0)
@@ -1317,11 +1317,11 @@ int il_servo_velocity_res_get(il_servo_t *servo, uint32_t *res)
 		return r;
 
 	switch (fb) {
-	case IL_VEL_SENSOR_POS:
+	case ILK_VEL_SENSOR_POS:
 		r = il_servo_position_res_get(servo, res);
 		break;
 
-	case IL_VEL_SENSOR_TACHOMETER:
+	case ILK_VEL_SENSOR_TACHOMETER:
 		r = il_servo_raw_read_u32(servo, &IL_REG_VRES_ENC_INCR, &incrs);
 		if (r < 0)
 			return r;
