@@ -106,6 +106,9 @@ typedef struct {
  * @{
  */
 
+/** Software version. */
+extern const il_reg_t IL_REG_SW_VERSION;
+
 /** Store parameters: save all. */
 extern const il_reg_t IL_REG_STORE_ALL;
 

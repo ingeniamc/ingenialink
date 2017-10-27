@@ -366,6 +366,41 @@ int il_servo_name_set(il_servo_t *servo, const char *name)
 				  sizeof(name_) - 1, 1);
 }
 
+int il_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
+{
+	int r;
+
+	assert(info);
+
+	r = il_servo_raw_read_u32(servo, &IL_REG_ID_SERIAL, &info->serial);
+	if (r < 0)
+		return r;
+
+	r = il_servo_name_get(servo, info->name, sizeof(info->name));
+	if (r < 0)
+		return r;
+
+	memset(info->sw_version, 0, sizeof(info->sw_version));
+	r = il_servo_raw_read(servo, &IL_REG_SW_VERSION, info->sw_version,
+			      sizeof(info->sw_version) - 1, NULL);
+	if (r < 0)
+		return r;
+
+	memset(info->hw_variant, 0, sizeof(info->hw_variant));
+	r = il_servo_raw_read(servo, &IL_REG_HW_VARIANT, info->hw_variant,
+			      sizeof(info->hw_variant) - 1, NULL);
+	if (r < 0)
+		return r;
+
+	r = il_servo_raw_read_u32(servo, &IL_REG_ID_PROD_CODE,
+				  &info->prod_code);
+	if (r < 0)
+		return r;
+
+	return il_servo_raw_read_u32(servo, &IL_REG_ID_REVISION,
+				     &info->revision);
+}
+
 int il_servo_store_all(il_servo_t *servo)
 {
 	return il_servo_raw_write_u32(servo, &IL_REG_STORE_ALL,
