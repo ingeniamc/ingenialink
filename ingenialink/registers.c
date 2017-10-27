@@ -28,6 +28,42 @@
  * Public
  ******************************************************************************/
 
+/*
+ * CiA 301.
+ */
+
+const il_reg_t IL_REG_STORE_ALL = {
+	0x1010, 0x01, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+const il_reg_t IL_REG_STORE_COMM = {
+	0x1010, 0x02, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+const il_reg_t IL_REG_STORE_APP = {
+	0x1010, 0x03, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+const il_reg_t IL_REG_ID_VID = {
+	0x1018, 0x01, IL_REG_DTYPE_U32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
+};
+
+const il_reg_t IL_REG_ID_PROD_CODE = {
+	0x1018, 0x02, IL_REG_DTYPE_U32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
+};
+
+const il_reg_t IL_REG_ID_REVISION = {
+	0x1018, 0x03, IL_REG_DTYPE_U32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
+};
+
+const il_reg_t IL_REG_ID_SERIAL = {
+	0x1018, 0x04, IL_REG_DTYPE_U32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
+};
+
+/*
+ * Vendor specific (Ingenia).
+ */
+
 const il_reg_t IL_REG_PAIR_POLES = {
 	0x2301, 0x00, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
 };
@@ -526,6 +562,14 @@ const il_reg_t IL_REG_PROG_DATE = {
 
 const il_reg_t IL_REG_HWC_REVISION = {
 	0x2ff4, 0x04, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+const il_reg_t IL_REG_DRIVE_NAME = {
+	0x2ffe, 0x00, IL_REG_DTYPE_U64, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
+};
+
+const il_reg_t IL_REG_RESET = {
+	0x2fff, 0x00, IL_REG_DTYPE_U32, IL_REG_ACCESS_WO, IL_REG_PHY_NONE
 };
 
 /* CiA 402 */

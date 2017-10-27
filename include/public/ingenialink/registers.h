@@ -101,8 +101,37 @@ typedef struct {
 	il_reg_phy_t phy;
 } il_reg_t;
 
-/*
- * Vendor specific (Ingenia)
+/**
+ * @defgroup IL_REGS_CIA301 CiA 301
+ * @{
+ */
+
+/** Store parameters: save all. */
+extern const il_reg_t IL_REG_STORE_ALL;
+
+/** Store parameters: communications. */
+extern const il_reg_t IL_REG_STORE_COMM;
+
+/** Store parameters: application. */
+extern const il_reg_t IL_REG_STORE_APP;
+
+/** Identity object: vendor ID. */
+extern const il_reg_t IL_REG_ID_VID;
+
+/** Identity object: product code. */
+extern const il_reg_t IL_REG_ID_PROD_CODE;
+
+/** Identity object: revision number. */
+extern const il_reg_t IL_REG_ID_REVISION;
+
+/** Identity object: serial number. */
+extern const il_reg_t IL_REG_ID_SERIAL;
+
+/** @} */
+
+/**
+ * @defgroup IL_REGS_VENDOR Vendor specific (Ingenia)
+ * @{
  */
 
 /** Motor pair poles. */
@@ -480,8 +509,17 @@ extern const il_reg_t IL_REG_PROG_DATE;
 /** Hardware config revision. */
 extern const il_reg_t IL_REG_HWC_REVISION;
 
-/*
- * CiA 402
+/** Drive name. */
+extern const il_reg_t IL_REG_DRIVE_NAME;
+
+/** Reset device. */
+extern const il_reg_t IL_REG_RESET;
+
+/** @} */
+
+/**
+ * @defgroup IL_REGS_CIA402 CiA 402
+ * @{
  */
 
 /** Control word. */
@@ -537,6 +575,8 @@ extern const il_reg_t IL_REG_VEL_TGT;
 
 /** Motor type. */
 extern const il_reg_t IL_REG_MOTOR_TYPE;
+
+/** @} */
 
 /** @} */
 
