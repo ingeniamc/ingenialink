@@ -34,6 +34,7 @@
 #include "public/ingenialink/const.h"
 #include "public/ingenialink/registers.h"
 #include "ingenialink/err.h"
+#include "ingenialink/utils.h"
 
 /*******************************************************************************
  * Private
@@ -328,6 +329,94 @@ void il_servo_destroy(il_servo_t *servo)
 	assert(servo);
 
 	refcnt__release(servo->refcnt);
+}
+
+int il_servo_name_get(il_servo_t *servo, char *name, size_t sz)
+{
+	int r;
+
+	assert(name);
+
+	if (sz < IL_SERVO_NAME_SZ) {
+		ilerr__set("Insufficient name buffer size");
+		return IL_ENOMEM;
+	}
+
+	r = il_servo_raw_read(servo, &IL_REG_DRIVE_NAME, name, sz, NULL);
+	if (r < 0)
+		return r;
+
+	name[IL_SERVO_NAME_SZ] = '\0';
+
+	return 0;
+}
+
+int il_servo_name_set(il_servo_t *servo, const char *name)
+{
+	size_t sz;
+	char name_[IL_SERVO_NAME_SZ] = { '\0' };
+
+	assert(name);
+
+	/* clip name to the maximum size */
+	sz = MIN(strlen(name), IL_SERVO_NAME_SZ - 1);
+	memcpy(name_, name, sz);
+
+	return il_servo_raw_write(servo, &IL_REG_DRIVE_NAME, name_,
+				  sizeof(name_) - 1, 1);
+}
+
+int il_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
+{
+	int r;
+
+	assert(info);
+
+	r = il_servo_raw_read_u32(servo, &IL_REG_ID_SERIAL, &info->serial);
+	if (r < 0)
+		return r;
+
+	r = il_servo_name_get(servo, info->name, sizeof(info->name));
+	if (r < 0)
+		return r;
+
+	memset(info->sw_version, 0, sizeof(info->sw_version));
+	r = il_servo_raw_read(servo, &IL_REG_SW_VERSION, info->sw_version,
+			      sizeof(info->sw_version) - 1, NULL);
+	if (r < 0)
+		return r;
+
+	memset(info->hw_variant, 0, sizeof(info->hw_variant));
+	r = il_servo_raw_read(servo, &IL_REG_HW_VARIANT, info->hw_variant,
+			      sizeof(info->hw_variant) - 1, NULL);
+	if (r < 0)
+		return r;
+
+	r = il_servo_raw_read_u32(servo, &IL_REG_ID_PROD_CODE,
+				  &info->prod_code);
+	if (r < 0)
+		return r;
+
+	return il_servo_raw_read_u32(servo, &IL_REG_ID_REVISION,
+				     &info->revision);
+}
+
+int il_servo_store_all(il_servo_t *servo)
+{
+	return il_servo_raw_write_u32(servo, &IL_REG_STORE_ALL,
+				      ILK_SIGNATURE_STORE, 0);
+}
+
+int il_servo_store_comm(il_servo_t *servo)
+{
+	return il_servo_raw_write_u32(servo, &IL_REG_STORE_COMM,
+				      ILK_SIGNATURE_STORE, 0);
+}
+
+int il_servo_store_app(il_servo_t *servo)
+{
+	return il_servo_raw_write_u32(servo, &IL_REG_STORE_APP,
+				      ILK_SIGNATURE_STORE, 0);
 }
 
 int il_servo_emcy_subscribe(il_servo_t *servo, il_servo_emcy_subscriber_cb_t cb,
@@ -1219,7 +1308,7 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		return r;
 
 	switch (fb) {
-	case IL_POS_SENSOR_DIGITAL_ENCODER:
+	case ILK_POS_SENSOR_DIGITAL_ENCODER:
 		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, &incrs);
 		if (r < 0)
 			return r;
@@ -1232,7 +1321,7 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		*res = incrs / revs;
 		break;
 
-	case IL_POS_SENSOR_DIGITAL_HALLS:
+	case ILK_POS_SENSOR_DIGITAL_HALLS:
 		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
 		if (r < 0)
 			return r;
@@ -1240,7 +1329,7 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		*res = ppoles * DIGITAL_HALLS_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_ANALOG_HALLS:
+	case ILK_POS_SENSOR_ANALOG_HALLS:
 		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
 		if (r < 0)
 			return r;
@@ -1248,7 +1337,7 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		*res = ppoles * ANALOG_HALLS_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_ANALOG_INPUT:
+	case ILK_POS_SENSOR_ANALOG_INPUT:
 		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, &ppoles);
 		if (r < 0)
 			return r;
@@ -1256,7 +1345,7 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		*res = ppoles * ANALOG_INPUT_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_SINCOS:
+	case ILK_POS_SENSOR_SINCOS:
 		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, &incrs);
 		if (r < 0)
 			return r;
@@ -1269,15 +1358,15 @@ int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		*res = (incrs / revs) * SINCOS_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_PWM:
+	case ILK_POS_SENSOR_PWM:
 		*res = PWM_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_RESOLVER:
+	case ILK_POS_SENSOR_RESOLVER:
 		*res = RESOLVER_CONSTANT;
 		break;
 
-	case IL_POS_SENSOR_SSI:
+	case ILK_POS_SENSOR_SSI:
 		r = il_servo_raw_read_u8(
 				servo, &IL_REG_SSI_STURNBITS, &turnbits);
 		if (r < 0)
@@ -1317,11 +1406,11 @@ int il_servo_velocity_res_get(il_servo_t *servo, uint32_t *res)
 		return r;
 
 	switch (fb) {
-	case IL_VEL_SENSOR_POS:
+	case ILK_VEL_SENSOR_POS:
 		r = il_servo_position_res_get(servo, res);
 		break;
 
-	case IL_VEL_SENSOR_TACHOMETER:
+	case ILK_VEL_SENSOR_TACHOMETER:
 		r = il_servo_raw_read_u32(servo, &IL_REG_VRES_ENC_INCR, &incrs);
 		if (r < 0)
 			return r;

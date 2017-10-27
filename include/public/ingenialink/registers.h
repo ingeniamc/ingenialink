@@ -101,8 +101,40 @@ typedef struct {
 	il_reg_phy_t phy;
 } il_reg_t;
 
-/*
- * Vendor specific (Ingenia)
+/**
+ * @defgroup IL_REGS_CIA301 CiA 301
+ * @{
+ */
+
+/** Software version. */
+extern const il_reg_t IL_REG_SW_VERSION;
+
+/** Store parameters: save all. */
+extern const il_reg_t IL_REG_STORE_ALL;
+
+/** Store parameters: communications. */
+extern const il_reg_t IL_REG_STORE_COMM;
+
+/** Store parameters: application. */
+extern const il_reg_t IL_REG_STORE_APP;
+
+/** Identity object: vendor ID. */
+extern const il_reg_t IL_REG_ID_VID;
+
+/** Identity object: product code. */
+extern const il_reg_t IL_REG_ID_PROD_CODE;
+
+/** Identity object: revision number. */
+extern const il_reg_t IL_REG_ID_REVISION;
+
+/** Identity object: serial number. */
+extern const il_reg_t IL_REG_ID_SERIAL;
+
+/** @} */
+
+/**
+ * @defgroup IL_REGS_VENDOR Vendor specific (Ingenia)
+ * @{
  */
 
 /** Motor pair poles. */
@@ -147,6 +179,15 @@ extern const il_reg_t IL_REG_DENC_SINCOS_FILTER;
 /** SSI: single-turn bits. */
 extern const il_reg_t IL_REG_SSI_STURNBITS;
 
+/** Command reference source. */
+extern const il_reg_t IL_REG_CMD_SRC;
+
+/** Torque demand low pass filter: enabled. */
+extern const il_reg_t IL_REG_TORQUE_DEM_LPF_ENABLED;
+
+/** Torque demand low pass filter: cutoff frequency. */
+extern const il_reg_t IL_REG_TORQUE_DEM_LPF_CFREQ;
+
 /** Control loops configuration: bypass torque loop. */
 extern const il_reg_t IL_REG_CL_TORQUE_BYPASS;
 
@@ -168,8 +209,47 @@ extern const il_reg_t IL_REG_TORQUE_WINDOW;
 /** Torque window time (0.1 ms). */
 extern const il_reg_t IL_REG_TORQUE_WINDOW_TIME;
 
+/** Disturbance signal: maximum entries. */
+extern const il_reg_t IL_REG_DSIG_MAX_ENTRIES;
+
+/** Disturbance signal: filled entries. */
+extern const il_reg_t IL_REG_DSIG_FILLED_ENTRIES;
+
+/** Disturbance signal: entry number. */
+extern const il_reg_t IL_REG_DSIG_ENTRY_NUM;
+
+/** Disturbance signal: entry value. */
+extern const il_reg_t IL_REG_DSIG_ENTRY_VAL;
+
+/** Disturbance signal: injection point. */
+extern const il_reg_t IL_REG_DSIG_INJ_POINT;
+
+/** Disturbance signal: number of cycles. */
+extern const il_reg_t IL_REG_DSIG_NCYCLES;
+
+/** Disturbance signal: injection rate. */
+extern const il_reg_t IL_REG_DSIG_RATE;
+
+/** Disturbance signal: output signal. */
+extern const il_reg_t IL_REG_DSIG_OUT;
+
+/** Motor parameters: resistance phase-to-phase. */
+extern const il_reg_t IL_REG_MOTPARAM_RES_PHTOPH;
+
+/** Motor parameters: inductance phase-to-phase. */
+extern const il_reg_t IL_REG_MOTPARAM_IND_PHTOPH;
+
 /** Motor parameters: pole pitch. */
 extern const il_reg_t IL_REG_MOTPARAM_PPITCH;
+
+/** Motor parameters: motor backemf constant (Kv). */
+extern const il_reg_t IL_REG_MOTPARAM_KV;
+
+/** Motor parameters: stroke. */
+extern const il_reg_t IL_REG_MOTPARAM_STROKE;
+
+/** Motor parameters: torque constant (Km). */
+extern const il_reg_t IL_REG_MOTPARAM_KM;
 
 /** Monitor config: sampling rage (period). */
 extern const il_reg_t IL_REG_MONITOR_CFG_T_S;
@@ -432,8 +512,17 @@ extern const il_reg_t IL_REG_PROG_DATE;
 /** Hardware config revision. */
 extern const il_reg_t IL_REG_HWC_REVISION;
 
-/*
- * CiA 402
+/** Drive name. */
+extern const il_reg_t IL_REG_DRIVE_NAME;
+
+/** Reset device. */
+extern const il_reg_t IL_REG_RESET;
+
+/** @} */
+
+/**
+ * @defgroup IL_REGS_CIA402 CiA 402
+ * @{
  */
 
 /** Control word. */
@@ -453,6 +542,9 @@ extern const il_reg_t IL_REG_VEL_ACT;
 
 /** Target torque. */
 extern const il_reg_t IL_REG_TORQUE_TGT;
+
+/** Maximum torque. */
+extern const il_reg_t IL_REG_TORQUE_MAX;
 
 /** Motor rated torque. */
 extern const il_reg_t IL_REG_RATED_TORQUE;
@@ -486,6 +578,8 @@ extern const il_reg_t IL_REG_VEL_TGT;
 
 /** Motor type. */
 extern const il_reg_t IL_REG_MOTOR_TYPE;
+
+/** @} */
 
 /** @} */
 
