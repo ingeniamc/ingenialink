@@ -549,6 +549,9 @@ extern const il_reg_t IL_REG_TORQUE_TGT;
 /** Maximum torque. */
 extern const il_reg_t IL_REG_TORQUE_MAX;
 
+/** Motor rated current. */
+extern const il_reg_t IL_REG_RATED_CURRENT;
+
 /** Motor rated torque. */
 extern const il_reg_t IL_REG_RATED_TORQUE;
 
