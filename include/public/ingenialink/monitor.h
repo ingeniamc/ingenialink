@@ -45,18 +45,6 @@ IL_BEGIN_DECL
 /** IngeniaLink monitor. */
 typedef struct il_monitor il_monitor_t;
 
-/** Monitor channels. */
-typedef enum {
-	/** Channel 1 */
-	IL_MONITOR_CH_1,
-	/** Channel 2 */
-	IL_MONITOR_CH_2,
-	/** Channel 3 */
-	IL_MONITOR_CH_3,
-	/** Channel 4 */
-	IL_MONITOR_CH_4
-} il_monitor_ch_t;
-
 /** Number of channels. */
 #define IL_MONITOR_CH_NUM	4
 
@@ -83,12 +71,14 @@ typedef enum {
  *	timeout, n_samples may be less than sz.
  */
 typedef struct {
-	/** Samples buffers. */
-	double *samples[IL_MONITOR_CH_NUM];
+	/** Time buffer. */
+	double *t;
+	/** Data samples buffers. */
+	double *d[IL_MONITOR_CH_NUM];
 	/** Size of samples buffer. */
 	size_t sz;
 	/** Number of actual samples. */
-	size_t n_samples;
+	size_t cnt;
 } il_monitor_acq_t;
 
 /**
@@ -186,14 +176,14 @@ IL_EXPORT int il_monitor_configure(il_monitor_t *monitor, unsigned int t_s,
  * @param [in] monitor
  *	Monitor instance.
  * @param [in] ch
- *	Channel to be configured.
+ *	Channel to be configured (0-3).
  * @param [reg]
  *	Register to be mapped on the channel.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_monitor_ch_configure(il_monitor_t *monitor, il_monitor_ch_t ch,
+IL_EXPORT int il_monitor_ch_configure(il_monitor_t *monitor, int ch,
 				      const il_reg_t *reg);
 
 /**
@@ -202,12 +192,12 @@ IL_EXPORT int il_monitor_ch_configure(il_monitor_t *monitor, il_monitor_ch_t ch,
  * @param [in] monitor
  *	Monitor instance.
  * @param [in] ch
- *	Channel to be disabled.
+ *	Channel to be disabled (0-3).
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_monitor_ch_disable(il_monitor_t *monitor, il_monitor_ch_t ch);
+IL_EXPORT int il_monitor_ch_disable(il_monitor_t *monitor, int ch);
 
 /**
  * Disable all channels.

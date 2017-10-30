@@ -88,7 +88,7 @@ static int acquisition(void *args)
 	int r = 0;
 	uint16_t acquired = 0;
 	int ch;
-	double scalings[IL_MONITOR_CH_NUM];
+	double t = 0., scalings[IL_MONITOR_CH_NUM];
 
 	/* obtain units factors */
 	for (ch = 0; ch < IL_MONITOR_CH_NUM; ch++) {
@@ -133,6 +133,9 @@ static int acquisition(void *args)
 
 			acq = &monitor->acq.acq[monitor->acq.curr];
 
+			acq->t[acq->cnt] = t;
+			t += monitor->acq.t_s;
+
 			for (ch = 0; ch < IL_MONITOR_CH_NUM; ch++) {
 				int32_t value;
 
@@ -147,11 +150,11 @@ static int acquisition(void *args)
 					goto out;
 				}
 
-				acq->samples[ch][acq->n_samples] =
+				acq->d[ch][acq->cnt] =
 					(double)value * scalings[ch];
 			}
 
-			acq->n_samples++;
+			acq->cnt++;
 
 			osal_mutex_unlock(monitor->acq.lock);
 
@@ -201,22 +204,32 @@ static int update_buffers(il_monitor_t *monitor)
 
 	/* reallocate (or free) double-buffers */
 	for (i = 0; i < 2; i++) {
+		int mapped = 0;
 		il_monitor_acq_t *acq = &monitor->acq.acq[i];
 
 		for (ch = 0; ch < IL_MONITOR_CH_NUM; ch++) {
 			if (!monitor->mappings[ch]) {
-				if (acq->samples[ch]) {
-					free(acq->samples[ch]);
-					acq->samples[ch] = NULL;
+				if (acq->d[ch]) {
+					free(acq->d[ch]);
+					acq->d[ch] = NULL;
 				}
 			} else {
-				acq->samples[ch] = realloc(
-					acq->samples[ch],
-					sizeof(*acq->samples) * sz);
-				if (!acq->samples[ch]) {
+				acq->d[ch] = realloc(
+					acq->d[ch], sizeof(*acq->d) * sz);
+				if (!acq->d[ch]) {
 					ilerr__set("Buffer allocation failed");
 					return IL_ENOMEM;
 				}
+
+				mapped++;
+			}
+		}
+
+		if (mapped) {
+			acq->t = realloc(acq->t, sizeof(*acq->t) * sz);
+			if (!acq->t) {
+				ilerr__set("Time buffer allocation failed");
+				return IL_ENOMEM;
 			}
 		}
 	}
@@ -230,6 +243,7 @@ static int update_buffers(il_monitor_t *monitor)
 
 il_monitor_t *il_monitor_create(il_servo_t *servo)
 {
+	int r;
 	il_monitor_t *monitor;
 
 	monitor = calloc(1, sizeof(*monitor));
@@ -256,7 +270,15 @@ il_monitor_t *il_monitor_create(il_servo_t *servo)
 
 	monitor->acq.finished = 1;
 
+	/* disable all channels */
+	r = il_monitor_ch_disable_all(monitor);
+	if (r < 0)
+		goto cleanup_acq_cond;
+
 	return monitor;
+
+cleanup_acq_cond:
+	osal_cond_destroy(monitor->acq.finished_cond);
 
 cleanup_acq_lock:
 	osal_mutex_destroy(monitor->acq.lock);
@@ -282,9 +304,12 @@ void il_monitor_destroy(il_monitor_t *monitor)
 	for (i = 0; i < 2; i++) {
 		il_monitor_acq_t *acq = &monitor->acq.acq[i];
 
+		if (acq->t)
+			free(acq->t);
+
 		for (ch = 0; ch < IL_MONITOR_CH_NUM; ch++) {
-			if (acq->samples[ch])
-				free(acq->samples[ch]);
+			if (acq->d[ch])
+				free(acq->d[ch]);
 		}
 	}
 
@@ -379,7 +404,7 @@ void il_monitor_data_get(il_monitor_t *monitor, il_monitor_acq_t **acq)
 	*acq = &monitor->acq.acq[monitor->acq.curr];
 
 	monitor->acq.curr = monitor->acq.curr ? 0 : 1;
-	monitor->acq.acq[monitor->acq.curr].n_samples = 0;
+	monitor->acq.acq[monitor->acq.curr].cnt = 0;
 
 	osal_mutex_unlock(monitor->acq.lock);
 }
@@ -388,6 +413,7 @@ int il_monitor_configure(il_monitor_t *monitor, unsigned int t_s,
 			 size_t delay_samples, size_t max_samples)
 {
 	int r;
+	uint16_t t_s_;
 
 	assert(monitor);
 
@@ -396,10 +422,19 @@ int il_monitor_configure(il_monitor_t *monitor, unsigned int t_s,
 		return IL_ESTATE;
 	}
 
+	/* sampling period */
+	t_s_ = (uint16_t)(t_s / BASE_PERIOD);
+	if (!t_s_) {
+		ilerr__set("Sampling period too small");
+		return IL_EINVAL;
+	}
+
 	r = il_servo_raw_write_u16(monitor->servo, &IL_REG_MONITOR_CFG_T_S,
-				   (uint16_t)(t_s / BASE_PERIOD), 1);
+				   t_s_, 1);
 	if (r < 0)
 		return r;
+
+	monitor->acq.t_s = (double)t_s / 1000000.;
 
 	r = il_servo_raw_write_u32(monitor->servo,
 				   &IL_REG_MONITOR_CFG_DELAY_SAMPLES,
@@ -410,8 +445,7 @@ int il_monitor_configure(il_monitor_t *monitor, unsigned int t_s,
 	return 0;
 }
 
-int il_monitor_ch_configure(il_monitor_t *monitor, il_monitor_ch_t ch,
-			    const il_reg_t *reg)
+int il_monitor_ch_configure(il_monitor_t *monitor, int ch, const il_reg_t *reg)
 {
 	int r;
 
@@ -420,6 +454,11 @@ int il_monitor_ch_configure(il_monitor_t *monitor, il_monitor_ch_t ch,
 
 	assert(monitor);
 	assert(reg);
+
+	if ((ch < 0) || (ch >= IL_MONITOR_CH_NUM)) {
+		ilerr__set("Invalid channel");
+		return IL_EINVAL;
+	}
 
 	if (!acquisition_has_finished(monitor)) {
 		ilerr__set("Acquisition in progress");
@@ -456,11 +495,16 @@ int il_monitor_ch_configure(il_monitor_t *monitor, il_monitor_ch_t ch,
 	return update_buffers(monitor);
 }
 
-int il_monitor_ch_disable(il_monitor_t *monitor, il_monitor_ch_t ch)
+int il_monitor_ch_disable(il_monitor_t *monitor, int ch)
 {
 	int r;
 
 	assert(monitor);
+
+	if ((ch < 0) || (ch >= IL_MONITOR_CH_NUM)) {
+		ilerr__set("Invalid channel");
+		return IL_EINVAL;
+	}
 
 	if (!acquisition_has_finished(monitor)) {
 		ilerr__set("Acquisition in progress");
@@ -478,9 +522,9 @@ int il_monitor_ch_disable(il_monitor_t *monitor, il_monitor_ch_t ch)
 
 int il_monitor_ch_disable_all(il_monitor_t *monitor)
 {
-	il_monitor_ch_t ch;
+	int ch;
 
-	for (ch = IL_MONITOR_CH_1; ch <= IL_MONITOR_CH_4; ch++) {
+	for (ch = 0; ch < IL_MONITOR_CH_NUM; ch++) {
 		int r;
 
 		r = il_monitor_ch_disable(monitor, ch);

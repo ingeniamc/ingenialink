@@ -33,7 +33,6 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 
 	il_monitor_acq_t *acq;
 	size_t i;
-	double t;
 	FILE *log_f;
 
 	/* create network */
@@ -78,7 +77,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_monitor;
 	}
 
-	r = il_monitor_ch_configure(monitor, IL_MONITOR_CH_1, &IL_REG_VEL_ACT);
+	r = il_monitor_ch_configure(monitor, 0, &IL_REG_VEL_ACT);
 	if (r < 0) {
 		fprintf(stderr, "Could not configure channel: %s\n",
 			ilerr_last());
@@ -137,19 +136,19 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 
 	il_monitor_data_get(monitor, &acq);
 
-	if (acq->sz != acq->n_samples)
-		fprintf(stderr, "WARNING: Acquisition is not complete!\n");
+	if (acq->sz != acq->cnt)
+		fprintf(stderr, "WARNING: Acquisition did not complete!\n");
 
-	printf("Writing samples (%zu) to file...\n", acq->n_samples);
+	printf("Writing samples (%zu) to file...\n", acq->cnt);
 	log_f = fopen(log_fname, "w");
 	if (!log_f) {
 		fprintf(stderr, "Could not open log file");
 		goto servo_disable;
 	}
 
-	for (i = 0, t = 0.; i < acq->n_samples; i++, t += T_S / 1000000.)
+	for (i = 0; i < acq->cnt; i++)
 		fprintf(log_f, "%f, %f\n",
-			t, acq->samples[IL_MONITOR_CH_1][i]);
+			acq->t[i], acq->d[0][i]);
 
 	fclose(log_f);
 
