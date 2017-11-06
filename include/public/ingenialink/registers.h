@@ -534,6 +534,9 @@ extern const il_reg_t IL_REG_STS_WORD;
 /** Operation mode. */
 extern const il_reg_t IL_REG_OP_MODE;
 
+/** Operation mode display. */
+extern const il_reg_t IL_REG_OP_MODE_DISP;
+
 /** Position actual value. */
 extern const il_reg_t IL_REG_POS_ACT;
 
@@ -545,6 +548,9 @@ extern const il_reg_t IL_REG_TORQUE_TGT;
 
 /** Maximum torque. */
 extern const il_reg_t IL_REG_TORQUE_MAX;
+
+/** Motor rated current. */
+extern const il_reg_t IL_REG_RATED_CURRENT;
 
 /** Motor rated torque. */
 extern const il_reg_t IL_REG_RATED_TORQUE;

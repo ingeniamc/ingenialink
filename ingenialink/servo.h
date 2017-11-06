@@ -41,9 +41,6 @@
 /** PDS default timeout (ms). */
 #define PDS_TIMEOUT		1000
 
-/** Set-point acknowledge timeout (ms). */
-#define SPACK_TIMEOUT		1000
-
 /*
  * Constants associated to types of velocity and position feedbacks.
  *
@@ -120,6 +117,8 @@ struct il_servo {
 	il_servo_cfg_t cfg;
 	/** Statusword subscription. */
 	il_servo_sw_t sw;
+	/** Operation mode. */
+	il_servo_mode_t mode;
 };
 
 #endif

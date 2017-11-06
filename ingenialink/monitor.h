@@ -48,6 +48,8 @@ typedef struct {
 	int curr;
 	/** Size. */
 	size_t sz;
+	/** Sampling period (s). */
+	double t_s;
 	/** Maximum number of samples. */
 	size_t max_samples;
 	/** Lock. */

@@ -44,6 +44,9 @@ typedef struct il_servo il_servo_t;
 /** Default communications timeout (ms). */
 #define IL_SERVO_TIMEOUT_DEF	100
 
+/** Set-point acknowledge default timeout (ms). */
+#define IL_SERVO_SP_TIMEOUT_DEF	1000
+
 /** Servo name size (includes null termination). */
 #define IL_SERVO_NAME_SZ	9
 
@@ -95,17 +98,27 @@ typedef enum {
 /** Servo operation modes. */
 typedef enum {
 	/** Open loop (vector mode). */
-	IL_SERVO_MODE_OLV = -2,
+	IL_SERVO_MODE_OLV,
 	/** Open loop (scalar mode). */
-	IL_SERVO_MODE_OLS = -1,
+	IL_SERVO_MODE_OLS,
 	/** Profile position. */
-	IL_SERVO_MODE_PP = 1,
+	IL_SERVO_MODE_PP,
+	/** Velocity */
+	IL_SERVO_MODE_VEL,
 	/** Profile velocity. */
-	IL_SERVO_MODE_PV = 3,
+	IL_SERVO_MODE_PV,
 	/** Profile torque. */
-	IL_SERVO_MODE_PT = 4,
+	IL_SERVO_MODE_PT,
 	/** Homing. */
-	IL_SERVO_MODE_HOMING = 6
+	IL_SERVO_MODE_HOMING,
+	/** Interpolated position. */
+	IL_SERVO_MODE_IP,
+	/** Cyclic sync position mode. */
+	IL_SERVO_MODE_CSP,
+	/** Cyclic sync velocity mode. */
+	IL_SERVO_MODE_CSV,
+	/** Cyclic sync torque mode. */
+	IL_SERVO_MODE_CST,
 } il_servo_mode_t;
 
 /** Torque units. */
@@ -829,6 +842,19 @@ IL_EXPORT int il_servo_enable(il_servo_t *servo, int timeout);
 IL_EXPORT int il_servo_fault_reset(il_servo_t *servo);
 
 /**
+ * Get the servo operation mode.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [out] mode
+ *	Where mode will be stored.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode);
+
+/**
  * Set the servo operation mode.
  *
  * @param [in] servo
@@ -836,6 +862,8 @@ IL_EXPORT int il_servo_fault_reset(il_servo_t *servo);
  * @param [in] mode
  *	Mode.
  *
+ * @return
+ *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_mode_set(il_servo_t *servo, il_servo_mode_t mode);
 
@@ -971,30 +999,15 @@ IL_EXPORT int il_servo_position_get(il_servo_t *servo, double *pos);
  * @param [in] relative
  *	If set, the position is taken as a relative value, otherwise it is taken
  *	as an absolute value.
+ * @param [in] sp_timeout
+ *	Set-point acknowledge timeout (ms).
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_position_set(il_servo_t *servo, double pos,
-				    int immediate, int relative);
-
-/**
- * Wait until the servo acknowledges a position.
- *
- * @note
- *	This may only be useful for multi-point movements, where the ACK can be
- *	kept high until positions buffer is empty. On any other case, ACK will
- *	always be received.
- *
- * @param [in] servo
- *	IngeniaLink servo.
- * @param [in] timeout
- *	Timeout (ms).
- *
- * @return
- *	0 on success, error code otherwise.
- */
-IL_EXPORT int il_servo_position_wait_ack(il_servo_t *servo, int timeout);
+				    int immediate, int relative,
+				    int sp_timeout);
 
 /**
  * Obtain position resolution.
