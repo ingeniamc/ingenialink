@@ -44,6 +44,9 @@ typedef struct il_servo il_servo_t;
 /** Default communications timeout (ms). */
 #define IL_SERVO_TIMEOUT_DEF	100
 
+/** Set-point acknowledge default timeout (ms). */
+#define IL_SERVO_SP_TIMEOUT_DEF	1000
+
 /** Servo name size (includes null termination). */
 #define IL_SERVO_NAME_SZ	9
 
@@ -996,30 +999,15 @@ IL_EXPORT int il_servo_position_get(il_servo_t *servo, double *pos);
  * @param [in] relative
  *	If set, the position is taken as a relative value, otherwise it is taken
  *	as an absolute value.
+ * @param [in] sp_timeout
+ *	Set-point acknowledge timeout (ms).
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_position_set(il_servo_t *servo, double pos,
-				    int immediate, int relative);
-
-/**
- * Wait until the servo acknowledges a position.
- *
- * @note
- *	This may only be useful for multi-point movements, where the ACK can be
- *	kept high until positions buffer is empty. On any other case, ACK will
- *	always be received.
- *
- * @param [in] servo
- *	IngeniaLink servo.
- * @param [in] timeout
- *	Timeout (ms).
- *
- * @return
- *	0 on success, error code otherwise.
- */
-IL_EXPORT int il_servo_position_wait_ack(il_servo_t *servo, int timeout);
+				    int immediate, int relative,
+				    int sp_timeout);
 
 /**
  * Obtain position resolution.

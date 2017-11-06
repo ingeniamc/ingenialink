@@ -1347,7 +1347,7 @@ int il_servo_position_get(il_servo_t *servo, double *pos)
 }
 
 int il_servo_position_set(il_servo_t *servo, double pos, int immediate,
-			  int relative)
+			  int relative, int sp_timeout)
 {
 	int r;
 	uint16_t cmd;
@@ -1357,13 +1357,20 @@ int il_servo_position_set(il_servo_t *servo, double pos, int immediate,
 	if (r < 0)
 		return r;
 
-	if (servo->mode == IL_SERVO_MODE_PP) {
+	if ((il_servo_state_get(servo) == IL_SERVO_STATE_ENABLED) &&
+	    (servo->mode == IL_SERVO_MODE_PP)) {
 		/* new set-point (0->1) */
 		cmd = IL_MC_PDS_CMD_EO;
 		r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD, cmd, 1);
 		if (r < 0)
 			return r;
 
+		/* wait set-point ack clear */
+		r = sw_wait_value(servo, IL_MC_PP_SW_SPACK, 0, sp_timeout);
+		if (r < 0)
+			return r;
+
+		/* set-point */
 		cmd |= IL_MC_PP_CW_NEWSP;
 
 		if (immediate)
@@ -1375,31 +1382,15 @@ int il_servo_position_set(il_servo_t *servo, double pos, int immediate,
 		r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD, cmd, 1);
 		if (r < 0)
 			return r;
+
+		/* wait set-point ack */
+		r = sw_wait_value(servo, IL_MC_PP_SW_SPACK, IL_MC_PP_SW_SPACK,
+				  sp_timeout);
+		if (r < 0)
+			return r;
 	}
 
 	return 0;
-}
-
-int il_servo_position_wait_ack(il_servo_t *servo, int timeout)
-{
-	int r;
-
-	assert(servo);
-
-	/* wait for SP acknowledge (->1) */
-	r = sw_wait_value(servo, IL_MC_PP_SW_SPACK, IL_MC_PP_SW_SPACK,
-			  timeout);
-	if (r < 0)
-		return r;
-
-	/* clear SP */
-	r = il_servo_raw_write_u16(
-			servo, &IL_REG_CTL_WORD, IL_MC_PDS_CMD_EO, 1);
-	if (r < 0)
-		return r;
-
-	/* wait SP clear (->0) */
-	return sw_wait_value(servo, IL_MC_PP_SW_SPACK, 0, timeout);
 }
 
 int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)

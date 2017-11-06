@@ -41,9 +41,6 @@
 /** PDS default timeout (ms). */
 #define PDS_TIMEOUT		1000
 
-/** Set-point acknowledge timeout (ms). */
-#define SPACK_TIMEOUT		1000
-
 /*
  * Constants associated to types of velocity and position feedbacks.
  *

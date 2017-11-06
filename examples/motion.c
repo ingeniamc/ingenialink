@@ -162,16 +162,10 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	}
 
 	for (i = 1; i < 5; i++) {
-		r = il_servo_position_set(servo, 90 * i, 0, 0);
+		r = il_servo_position_set(servo, 90 * i, 0, 0,
+					  IL_SERVO_SP_TIMEOUT_DEF);
 		if (r < 0) {
 			fprintf(stderr, "Could not set position: %s\n",
-				ilerr_last());
-			goto cleanup_poller;
-		}
-
-		r = il_servo_position_wait_ack(servo, 1000);
-		if (r < 0) {
-			fprintf(stderr, "Position not acknowledged: %s\n",
 				ilerr_last());
 			goto cleanup_poller;
 		}
