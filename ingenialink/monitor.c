@@ -197,7 +197,10 @@ static int update_buffers(il_monitor_t *monitor)
 	if (r < 0)
 		return r;
 
-	monitor->acq.sz = (size_t)MIN(monitor->acq.max_samples, sz);
+	if (monitor->acq.max_samples)
+		monitor->acq.sz = (size_t)MIN(monitor->acq.max_samples, sz);
+	else
+		monitor->acq.sz = (size_t)sz;
 
 	monitor->acq.acq[0].sz = monitor->acq.sz;
 	monitor->acq.acq[1].sz = monitor->acq.sz;
