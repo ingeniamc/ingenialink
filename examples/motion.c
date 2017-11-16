@@ -98,13 +98,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_poller;
 	}
 
-	/* reset faults, disable */
-	il_servo_fault_reset(servo);
-	if (r < 0) {
-		fprintf(stderr, "Could not reset fault: %s\n", ilerr_last());
-		goto cleanup_poller;
-	}
-
+	/* disable */
 	r = il_servo_disable(servo);
 	if (r < 0) {
 		fprintf(stderr, "Could not disable servo: %s\n", ilerr_last());
