@@ -1008,15 +1008,14 @@ int il_servo_disable(il_servo_t *servo)
 		sw = sw_get(servo);
 		state = pds_state_decode(sw);
 
-		/* check if faulty */
+		/* try fault reset if faulty */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
-			ilerr__set("Servo is in fault state");
-			return IL_ESTATE;
-		}
-
-		/* check state and command action */
-		if (state != IL_SERVO_STATE_DISABLED) {
+			r = il_servo_fault_reset(servo);
+			if (r < 0)
+				return r;
+		/* check state and command action to reach disabled */
+		} else if (state != IL_SERVO_STATE_DISABLED) {
 			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
 						   IL_MC_PDS_CMD_DV, 1);
 			if (r < 0)
@@ -1044,15 +1043,14 @@ int il_servo_switch_on(il_servo_t *servo, int timeout)
 		sw = sw_get(servo);
 		state = pds_state_decode(sw);
 
-		/* check if faulty */
+		/* try fault reset if faulty */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
-			ilerr__set("Servo is in fault state");
-			return IL_ESTATE;
-		}
-
-		/* check state and command action */
-		if (state != IL_SERVO_STATE_ON) {
+			r = il_servo_fault_reset(servo);
+			if (r < 0)
+				return r;
+		/* check state and command action to reach switch on */
+		} else if (state != IL_SERVO_STATE_ON) {
 			if (state == IL_SERVO_STATE_NRDY)
 				cmd = IL_MC_PDS_CMD_DV;
 			else if (state == IL_SERVO_STATE_DISABLED)
@@ -1069,7 +1067,7 @@ int il_servo_switch_on(il_servo_t *servo, int timeout)
 			if (r < 0)
 				return r;
 
-			/* wait until statusword changes */
+			/* wait for state change */
 			r = sw_wait_change(servo, sw, timeout);
 			if (r < 0)
 				return r;
@@ -1091,15 +1089,15 @@ int il_servo_enable(il_servo_t *servo, int timeout)
 		sw = sw_get(servo);
 		state = pds_state_decode(sw);
 
-		/* check if faulty */
+		/* try fault reset if faulty */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
-			ilerr__set("Servo is in fault state");
-			return IL_ESTATE;
-		}
-
-		/* check state and command action */
-		if (state != IL_SERVO_STATE_ENABLED) {
+			r = il_servo_fault_reset(servo);
+			if (r < 0)
+				return r;
+		/* check state and command action to reach enabled */
+		} else if ((state != IL_SERVO_STATE_ENABLED) ||
+			   !(sw & IL_MC_SW_IANGLE)) {
 			if (state == IL_SERVO_STATE_NRDY)
 				cmd = IL_MC_PDS_CMD_DV;
 			else if (state == IL_SERVO_STATE_DISABLED)
@@ -1113,11 +1111,8 @@ int il_servo_enable(il_servo_t *servo, int timeout)
 					servo, &IL_REG_CTL_WORD, cmd, 1);
 			if (r < 0)
 				return r;
-		}
 
-		/* wait for state change */
-		if ((state != IL_SERVO_STATE_ENABLED) ||
-		    !(sw & IL_MC_SW_IANGLE)) {
+			/* wait for state change */
 			r = sw_wait_change(servo, sw, timeout);
 			if (r < 0)
 				return r;
