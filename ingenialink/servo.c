@@ -336,6 +336,45 @@ void il_servo_destroy(il_servo_t *servo)
 	refcnt__release(servo->refcnt);
 }
 
+int il_servo_lucky(il_net_t **net, il_servo_t **servo)
+{
+	il_net_dev_list_t *devs, *dev;
+	il_net_servos_list_t *servo_ids, *servo_id;
+
+	assert(net);
+	assert(servo);
+
+	/* scan all available network devices */
+	devs = il_net_dev_list_get();
+	il_net_dev_list_foreach(dev, devs) {
+		*net = il_net_create(dev->port);
+		if (!*net)
+			continue;
+
+		/* try to connect to any available servo */
+		servo_ids = il_net_servos_list_get(*net, NULL, NULL);
+		il_net_servos_list_foreach(servo_id, servo_ids) {
+			*servo = il_servo_create(*net, servo_id->id,
+						 IL_SERVO_TIMEOUT_DEF);
+			/* found */
+			if (*servo) {
+				il_net_servos_list_destroy(servo_ids);
+				il_net_dev_list_destroy(devs);
+
+				return 0;
+			}
+		}
+
+		il_net_servos_list_destroy(servo_ids);
+		il_net_destroy(*net);
+	}
+
+	il_net_dev_list_destroy(devs);
+
+	ilerr__set("No connected servos found");
+	return IL_EFAIL;
+}
+
 int il_servo_name_get(il_servo_t *servo, char *name, size_t sz)
 {
 	int r;

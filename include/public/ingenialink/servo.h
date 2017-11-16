@@ -211,6 +211,19 @@ IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint8_t id, int timeout);
 IL_EXPORT void il_servo_destroy(il_servo_t *servo);
 
 /**
+ * Utility function to connect to the first available servo drive.
+ *
+ * @param [out] net
+ *	Where the servo network will be stored.
+ * @param [out] servo
+ *	Where the first available servo will be stored.
+ *
+ * @return
+ *	0 if a servo is found, IL_EFAIL if none are found.
+ */
+IL_EXPORT int il_servo_lucky(il_net_t **net, il_servo_t **servo);
+
+/**
  * Obtain servo name.
  *
  * @param [in] servo
