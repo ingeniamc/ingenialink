@@ -477,7 +477,6 @@ int il_net__sw_subscribe(il_net_t *net, uint8_t id,
 
 		net->sw_subs.subs = subs;
 		net->sw_subs.sz = sz;
-		slot++;
 	}
 
 	net->sw_subs.subs[slot].id = id;
@@ -537,7 +536,6 @@ int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
 
 		net->emcy_subs.subs = subs;
 		net->emcy_subs.sz = sz;
-		slot++;
 	}
 
 	net->emcy_subs.subs[slot].id = id;
