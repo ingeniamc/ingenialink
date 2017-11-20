@@ -41,6 +41,37 @@
  ******************************************************************************/
 
 /**
+ * Decode the PDS state.
+ *
+ * @param [in] sw
+ *	Statusword value.
+ *
+ * @return
+ *	PDS state (IL_SERVO_STATE_NRDY if unknown).
+ */
+static il_servo_state_t pds_state_decode(uint16_t sw)
+{
+	if ((sw & IL_MC_PDS_STA_NRTSO_MSK) == IL_MC_PDS_STA_NRTSO)
+		return IL_SERVO_STATE_NRDY;
+	else if ((sw & IL_MC_PDS_STA_SOD_MSK) == IL_MC_PDS_STA_SOD)
+		return IL_SERVO_STATE_DISABLED;
+	else if ((sw & IL_MC_PDS_STA_RTSO_MSK) == IL_MC_PDS_STA_RTSO)
+		return IL_SERVO_STATE_RDY;
+	else if ((sw & IL_MC_PDS_STA_SO_MSK) == IL_MC_PDS_STA_SO)
+		return IL_SERVO_STATE_ON;
+	else if ((sw & IL_MC_PDS_STA_OE_MSK) == IL_MC_PDS_STA_OE)
+		return IL_SERVO_STATE_ENABLED;
+	else if ((sw & IL_MC_PDS_STA_QSA_MSK) == IL_MC_PDS_STA_QSA)
+		return IL_SERVO_STATE_QSTOP;
+	else if ((sw & IL_MC_PDS_STA_FRA_MSK) == IL_MC_PDS_STA_FRA)
+		return IL_SERVO_STATE_FAULTR;
+	else if ((sw & IL_MC_PDS_STA_F_MSK) == IL_MC_PDS_STA_F)
+		return IL_SERVO_STATE_FAULT;
+
+	return IL_SERVO_STATE_NRDY;
+}
+
+/**
  * Statusword update callback
  *
  * @param [in] ctx
@@ -90,28 +121,33 @@ static uint16_t sw_get(il_servo_t *servo)
  *
  * @param [in] servo
  *	IngeniaLink servo.
- * @param [in] sw
- *	Current statusword value.
+ * @param [in, out] sw
+ *	Current statusword value, where next value will be stored.
  * @param [in] timeout
  *	Timeout (ms).
  */
-static int sw_wait_change(il_servo_t *servo, uint16_t sw, int timeout)
+static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int timeout)
 {
 	int r = 0;
 
 	osal_mutex_lock(servo->sw.lock);
 
-	if (servo->sw.value == sw) {
+	if (servo->sw.value == *sw) {
 		r = osal_cond_wait(servo->sw.changed, servo->sw.lock, timeout);
 		if (r == OSAL_ETIMEDOUT) {
 			ilerr__set("Operation timed out");
 			r = IL_ETIMEDOUT;
+			goto out;
 		} else if (r < 0) {
 			ilerr__set("Statusword wait change failed");
 			r = IL_EFAIL;
+			goto out;
 		}
 	}
 
+	*sw = servo->sw.value;
+
+out:
 	osal_mutex_unlock(servo->sw.lock);
 
 	return r;
@@ -162,34 +198,129 @@ static int sw_wait_value(il_servo_t *servo, uint16_t msk, uint16_t val,
 }
 
 /**
- * Decode the PDS state.
+ * State change monitor, used to push state changes to external subscriptors.
  *
- * @param [in] sw
- *	Statusword value.
- *
- * @return
- *	PDS state (IL_SERVO_STATE_NRDY if unknown).
+ * @param [in] args
+ *	Arguments (il_servo_t *).
  */
-static il_servo_state_t pds_state_decode(uint16_t sw)
+static int state_subs_monitor(void *args)
 {
-	if ((sw & IL_MC_PDS_STA_NRTSO_MSK) == IL_MC_PDS_STA_NRTSO)
-		return IL_SERVO_STATE_NRDY;
-	else if ((sw & IL_MC_PDS_STA_SOD_MSK) == IL_MC_PDS_STA_SOD)
-		return IL_SERVO_STATE_DISABLED;
-	else if ((sw & IL_MC_PDS_STA_RTSO_MSK) == IL_MC_PDS_STA_RTSO)
-		return IL_SERVO_STATE_RDY;
-	else if ((sw & IL_MC_PDS_STA_SO_MSK) == IL_MC_PDS_STA_SO)
-		return IL_SERVO_STATE_ON;
-	else if ((sw & IL_MC_PDS_STA_OE_MSK) == IL_MC_PDS_STA_OE)
-		return IL_SERVO_STATE_ENABLED;
-	else if ((sw & IL_MC_PDS_STA_QSA_MSK) == IL_MC_PDS_STA_QSA)
-		return IL_SERVO_STATE_QSTOP;
-	else if ((sw & IL_MC_PDS_STA_FRA_MSK) == IL_MC_PDS_STA_FRA)
-		return IL_SERVO_STATE_FAULTR;
-	else if ((sw & IL_MC_PDS_STA_F_MSK) == IL_MC_PDS_STA_F)
-		return IL_SERVO_STATE_FAULT;
+	il_servo_t *servo = args;
+	uint16_t sw;
 
-	return IL_SERVO_STATE_NRDY;
+	sw = sw_get(servo);
+
+	while (!servo->state_subs.stop) {
+		size_t i;
+		il_servo_state_t state;
+		int flags;
+
+		/* wait for change */
+		if (sw_wait_change(servo, &sw, STATE_SUBS_TIMEOUT) < 0)
+			continue;
+
+		/* obtain state/flags */
+		state = pds_state_decode(sw);
+		flags = (int)(sw >> FLAGS_SW_POS);
+
+		/* notify all subscribers */
+		osal_mutex_lock(servo->state_subs.lock);
+
+		for (i = 0; i < servo->state_subs.sz; i++) {
+			void *ctx;
+
+			if (!servo->state_subs.subs[i].cb)
+				continue;
+
+			ctx = servo->state_subs.subs[i].ctx;
+			servo->state_subs.subs[i].cb(ctx, state, flags);
+		}
+
+		osal_mutex_unlock(servo->state_subs.lock);
+	}
+
+	return 0;
+}
+
+/**
+ * Emergencies callback.
+ *
+ */
+static void on_emcy(void *ctx, uint32_t code)
+{
+	il_servo_t *servo = ctx;
+	il_servo_emcy_t *emcy = &servo->emcy;
+
+	osal_mutex_lock(emcy->lock);
+
+	/* if full, drop oldest item */
+	if (!CIRC_SPACE(emcy->head, emcy->tail, EMCY_QUEUE_SZ))
+		emcy->tail = (emcy->tail + 1) & (EMCY_QUEUE_SZ - 1);
+
+	/* push emergency and notify */
+	emcy->queue[emcy->head] = code;
+	emcy->head = (emcy->head + 1) & (EMCY_QUEUE_SZ - 1);
+
+	osal_cond_signal(emcy->not_empty);
+
+	osal_mutex_unlock(emcy->lock);
+}
+
+/**
+ * Emergencies monitor, used to notify about emergencies to external
+ * subscriptors.
+ *
+ * @param [in] args
+ *	Arguments (il_servo_t *).
+ */
+static int emcy_subs_monitor(void *args)
+{
+	il_servo_t *servo = args;
+	il_servo_emcy_t *emcy = &servo->emcy;
+	il_servo_emcy_subscriber_lst_t *emcy_subs = &servo->emcy_subs;
+
+	while (!emcy_subs->stop) {
+		int r;
+
+		/* wait until emcy queue not empty */
+		osal_mutex_lock(emcy->lock);
+
+		r = osal_cond_wait(emcy->not_empty, emcy->lock,
+				   EMCY_SUBS_TIMEOUT);
+
+		if (r == 0) {
+			/* process all available emergencies */
+			while (CIRC_CNT(emcy->head, emcy->tail, emcy->sz)) {
+				size_t i;
+				uint32_t code;
+
+				code = emcy->queue[emcy->tail];
+				emcy->tail = (emcy->tail + 1) & (emcy->sz - 1);
+
+				osal_mutex_unlock(emcy->lock);
+
+				/* notify all subscribers */
+				osal_mutex_lock(emcy_subs->lock);
+
+				for (i = 0; i < emcy_subs->sz; i++) {
+					void *ctx;
+
+					if (!emcy_subs->subs[i].cb)
+						continue;
+
+					ctx = emcy_subs->subs[i].ctx;
+					emcy_subs->subs[i].cb(ctx, code);
+				}
+
+				osal_mutex_unlock(emcy_subs->lock);
+				osal_mutex_lock(emcy->lock);
+			}
+		}
+
+		osal_mutex_unlock(emcy->lock);
+	}
+
+	return 0;
 }
 
 /**
@@ -202,13 +333,27 @@ void servo_destroy(void *ctx)
 {
 	il_servo_t *servo = ctx;
 
-	il_net__sw_unsubscribe(servo->net, servo->sw.slot);
-	il_net__release(servo->net);
+	servo->emcy_subs.stop = 1;
+	(void)osal_thread_join(servo->emcy_subs.monitor, NULL);
+	osal_mutex_destroy(servo->emcy_subs.lock);
+	free(servo->emcy_subs.subs);
 
+	il_net__emcy_unsubscribe(servo->net, servo->emcy.slot);
+	osal_cond_destroy(servo->emcy.not_empty);
+	osal_mutex_destroy(servo->emcy.lock);
+
+	servo->state_subs.stop = 1;
+	(void)osal_thread_join(servo->state_subs.monitor, NULL);
+	osal_mutex_destroy(servo->state_subs.lock);
+	free(servo->state_subs.subs);
+
+	il_net__sw_unsubscribe(servo->net, servo->sw.slot);
 	osal_cond_destroy(servo->sw.changed);
 	osal_mutex_destroy(servo->sw.lock);
 
 	osal_mutex_destroy(servo->units.lock);
+
+	il_net__release(servo->net);
 
 	free(servo);
 }
@@ -308,7 +453,106 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, int timeout)
 	/* trigger update (with manual read) */
 	(void)il_servo_raw_read_u16(servo, &IL_REG_STS_WORD, &sw);
 
+	/* configute external state subscriptors */
+	servo->state_subs.subs = calloc(STATE_SUBS_SZ_DEF,
+					sizeof(*servo->state_subs.subs));
+	if (!servo->state_subs.subs) {
+		ilerr__set("State subscribers allocation failed");
+		goto cleanup_sw_subscribe;
+	}
+
+	servo->state_subs.sz = STATE_SUBS_SZ_DEF;
+
+	servo->state_subs.lock = osal_mutex_create();
+	if (!servo->state_subs.lock) {
+		ilerr__set("State subscription lock allocation failed");
+		goto cleanup_state_subs_subs;
+	}
+
+	servo->state_subs.stop = 0;
+
+	servo->state_subs.monitor = osal_thread_create(state_subs_monitor,
+						       servo);
+	if (!servo->state_subs.monitor) {
+		ilerr__set("State change monitor could not be created");
+		goto cleanup_state_subs_lock;
+	}
+
+	/* configure emergency subscription */
+	servo->emcy.lock = osal_mutex_create();
+	if (!servo->emcy.lock) {
+		ilerr__set("Emergency subscriber lock allocation failed");
+		goto cleanup_state_subs_monitor;
+	}
+
+	servo->emcy.not_empty = osal_cond_create();
+	if (!servo->emcy.not_empty) {
+		ilerr__set("Emergency subscriber condition allocation failed");
+		goto cleanup_emcy_lock;
+	}
+
+	servo->emcy.head = 0;
+	servo->emcy.tail = 0;
+	servo->emcy.sz = EMCY_QUEUE_SZ;
+
+	r = il_net__emcy_subscribe(servo->net, servo->id, on_emcy, servo);
+	if (r < 0)
+		goto cleanup_emcy_not_empty;
+
+	servo->emcy.slot = r;
+
+	/* configure external emergency subscriptors */
+	servo->emcy_subs.subs = calloc(EMCY_SUBS_SZ_DEF,
+				       sizeof(*servo->emcy_subs.subs));
+	if (!servo->emcy_subs.subs) {
+		ilerr__set("Emergency subscribers allocation failed");
+		goto cleanup_emcy_subscribe;
+	}
+
+	servo->emcy_subs.sz = EMCY_SUBS_SZ_DEF;
+
+	servo->emcy_subs.lock = osal_mutex_create();
+	if (!servo->emcy_subs.lock) {
+		ilerr__set("Emergency subscription lock allocation failed");
+		goto cleanup_emcy_subs_subs;
+	}
+
+	servo->emcy_subs.stop = 0;
+	servo->emcy_subs.monitor = osal_thread_create(emcy_subs_monitor, servo);
+	if (!servo->emcy_subs.monitor) {
+		ilerr__set("Emergency monitor could not be created");
+		goto cleanup_emcy_subs_lock;
+	}
+
 	return servo;
+
+cleanup_emcy_subs_lock:
+	osal_mutex_destroy(servo->emcy_subs.lock);
+
+cleanup_emcy_subs_subs:
+	free(servo->emcy_subs.subs);
+
+cleanup_emcy_subscribe:
+	il_net__emcy_unsubscribe(servo->net, servo->emcy.slot);
+
+cleanup_emcy_not_empty:
+	osal_cond_destroy(servo->emcy.not_empty);
+
+cleanup_emcy_lock:
+	osal_mutex_destroy(servo->emcy.lock);
+
+cleanup_state_subs_monitor:
+	servo->state_subs.stop = 1;
+	(void)osal_thread_join(servo->state_subs.monitor, NULL);
+
+cleanup_state_subs_lock:
+	osal_mutex_destroy(servo->state_subs.lock);
+
+cleanup_state_subs_subs:
+	free(servo->state_subs.subs);
+
+cleanup_sw_subscribe:
+	il_net__sw_unsubscribe(servo->net, servo->sw.slot);
 
 cleanup_sw_changed:
 	osal_cond_destroy(servo->sw.changed);
@@ -373,6 +617,144 @@ int il_servo_lucky(il_net_t **net, il_servo_t **servo)
 
 	ilerr__set("No connected servos found");
 	return IL_EFAIL;
+}
+
+void il_servo_state_get(il_servo_t *servo, il_servo_state_t *state, int *flags)
+{
+	uint16_t sw;
+
+	assert(servo);
+	assert(state);
+	assert(flags);
+
+	sw = sw_get(servo);
+
+	*state = pds_state_decode(sw);
+	*flags = (int)(sw >> FLAGS_SW_POS);
+}
+
+int il_servo_state_subscribe(il_servo_t *servo,
+			     il_servo_state_subscriber_cb_t cb, void *ctx)
+{
+	int r = 0;
+	int slot;
+
+	assert(servo);
+	assert(cb);
+
+	osal_mutex_lock(servo->state_subs.lock);
+
+	/* look for the first empty slot */
+	for (slot = 0; slot < (int)servo->state_subs.sz; slot++) {
+		if (!servo->state_subs.subs[slot].cb)
+			break;
+	}
+
+	/* increase array if no space left */
+	if (slot == (int)servo->state_subs.sz) {
+		size_t sz;
+		il_servo_state_subscriber_t *subs;
+
+		/* double in size on each realloc */
+		sz = 2 * servo->state_subs.sz * sizeof(*subs);
+		subs = realloc(servo->state_subs.subs, sz);
+		if (!subs) {
+			ilerr__set("Subscribers re-allocation failed");
+			r = IL_ENOMEM;
+			goto unlock;
+		}
+
+		servo->state_subs.subs = subs;
+		servo->state_subs.sz = sz;
+	}
+
+	servo->state_subs.subs[slot].cb = cb;
+	servo->state_subs.subs[slot].ctx = ctx;
+
+	r = slot;
+
+unlock:
+	osal_mutex_unlock(servo->state_subs.lock);
+
+	return r;
+}
+
+void il_servo_state_unsubscribe(il_servo_t *servo, int slot)
+{
+	assert(servo);
+
+	osal_mutex_lock(servo->state_subs.lock);
+
+	/* skip out of range slot */
+	if (slot >= (int)servo->state_subs.sz)
+		return;
+
+	servo->state_subs.subs[slot].cb = NULL;
+	servo->state_subs.subs[slot].ctx = NULL;
+
+	osal_mutex_unlock(servo->state_subs.lock);
+}
+
+int il_servo_emcy_subscribe(il_servo_t *servo, il_servo_emcy_subscriber_cb_t cb,
+			    void *ctx)
+{
+	int r = 0;
+	int slot;
+
+	assert(servo);
+	assert(cb);
+
+	osal_mutex_lock(servo->emcy_subs.lock);
+
+	/* look for the first empty slot */
+	for (slot = 0; slot < (int)servo->emcy_subs.sz; slot++) {
+		if (!servo->emcy_subs.subs[slot].cb)
+			break;
+	}
+
+	/* increase array if no space left */
+	if (slot == (int)servo->emcy_subs.sz) {
+		size_t sz;
+		il_servo_emcy_subscriber_t *subs;
+
+		/* double in size on each realloc */
+		sz = 2 * servo->emcy_subs.sz * sizeof(*subs);
+		subs = realloc(servo->emcy_subs.subs, sz);
+		if (!subs) {
+			ilerr__set("Subscribers re-allocation failed");
+			r = IL_ENOMEM;
+			goto unlock;
+		}
+
+		servo->emcy_subs.subs = subs;
+		servo->emcy_subs.sz = sz;
+	}
+
+	servo->emcy_subs.subs[slot].cb = cb;
+	servo->emcy_subs.subs[slot].ctx = ctx;
+
+	r = slot;
+
+unlock:
+	osal_mutex_unlock(servo->emcy_subs.lock);
+
+	return r;
+}
+
+void il_servo_emcy_unsubscribe(il_servo_t *servo, int slot)
+{
+	assert(servo);
+
+	osal_mutex_lock(servo->emcy_subs.lock);
+
+	/* skip out of range slot */
+	if (slot >= (int)servo->emcy_subs.sz)
+		return;
+
+	servo->emcy_subs.subs[slot].cb = NULL;
+	servo->emcy_subs.subs[slot].ctx = NULL;
+
+	osal_mutex_unlock(servo->emcy_subs.lock);
 }
 
 int il_servo_name_get(il_servo_t *servo, char *name, size_t sz)
@@ -461,23 +843,6 @@ int il_servo_store_app(il_servo_t *servo)
 {
 	return il_servo_raw_write_u32(servo, &IL_REG_STORE_APP,
 				      ILK_SIGNATURE_STORE, 0);
-}
-
-int il_servo_emcy_subscribe(il_servo_t *servo, il_servo_emcy_subscriber_cb_t cb,
-			    void *ctx)
-{
-	assert(servo);
-	assert(cb);
-
-	return il_net__emcy_subscribe(servo->net, servo->id,
-				      (il_net_emcy_subscriber_cb_t)cb, ctx);
-}
-
-void il_servo_emcy_unsubscribe(il_servo_t *servo, int slot)
-{
-	assert(servo);
-
-	il_net__emcy_unsubscribe(servo->net, slot);
 }
 
 int il_servo_units_update(il_servo_t *servo)
@@ -1028,13 +1393,6 @@ int il_servo_write(il_servo_t *servo, const il_reg_t *reg, double val,
 	}
 }
 
-il_servo_state_t il_servo_state_get(il_servo_t *servo)
-{
-	assert(servo);
-
-	return pds_state_decode(sw_get(servo));
-}
-
 int il_servo_disable(il_servo_t *servo)
 {
 	int r;
@@ -1043,8 +1401,9 @@ int il_servo_disable(il_servo_t *servo)
 
 	assert(servo);
 
+	sw = sw_get(servo);
+
 	do {
-		sw = sw_get(servo);
 		state = pds_state_decode(sw);
 
 		/* try fault reset if faulty */
@@ -1053,6 +1412,8 @@ int il_servo_disable(il_servo_t *servo)
 			r = il_servo_fault_reset(servo);
 			if (r < 0)
 				return r;
+
+			sw = sw_get(servo);
 		/* check state and command action to reach disabled */
 		} else if (state != IL_SERVO_STATE_DISABLED) {
 			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
@@ -1061,7 +1422,7 @@ int il_servo_disable(il_servo_t *servo)
 				return r;
 
 			/* wait until statusword changes */
-			r = sw_wait_change(servo, sw, PDS_TIMEOUT);
+			r = sw_wait_change(servo, &sw, PDS_TIMEOUT);
 			if (r < 0)
 				return r;
 		}
@@ -1078,8 +1439,9 @@ int il_servo_switch_on(il_servo_t *servo, int timeout)
 
 	assert(servo);
 
+	sw = sw_get(servo);
+
 	do {
-		sw = sw_get(servo);
 		state = pds_state_decode(sw);
 
 		/* try fault reset if faulty */
@@ -1088,6 +1450,8 @@ int il_servo_switch_on(il_servo_t *servo, int timeout)
 			r = il_servo_fault_reset(servo);
 			if (r < 0)
 				return r;
+
+			sw = sw_get(servo);
 		/* check state and command action to reach switch on */
 		} else if (state != IL_SERVO_STATE_ON) {
 			if (state == IL_SERVO_STATE_NRDY)
@@ -1107,7 +1471,7 @@ int il_servo_switch_on(il_servo_t *servo, int timeout)
 				return r;
 
 			/* wait for state change */
-			r = sw_wait_change(servo, sw, timeout);
+			r = sw_wait_change(servo, &sw, timeout);
 			if (r < 0)
 				return r;
 		}
@@ -1124,8 +1488,9 @@ int il_servo_enable(il_servo_t *servo, int timeout)
 
 	assert(servo);
 
+	sw = sw_get(servo);
+
 	do {
-		sw = sw_get(servo);
 		state = pds_state_decode(sw);
 
 		/* try fault reset if faulty */
@@ -1134,6 +1499,8 @@ int il_servo_enable(il_servo_t *servo, int timeout)
 			r = il_servo_fault_reset(servo);
 			if (r < 0)
 				return r;
+
+			sw = sw_get(servo);
 		/* check state and command action to reach enabled */
 		} else if ((state != IL_SERVO_STATE_ENABLED) ||
 			   !(sw & IL_MC_SW_IANGLE)) {
@@ -1152,7 +1519,7 @@ int il_servo_enable(il_servo_t *servo, int timeout)
 				return r;
 
 			/* wait for state change */
-			r = sw_wait_change(servo, sw, timeout);
+			r = sw_wait_change(servo, &sw, timeout);
 			if (r < 0)
 				return r;
 		}
@@ -1169,8 +1536,9 @@ int il_servo_fault_reset(il_servo_t *servo)
 
 	assert(servo);
 
+	sw = sw_get(servo);
+
 	do {
-		sw = sw_get(servo);
 		state = pds_state_decode(sw);
 
 		/* check if faulty, if so try to reset (0->1) */
@@ -1187,7 +1555,7 @@ int il_servo_fault_reset(il_servo_t *servo)
 				return r;
 
 			/* wait until statusword changes */
-			r = sw_wait_change(servo, sw, PDS_TIMEOUT);
+			r = sw_wait_change(servo, &sw, PDS_TIMEOUT);
 			if (r < 0)
 				return r;
 		}
@@ -1337,13 +1705,13 @@ int il_servo_homing_wait(il_servo_t *servo, int timeout)
 
 	assert(servo);
 
-	/* wait until finished */
+	sw = sw_get(servo);
+
 	do {
-		sw = sw_get(servo);
 		state = sw & IL_MC_HOMING_STA_MSK;
 
 		if (state == IL_MC_HOMING_STA_INPROG) {
-			r = sw_wait_change(servo, sw, timeout);
+			r = sw_wait_change(servo, &sw, timeout);
 			if (r < 0)
 				return r;
 		}
@@ -1385,13 +1753,18 @@ int il_servo_position_set(il_servo_t *servo, double pos, int immediate,
 {
 	int r;
 	uint16_t cmd;
+	il_servo_state_t state;
+	int flags;
 
 	/* send position */
 	r = il_servo_write(servo, &IL_REG_POS_TGT, pos, 1);
 	if (r < 0)
 		return r;
 
-	if ((il_servo_state_get(servo) == IL_SERVO_STATE_ENABLED) &&
+	/* wait for SP ack if enabled and in PP */
+	il_servo_state_get(servo, &state, &flags);
+
+	if ((state == IL_SERVO_STATE_ENABLED) &&
 	    (servo->mode == IL_SERVO_MODE_PP)) {
 		/* new set-point (0->1) */
 		cmd = IL_MC_PDS_CMD_EO;

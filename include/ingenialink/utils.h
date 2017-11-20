@@ -30,6 +30,12 @@
 /** Obtain the minimum of a, b. */
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
+/** Return elements on a circular queue. */
+#define CIRC_CNT(head, tail, size) (((head) - (tail)) & ((size) - 1))
+
+/** Return space available on a circular queue. */
+#define CIRC_SPACE(head, tail, size) CIRC_CNT((tail), ((head) + 1), (size))
+
 /** Swap 16-bit value on big-endian systems. */
 #ifdef IL_BIG_ENDIAN
 #define __swap_16(x) \

@@ -68,6 +68,8 @@ void process_statusword(il_net_t *net, il_frame_t *frame)
 
 				ctx = net->sw_subs.subs[i].ctx;
 				net->sw_subs.subs[i].cb(ctx, sw);
+
+				break;
 			}
 		}
 
@@ -108,6 +110,8 @@ void process_emcy(il_net_t *net, il_frame_t *frame)
 
 				ctx = net->emcy_subs.subs[i].ctx;
 				net->emcy_subs.subs[i].cb(ctx, code);
+
+				break;
 			}
 		}
 
@@ -455,6 +459,15 @@ int il_net__sw_subscribe(il_net_t *net, uint8_t id,
 
 	osal_mutex_lock(net->sw_subs.lock);
 
+	/* check if already subscribed */
+	for (slot = 0; slot < net->sw_subs.sz; slot++) {
+		if (net->sw_subs.subs[slot].id == id) {
+			ilerr__set("Node already subscribed");
+			r = IL_EALREADY;
+			goto unlock;
+		}
+	}
+
 	/* look for the first empty slot */
 	for (slot = 0; slot < net->sw_subs.sz; slot++) {
 		if (!net->sw_subs.subs[slot].cb)
@@ -513,6 +526,15 @@ int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
 	int slot;
 
 	osal_mutex_lock(net->emcy_subs.lock);
+
+	/* check if already subscribed */
+	for (slot = 0; slot < net->emcy_subs.sz; slot++) {
+		if (net->emcy_subs.subs[slot].id == id) {
+			ilerr__set("Node already subscribed");
+			r = IL_EALREADY;
+			goto unlock;
+		}
+	}
 
 	/* look for the first empty slot */
 	for (slot = 0; slot < net->emcy_subs.sz; slot++) {
