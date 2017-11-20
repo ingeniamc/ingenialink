@@ -113,6 +113,10 @@ static int acquisition(void *args)
 		/* clip available (user may have requested less) */
 		available = (uint16_t)MIN(available, monitor->acq.sz);
 
+		/* prevent excesive polling if no samples are still available */
+		if (!available || (acquired == available))
+			osal_clock_sleep_ms(AVAILABLE_WAIT_TIME);
+
 		/* read available samples */
 		while (!monitor->acq.stop && (acquired < available)) {
 			il_monitor_acq_t *acq;
