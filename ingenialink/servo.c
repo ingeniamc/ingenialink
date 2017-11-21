@@ -129,7 +129,7 @@ static uint16_t sw_get(il_servo_t *servo)
 static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
 {
 	int r = 0;
-	osal_timespec_t start, end, diff;
+	osal_timespec_t start = { 0, 0 }, end, diff;
 
 	/* obtain start time */
 	if (*timeout > 0) {
