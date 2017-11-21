@@ -164,7 +164,7 @@ struct il_net {
 	/** Serial communications channel. */
 	ser_t *ser;
 	/** Reference counter. */
-	refcnt_t *refcnt;
+	il_utils_refcnt_t *refcnt;
 	/** Network state. */
 	il_net_state_t state;
 	/** Network state lock. */

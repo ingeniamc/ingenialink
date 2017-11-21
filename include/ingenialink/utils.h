@@ -76,10 +76,10 @@
  */
 
 /** Reference counter. */
-typedef struct refcnt refcnt_t;
+typedef struct il_utils_refcnt il_utils_refcnt_t;
 
 /** De-allocation callback. */
-typedef void (*refcnt_destroy_t)(void *ctx);
+typedef void (*il_utils_refcnt_destroy_t)(void *ctx);
 
 /**
  * Create a reference counter.
@@ -92,18 +92,19 @@ typedef void (*refcnt_destroy_t)(void *ctx);
  * @return
  *	Reference counter (NULL if it could not be created).
  */
-refcnt_t *refcnt__create(refcnt_destroy_t destroy, void *ctx);
+il_utils_refcnt_t *il_utils__refcnt_create(il_utils_refcnt_destroy_t destroy,
+					   void *ctx);
 
 /**
  * Destroy a reference counter.
  *
  * @note
- *	It is automatically called by refcnt__release once it hits 0.
+ *	It is automatically called by il_utils__refcnt_release once it hits 0.
  *
  * @param [in]
  *	Reference counter instance.
  */
-void refcnt__destroy(refcnt_t *refcnt);
+void il_utils__refcnt_destroy(il_utils_refcnt_t *refcnt);
 
 /**
  * Retain a reference.
@@ -111,7 +112,7 @@ void refcnt__destroy(refcnt_t *refcnt);
  * @param [in]
  *	Reference counter instance.
  */
-void refcnt__retain(refcnt_t *refcnt);
+void il_utils__refcnt_retain(il_utils_refcnt_t *refcnt);
 
 /**
  * Release a reference.
@@ -119,6 +120,6 @@ void refcnt__retain(refcnt_t *refcnt);
  * @param [in]
  *	Reference counter instance.
  */
-void refcnt__release(refcnt_t *refcnt);
+void il_utils__refcnt_release(il_utils_refcnt_t *refcnt);
 
 #endif

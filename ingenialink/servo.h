@@ -186,7 +186,7 @@ struct il_servo {
 	/** Associated IngeniaLink network. */
 	il_net_t *net;
 	/** Reference counter. */
-	refcnt_t *refcnt;
+	il_utils_refcnt_t *refcnt;
 	/** Servo id. */
 	uint8_t id;
 	/** Communications timeout (ms). */

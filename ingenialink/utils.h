@@ -30,9 +30,9 @@
 #include <osal/osal.h>
 
 /** Reference counter. */
-struct refcnt {
+struct il_utils_refcnt {
 	/** De-allocation callback. */
-	refcnt_destroy_t destroy;
+	il_utils_refcnt_destroy_t destroy;
 	/** Callback context. */
 	void *ctx;
 	/** Lock. */

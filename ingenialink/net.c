@@ -374,12 +374,12 @@ unlock:
 
 void il_net__retain(il_net_t *net)
 {
-	refcnt__retain(net->refcnt);
+	il_utils__refcnt_retain(net->refcnt);
 }
 
 void il_net__release(il_net_t *net)
 {
-	refcnt__release(net->refcnt);
+	il_utils__refcnt_release(net->refcnt);
 }
 
 int il_net__read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
@@ -612,7 +612,7 @@ il_net_t *il_net_create(const char *port)
 	}
 
 	/* setup refcnt */
-	net->refcnt = refcnt__create(net_destroy, net);
+	net->refcnt = il_utils__refcnt_create(net_destroy, net);
 	if (!net->refcnt)
 		goto cleanup_net;
 
@@ -757,7 +757,7 @@ cleanup_lock:
 	osal_mutex_destroy(net->lock);
 
 cleanup_refcnt:
-	refcnt__destroy(net->refcnt);
+	il_utils__refcnt_destroy(net->refcnt);
 
 cleanup_net:
 	free(net);
@@ -769,7 +769,7 @@ void il_net_destroy(il_net_t *net)
 {
 	assert(net);
 
-	refcnt__release(net->refcnt);
+	il_utils__refcnt_release(net->refcnt);
 }
 
 il_net_state_t il_net_state_get(il_net_t *net)

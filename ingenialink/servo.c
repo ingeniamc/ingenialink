@@ -364,12 +364,12 @@ void servo_destroy(void *ctx)
 
 void il_servo__retain(il_servo_t *servo)
 {
-	refcnt__retain(servo->refcnt);
+	il_utils__refcnt_retain(servo->refcnt);
 }
 
 void il_servo__release(il_servo_t *servo)
 {
-	refcnt__release(servo->refcnt);
+	il_utils__refcnt_release(servo->refcnt);
 }
 
 /*******************************************************************************
@@ -404,7 +404,7 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, int timeout)
 	servo->timeout = timeout;
 
 	/* setup refcnt */
-	servo->refcnt = refcnt__create(servo_destroy, servo);
+	servo->refcnt = il_utils__refcnt_create(servo_destroy, servo);
 	if (!servo->refcnt)
 		goto cleanup_servo;
 
@@ -564,7 +564,7 @@ cleanup_units_lock:
 	osal_mutex_destroy(servo->units.lock);
 
 cleanup_refcnt:
-	refcnt__destroy(servo->refcnt);
+	il_utils__refcnt_destroy(servo->refcnt);
 
 cleanup_servo:
 	il_net__release(servo->net);
@@ -577,7 +577,7 @@ void il_servo_destroy(il_servo_t *servo)
 {
 	assert(servo);
 
-	refcnt__release(servo->refcnt);
+	il_utils__refcnt_release(servo->refcnt);
 }
 
 int il_servo_lucky(il_net_t **net, il_servo_t **servo)
