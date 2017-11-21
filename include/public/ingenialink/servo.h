@@ -75,7 +75,7 @@ typedef struct {
 /** Emergency subscriber callback. */
 typedef void (*il_servo_emcy_subscriber_cb_t)(void *ctx, uint32_t code);
 
-/** Servo states (CiA 402 PDS states). */
+/** Servo states (equivalent to CiA 402 PDS states). */
 typedef enum {
 	/** Not ready to switch on. */
 	IL_SERVO_STATE_NRDY,
@@ -94,6 +94,40 @@ typedef enum {
 	/** Fault. */
 	IL_SERVO_STATE_FAULT
 } il_servo_state_t;
+
+/*
+ * Servo state flags.
+ *
+ * NOTES:
+ *	Depending on the operation mode, the flags bits 3-4 have different
+ *	meanings (as in CiA402). The following definitions can be used to test
+ *	the flags.
+ */
+
+/** Flags: Target reached. */
+#define IL_SERVO_FLAG_TGT_REACHED	0x01
+/** Flags: Internal limit active. */
+#define IL_SERVO_FLAG_ILIM_ACTIVE	0x02
+/** Flags: (Homing): attained. */
+#define IL_SERVO_FLAG_HOMING_ATT	0x04
+/** Flags: (Homing): error. */
+#define IL_SERVO_FLAG_HOMING_ERR	0x08
+/** Flags: (PV): Vocity speed is zero. */
+#define IL_SERVO_FLAG_PV_VZERO		0x04
+/** Flags: (PP): SP acknowledge. */
+#define IL_SERVO_FLAG_PP_SPACK		0x04
+/** Flags: (IP): active. */
+#define IL_SERVO_FLAG_IP_ACTIVE		0x04
+/** Flags: (CST/CSV/CSP): follow command value. */
+#define IL_SERVO_FLAG_CS_FOLLOWS	0x04
+/** Flags: (CST/CSV/CSP/PV): following error. */
+#define IL_SERVO_FLAG_FERR		0x08
+/** Flags: Initial angle determination finished. */
+#define IL_SERVO_FLAG_IANGLE_DET	0x10
+
+/** State updates subcriber callback. */
+typedef void (*il_servo_state_subscriber_cb_t)(
+		void *ctx, il_servo_state_t state, int flags);
 
 /** Servo operation modes. */
 typedef enum {
@@ -211,6 +245,99 @@ IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint8_t id, int timeout);
 IL_EXPORT void il_servo_destroy(il_servo_t *servo);
 
 /**
+ * Utility function to connect to the first available servo drive.
+ *
+ * @param [out] net
+ *	Where the servo network will be stored.
+ * @param [out] servo
+ *	Where the first available servo will be stored.
+ *
+ * @return
+ *	0 if a servo is found, IL_EFAIL if none are found.
+ */
+IL_EXPORT int il_servo_lucky(il_net_t **net, il_servo_t **servo);
+
+/**
+ * Obtain current servo PDS state.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [out] state
+ *	Servo state.
+ * @param [out] flags
+ *	Servo flags.
+ */
+
+IL_EXPORT void il_servo_state_get(il_servo_t *servo, il_servo_state_t *state,
+				  int *flags);
+
+/**
+ * Subscribe to state changes (and operation flags).
+ *
+ * @note
+ *	Callbacks should be relatively fast, otherwise consecutive state changes
+ *	may be lost (as there is no buffering). Note that callbacks are
+ *	decoupled from the communications thread so that they do not affect
+ *	other operations.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo instance.
+ * @param [in] cb
+ *	State and operation flags change callback.
+ * @param [in] ctx
+ *	Callback context (optional).
+ *
+ * @return
+ *	Assigned slot (>= 0) or error code (< 0).
+ */
+IL_EXPORT int il_servo_state_subscribe(il_servo_t *servo,
+				       il_servo_state_subscriber_cb_t cb,
+				       void *ctx);
+
+/**
+ * Unsubscribe from state changes.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo instance.
+ * @param [in] slot
+ *	Assigned subscription slot.
+ */
+IL_EXPORT void il_servo_state_unsubscribe(il_servo_t *servo, int slot);
+
+/**
+ * Subscribe to emergency messages.
+ *
+ * @note
+ *	Callbacks should be relatively fast, otherwise some emergencies
+ *	may be lost. Although an internal queue is used, it is limited. Note
+ *	that callbacks are decoupled from the communications thread so that they
+ *	do not affect other operations.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [in] cb
+ *	Callback.
+ * @param [in] ctx
+ *	Callback context.
+ *
+ * @returns
+ *	Assigned slot (>= 0) or error code (< 0).
+ */
+IL_EXPORT int il_servo_emcy_subscribe(il_servo_t *servo,
+				      il_servo_emcy_subscriber_cb_t cb,
+				      void *ctx);
+
+/**
+ * Unubscribe from emergency messages.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [in] slot
+ *	Assigned subscription slot.
+ */
+IL_EXPORT void il_servo_emcy_unsubscribe(il_servo_t *servo, int slot);
+
+/**
  * Obtain servo name.
  *
  * @param [in] servo
@@ -283,33 +410,6 @@ IL_EXPORT int il_servo_store_comm(il_servo_t *servo);
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_store_app(il_servo_t *servo);
-
-/**
- * Subscribe to emergency messages.
- *
- * @param [in] servo
- *	IngeniaLink servo.
- * @param [in] cb
- *	Callback.
- * @param [in] ctx
- *	Callback context.
- *
- * @returns
- *	Assigned slot (>= 0) or error code (< 0).
- */
-IL_EXPORT int il_servo_emcy_subscribe(il_servo_t *servo,
-				      il_servo_emcy_subscriber_cb_t cb,
-				      void *ctx);
-
-/**
- * Unubscribe from emergency messages.
- *
- * @param [in] servo
- *	IngeniaLink servo.
- * @param [in] slot
- *	Assigned slot when subscribed.
- */
-IL_EXPORT void il_servo_emcy_unsubscribe(il_servo_t *servo, int slot);
 
 /**
  * Update units scaling factors.
@@ -775,17 +875,6 @@ IL_EXPORT int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
  */
 IL_EXPORT int il_servo_write(il_servo_t *servo, const il_reg_t *reg,
 			     double val, int confirm);
-
-/**
- * Obtain current servo PDS state.
- *
- * @param [in] servo
- *	IngeniaLink servo.
- *
- * @return
- *	Current PDS state.
- */
-il_servo_state_t il_servo_state_get(il_servo_t *servo);
 
 /**
  * Disable servo PDS.

@@ -113,6 +113,10 @@ static int acquisition(void *args)
 		/* clip available (user may have requested less) */
 		available = (uint16_t)MIN(available, monitor->acq.sz);
 
+		/* prevent excesive polling if no samples are still available */
+		if (!available || (acquired == available))
+			osal_clock_sleep_ms(AVAILABLE_WAIT_TIME);
+
 		/* read available samples */
 		while (!monitor->acq.stop && (acquired < available)) {
 			il_monitor_acq_t *acq;
@@ -197,7 +201,10 @@ static int update_buffers(il_monitor_t *monitor)
 	if (r < 0)
 		return r;
 
-	monitor->acq.sz = (size_t)MIN(monitor->acq.max_samples, sz);
+	if (monitor->acq.max_samples)
+		monitor->acq.sz = (size_t)MIN(monitor->acq.max_samples, sz);
+	else
+		monitor->acq.sz = (size_t)sz;
 
 	monitor->acq.acq[0].sz = monitor->acq.sz;
 	monitor->acq.acq[1].sz = monitor->acq.sz;

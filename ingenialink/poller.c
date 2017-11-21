@@ -141,7 +141,7 @@ cleanup_acq_d_0:
 	free(poller->acq[0].d);
 
 cleanup_mappings:
-	free(poller->mappings);
+	free((void *)poller->mappings);
 
 cleanup_lock:
 	osal_mutex_destroy(poller->lock);
@@ -184,7 +184,7 @@ void il_poller_destroy(il_poller_t *poller)
 	free(poller->acq[1].d);
 	free(poller->acq[0].d);
 
-	free(poller->mappings);
+	free((void *)poller->mappings);
 
 	osal_mutex_destroy(poller->lock);
 

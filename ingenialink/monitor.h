@@ -40,6 +40,9 @@
 /** Monitor trigger source, sub-index offset. */
 #define TRIGSRC_SIDX_OFFSET	16
 
+/** Availability wait time (ms) */
+#define AVAILABLE_WAIT_TIME	100
+
 /** Acquisition context. */
 typedef struct {
 	/** Acquisition (uses double buffering mechanism). */

@@ -41,6 +41,24 @@
 /** PDS default timeout (ms). */
 #define PDS_TIMEOUT		1000
 
+/** State external subscribers default array size. */
+#define STATE_SUBS_SZ_DEF	10
+
+/** State external subscribers period timeout (ms). */
+#define STATE_SUBS_TIMEOUT	100
+
+/** Flags position offset in statusword. */
+#define FLAGS_SW_POS		10
+
+/** Emergencies queue size. */
+#define EMCY_QUEUE_SZ		4
+
+/** Emergency external subscribers default array size. */
+#define EMCY_SUBS_SZ_DEF	10
+
+/** Emergency external subscribers monitor period timeout (ms). */
+#define EMCY_SUBS_TIMEOUT	100
+
 /*
  * Constants associated to types of velocity and position feedbacks.
  *
@@ -89,6 +107,68 @@ typedef struct {
 	double ppitch;
 } il_servo_cfg_t;
 
+/** Emergency subscriber. */
+typedef struct {
+	/** Callback. */
+	il_servo_emcy_subscriber_cb_t cb;
+	/** Callback context. */
+	void *ctx;
+} il_servo_emcy_subscriber_t;
+
+/** Emergencies subscribers list. */
+typedef struct {
+	/** Array of subscribers. */
+	il_servo_emcy_subscriber_t *subs;
+	/** Array size. */
+	size_t sz;
+	/** Lock. */
+	osal_mutex_t *lock;
+	/** Monitor. */
+	osal_thread_t *monitor;
+	/** Monitor stop flag. */
+	int stop;
+} il_servo_emcy_subscriber_lst_t;
+
+/** Emergencies subcription. */
+typedef struct {
+	/** Queue head. */
+	size_t head;
+	/** Queue tail. */
+	size_t tail;
+	/** Queue size. */
+	size_t sz;
+	/** Queue. */
+	uint32_t queue[EMCY_QUEUE_SZ];
+	/** Lock. */
+	osal_mutex_t *lock;
+	/** Not empty condition. */
+	osal_cond_t *not_empty;
+	/** Assigned subscription slot. */
+	int slot;
+} il_servo_emcy_t;
+
+/** State update subscriber. */
+typedef struct {
+	/** Callback. */
+	il_servo_state_subscriber_cb_t cb;
+	/** Callback context. */
+	void *ctx;
+} il_servo_state_subscriber_t;
+
+/** State update subscribers list. */
+typedef struct {
+	/** Array of subscribers. */
+	il_servo_state_subscriber_t *subs;
+	/** Array size. */
+	size_t sz;
+	/** Lock. */
+	osal_mutex_t *lock;
+	/** Monitor. */
+	osal_thread_t *monitor;
+	/** Monitor stop flag. */
+	int stop;
+} il_servo_state_subscriber_lst_t;
+
 /** Statusword updates subcription. */
 typedef struct {
 	/** Value. */
@@ -106,7 +186,7 @@ struct il_servo {
 	/** Associated IngeniaLink network. */
 	il_net_t *net;
 	/** Reference counter. */
-	refcnt_t *refcnt;
+	il_utils_refcnt_t *refcnt;
 	/** Servo id. */
 	uint8_t id;
 	/** Communications timeout (ms). */
@@ -115,10 +195,16 @@ struct il_servo {
 	il_servo_units_t units;
 	/** Configuration. */
 	il_servo_cfg_t cfg;
-	/** Statusword subscription. */
-	il_servo_sw_t sw;
 	/** Operation mode. */
 	il_servo_mode_t mode;
+	/** Statusword subscription. */
+	il_servo_sw_t sw;
+	/** External state change subscriptors. */
+	il_servo_state_subscriber_lst_t state_subs;
+	/** Emergency subscription. */
+	il_servo_emcy_t emcy;
+	/** External emergency subscriptors. */
+	il_servo_emcy_subscriber_lst_t emcy_subs;
 };
 
 #endif

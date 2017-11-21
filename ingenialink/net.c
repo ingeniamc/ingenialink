@@ -68,6 +68,8 @@ void process_statusword(il_net_t *net, il_frame_t *frame)
 
 				ctx = net->sw_subs.subs[i].ctx;
 				net->sw_subs.subs[i].cb(ctx, sw);
+
+				break;
 			}
 		}
 
@@ -108,6 +110,8 @@ void process_emcy(il_net_t *net, il_frame_t *frame)
 
 				ctx = net->emcy_subs.subs[i].ctx;
 				net->emcy_subs.subs[i].cb(ctx, code);
+
+				break;
 			}
 		}
 
@@ -370,12 +374,12 @@ unlock:
 
 void il_net__retain(il_net_t *net)
 {
-	refcnt__retain(net->refcnt);
+	il_utils__refcnt_retain(net->refcnt);
 }
 
 void il_net__release(il_net_t *net)
 {
-	refcnt__release(net->refcnt);
+	il_utils__refcnt_release(net->refcnt);
 }
 
 int il_net__read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
@@ -455,6 +459,15 @@ int il_net__sw_subscribe(il_net_t *net, uint8_t id,
 
 	osal_mutex_lock(net->sw_subs.lock);
 
+	/* check if already subscribed */
+	for (slot = 0; slot < net->sw_subs.sz; slot++) {
+		if (net->sw_subs.subs[slot].id == id) {
+			ilerr__set("Node already subscribed");
+			r = IL_EALREADY;
+			goto unlock;
+		}
+	}
+
 	/* look for the first empty slot */
 	for (slot = 0; slot < net->sw_subs.sz; slot++) {
 		if (!net->sw_subs.subs[slot].cb)
@@ -477,7 +490,6 @@ int il_net__sw_subscribe(il_net_t *net, uint8_t id,
 
 		net->sw_subs.subs = subs;
 		net->sw_subs.sz = sz;
-		slot++;
 	}
 
 	net->sw_subs.subs[slot].id = id;
@@ -515,6 +527,15 @@ int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
 
 	osal_mutex_lock(net->emcy_subs.lock);
 
+	/* check if already subscribed */
+	for (slot = 0; slot < net->emcy_subs.sz; slot++) {
+		if (net->emcy_subs.subs[slot].id == id) {
+			ilerr__set("Node already subscribed");
+			r = IL_EALREADY;
+			goto unlock;
+		}
+	}
+
 	/* look for the first empty slot */
 	for (slot = 0; slot < net->emcy_subs.sz; slot++) {
 		if (!net->emcy_subs.subs[slot].cb)
@@ -537,7 +558,6 @@ int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
 
 		net->emcy_subs.subs = subs;
 		net->emcy_subs.sz = sz;
-		slot++;
 	}
 
 	net->emcy_subs.subs[slot].id = id;
@@ -592,7 +612,7 @@ il_net_t *il_net_create(const char *port)
 	}
 
 	/* setup refcnt */
-	net->refcnt = refcnt__create(net_destroy, net);
+	net->refcnt = il_utils__refcnt_create(net_destroy, net);
 	if (!net->refcnt)
 		goto cleanup_net;
 
@@ -737,7 +757,7 @@ cleanup_lock:
 	osal_mutex_destroy(net->lock);
 
 cleanup_refcnt:
-	refcnt__destroy(net->refcnt);
+	il_utils__refcnt_destroy(net->refcnt);
 
 cleanup_net:
 	free(net);
@@ -749,7 +769,7 @@ void il_net_destroy(il_net_t *net)
 {
 	assert(net);
 
-	refcnt__release(net->refcnt);
+	il_utils__refcnt_release(net->refcnt);
 }
 
 il_net_state_t il_net_state_get(il_net_t *net)
