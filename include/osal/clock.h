@@ -78,8 +78,28 @@ int osal_clock_perf_reset(osal_clock_perf_t *perf);
  *
  * @note
  *      The counter is monotonic.
+ *      The obtained time is relative to counter creation or reset.
+ *
+ * @param [in] perf
+ *	Performance counter instance.
+ * @param [out] ts
+ *	Where current performance counter value will be stored.
+ *
+ * @return
+ *	0 on success, error code otherwise.
  */
 int osal_clock_perf_get(osal_clock_perf_t *perf, osal_timespec_t *ts);
+
+/**
+ * Obtain current (monotonic) time.
+ *
+ * @param [out] ts
+ *	Where current time will be stored.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+int osal_clock_gettime(osal_timespec_t *ts);
 
 /**
  * Sleep (ms).

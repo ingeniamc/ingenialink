@@ -116,24 +116,34 @@ static uint16_t sw_get(il_servo_t *servo)
 /**
  * Wait until the statusword changes its value.
  *
- * @note
- *	The timeout is not an absolute timeout, but an interval timeout.
- *
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in, out] sw
  *	Current statusword value, where next value will be stored.
- * @param [in] timeout
- *	Timeout (ms).
+ * @param [in, out] timeout
+ *	Timeout (ms), if positive will be updated with remaining ms.
+ *
+ * @return
+ *	0 on success, error code otherwise.
  */
-static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int timeout)
+static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
 {
 	int r = 0;
+	osal_timespec_t start, end, diff;
 
+	/* obtain start time */
+	if (*timeout > 0) {
+		if (osal_clock_gettime(&start) < 0) {
+			ilerr__set("Could not obtain system time");
+			return IL_EFAIL;
+		}
+	}
+
+	/* wait for change */
 	osal_mutex_lock(servo->sw.lock);
 
 	if (servo->sw.value == *sw) {
-		r = osal_cond_wait(servo->sw.changed, servo->sw.lock, timeout);
+		r = osal_cond_wait(servo->sw.changed, servo->sw.lock, *timeout);
 		if (r == OSAL_ETIMEDOUT) {
 			ilerr__set("Operation timed out");
 			r = IL_ETIMEDOUT;
@@ -148,6 +158,33 @@ static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int timeout)
 	*sw = servo->sw.value;
 
 out:
+	/* update timeout */
+	if ((*timeout > 0) && (r == 0)) {
+		/* obtain end time */
+		if (osal_clock_gettime(&end) < 0) {
+			ilerr__set("Could not obtain system time");
+			r = IL_EFAIL;
+			goto unlock;
+		}
+
+		/* compute difference */
+		if ((end.ns - start.ns) < 0) {
+			diff.s = end.s - start.s - 1;
+			diff.ns = end.ns - start.ns + OSAL_CLOCK_NANOSPERSEC;
+		} else {
+			diff.s = end.s - start.s;
+			diff.ns = end.ns - start.ns;
+		}
+
+		/* update timeout */
+		*timeout -= diff.s * 1000 + diff.ns / OSAL_CLOCK_NANOSPERMSEC;
+		if (*timeout <= 0) {
+			ilerr__set("Operation timed out");
+			r = IL_ETIMEDOUT;
+		}
+	}
+
+unlock:
 	osal_mutex_unlock(servo->sw.lock);
 
 	return r;
@@ -211,12 +248,14 @@ static int state_subs_monitor(void *args)
 	sw = sw_get(servo);
 
 	while (!servo->state_subs.stop) {
+		int timeout;
 		size_t i;
 		il_servo_state_t state;
 		int flags;
 
 		/* wait for change */
-		if (sw_wait_change(servo, &sw, STATE_SUBS_TIMEOUT) < 0)
+		timeout = STATE_SUBS_TIMEOUT;
+		if (sw_wait_change(servo, &sw, &timeout) < 0)
 			continue;
 
 		/* obtain state/flags */
@@ -1398,6 +1437,7 @@ int il_servo_disable(il_servo_t *servo)
 	int r;
 	uint16_t sw;
 	il_servo_state_t state;
+	int timeout = PDS_TIMEOUT;
 
 	assert(servo);
 
@@ -1422,7 +1462,7 @@ int il_servo_disable(il_servo_t *servo)
 				return r;
 
 			/* wait until statusword changes */
-			r = sw_wait_change(servo, &sw, PDS_TIMEOUT);
+			r = sw_wait_change(servo, &sw, &timeout);
 			if (r < 0)
 				return r;
 		}
@@ -1436,6 +1476,7 @@ int il_servo_switch_on(il_servo_t *servo, int timeout)
 	int r;
 	uint16_t sw, cmd;
 	il_servo_state_t state;
+	int timeout_ = timeout;
 
 	assert(servo);
 
@@ -1471,7 +1512,7 @@ int il_servo_switch_on(il_servo_t *servo, int timeout)
 				return r;
 
 			/* wait for state change */
-			r = sw_wait_change(servo, &sw, timeout);
+			r = sw_wait_change(servo, &sw, &timeout_);
 			if (r < 0)
 				return r;
 		}
@@ -1485,6 +1526,7 @@ int il_servo_enable(il_servo_t *servo, int timeout)
 	int r;
 	uint16_t sw, cmd;
 	il_servo_state_t state;
+	int timeout_ = timeout;
 
 	assert(servo);
 
@@ -1519,7 +1561,7 @@ int il_servo_enable(il_servo_t *servo, int timeout)
 				return r;
 
 			/* wait for state change */
-			r = sw_wait_change(servo, &sw, timeout);
+			r = sw_wait_change(servo, &sw, &timeout_);
 			if (r < 0)
 				return r;
 		}
@@ -1533,6 +1575,7 @@ int il_servo_fault_reset(il_servo_t *servo)
 	int r;
 	uint16_t sw;
 	il_servo_state_t state;
+	int timeout = PDS_TIMEOUT;
 
 	assert(servo);
 
@@ -1555,7 +1598,7 @@ int il_servo_fault_reset(il_servo_t *servo)
 				return r;
 
 			/* wait until statusword changes */
-			r = sw_wait_change(servo, &sw, PDS_TIMEOUT);
+			r = sw_wait_change(servo, &sw, &timeout);
 			if (r < 0)
 				return r;
 		}
@@ -1702,6 +1745,7 @@ int il_servo_homing_wait(il_servo_t *servo, int timeout)
 {
 	int r;
 	uint16_t sw, state;
+	int timeout_ = timeout;
 
 	assert(servo);
 
@@ -1711,7 +1755,7 @@ int il_servo_homing_wait(il_servo_t *servo, int timeout)
 		state = sw & IL_MC_HOMING_STA_MSK;
 
 		if (state == IL_MC_HOMING_STA_INPROG) {
-			r = sw_wait_change(servo, &sw, timeout);
+			r = sw_wait_change(servo, &sw, &timeout_);
 			if (r < 0)
 				return r;
 		}

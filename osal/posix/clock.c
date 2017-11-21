@@ -99,6 +99,30 @@ int osal_clock_perf_get(osal_clock_perf_t *perf, osal_timespec_t *ts)
 	return 0;
 }
 
+int osal_clock_gettime(osal_timespec_t *ts)
+{
+#if defined(__MACH__) && defined(__APPLE__)
+	mach_timebase_info_data_t tb;
+	uint64_t time;
+
+	mach_timebase_info(&tb);
+	time = (mach_absolute_time() * tb.numer) / tb.denom;
+
+	ts->s = time / OSAL_CLOCK_NANOSPERSEC;
+	ts->ns = time % OSAL_CLOCK_NANOSPERSEC;
+#else
+	struct timespec time;
+
+	if (clock_gettime(CLOCK_MONOTONIC, &time) < 0)
+		return OSAL_EFAIL;
+
+	ts->s = time.tv_sec;
+	ts->ns = time.tv_nsec;
+#endif
+
+	return 0;
+}
+
 void osal_clock_sleep_ms(int ms)
 {
 	usleep(ms * 1000);
