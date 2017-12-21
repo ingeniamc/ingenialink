@@ -26,6 +26,7 @@
 #include "mc.h"
 
 #include <assert.h>
+#include <ctype.h>
 #include <string.h>
 
 #define _USE_MATH_DEFINES
@@ -834,6 +835,7 @@ int il_servo_name_set(il_servo_t *servo, const char *name)
 int il_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
 {
 	int r;
+	size_t i;
 
 	assert(info);
 
@@ -856,6 +858,17 @@ int il_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
 			      sizeof(info->hw_variant) - 1, NULL);
 	if (r < 0)
 		return r;
+
+	/* FIX: hardware variant may not be present in all devices. If not
+	 * present it may contain random non-printable characters, so make
+	 * it null. */
+	for (i = 0; i < sizeof(info->hw_variant); i++) {
+		if (info->hw_variant[i] != '\0' &&
+		    !isprint((int)info->hw_variant[i])) {
+			memset(info->hw_variant, 0, sizeof(info->hw_variant));
+			break;
+		}
+	}
 
 	r = il_servo_raw_read_u32(servo, &IL_REG_ID_PROD_CODE,
 				  &info->prod_code);
