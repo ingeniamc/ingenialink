@@ -812,7 +812,7 @@ int il_servo_name_get(il_servo_t *servo, char *name, size_t sz)
 	if (r < 0)
 		return r;
 
-	name[IL_SERVO_NAME_SZ] = '\0';
+	name[IL_SERVO_NAME_SZ - 1] = '\0';
 
 	return 0;
 }
