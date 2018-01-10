@@ -192,10 +192,12 @@ endif()
 # Includes
 if(WIN32)
   file(
-    COPY
-      "${CMAKE_SOURCE_DIR}/libxml2/include/win32config.h"
-    DESTINATION
-      "${CMAKE_BINARY_DIR}/config.h"
+    COPY "${CMAKE_SOURCE_DIR}/libxml2/include/win32config.h"
+    DESTINATION "${CMAKE_BINARY_DIR}"
+  )
+
+  file(
+    RENAME "${CMAKE_BINARY_DIR}/win32config.h" "${CMAKE_BINARY_DIR}/config.h"
   )
 endif()
 
