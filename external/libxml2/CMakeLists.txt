@@ -202,7 +202,7 @@ endif()
 target_include_directories(
   xml2
   PRIVATE
-    "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}"
+    "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>"
     "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libxml2>"
     "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/libxml2/include>"
   PUBLIC
