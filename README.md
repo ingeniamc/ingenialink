@@ -32,15 +32,15 @@ requirements). You should limit its usage to configuration or evaluation tasks.
 The `libingenialink` library is built using [CMake][cmake] (version 3.0 or
 newer) on all platforms. It depends on [libsercomm][sercomm] and
 [libxml2][libxml2], both referenced in the [external][external] folder as
-submodules.
-
-Below you will find some instructions for building the dependencies. A local
-installation folder will be used (`_install`). Make sure initialize the
-submodules first:
+submodules. Therefore, if building them make sure initialize the submodules
+first:
 
 ```sh
 git submodule init --update --recursive
 ```
+
+Below you can find some building instructions for dependencies and
+`libingenialink`. A local installation folder is assumed (`_install`).
 
 [cmake]: https://cmake.org
 [sercomm]: https://github.com/ingeniamc/sercomm
@@ -49,11 +49,12 @@ git submodule init --update --recursive
 
 ### libsercomm
 
-Similarly to `libingenialink`, `libsercomm` uses CMake, so it can be built and
-installed on any system like this:
+`libsercomm` also uses CMake, so it can be built and installed on any system
+like this:
 
 ```sh
 cmake -Hexternal/sercomm -Bexternal/sercomm/_build -DCMAKE_INSTALL_PREFIX=_install
+cmake --build external/sercomm/_build
 cmake --build external/sercomm/_build --target install
 ```
 
@@ -65,11 +66,12 @@ to build it on the systems we support. It can be built and installed like this:
 
 ```sh
 cmake -Hexternal/libxml2 -Bexternal/libxml2/_build -DCMAKE_INSTALL_PREFIX=_install
+cmake --build external/libxml2/_build
 cmake --build external/libxml2/_build --target install
 ```
 
 If using Linux, we actually recommend installing the library packages from
-official repositories. For example in Debian/Ubuntu systems:
+the official repositories. For example in Debian/Ubuntu systems:
 
 ```sh
 sudo apt install libxml2-dev
@@ -79,6 +81,16 @@ On recent versions of macOS, it seems to be already installed on the system. If
 not, you can also use [brew][brew] to install it.
 
 [brew]: https://brew.sh
+
+### libingenialink
+
+`libingenialink` can be built and installed on any system like this:
+
+```sh
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
+cmake --build _build
+cmake --build _build --target install
+```
 
 ### Build options
 
