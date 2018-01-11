@@ -192,13 +192,24 @@ endif()
 # Includes
 if(WIN32)
   file(
-    COPY "${CMAKE_SOURCE_DIR}/libxml2/include/win32config.h"
+    COPY "${CMAKE_SOURCE_DIR}/config_win32.h"
     DESTINATION "${CMAKE_BINARY_DIR}"
   )
 
   file(
-    RENAME "${CMAKE_BINARY_DIR}/win32config.h" "${CMAKE_BINARY_DIR}/config.h"
+    RENAME "${CMAKE_BINARY_DIR}/config_win32.h" "${CMAKE_BINARY_DIR}/config.h"
   )
+elseif(UNIX)
+  file(
+    COPY "${CMAKE_SOURCE_DIR}/config_unix.h"
+    DESTINATION "${CMAKE_BINARY_DIR}"
+  )
+
+  file(
+    RENAME "${CMAKE_BINARY_DIR}/config_unix.h" "${CMAKE_BINARY_DIR}/config.h"
+  )
+else()
+  message(ERROR "Unsupported platform")
 endif()
 
 target_include_directories(
