@@ -89,10 +89,8 @@ typedef enum {
 
 /** IngeniaLink register. */
 typedef struct {
-	/** Index */
-	uint16_t idx;
-	/** Subindex */
-	uint8_t sidx;
+	/** Address. */
+	uint32_t address;
 	/** Data type. */
 	il_reg_dtype_t dtype;
 	/** Access type. */

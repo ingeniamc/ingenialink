@@ -45,13 +45,11 @@
  */
 void process_statusword(il_net_t *net, il_frame_t *frame)
 {
-	uint16_t idx;
-	uint8_t sidx;
+	uint32_t address;
 
-	idx = il_frame__get_idx(frame);
-	sidx = il_frame__get_sidx(frame);
+	address = il_frame__get_address(frame);
 
-	if (idx == STATUSWORD_IDX && sidx == STATUSWORD_SIDX) {
+	if (address == STATUSWORD_ADDRESS) {
 		int i;
 		uint8_t id;
 		uint16_t sw;
@@ -87,13 +85,11 @@ void process_statusword(il_net_t *net, il_frame_t *frame)
  */
 void process_emcy(il_net_t *net, il_frame_t *frame)
 {
-	uint16_t idx;
-	uint8_t sidx;
+	uint32_t address;
 
-	idx = il_frame__get_idx(frame);
-	sidx = il_frame__get_sidx(frame);
+	address = il_frame__get_address(frame);
 
-	if (idx == EMCY_IDX && sidx == EMCY_SIDX) {
+	if (address == EMCY_ADDRESS) {
 		int i;
 		uint8_t id;
 		uint32_t code;
@@ -133,13 +129,11 @@ void process_sync(il_net_t *net, il_frame_t *frame)
 
 	if (!net->sync.complete) {
 		uint8_t id = il_frame__get_id(frame);
-		uint16_t idx = il_frame__get_idx(frame);
-		uint8_t sidx = il_frame__get_sidx(frame);
+		uint32_t address = il_frame__get_address(frame);
 		size_t sz = il_frame__get_sz(frame);
 
 		if (((net->sync.id == id) || (net->sync.id == 0)) &&
-		    (net->sync.idx == idx) && (net->sync.sidx == sidx) &&
-		    (net->sync.sz >= sz)) {
+		    (net->sync.address == address) && (net->sync.sz >= sz)) {
 			void *data = il_frame__get_data(frame);
 
 			memcpy(net->sync.buf, data, sz);
@@ -300,10 +294,8 @@ static void net_destroy(void *ctx)
  *	IngeniaLink network.
  * @param [in] id
  *	Expected node id (0 to match any).
- * @param [in] idx
- *	Expected index.
- * @param [in] sidx
- *	Expected subindex.
+ * @param [in] address
+ *	Expected address.
  * @param [out] buf
  *	Data output buffer.
  * @param [in] sz
@@ -316,8 +308,8 @@ static void net_destroy(void *ctx)
  * @returns
  *	0 on success, error code otherwise.
  */
-static int net_read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		    void *buf, size_t sz, size_t *recvd, int timeout)
+static int net_read(il_net_t *net, uint8_t id, uint32_t address, void *buf,
+		    size_t sz, size_t *recvd, int timeout)
 {
 	int r;
 	il_frame_t frame;
@@ -326,15 +318,14 @@ static int net_read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 	osal_mutex_lock(net->sync.lock);
 
 	net->sync.id = id;
-	net->sync.idx = idx;
-	net->sync.sidx = sidx;
+	net->sync.address = address;
 	net->sync.buf = buf;
 	net->sync.sz = sz;
 	net->sync.recvd = recvd;
 	net->sync.complete = 0;
 
 	/* send synchronous read petition */
-	il_frame__init(&frame, id, idx, sidx, NULL, 0);
+	il_frame__init(&frame, id, address, NULL, 0);
 
 	r = ser_write(net->ser, frame.buf, frame.sz, NULL);
 	if (r < 0) {
@@ -382,8 +373,8 @@ void il_net__release(il_net_t *net)
 	il_utils__refcnt_release(net->refcnt);
 }
 
-int il_net__read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		 void *buf, size_t sz, size_t *recvd, int timeout)
+int il_net__read(il_net_t *net, uint8_t id, uint32_t address, void *buf,
+		 size_t sz, size_t *recvd, int timeout)
 {
 	int r;
 
@@ -394,15 +385,15 @@ int il_net__read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 
 	osal_mutex_lock(net->lock);
 
-	r = net_read(net, id, idx, sidx, buf, sz, recvd, timeout);
+	r = net_read(net, id, address, buf, sz, recvd, timeout);
 
 	osal_mutex_unlock(net->lock);
 
 	return r;
 }
 
-int il_net__write(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		  const void *buf, size_t sz, int confirmed, int timeout)
+int il_net__write(il_net_t *net, uint8_t id, uint32_t address, const void *buf,
+		  size_t sz, int confirmed, int timeout)
 {
 	int r;
 	il_frame_t frame;
@@ -415,7 +406,7 @@ int il_net__write(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 	osal_mutex_lock(net->lock);
 
 	/* write */
-	il_frame__init(&frame, id, idx, sidx, buf, sz);
+	il_frame__init(&frame, id, address, buf, sz);
 
 	r = ser_write(net->ser, frame.buf, frame.sz, NULL);
 	if (r < 0) {
@@ -434,7 +425,7 @@ int il_net__write(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
 			goto unlock;
 		}
 
-		r = net_read(net, id, idx, sidx, buf_, sz, NULL, timeout);
+		r = net_read(net, id, address, buf_, sz, NULL, timeout);
 		if (r == 0) {
 			if (memcmp(buf, buf_, sz) != 0) {
 				ilerr__set("Write failed (content mismatch)");
@@ -709,8 +700,8 @@ il_net_t *il_net_create(const char *port)
 	/* send the same message twice in binary (will flush) */
 	val = 1;
 	for (i = 0; i < BIN_FLUSH; i++) {
-		r = il_net__write(net, 0, UARTCFG_BIN_IDX, UARTCFG_BIN_SIDX,
-				  &val, sizeof(val), 0, 0);
+		r = il_net__write(net, 0, UARTCFG_BIN_ADDRESS, &val,
+				  sizeof(val), 0, 0);
 		if (r < 0)
 			goto close_ser;
 	}
@@ -918,14 +909,13 @@ il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 	osal_mutex_lock(net->sync.lock);
 
 	net->sync.id = 0;
-	net->sync.idx = UARTCFG_ID_IDX;
-	net->sync.sidx = UARTCFG_ID_SIDX;
+	net->sync.address = UARTCFG_ID_ADDRESS;
 	net->sync.buf = &id;
 	net->sync.sz = sizeof(id);
 	net->sync.recvd = NULL;
 	net->sync.complete = 0;
 
-	il_frame__init(&frame, 0, UARTCFG_ID_IDX, UARTCFG_ID_SIDX, NULL, 0);
+	il_frame__init(&frame, 0, UARTCFG_ID_ADDRESS, NULL, 0);
 
 	/* QUIRK: ignore first run, as on cold-boot firmware may issue
 	 * improperly formatted binary messages, leading to no servos found.

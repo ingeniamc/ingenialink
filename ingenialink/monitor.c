@@ -29,6 +29,7 @@
 #include <string.h>
 
 #include "ingenialink/err.h"
+#include "ingenialink/frame.h"
 #include "ingenialink/registers.h"
 #include "ingenialink/servo.h"
 #include "ingenialink/utils.h"
@@ -490,8 +491,8 @@ int il_monitor_ch_configure(il_monitor_t *monitor, int ch, const il_reg_t *reg)
 		bits = 64;
 	}
 
-	mapping = (reg->idx << MAPPING_IDX_OFFSET) |
-		  (reg->sidx << MAPPING_SIDX_OFFSET) | bits;
+	mapping = (IL_FRAME_IDX(reg->address) << MAPPING_IDX_OFFSET) |
+		  (IL_FRAME_SIDX(reg->address) << MAPPING_SIDX_OFFSET) | bits;
 
 	r = il_servo_raw_write_s32(monitor->servo, map_regs[ch], mapping, 1);
 	if (r < 0)
@@ -572,14 +573,11 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	if ((mode == IL_MONITOR_TRIGGER_POS) ||
 	    (mode == IL_MONITOR_TRIGGER_NEG) ||
 	    (mode == IL_MONITOR_TRIGGER_WINDOW)) {
-		uint32_t src;
-
 		assert(source);
 
-		src = (source->sidx << TRIGSRC_SIDX_OFFSET) | source->idx;
-
 		r = il_servo_raw_write_u32(monitor->servo,
-					   &IL_REG_MONITOR_TRIG_SRC, src, 1);
+					   &IL_REG_MONITOR_TRIG_SRC,
+					   source->address, 1);
 		if (r < 0)
 			return r;
 	}

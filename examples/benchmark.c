@@ -37,8 +37,7 @@
 	elapsed += (end.tv_usec - start.tv_usec) / 1000.0
 #endif
 
-static int run(int loops, const char *port, uint8_t id, uint16_t idx,
-	       uint8_t sidx)
+static int run(int loops, const char *port, uint8_t id, uint32_t address)
 {
 	int32_t r = 0;
 
@@ -64,8 +63,7 @@ static int run(int loops, const char *port, uint8_t id, uint16_t idx,
 	}
 
 	/* run benchmark */
-	reg.idx = idx;
-	reg.sidx = sidx;
+	reg.address = address;
 	reg.dtype = IL_REG_DTYPE_S32;
 	reg.access = IL_REG_ACCESS_RO;
 	reg.phy = IL_REG_PHY_NONE;
@@ -104,8 +102,7 @@ int main(int argc, char **argv)
 	int loops;
 	const char *port;
 	uint8_t id;
-	uint16_t idx;
-	uint8_t sidx;
+	uint32_t address;
 
 	if (argc < 6) {
 		fprintf(stderr,
@@ -116,8 +113,7 @@ int main(int argc, char **argv)
 	loops = (int)strtoul(argv[1], NULL, 0);
 	port = argv[2];
 	id = (uint8_t)strtoul(argv[3], NULL, 0);
-	idx = (uint16_t)strtoul(argv[4], NULL, 0);
-	sidx = (uint8_t)strtoul(argv[5], NULL, 0);
+	address = (uint32_t)strtoul(argv[4], NULL, 0);
 
-	return run(loops, port, id, idx, sidx);
+	return run(loops, port, id, address);
 }

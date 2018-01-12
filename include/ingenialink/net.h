@@ -62,10 +62,8 @@ void il_net__release(il_net_t *net);
  *	IngeniaLink network.
  * @param [in] id
  *	Node id.
- * @param [in] idx
- *	Index.
- * @param [in] sidx
- *	Subindex.
+ * @param [in] address
+ *	Address.
  * @param [in] buf
  *	Data buffer (optional).
  * @param [in] sz
@@ -78,8 +76,8 @@ void il_net__release(il_net_t *net);
  * @returns
  *	0 on success, error code otherwise.
  */
-int il_net__write(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		  const void *buf, size_t sz, int confirmed, int timeout);
+int il_net__write(il_net_t *net, uint8_t id, uint32_t address, const void *buf,
+		  size_t sz, int confirmed, int timeout);
 
 /**
  * Read.
@@ -88,10 +86,8 @@ int il_net__write(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
  *	IngeniaLink network.
  * @param [in] id
  *	Expected node id (0 to match any).
- * @param [in] idx
- *	Expected index.
- * @param [in] sidx
- *	Expected subindex.
+ * @param [in] address
+ *	Expected address.
  * @param [out] buf
  *	Data output buffer.
  * @param [in] sz
@@ -104,8 +100,8 @@ int il_net__write(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
  * @returns
  *	0 on success, error code otherwise.
  */
-int il_net__read(il_net_t *net, uint8_t id, uint16_t idx, uint8_t sidx,
-		 void *buf, size_t sz, size_t *recvd, int timeout);
+int il_net__read(il_net_t *net, uint8_t id, uint32_t address, void *buf,
+		 size_t sz, size_t *recvd, int timeout);
 
 /**
  * Subscribe to statusword updates.

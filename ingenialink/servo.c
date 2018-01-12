@@ -1166,8 +1166,8 @@ int il_servo_raw_read(il_servo_t *servo, const il_reg_t *reg, void *buf,
 	}
 
 	/* read */
-	return il_net__read(servo->net, servo->id, reg->idx, reg->sidx, buf, sz,
-			    recvd, servo->timeout);
+	return il_net__read(servo->net, servo->id, reg->address, buf, sz, recvd,
+			    servo->timeout);
 }
 
 int il_servo_raw_read_u8(il_servo_t *servo, const il_reg_t *reg, uint8_t *buf)
@@ -1326,8 +1326,8 @@ int il_servo_raw_write(il_servo_t *servo, const il_reg_t *reg, const void *data,
 	/* skip confirmation on write-only registers */
 	confirmed_ = (reg->access == IL_REG_ACCESS_WO) ? 0 : confirmed;
 
-	return il_net__write(servo->net, servo->id, reg->idx, reg->sidx, data,
-			     sz, confirmed_, servo->timeout);
+	return il_net__write(servo->net, servo->id, reg->address, data, sz,
+			     confirmed_, servo->timeout);
 }
 
 int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg, uint8_t val,
