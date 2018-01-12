@@ -69,6 +69,7 @@ configure_file("config.h.in" "${CMAKE_BINARY_DIR}/config.h")
 
 # Sources
 set(ingenialink_srcs
+  ingenialink/dict.c
   ingenialink/err.c
   ingenialink/frame.c
   ingenialink/monitor.c

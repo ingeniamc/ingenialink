@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,20 +22,53 @@
  * SOFTWARE.
  */
 
-#ifndef PUBLIC_INGENIALINK_INGENIALINK_H_
-#define PUBLIC_INGENIALINK_INGENIALINK_H_
+#ifndef DICT_H_
+#define DICT_H_
 
-#include "const.h"
-#include "dict.h"
-#include "err.h"
-#include "monitor.h"
-#include "poller.h"
-#include "version.h"
+#include "public/ingenialink/dict.h"
 
-/**
- * @file ingenialink/ingenialink.h
- * @brief IngeniaLink main header.
- * @defgroup IL IngeniaLink
- */
+#include "klib/khash.h"
+
+/** khash type for str<->register dictionary */
+KHASH_MAP_INIT_STR(str, il_reg_t)
+
+/** Dictionary root name. */
+#define ROOT_NAME	"IngeniaDictionary"
+
+/** XPath maximum size. */
+#define XPATH_MAX_SZ	256
+
+/** XPath for registers. */
+#define XPATH_REGS	"//Registers/Register"
+
+/** Data type mapping. */
+typedef struct {
+	/** Name. */
+	const char *name;
+	/** Data type. */
+	il_reg_dtype_t dtype;
+} il_dict_dtype_map_t;
+
+/** Access type mapping. */
+typedef struct {
+	/** Name. */
+	const char *name;
+	/** Access type. */
+	il_reg_access_t access;
+} il_dict_access_map_t;
+
+/** Physical units type mapping. */
+typedef struct {
+	/** Name. */
+	const char *name;
+	/** Access type. */
+	il_reg_phy_t phy;
+} il_dict_phy_map_t;
+
+/** IngeniaLink dictionary. */
+struct il_dict {
+	/** Hash table. */
+	khash_t(str) *h;
+};
 
 #endif

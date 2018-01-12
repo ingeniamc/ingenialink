@@ -22,20 +22,63 @@
  * SOFTWARE.
  */
 
-#ifndef PUBLIC_INGENIALINK_INGENIALINK_H_
-#define PUBLIC_INGENIALINK_INGENIALINK_H_
+#ifndef PUBLIC_INGENIALINK_DICT_H_
+#define PUBLIC_INGENIALINK_DICT_H_
 
-#include "const.h"
-#include "dict.h"
-#include "err.h"
-#include "monitor.h"
-#include "poller.h"
-#include "version.h"
+#include "common.h"
+
+#include "registers.h"
+
+IL_BEGIN_DECL
 
 /**
- * @file ingenialink/ingenialink.h
- * @brief IngeniaLink main header.
- * @defgroup IL IngeniaLink
+ * @file ingenialink/dict.h
+ * @brief Dictionary
+ * @defgroup IL_DICT Dictionary
+ * @ingroup IL
+ * @{
  */
 
+/** IngeniaLink dictionary. */
+typedef struct il_dict il_dict_t;
+
+/**
+ * Create a dictionary.
+ *
+ * @params [in] dict_f
+ *	Dictionary file.
+ *
+ * @return
+ *	  Dictionary instance.
+ */
+IL_EXPORT il_dict_t *il_dict_create(const char *dict_f);
+
+/**
+ * Destroy a dictionary.
+ *
+ * @params [in, out] dict
+ *	Dictionary instance.
+ */
+IL_EXPORT void il_dict_destroy(il_dict_t *dict);
+
+/**
+ * Obtain register from ID.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ * @param [in] id
+ *	Register ID.
+ * @param [out] reg
+ *	Where register with given ID will be stored.
+ *
+ * @return
+ *	0 on success, IL_EFAIL if the register does not exist.
+ */
+IL_EXPORT int il_dict_get(il_dict_t *dict, const char *id, il_reg_t **reg);
+
+/** @} */
+
+IL_END_DECL
+
 #endif
+
