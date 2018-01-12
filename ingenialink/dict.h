@@ -65,7 +65,7 @@ typedef struct {
 /** IngeniaLink dictionary. */
 struct il_dict {
 	/** Hash table. */
-	khash_t(str) *h;
+	khash_t(str) * h;
 };
 
 #endif

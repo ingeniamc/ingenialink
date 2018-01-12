@@ -31,6 +31,7 @@
 #include <libxml/xpath.h>
 
 #include "ingenialink/err.h"
+#include "ingenialink/utils.h"
 
 /*******************************************************************************
  * Private
@@ -69,7 +70,7 @@ static int get_dtype(const char *name, il_reg_dtype_t *dtype)
 
 	size_t i;
 
-	for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
+	for (i = 0; i < ARRAY_SIZE(map); i++) {
 		if (strcmp(map[i].name, name) == 0) {
 			*dtype = map[i].dtype;
 			return 0;
@@ -101,7 +102,7 @@ static int get_access(const char *name, il_reg_access_t *access)
 
 	size_t i;
 
-	for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
+	for (i = 0; i < ARRAY_SIZE(map); i++) {
 		if (strcmp(map[i].name, name) == 0) {
 			*access = map[i].access;
 			return 0;
@@ -135,10 +136,9 @@ static il_reg_phy_t get_phy(const char *name)
 
 	size_t i;
 
-	for (i = 0; i < sizeof(map) / sizeof(map[0]); i++) {
-		if (strcmp(map[i].name, name) == 0) {
+	for (i = 0; i < ARRAY_SIZE(map); i++) {
+		if (strcmp(map[i].name, name) == 0)
 			return map[i].phy;
-		}
 	}
 
 	return IL_REG_PHY_NONE;
@@ -162,7 +162,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 	xmlChar *id, *param;
 
 	/* parse: id (required), insert to hash table */
-	id = xmlGetProp(node, (const xmlChar*)"id");
+	id = xmlGetProp(node, (const xmlChar *)"id");
 	if (!id) {
 		ilerr__set("Malformed entry (id missing)");
 		return IL_EFAIL;
@@ -176,7 +176,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 	}
 
 	/* parse: address */
-	param = xmlGetProp(node, (const xmlChar*)"address");
+	param = xmlGetProp(node, (const xmlChar *)"address");
 	if (!param) {
 		ilerr__set("Malformed entry (%s, missing address)", id);
 		return IL_EFAIL;
@@ -187,7 +187,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 	xmlFree(param);
 
 	/* parse: dtype */
-	param = xmlGetProp(node, (const xmlChar*)"dtype");
+	param = xmlGetProp(node, (const xmlChar *)"dtype");
 	if (!param) {
 		ilerr__set("Malformed entry (%s, missing dtype)", id);
 		return IL_EFAIL;
@@ -199,7 +199,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		return r;
 
 	/* parse: dtype */
-	param = xmlGetProp(node, (const xmlChar*)"access");
+	param = xmlGetProp(node, (const xmlChar *)"access");
 	if (!param) {
 		ilerr__set("Malformed entry (%s, missing access)", id);
 		return IL_EFAIL;
@@ -211,7 +211,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		return r;
 
 	/* parse: phyisical units (optional) */
-	param = xmlGetProp(node, (const xmlChar*)"phy");
+	param = xmlGetProp(node, (const xmlChar *)"phy");
 	if (param) {
 		kh_val(dict->h, k).phy = get_phy((char *)param);
 		xmlFree(param);
@@ -274,7 +274,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 
 	/* verify root */
 	root = xmlDocGetRootElement(doc);
-	if (xmlStrcmp(root->name, (const xmlChar*)ROOT_NAME) != 0) {
+	if (xmlStrcmp(root->name, (const xmlChar *)ROOT_NAME) != 0) {
 		ilerr__set("Unsupported dictionary format");
 		r = IL_EFAIL;
 		goto cleanup_doc;
@@ -288,7 +288,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 		goto cleanup_doc;
 	}
 
-	obj = xmlXPathEvalExpression((const xmlChar*)XPATH_REGS, xpath);
+	obj = xmlXPathEvalExpression((const xmlChar *)XPATH_REGS, xpath);
 	if (!obj) {
 		ilerr__set("xml: %s", xmlCtxtGetLastError(ctxt)->message);
 		r = IL_EFAIL;
@@ -308,9 +308,8 @@ il_dict_t *il_dict_create(const char *dict_f)
 
 cleanup_h:
 	for (k = 0; k < kh_end(dict->h); ++k) {
-		if (kh_exist(dict->h, k)) {
+		if (kh_exist(dict->h, k))
 			xmlFree((char *)kh_key(dict->h, k));
-		}
 	}
 
 cleanup_obj:
@@ -341,9 +340,8 @@ void il_dict_destroy(il_dict_t *dict)
 	assert(dict);
 
 	for (k = 0; k < kh_end(dict->h); ++k) {
-		if (kh_exist(dict->h, k)) {
+		if (kh_exist(dict->h, k))
 			xmlFree((char *)kh_key(dict->h, k));
-		}
 	}
 
 	kh_destroy(str, dict->h);

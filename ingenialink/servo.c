@@ -861,7 +861,8 @@ int il_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
 
 	/* FIX: hardware variant may not be present in all devices. If not
 	 * present it may contain random non-printable characters, so make
-	 * it null. */
+	 * it null.
+	 */
 	for (i = 0; i < sizeof(info->hw_variant); i++) {
 		if (info->hw_variant[i] != '\0' &&
 		    !isprint((int)info->hw_variant[i])) {

@@ -30,6 +30,9 @@
 /** Obtain the minimum of a, b. */
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
+/** Obtain the size of an array. */
+#define ARRAY_SIZE(arr) (sizeof((arr)) / sizeof((arr)[0]))
+
 /** Return elements on a circular queue. */
 #define CIRC_CNT(head, tail, size) (((head) - (tail)) & ((size) - 1))
 
