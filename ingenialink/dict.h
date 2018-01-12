@@ -35,9 +35,6 @@ KHASH_MAP_INIT_STR(str, il_reg_t)
 /** Dictionary root name. */
 #define ROOT_NAME	"IngeniaDictionary"
 
-/** XPath maximum size. */
-#define XPATH_MAX_SZ	256
-
 /** XPath for registers. */
 #define XPATH_REGS	"//Registers/Register"
 
