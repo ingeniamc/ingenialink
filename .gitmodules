@@ -1,11 +1,14 @@
 [submodule "docs/template"]
 	path = docs/template
 	url = https://github.com/ingeniamc/doxygen-template.git
+	ignore = dirty
 [submodule "external/libxml2/libxml2"]
 	path = external/libxml2/libxml2
 	url = https://github.com/GNOME/libxml2.git
 	branch = v2.9.7
+	ignore = dirty
 [submodule "external/sercomm"]
 	path = external/sercomm
 	url = https://github.com/ingeniamc/sercomm.git
 	branch = 1.3.1
+	ignore = dirty
