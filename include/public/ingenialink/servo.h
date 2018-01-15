@@ -555,26 +555,6 @@ IL_EXPORT il_units_acc_t il_servo_units_acc_get(il_servo_t *servo);
 IL_EXPORT void il_servo_units_acc_set(il_servo_t *servo, il_units_acc_t units);
 
 /**
- * Read data from a register.
- *
- * @param [in] servo
- *	IngeniaLink servo.
- * @param [in] reg
- *	Register.
- * @param [out] buf
- *	Buffer where to store received data.
- * @param [in] sz
- *	Buffer size.
- * @param [out] recvd
- *	Variable where the number of bytes received will be stored (optional).
- *
- * @return
- *	0 on success, error code otherwise.
- */
-IL_EXPORT int il_servo_raw_read(il_servo_t *servo, const il_reg_t *reg,
-				void *buf, size_t sz, size_t *recvd);
-
-/**
  * Read unsigned 8-bit value from a register.
  *
  * @param [in] servo
