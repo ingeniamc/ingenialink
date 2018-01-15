@@ -78,8 +78,8 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	}
 
 	r = il_monitor_trigger_configure(monitor, IL_MONITOR_TRIGGER_POS,
-					 0, &IL_REG_VEL_ACT, TARGET_VEL * 0.9,
-					 0, 0);
+					 0, &IL_REG_VEL_ACT, NULL,
+					 TARGET_VEL * 0.9, 0, 0);
 	if (r < 0) {
 		fprintf(stderr, "Could not configure trigger: %s\n",
 			ilerr_last());

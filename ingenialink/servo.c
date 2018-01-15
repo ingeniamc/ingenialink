@@ -580,6 +580,8 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, const char *dict,
 		servo->dict = il_dict_create(dict);
 		if (!servo->dict)
 			goto cleanup_servo;
+	} else {
+		servo->dict = NULL;
 	}
 
 	/* initialize, setup refcnt */

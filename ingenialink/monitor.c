@@ -55,6 +55,46 @@ static const il_reg_t *map_regs[] = {
 };
 
 /**
+ * Obtain register (pre-defined or from dictionary).
+ *
+ * @param [in] servo
+ *	Servo..
+ * @param [in] reg_pdef
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register ID.
+ * @param [out] reg
+ *	Where register will be stored.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+static int get_reg(il_servo_t *servo, const il_reg_t *reg_pdef,
+		   const char *id, const il_reg_t **reg)
+{
+	int r;
+
+	/* obtain register (predefined or from dictionary) */
+	if (reg_pdef) {
+		*reg = reg_pdef;
+	} else {
+		il_dict_t *dict;
+
+		dict = il_servo_dict_get(servo);
+		if (!dict) {
+			ilerr__set("No dictionary loaded");
+			return IL_EFAIL;
+		}
+
+		r = il_dict_reg_get(dict, id, reg);
+		if (r < 0)
+			return r;
+	}
+
+	return 0;
+}
+
+/**
  * Check if the current acquisition has finished.
  *
  * @param [in] monitor
@@ -478,21 +518,9 @@ int il_monitor_ch_configure(il_monitor_t *monitor, int ch, const il_reg_t *reg,
 	}
 
 	/* obtain register */
-	if (reg) {
-		reg_ = reg;
-	} else {
-		il_dict_t *dict;
-
-		dict = il_servo_dict_get(monitor->servo);
-		if (!dict) {
-			ilerr__set("No dictionary loaded");
-			return IL_EFAIL;
-		}
-
-		r = il_dict_reg_get(dict, id, &reg_);
-		if (r < 0)
-			return r;
-	}
+	r = get_reg(monitor->servo, reg, id, &reg_);
+	if (r < 0)
+		return r;
 
 	/* compute mapping, configure it */
 	switch (reg_->dtype) {
@@ -568,9 +596,11 @@ int il_monitor_ch_disable_all(il_monitor_t *monitor)
 int il_monitor_trigger_configure(il_monitor_t *monitor,
 				 il_monitor_trigger_t mode,
 				 size_t delay_samples, const il_reg_t *source,
-				 double th_pos, double th_neg, uint32_t din_msk)
+				 const char *source_id, double th_pos,
+				 double th_neg, uint32_t din_msk)
 {
 	int r;
+	const il_reg_t *source_;
 
 	assert(monitor);
 
@@ -597,9 +627,13 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	    (mode == IL_MONITOR_TRIGGER_WINDOW)) {
 		assert(source);
 
+		r = get_reg(monitor->servo, source, source_id, &source_);
+		if (r < 0)
+			return r;
+
 		r = il_servo_raw_write_u32(monitor->servo,
 					   &IL_REG_MONITOR_TRIG_SRC, NULL,
-					   source->address, 1);
+					   source_->address, 1);
 		if (r < 0)
 			return r;
 	}
@@ -608,7 +642,8 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	if ((mode == IL_MONITOR_TRIGGER_POS) ||
 	    (mode == IL_MONITOR_TRIGGER_WINDOW)) {
 		int32_t th_pos_ = (int32_t)(
-			th_pos / il_servo_units_factor(monitor->servo, source));
+			th_pos / il_servo_units_factor(monitor->servo,
+						       source_));
 
 		r = il_servo_raw_write_s32(
 				monitor->servo, &IL_REG_MONITOR_TRIG_TH_POS,
@@ -621,7 +656,8 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	if ((mode == IL_MONITOR_TRIGGER_NEG) ||
 	    (mode == IL_MONITOR_TRIGGER_WINDOW)) {
 		int32_t th_neg_ = (int32_t)(
-			th_neg / il_servo_units_factor(monitor->servo, source));
+			th_neg / il_servo_units_factor(monitor->servo,
+						       source_));
 
 		r = il_servo_raw_write_s32(
 				monitor->servo, &IL_REG_MONITOR_TRIG_TH_NEG,

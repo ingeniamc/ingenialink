@@ -224,6 +224,8 @@ IL_EXPORT int il_monitor_ch_disable_all(il_monitor_t *monitor);
  * @param [in] source
  *	Trigger source (only required if mode is IL_MONITOR_TRIGGER_POS,
  *	IL_MONITOR_TRIGGER_NEG or IL_MONITOR_TRIGGER_WINDOW).
+ * @param [in] source_id
+ *	Trigger source (ID).
  * @param [in] th_pos
  *	Positive threshold (only required if mode is IL_MONITOR_TRIGGER_POS or
  *	IL_MONITOR_TRIGGER_WINDOW).
@@ -240,6 +242,7 @@ IL_EXPORT int il_monitor_trigger_configure(il_monitor_t *monitor,
 					   il_monitor_trigger_t mode,
 					   size_t delay_samples,
 					   const il_reg_t *source,
+					   const char *source_id,
 					   double th_pos, double th_neg,
 					   uint32_t din_msk);
 
