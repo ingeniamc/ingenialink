@@ -44,7 +44,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	}
 
 	/* create servo */
-	servo = il_servo_create(net, id, IL_SERVO_TIMEOUT_DEF);
+	servo = il_servo_create(net, id, NULL, IL_SERVO_TIMEOUT_DEF);
 	if (!servo) {
 		fprintf(stderr, "Could not create servo: %s\n", ilerr_last());
 		r = 1;
@@ -70,14 +70,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_monitor;
 	}
 
-	r = il_monitor_ch_disable_all(monitor);
-	if (r < 0) {
-		fprintf(stderr, "Could not disable all channels: %s\n",
-			ilerr_last());
-		goto cleanup_monitor;
-	}
-
-	r = il_monitor_ch_configure(monitor, 0, &IL_REG_VEL_ACT);
+	r = il_monitor_ch_configure(monitor, 0, &IL_REG_VEL_ACT, NULL);
 	if (r < 0) {
 		fprintf(stderr, "Could not configure channel: %s\n",
 			ilerr_last());

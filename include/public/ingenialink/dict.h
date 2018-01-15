@@ -74,7 +74,8 @@ IL_EXPORT void il_dict_destroy(il_dict_t *dict);
  * @return
  *	0 on success, IL_EFAIL if the register does not exist.
  */
-IL_EXPORT int il_dict_get(il_dict_t *dict, const char *id, il_reg_t **reg);
+IL_EXPORT int il_dict_get(il_dict_t *dict, const char *id,
+			  const il_reg_t **reg);
 
 /** @} */
 

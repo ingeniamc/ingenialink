@@ -349,7 +349,7 @@ void il_dict_destroy(il_dict_t *dict)
 	free(dict);
 }
 
-int il_dict_get(il_dict_t *dict, const char *id, il_reg_t **reg)
+int il_dict_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
 {
 	khint_t k;
 
@@ -363,7 +363,7 @@ int il_dict_get(il_dict_t *dict, const char *id, il_reg_t **reg)
 		return IL_EFAIL;
 	}
 
-	*reg = &kh_value(dict->h, k);
+	*reg = (const il_reg_t *)&kh_value(dict->h, k);
 
 	return 0;
 }

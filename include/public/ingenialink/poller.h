@@ -137,13 +137,15 @@ IL_EXPORT int il_poller_configure(il_poller_t *poller, unsigned int t_s,
  * @param [in] ch
  *	Channel.
  * @param [in] reg
- *	Register to be polled on this channel.
+ *	Register (pre-defined) to be polled on this channel.
+ * @param [in] id
+ *	Register ID to be polled on this channel.
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_poller_ch_configure(il_poller_t *poller, unsigned int ch,
-				     const il_reg_t *reg);
+				     const il_reg_t *reg, const char *id);
 
 /**
  * Disable a poller channel.

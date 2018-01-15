@@ -26,7 +26,7 @@
 #define PUBLIC_INGENIALINK_SERVO_H_
 
 #include "net.h"
-#include "registers.h"
+#include "dict.h"
 
 IL_BEGIN_DECL
 
@@ -228,13 +228,16 @@ typedef enum {
  *	IngeniaLink network.
  * @param [in] id
  *	Servo id.
+ * @param [in] dict
+ *	Dictionary (optional).
  * @param [in] timeout
  *	Communications timeout (ms).
  *
  * @return
  *	Servo instance (NULL if it could not be created).
  */
-IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint8_t id, int timeout);
+IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint8_t id,
+				      const char *dict, int timeout);
 
 /**
  * Destroy an IngeniaLink servo instance.
@@ -251,11 +254,14 @@ IL_EXPORT void il_servo_destroy(il_servo_t *servo);
  *	Where the servo network will be stored.
  * @param [out] servo
  *	Where the first available servo will be stored.
+ * @param [in] dict
+ *	Dictionary (optional).
  *
  * @return
  *	0 if a servo is found, IL_EFAIL if none are found.
  */
-IL_EXPORT int il_servo_lucky(il_net_t **net, il_servo_t **servo);
+IL_EXPORT int il_servo_lucky(il_net_t **net, il_servo_t **servo,
+			     const char *dict);
 
 /**
  * Obtain current servo PDS state.
@@ -336,6 +342,30 @@ IL_EXPORT int il_servo_emcy_subscribe(il_servo_t *servo,
  *	Assigned subscription slot.
  */
 IL_EXPORT void il_servo_emcy_unsubscribe(il_servo_t *servo, int slot);
+
+/**
+ * Obtain servo dictionary.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo instance.
+ *
+ * @return
+ *	Servo dictionary (NULL if none is loaded).
+ */
+IL_EXPORT il_dict_t *il_servo_dict_get(il_servo_t *servo);
+
+/**
+ * Load a dictionary to the servo.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo instance.
+ * @param [in] dict
+ *	Dictionary.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_dict_load(il_servo_t *servo, const char *dict);
 
 /**
  * Obtain servo name.
@@ -550,7 +580,9 @@ IL_EXPORT int il_servo_raw_read(il_servo_t *servo, const il_reg_t *reg,
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in] reg
- *	Register.
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register id.
  * @param [out] buf
  *	Buffer where to store received data.
  *
@@ -558,7 +590,7 @@ IL_EXPORT int il_servo_raw_read(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_read_u8(il_servo_t *servo, const il_reg_t *reg,
-				   uint8_t *buf);
+				   const char *id, uint8_t *buf);
 
 /**
  * Read signed 8-bit value from a register.
@@ -567,6 +599,8 @@ IL_EXPORT int il_servo_raw_read_u8(il_servo_t *servo, const il_reg_t *reg,
  *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
+ * @param [in] id
+ *	Register id.
  * @param [out] buf
  *	Buffer where to store received data.
  *
@@ -574,7 +608,7 @@ IL_EXPORT int il_servo_raw_read_u8(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_read_s8(il_servo_t *servo, const il_reg_t *reg,
-				   int8_t *buf);
+				   const char *id, int8_t *buf);
 
 /**
  * Read unsigned 16-bit value from a register.
@@ -583,6 +617,8 @@ IL_EXPORT int il_servo_raw_read_s8(il_servo_t *servo, const il_reg_t *reg,
  *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
+ * @param [in] id
+ *	Register id.
  * @param [out] buf
  *	Buffer where to store received data.
  *
@@ -590,7 +626,7 @@ IL_EXPORT int il_servo_raw_read_s8(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
-				    uint16_t *buf);
+				    const char *id, uint16_t *buf);
 
 /**
  * Read signed 16-bit value from a register.
@@ -599,6 +635,8 @@ IL_EXPORT int il_servo_raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
  *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
+ * @param [in] id
+ *	Register id.
  * @param [out] buf
  *	Buffer where to store received data.
  *
@@ -606,7 +644,7 @@ IL_EXPORT int il_servo_raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
-				    int16_t *buf);
+				    const char *id, int16_t *buf);
 
 /**
  * Read unsigned 32-bit value from a register.
@@ -615,6 +653,8 @@ IL_EXPORT int il_servo_raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
  *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
+ * @param [in] id
+ *	Register id.
  * @param [out] buf
  *	Buffer where to store received data.
  *
@@ -622,7 +662,7 @@ IL_EXPORT int il_servo_raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
-				    uint32_t *buf);
+				    const char *id, uint32_t *buf);
 
 /**
  * Read signed 32-bit value from a register.
@@ -631,6 +671,8 @@ IL_EXPORT int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
  *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
+ * @param [in] id
+ *	Register id.
  * @param [out] buf
  *	Buffer where to store received data.
  *
@@ -638,7 +680,7 @@ IL_EXPORT int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
-				    int32_t *buf);
+				    const char *id, int32_t *buf);
 
 /**
  * Read unsigned 64-bit value from a register.
@@ -647,6 +689,8 @@ IL_EXPORT int il_servo_raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
  *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
+ * @param [in] id
+ *	Register id.
  * @param [out] buf
  *	Buffer where to store received data.
  *
@@ -654,7 +698,7 @@ IL_EXPORT int il_servo_raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
-				    uint64_t *buf);
+				    const char *id, uint64_t *buf);
 
 /**
  * Read signed 64-bit value from a register.
@@ -663,6 +707,8 @@ IL_EXPORT int il_servo_raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
  *	IngeniaLink servo.
  * @param [in] reg
  *	Register.
+ * @param [in] id
+ *	Register id.
  * @param [out] buf
  *	Buffer where to store received data.
  *
@@ -670,7 +716,7 @@ IL_EXPORT int il_servo_raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
-				    int64_t *buf);
+				    const char *id, int64_t *buf);
 
 /**
  * Read a register.
@@ -681,7 +727,9 @@ IL_EXPORT int il_servo_raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in] reg
- *	Register.
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register id.
  * @param [out] buf
  *	Buffer where adjusted register content will be stored.
  *
@@ -689,27 +737,7 @@ IL_EXPORT int il_servo_raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_read(il_servo_t *servo, const il_reg_t *reg,
-			    double *buf);
-
-/**
- * Write data to a register.
- *
- * @param [in] servo
- *	IngeniaLink servo.
- * @param [in] reg
- *	Register.
- * @param [in] buf
- *	Buffer where to pick data from.
- * @param [in] sz
- *	Buffer size.
- * @param [in] confirm
- *	Confirm the write.
- *
- * @return
- *	0 on success, error code otherwise.
- */
-IL_EXPORT int il_servo_raw_write(il_servo_t *servo, const il_reg_t *reg,
-				 const void *buf, size_t sz, int confirm);
+			    const char *id, double *buf);
 
 /**
  * Write unsigned 8-bit integer to a register.
@@ -717,7 +745,9 @@ IL_EXPORT int il_servo_raw_write(il_servo_t *servo, const il_reg_t *reg,
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in] reg
- *	Register.
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register ID.
  * @param [in] val
  *	Value.
  * @param [in] confirm
@@ -727,7 +757,7 @@ IL_EXPORT int il_servo_raw_write(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
-				    uint8_t val, int confirm);
+				    const char *id, uint8_t val, int confirm);
 
 /**
  * Write signed 8-bit integer to a register.
@@ -735,7 +765,9 @@ IL_EXPORT int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in] reg
- *	Register.
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register ID.
  * @param [in] val
  *	Value.
  * @param [in] confirm
@@ -745,7 +777,7 @@ IL_EXPORT int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
-				    int8_t val, int confirm);
+				    const char *id, int8_t val, int confirm);
 
 /**
  * Write unsigned 16-bit integer to a register.
@@ -753,7 +785,9 @@ IL_EXPORT int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in] reg
- *	Register.
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register ID.
  * @param [in] val
  *	Value.
  * @param [in] confirm
@@ -763,7 +797,7 @@ IL_EXPORT int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
-				     uint16_t val, int confirm);
+				     const char *id, uint16_t val, int confirm);
 
 /**
  * Write signed 16-bit integer to a register.
@@ -771,7 +805,9 @@ IL_EXPORT int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in] reg
- *	Register.
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register ID.
  * @param [in] val
  *	Value.
  * @param [in] confirm
@@ -781,7 +817,7 @@ IL_EXPORT int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
-				     int16_t val, int confirm);
+				     const char *id, int16_t val, int confirm);
 
 /**
  * Write unsigned 32-bit integer to a register.
@@ -789,7 +825,9 @@ IL_EXPORT int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in] reg
- *	Register.
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register ID.
  * @param [in] val
  *	Value.
  * @param [in] confirm
@@ -799,7 +837,7 @@ IL_EXPORT int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
-				     uint32_t val, int confirm);
+				     const char *id, uint32_t val, int confirm);
 
 /**
  * Write signed 32-bit integer to a register.
@@ -807,7 +845,9 @@ IL_EXPORT int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in] reg
- *	Register.
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register ID.
  * @param [in] val
  *	Value.
  * @param [in] confirm
@@ -817,7 +857,7 @@ IL_EXPORT int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
-				     int32_t val, int confirm);
+				     const char *id, int32_t val, int confirm);
 
 /**
  * Write unsigned 64-bit integer to a register.
@@ -825,7 +865,9 @@ IL_EXPORT int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in] reg
- *	Register.
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register ID.
  * @param [in] val
  *	Value.
  * @param [in] confirm
@@ -835,7 +877,7 @@ IL_EXPORT int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
-				     uint64_t val, int confirm);
+				     const char *id, uint64_t val, int confirm);
 
 /**
  * Write signed 64-bit integer to a register.
@@ -843,7 +885,9 @@ IL_EXPORT int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in] reg
- *	Register.
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register ID.
  * @param [in] val
  *	Value.
  * @param [in] confirm
@@ -853,7 +897,7 @@ IL_EXPORT int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
-				     int64_t val, int confirm);
+				     const char *id, int64_t val, int confirm);
 
 /**
  * Write to a register.
@@ -864,7 +908,9 @@ IL_EXPORT int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
  * @param [in] servo
  *	IngeniaLink servo.
  * @param [in] reg
- *	Register.
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register ID.
  * @param [in] val
  *	Value.
  * @param [in] confirm
@@ -874,7 +920,7 @@ IL_EXPORT int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_write(il_servo_t *servo, const il_reg_t *reg,
-			     double val, int confirm);
+			     const char *id, double val, int confirm);
 
 /**
  * Disable servo PDS.

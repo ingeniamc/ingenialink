@@ -27,7 +27,7 @@ int main(void)
 			il_servo_t *servo;
 			il_servo_info_t info;
 
-			servo = il_servo_create(net, servo_id->id,
+			servo = il_servo_create(net, servo_id->id, NULL,
 						IL_SERVO_TIMEOUT_DEF);
 			if (!servo)
 				continue;

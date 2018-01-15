@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <ingenialink/ingenialink.h>
 
-static void print_reg(il_reg_t *reg)
+static void print_reg(const il_reg_t *reg)
 {
 	const char *name;
 
@@ -97,7 +97,7 @@ int main(int argc, const char **argv)
 {
 	int r = 0;
 	il_dict_t *dict;
-	il_reg_t *reg;
+	const il_reg_t *reg;
 
 	if (argc < 3) {
 		fprintf(stderr, "Usage: ./dict DICTIONARY.xdd REGISTER\n");

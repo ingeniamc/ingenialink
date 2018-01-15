@@ -92,8 +92,6 @@ int il_net__write(il_net_t *net, uint8_t id, uint32_t address, const void *buf,
  *	Data output buffer.
  * @param [in] sz
  *	Data buffer size.
- * @param [out] recvd
- *	Actual number of received data bytes (optional).
  * @param [in] timeout
  *	Timeout (ms).
  *
@@ -101,7 +99,7 @@ int il_net__write(il_net_t *net, uint8_t id, uint32_t address, const void *buf,
  *	0 on success, error code otherwise.
  */
 int il_net__read(il_net_t *net, uint8_t id, uint32_t address, void *buf,
-		 size_t sz, size_t *recvd, int timeout);
+		 size_t sz, int timeout);
 
 /**
  * Subscribe to statusword updates.

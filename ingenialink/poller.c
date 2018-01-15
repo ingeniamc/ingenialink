@@ -69,6 +69,7 @@ int poller_td(void *args)
 
 				(void)il_servo_read(poller->servo,
 						    poller->mappings[ch],
+						    NULL,
 						    &acq->d[ch][acq->cnt]);
 			}
 
@@ -301,7 +302,46 @@ int il_poller_configure(il_poller_t *poller, unsigned int t_s, size_t sz)
 }
 
 int il_poller_ch_configure(il_poller_t *poller, unsigned int ch,
-			   const il_reg_t *reg)
+			   const il_reg_t *reg, const char *id)
+{
+	const il_reg_t *reg_;
+
+	assert(poller);
+
+	if (poller->running) {
+		ilerr__set("Poller is running");
+		return IL_ESTATE;
+	}
+
+	if (ch >= poller->n_ch) {
+		ilerr__set("Channel out of range");
+		return IL_EINVAL;
+	}
+
+	/* obtain register */
+	if (reg) {
+		reg_ = reg;
+	} else {
+		int r;
+		il_dict_t *dict;
+
+		dict = il_servo_dict_get(poller->servo);
+		if (!dict) {
+			ilerr__set("No dictionary loaded");
+			return IL_EFAIL;
+		}
+
+		r = il_dict_get(dict, id, &reg_);
+		if (r < 0)
+			return r;
+	}
+
+	poller->mappings[ch] = reg_;
+
+	return 0;
+}
+
+int il_poller_ch_disable(il_poller_t *poller, unsigned int ch)
 {
 	assert(poller);
 
@@ -315,14 +355,9 @@ int il_poller_ch_configure(il_poller_t *poller, unsigned int ch,
 		return IL_EINVAL;
 	}
 
-	poller->mappings[ch] = reg;
+	poller->mappings[ch] = NULL;
 
 	return 0;
-}
-
-int il_poller_ch_disable(il_poller_t *poller, unsigned int ch)
-{
-	return il_poller_ch_configure(poller, ch, NULL);
 }
 
 int il_poller_ch_disable_all(il_poller_t *poller)
@@ -332,7 +367,7 @@ int il_poller_ch_disable_all(il_poller_t *poller)
 	for (ch = 0; ch < poller->n_ch; ch++) {
 		int r;
 
-		r = il_poller_ch_configure(poller, ch, NULL);
+		r = il_poller_ch_disable(poller, ch);
 		if (r < 0)
 			return r;
 	}

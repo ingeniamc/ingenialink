@@ -83,8 +83,6 @@ typedef struct {
 	void *buf;
 	/** Buffer size. */
 	size_t sz;
-	/** Received bytes. */
-	size_t *recvd;
 	/** Completed flag. */
 	int complete;
 	/** Lock. */

@@ -138,9 +138,6 @@ void process_sync(il_net_t *net, il_frame_t *frame)
 
 			memcpy(net->sync.buf, data, sz);
 
-			if (net->sync.recvd)
-				*net->sync.recvd = sz;
-
 			net->sync.complete = 1;
 			osal_cond_signal(net->sync.cond);
 		}
@@ -300,8 +297,6 @@ static void net_destroy(void *ctx)
  *	Data output buffer.
  * @param [in] sz
  *	Data buffer size.
- * @param [out] recvd
- *	Actual number of received data bytes (optional).
  * @param [in] timeout
  *	Timeout (ms).
  *
@@ -309,7 +304,7 @@ static void net_destroy(void *ctx)
  *	0 on success, error code otherwise.
  */
 static int net_read(il_net_t *net, uint8_t id, uint32_t address, void *buf,
-		    size_t sz, size_t *recvd, int timeout)
+		    size_t sz, int timeout)
 {
 	int r;
 	il_frame_t frame;
@@ -321,7 +316,6 @@ static int net_read(il_net_t *net, uint8_t id, uint32_t address, void *buf,
 	net->sync.address = address;
 	net->sync.buf = buf;
 	net->sync.sz = sz;
-	net->sync.recvd = recvd;
 	net->sync.complete = 0;
 
 	/* send synchronous read petition */
@@ -374,7 +368,7 @@ void il_net__release(il_net_t *net)
 }
 
 int il_net__read(il_net_t *net, uint8_t id, uint32_t address, void *buf,
-		 size_t sz, size_t *recvd, int timeout)
+		 size_t sz, int timeout)
 {
 	int r;
 
@@ -385,7 +379,7 @@ int il_net__read(il_net_t *net, uint8_t id, uint32_t address, void *buf,
 
 	osal_mutex_lock(net->lock);
 
-	r = net_read(net, id, address, buf, sz, recvd, timeout);
+	r = net_read(net, id, address, buf, sz, timeout);
 
 	osal_mutex_unlock(net->lock);
 
@@ -425,7 +419,7 @@ int il_net__write(il_net_t *net, uint8_t id, uint32_t address, const void *buf,
 			goto unlock;
 		}
 
-		r = net_read(net, id, address, buf_, sz, NULL, timeout);
+		r = net_read(net, id, address, buf_, sz, timeout);
 		if (r == 0) {
 			if (memcmp(buf, buf_, sz) != 0) {
 				ilerr__set("Write failed (content mismatch)");
@@ -912,7 +906,6 @@ il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 	net->sync.address = UARTCFG_ID_ADDRESS;
 	net->sync.buf = &id;
 	net->sync.sz = sizeof(id);
-	net->sync.recvd = NULL;
 	net->sync.complete = 0;
 
 	il_frame__init(&frame, 0, UARTCFG_ID_ADDRESS, NULL, 0);

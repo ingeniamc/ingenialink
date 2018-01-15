@@ -27,6 +27,7 @@
 
 #include "ingenialink/servo.h"
 
+#include "public/ingenialink/dict.h"
 #include "ingenialink/net.h"
 #include "ingenialink/utils.h"
 
@@ -191,6 +192,8 @@ struct il_servo {
 	uint8_t id;
 	/** Communications timeout (ms). */
 	int timeout;
+	/** Dictionary. */
+	il_dict_t *dict;
 	/** Units. */
 	il_servo_units_t units;
 	/** Configuration. */

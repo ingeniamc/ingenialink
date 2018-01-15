@@ -177,14 +177,16 @@ IL_EXPORT int il_monitor_configure(il_monitor_t *monitor, unsigned int t_s,
  *	Monitor instance.
  * @param [in] ch
  *	Channel to be configured (0-3).
- * @param [reg]
- *	Register to be mapped on the channel.
+ * @param [in] reg
+ *	Register (pre-defined) to be mapped on the channel.
+ * @param [in] id
+ *	Register ID to be mapped on the channel.
  *
  * @return
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_monitor_ch_configure(il_monitor_t *monitor, int ch,
-				      const il_reg_t *reg);
+				      const il_reg_t *reg, const char *id);
 
 /**
  * Disable one channel.
