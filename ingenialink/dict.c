@@ -349,7 +349,7 @@ void il_dict_destroy(il_dict_t *dict)
 	free(dict);
 }
 
-int il_dict_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
+int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
 {
 	khint_t k;
 
@@ -366,4 +366,46 @@ int il_dict_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
 	*reg = (const il_reg_t *)&kh_value(dict->h, k);
 
 	return 0;
+}
+
+size_t il_dict_nregs_get(il_dict_t *dict)
+{
+	assert(dict);
+
+	return (size_t)kh_size(dict->h);
+}
+
+const char **il_dict_ids_get(il_dict_t *dict)
+{
+	const char **ids;
+	size_t i;
+	khint_t k;
+
+	assert(dict);
+
+	/* allocate array for register keys */
+	ids = malloc(sizeof(const char *) * (il_dict_nregs_get(dict) + 1));
+	if (!ids) {
+		ilerr__set("Registers array allocation failed");
+		return NULL;
+	}
+
+	/* assign keys, null-terminate */
+	for (i = 0, k = 0; k < kh_end(dict->h); ++k) {
+		if (kh_exist(dict->h, k)) {
+			ids[i] = (const char *)kh_key(dict->h, k);
+			i++;
+		}
+	}
+
+	ids[i] = NULL;
+
+	return ids;
+}
+
+void il_dict_ids_destroy(const char **ids)
+{
+	assert(ids);
+
+	free((char **)ids);
 }

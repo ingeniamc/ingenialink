@@ -489,7 +489,7 @@ int il_monitor_ch_configure(il_monitor_t *monitor, int ch, const il_reg_t *reg,
 			return IL_EFAIL;
 		}
 
-		r = il_dict_get(dict, id, &reg_);
+		r = il_dict_reg_get(dict, id, &reg_);
 		if (r < 0)
 			return r;
 	}

@@ -331,7 +331,7 @@ int il_poller_ch_configure(il_poller_t *poller, unsigned int ch,
 			return IL_EFAIL;
 		}
 
-		r = il_dict_get(dict, id, &reg_);
+		r = il_dict_reg_get(dict, id, &reg_);
 		if (r < 0)
 			return r;
 	}

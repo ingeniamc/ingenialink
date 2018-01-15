@@ -91,16 +91,20 @@ static void print_reg(const il_reg_t *reg)
 	}
 
 	printf("Physical units: %s\n", name);
+
+	printf("==============================\n");
 }
 
 int main(int argc, const char **argv)
 {
 	int r = 0;
 	il_dict_t *dict;
+	const char **ids;
+	size_t i;
 	const il_reg_t *reg;
 
-	if (argc < 3) {
-		fprintf(stderr, "Usage: ./dict DICTIONARY.xdd REGISTER\n");
+	if (argc < 2) {
+		fprintf(stderr, "Usage: ./dict DICTIONARY.xml\n");
 		return -1;
 	}
 
@@ -111,14 +115,18 @@ int main(int argc, const char **argv)
 		return -1;
 	}
 
-	r = il_dict_get(dict, argv[2], &reg);
-	if (r < 0) {
-		fprintf(stderr, "Could not find register: %s\n", ilerr_last());
-		r = -1;
+	ids = il_dict_ids_get(dict);
+	if (!ids) {
+		fprintf(stderr, "Could not obtain IDs: %s\n", ilerr_last());
 		goto cleanup;
 	}
 
-	print_reg(reg);
+	for (i = 0; ids[i]; i++) {
+		(void)il_dict_reg_get(dict, ids[i], &reg);
+		print_reg(reg);
+	}
+
+	il_dict_ids_destroy(ids);
 
 cleanup:
 	il_dict_destroy(dict);

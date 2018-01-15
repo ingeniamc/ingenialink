@@ -74,8 +74,44 @@ IL_EXPORT void il_dict_destroy(il_dict_t *dict);
  * @return
  *	0 on success, IL_EFAIL if the register does not exist.
  */
-IL_EXPORT int il_dict_get(il_dict_t *dict, const char *id,
-			  const il_reg_t **reg);
+IL_EXPORT int il_dict_reg_get(il_dict_t *dict, const char *id,
+			      const il_reg_t **reg);
+
+/**
+ * Obtain number of registers in the dictionary.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ *
+ * @return
+ *	Number of registers in the dictionary.
+ */
+IL_EXPORT size_t il_dict_nregs_get(il_dict_t *dict);
+
+/**
+ * Obtain the list of dictionary IDs.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ *
+ * @return
+ *	Dictionary IDs (NULL if none or error).
+ *
+ * @see
+ *	il_dict_ids_destroy
+ */
+IL_EXPORT const char **il_dict_ids_get(il_dict_t *dict);
+
+/**
+ * Destroy the list of obtained dictionary IDs.
+ *
+ * @param [in] ids
+ *	IDs list.
+ *
+ * @see
+ *	il_dict_ids_get
+ */
+IL_EXPORT void il_dict_ids_destroy(const char **regs);
 
 /** @} */
 
