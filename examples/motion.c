@@ -43,6 +43,14 @@ static int run(const char *log_fname)
 	il_poller_acq_t *acq;
 	FILE *log_f;
 
+	const il_reg_t IL_REG_POS_ACT = {
+		0x006064, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_POS
+	};
+
+	const il_reg_t IL_REG_VEL_ACT = {
+		0x00606C, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_VEL
+	};
+
 	r = il_servo_lucky(&net, &servo, NULL);
 	if (r < 0) {
 		fprintf(stderr, "%s\n", ilerr_last());

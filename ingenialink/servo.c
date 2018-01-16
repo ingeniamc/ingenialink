@@ -35,6 +35,7 @@
 #include "public/ingenialink/const.h"
 #include "public/ingenialink/dict.h"
 #include "ingenialink/err.h"
+#include "ingenialink/registers.h"
 #include "ingenialink/utils.h"
 
 /*******************************************************************************

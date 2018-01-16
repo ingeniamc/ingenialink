@@ -35,6 +35,10 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	size_t i;
 	FILE *log_f;
 
+	const il_reg_t IL_REG_VEL_ACT = {
+		0x00606C, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_VEL
+	};
+
 	/* create network */
 	net = il_net_create(port);
 	if (!net) {
