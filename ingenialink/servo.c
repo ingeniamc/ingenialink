@@ -57,7 +57,7 @@
  *	0 on success, error code otherwise.
  */
 static int get_reg(il_dict_t *dict, const il_reg_t *reg_pdef,
-		     const char *id, const il_reg_t **reg)
+		   const char *id, const il_reg_t **reg)
 {
 	int r;
 
@@ -1483,7 +1483,7 @@ int il_servo_read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 		return r;
 
 	/* store converted value to buffer */
-	*buf = buf_ * il_servo_units_factor(servo, reg);
+	*buf = buf_ * il_servo_units_factor(servo, reg_);
 
 	return 0;
 }
@@ -1584,7 +1584,7 @@ int il_servo_write(il_servo_t *servo, const il_reg_t *reg, const char *id,
 		return r;
 
 	/* convert to native units */
-	val_ = (int64_t)(val / il_servo_units_factor(servo, reg));
+	val_ = (int64_t)(val / il_servo_units_factor(servo, reg_));
 
 	/* write using the appropriate native type */
 	switch (reg_->dtype) {
