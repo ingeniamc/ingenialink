@@ -43,7 +43,7 @@ static int run(const char *log_fname)
 	il_poller_acq_t *acq;
 	FILE *log_f;
 
-	r = il_servo_lucky(&net, &servo);
+	r = il_servo_lucky(&net, &servo, NULL);
 	if (r < 0) {
 		fprintf(stderr, "%s\n", ilerr_last());
 		return r;
@@ -74,14 +74,14 @@ static int run(const char *log_fname)
 		goto cleanup_poller;
 	}
 
-	r = il_poller_ch_configure(poller, 0, &IL_REG_POS_ACT);
+	r = il_poller_ch_configure(poller, 0, &IL_REG_POS_ACT, NULL);
 	if (r < 0) {
 		fprintf(stderr, "Could not configure poller channel: %s\n",
 			ilerr_last());
 		goto cleanup_poller;
 	}
 
-	r = il_poller_ch_configure(poller, 1, &IL_REG_VEL_ACT);
+	r = il_poller_ch_configure(poller, 1, &IL_REG_VEL_ACT, NULL);
 	if (r < 0) {
 		fprintf(stderr, "Could not configure poller channel: %s\n",
 			ilerr_last());

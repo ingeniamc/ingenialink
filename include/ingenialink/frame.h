@@ -34,6 +34,15 @@
 /** IngeniaLink frame maximum data size. */
 #define IL_FRAME_MAX_DATA_SZ	8U
 
+/** Obtain index from frame address. */
+#define IL_FRAME_IDX(addr)		((addr) & 0xFFFF)
+
+/** Obtain subindex from frame address. */
+#define IL_FRAME_SIDX(addr)		(((addr) >> 16) & 0xFF)
+
+/** Obtain frame address from index and subindex. */
+#define IL_FRAME_ADDR(idx, sidx)	(((sidx) << 16) | (idx))
+
 /** IngeniaLink frame state. */
 typedef enum {
 	/** Waiting for FUNCTION byte */
@@ -81,7 +90,7 @@ typedef struct {
  * @returns
  *      IL_EINVAL if the data size if too large.
  */
-int il_frame__init(il_frame_t *frame, uint8_t id, uint16_t idx, uint8_t sidx,
+int il_frame__init(il_frame_t *frame, uint8_t id, uint32_t address,
 		   const void *data, size_t sz);
 
 /**
@@ -125,26 +134,15 @@ int il_frame__push(il_frame_t *frame, uint8_t c);
 uint8_t il_frame__get_id(const il_frame_t *frame);
 
 /**
- * Obtain frame node index.
+ * Obtain frame address..
  *
  * @param [in] frame
  *	IngeniaLink frame.
  *
  * @returns
- *	Frame index.
+ *	Frame address.
  */
-uint16_t il_frame__get_idx(const il_frame_t *frame);
-
-/**
- * Obtain frame node subindex.
- *
- * @param [in] frame
- *	IngeniaLink frame.
- *
- * @returns
- *	Frame subindex.
- */
-uint8_t il_frame__get_sidx(const il_frame_t *frame);
+uint32_t il_frame__get_address(const il_frame_t *frame);
 
 /**
  * Obtain frame node data size.

@@ -50,31 +50,19 @@
 #define SCAN_TIMEOUT		100
 
 /** UART node id (index) */
-#define UARTCFG_ID_IDX		0x2000
-
-/** UART node id (subindex) */
-#define UARTCFG_ID_SIDX		0x01
+#define UARTCFG_ID_ADDRESS	0x012000
 
 /** UART configuration, binary mode (index). */
-#define UARTCFG_BIN_IDX		0x2000
-
-/** UART configuration, binary mode (subindex). */
-#define UARTCFG_BIN_SIDX	0x08
+#define UARTCFG_BIN_ADDRESS	0x082000
 
 /** Number of binary messages to flush. */
 #define BIN_FLUSH		2
 
-/** Statusword (index). */
-#define STATUSWORD_IDX		0x6041
+/** Statusword address. */
+#define STATUSWORD_ADDRESS	0x006041
 
-/** Statusword (subindex). */
-#define STATUSWORD_SIDX		0x00
-
-/** Emergency (index). */
-#define EMCY_IDX		0x1003
-
-/** Emergency (subindex). */
-#define EMCY_SIDX		0x01
+/** Emergency address. */
+#define EMCY_ADDRESS		0x011003
 
 /** Initialization wait time (ms). */
 #define INIT_WAIT_TIME		500
@@ -89,16 +77,12 @@
 typedef struct {
 	/** Node ID. */
 	uint8_t id;
-	/** Index. */
-	uint16_t idx;
-	/** Subindex. */
-	uint8_t sidx;
+	/** Address. */
+	uint32_t address;
 	/** Buffer. */
 	void *buf;
 	/** Buffer size. */
 	size_t sz;
-	/** Received bytes. */
-	size_t *recvd;
 	/** Completed flag. */
 	int complete;
 	/** Lock. */

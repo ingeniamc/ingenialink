@@ -103,10 +103,11 @@ static int state_update(il_frame_t *frame)
  * Internal
  ******************************************************************************/
 
-int il_frame__init(il_frame_t *frame, uint8_t id, uint16_t idx, uint8_t sidx,
+int il_frame__init(il_frame_t *frame, uint8_t id, uint32_t address,
 		   const void *data, size_t sz)
 {
-	uint16_t idx_;
+	uint16_t idx;
+	uint8_t sidx;
 
 	/* validate size */
 	if (sz > IL_FRAME_MAX_DATA_SZ) {
@@ -128,8 +129,10 @@ int il_frame__init(il_frame_t *frame, uint8_t id, uint16_t idx, uint8_t sidx,
 	frame->buf[FR_NODE_FLD] = id;
 
 	/* index, subindex, address (0) */
-	idx_ = __swap_index(idx);
-	memcpy(&frame->buf[FR_INDEX_H_FLD], &idx_, sizeof(idx_));
+	idx = __swap_index(IL_FRAME_IDX(address));
+	sidx = IL_FRAME_SIDX(address);
+
+	memcpy(&frame->buf[FR_INDEX_H_FLD], &idx, sizeof(idx));
 	frame->buf[FR_SINDEX_FLD] = sidx;
 	frame->buf[FR_SADDR_H_FLD] = 0;
 	frame->buf[FR_SADDR_L_FLD] = 0;
@@ -178,19 +181,16 @@ uint8_t il_frame__get_id(const il_frame_t *frame)
 	return frame->buf[FR_ADDR_FLD];
 }
 
-uint16_t il_frame__get_idx(const il_frame_t *frame)
+uint32_t il_frame__get_address(const il_frame_t *frame)
 {
 	uint16_t idx;
+	uint8_t sidx;
 
 	memcpy(&idx, &frame->buf[FR_INDEX_H_FLD], sizeof(idx));
 	idx = __swap_index(idx);
+	sidx = frame->buf[FR_SINDEX_FLD];
 
-	return idx;
-}
-
-uint8_t il_frame__get_sidx(const il_frame_t *frame)
-{
-	return frame->buf[FR_SINDEX_FLD];
+	return IL_FRAME_ADDR(idx, sidx);
 }
 
 size_t il_frame__get_sz(const il_frame_t *frame)

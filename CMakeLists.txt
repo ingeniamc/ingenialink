@@ -69,6 +69,7 @@ configure_file("config.h.in" "${CMAKE_BINARY_DIR}/config.h")
 
 # Sources
 set(ingenialink_srcs
+  ingenialink/dict.c
   ingenialink/err.c
   ingenialink/frame.c
   ingenialink/monitor.c
@@ -125,6 +126,10 @@ target_compile_definitions(ingenialink PRIVATE IL_BUILDING)
 # Dependencies
 find_package(sercomm CONFIG REQUIRED)
 target_link_libraries(ingenialink PRIVATE sercomm)
+
+find_package(LibXml2 REQUIRED)
+target_link_libraries(ingenialink PRIVATE ${LIBXML2_LIBRARIES})
+target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 
 if(UNIX)
   # FIX: disable TRY_RUN for pthreads when cross-compiling

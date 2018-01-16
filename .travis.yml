@@ -7,12 +7,12 @@ os:
 addons:
   apt:
     packages:
-      - libudev-dev
+      - libudev-dev libxml2-dev
 
 before_script:
-  - git clone https://github.com/ingeniamc/sercomm.git _deps/sercomm
-  - cmake -H_deps/sercomm -B_deps/sercomm/_build -DCMAKE_INSTALL_PREFIX=_install
-  - cmake --build _deps/sercomm/_build --target install
+  - git submodule update --init --recursive
+  - cmake -Hexternal/sercomm -Bexternal/sercomm/_build -DCMAKE_INSTALL_PREFIX=_install
+  - cmake --build external/sercomm/_build --target install
 
 script:
   - cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
