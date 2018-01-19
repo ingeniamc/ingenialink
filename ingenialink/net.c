@@ -389,7 +389,7 @@ il_net_dev_mon_t *il_net_dev_mon_create(il_net_prot_t prot)
 	switch (prot) {
 #ifdef IL_HAS_PROT_EUSB
 	case IL_NET_PROT_EUSB:
-		return il_mcb_net_dev_mon_ops.create();
+		return il_eusb_net_dev_mon_ops.create();
 #endif
 #ifdef IL_HAS_PROT_MCB
 	case IL_NET_PROT_MCB:
