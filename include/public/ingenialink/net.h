@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,10 +37,34 @@ IL_BEGIN_DECL
  * @{
  */
 
-/** IngeniaLink network instance. */
+/** Network. */
 typedef struct il_net il_net_t;
 
-/** IngeniaLink network state. */
+/** Network protocols. */
+typedef enum {
+	/** E-USB. */
+	IL_NET_PROT_EUSB,
+	/** MCB. */
+	IL_NET_PROT_MCB,
+} il_net_prot_t;
+
+/** Network initialization options. */
+typedef struct {
+	/** Port. */
+	const char *port;
+	/** Read timeout (ms). */
+	int timeout_rd;
+	/** Write timeout (ms). */
+	int timeout_wr;
+} il_net_opts_t;
+
+/** Default read timeout (ms). */
+#define IL_NET_TIMEOUT_RD_DEF	500
+
+/** Default write timeout (ms). */
+#define IL_NET_TIMEOUT_WR_DEF	500
+
+/** Network state. */
 typedef enum {
 	/** Operative. */
 	IL_NET_STATE_OPERATIVE,
@@ -48,10 +72,10 @@ typedef enum {
 	IL_NET_STATE_FAULTY,
 } il_net_state_t;
 
-/** IngeniaLink port maximum size. */
-#define IL_NET_PORT_SZ		128U
+/** Port maximum size. */
+#define IL_NET_PORT_SZ 128U
 
-/** IngeniaLink network devices list. */
+/** network devices list. */
 typedef struct il_net_dev_list {
 	/** Port. */
 	char port[IL_NET_PORT_SZ];
@@ -59,7 +83,7 @@ typedef struct il_net_dev_list {
 	struct il_net_dev_list *next;
 } il_net_dev_list_t;
 
-/** IngeniaLink network servos list. */
+/** Network servos list. */
 typedef struct il_net_servos_list {
 	/** Node id. */
 	uint8_t id;
@@ -67,7 +91,7 @@ typedef struct il_net_servos_list {
 	struct il_net_servos_list *next;
 } il_net_servos_list_t;
 
-/** IngeniaLink node found callback. */
+/** Node found callback. */
 typedef void (*il_net_servos_on_found_t)(void *ctx, uint8_t id);
 
 /** Device monitor event types. */
@@ -78,37 +102,40 @@ typedef enum {
 	IL_NET_DEV_EVT_REMOVED
 } il_net_dev_evt_t;
 
-/** IngeniaLink network device monitor */
+/** Network device monitor */
 typedef struct il_net_dev_mon il_net_dev_mon_t;
 
-/** IngeniaLink network device event callback. */
+/** Network device event callback. */
 typedef void (*il_net_dev_on_evt_t)(void *ctx, il_net_dev_evt_t evt,
 				      const char *port);
 
 /**
- * Create IngeniaLink network instance.
+ * Create a network.
  *
- * @param [in] port
- *	Port.
+ * @param [in] prot
+ *	Protocol.
+ * @param [in] opts
+ *	Initialization options.
  *
  * @return
- *	  Network instance (NULL if it could not be created).
+ *	Network  (NULL if it could not be created).
  */
-IL_EXPORT il_net_t *il_net_create(const char *port);
+IL_EXPORT il_net_t *il_net_create(il_net_prot_t prot,
+				  const il_net_opts_t *opts);
 
 /**
- * Destroy an IngeniaLink network instance.
+ * Destroy a network.
  *
  * @param [in] net
- *	  IngeniaLink network instance.
+ *	  Network.
  */
 IL_EXPORT void il_net_destroy(il_net_t *net);
 
 /**
- * Obtain IngeniaLink network state.
+ * Obtain network state.
  *
  * @param [in] net
- *	  IngeniaLink network instance.
+ *	  Network.
  *
  * @returns
  *	Network state.
@@ -116,45 +143,59 @@ IL_EXPORT void il_net_destroy(il_net_t *net);
 IL_EXPORT il_net_state_t il_net_state_get(il_net_t *net);
 
 /**
- * Obtain IngeniaLink network devices list.
+ * Obtain network servos list.
+ *
+ * @note
+ *	A callback can be given to obtain *real-time* servos information. This
+ *	may be useful for GUIs.
+ *
+ * @param [in] net
+ *	network.
+ * @param [in] on_found
+ *	Callback that will be called every time a node is found (optional).
+ * @param [in] ctx
+ *	Callback context (optional).
  *
  * @returns
- *	IngeniaLink network devices list (NULL if none are found or any error
- *	occurs).
+ *	Network servos list (NULL if none are found or any error occurs).
  *
  * @see
- *	il_net_dev_list_destroy
+ *	il_net_servos_list_destroy
  */
-IL_EXPORT il_net_dev_list_t *il_net_dev_list_get(void);
+IL_EXPORT il_net_servos_list_t *il_net_servos_list_get(
+		il_net_t *net, il_net_servos_on_found_t on_found, void *ctx);
 
 /**
- * Destroy IngeniaLink network device list.
+ * Destroy network servos list.
  *
  * @param [in, out] lst
- *	IngeniaLink network device list.
+ *	Network servos list.
  *
  * @see
- *	il_net_dev_list_get
+ *	il_net_servos_list_get
  */
-IL_EXPORT void il_net_dev_list_destroy(il_net_dev_list_t *lst);
+IL_EXPORT void il_net_servos_list_destroy(il_net_servos_list_t *lst);
 
-/** Utility macro to iterate over a list of IngeniaLink network devices. */
-#define il_net_dev_list_foreach(item, lst) \
+/** Utility macro to iterate over a list of network servos list. */
+#define il_net_servos_list_foreach(item, lst) \
 	for ((item) = (lst); (item); (item) = (item)->next)
 
 /**
- * Create an IngeniaLink network device monitor.
+ * Create a network device monitor.
+ *
+ * @param [in] prot
+ *	Protocol.
  *
  * @return
- *      An instance of a device monitor (NULL if it could not be created).
+ *      An  of a device monitor (NULL if it could not be created).
  */
-IL_EXPORT il_net_dev_mon_t *il_net_dev_mon_create(void);
+IL_EXPORT il_net_dev_mon_t *il_net_dev_mon_create(il_net_prot_t prot);
 
 /**
- * Start the IngeniaLink network device monitor.
+ * Start the network device monitor.
  *
  * @param [in] mon
- *      Monitor instance.
+ *      Monitor.
  * @param [in] on_evt
  *      Callback function that will be called when a new device is added or
  *      removed.
@@ -168,61 +209,51 @@ IL_EXPORT int il_net_dev_mon_start(il_net_dev_mon_t *mon,
 				   il_net_dev_on_evt_t on_evt, void *ctx);
 
 /**
- * Stop the IngeniaLink network device monitor.
+ * Stop the network device monitor.
  *
  * @param [in] mon
- *      Monitor instance.
+ *      Monitor.
  */
 IL_EXPORT void il_net_dev_mon_stop(il_net_dev_mon_t *mon);
 
 /**
- * Destroy the IngeniaLink network device monitor.
+ * Destroy the network device monitor.
  *
  * @note
  *	If the monitor is running, it will be stopped.
  *
  * @param [in] mon
- *      Monitor instance.
+ *      Monitor.
  */
 IL_EXPORT void il_net_dev_mon_destroy(il_net_dev_mon_t *mon);
 
 /**
- * Obtain IngeniaLink network servos list.
+ * Obtain network devices list.
  *
- * @note
- *	A callback can be given to obtain *real-time* servos information. This
- *	may be useful for GUIs.
- *
- * @param [in] net
- *	IngeniaLink network.
- * @param [in] on_found
- *	Callback that will be called every time a node is found (optional).
- * @param [in] ctx
- *	Callback context (optional).
+ * @param [in] prot
+ *	Protocol.
  *
  * @returns
- *	IngeniaLink network servos list (NULL if none are found or any error
- *	occurs).
+ *	Network devices list (NULL if none are found or any error occurs).
  *
  * @see
- *	il_net_servos_list_destroy
+ *	il_net_dev_list_destroy
  */
-IL_EXPORT il_net_servos_list_t *il_net_servos_list_get(
-		il_net_t *net, il_net_servos_on_found_t on_found, void *ctx);
+IL_EXPORT il_net_dev_list_t *il_net_dev_list_get(il_net_prot_t prot);
 
 /**
- * Destroy IngeniaLink network servos list.
+ * Destroy Network device list.
  *
  * @param [in, out] lst
- *	IngeniaLink network servos list.
+ *	Network device list.
  *
  * @see
- *	il_net_servos_list_get
+ *	il_net_dev_list_get
  */
-IL_EXPORT void il_net_servos_list_destroy(il_net_servos_list_t *lst);
+IL_EXPORT void il_net_dev_list_destroy(il_net_dev_list_t *lst);
 
-/** Utility macro to iterate over a list of IngeniaLink network servos list. */
-#define il_net_servos_list_foreach(item, lst) \
+/** Utility macro to iterate over a list of network devices. */
+#define il_net_dev_list_foreach(item, lst) \
 	for ((item) = (lst); (item); (item) = (item)->next)
 
 /** @} */

@@ -51,7 +51,7 @@ static int run(const char *log_fname)
 		0x00606C, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_VEL
 	};
 
-	r = il_servo_lucky(&net, &servo, NULL);
+	r = il_servo_lucky(IL_NET_PROT_EUSB, &net, &servo, NULL);
 	if (r < 0) {
 		fprintf(stderr, "%s\n", ilerr_last());
 		return r;

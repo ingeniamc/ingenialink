@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -250,6 +250,8 @@ IL_EXPORT void il_servo_destroy(il_servo_t *servo);
 /**
  * Utility function to connect to the first available servo drive.
  *
+ * @param [in] prot
+ *	Network protocol.
  * @param [out] net
  *	Where the servo network will be stored.
  * @param [out] servo
@@ -260,8 +262,8 @@ IL_EXPORT void il_servo_destroy(il_servo_t *servo);
  * @return
  *	0 if a servo is found, IL_EFAIL if none are found.
  */
-IL_EXPORT int il_servo_lucky(il_net_t **net, il_servo_t **servo,
-			     const char *dict);
+IL_EXPORT int il_servo_lucky(il_net_prot_t prot, il_net_t **net,
+			     il_servo_t **servo, const char *dict);
 
 /**
  * Obtain current servo PDS state.

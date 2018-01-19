@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,10 +29,10 @@
 #include <string.h>
 
 #include "ingenialink/err.h"
-#include "ingenialink/frame.h"
 #include "ingenialink/registers.h"
 #include "ingenialink/servo.h"
 #include "ingenialink/utils.h"
+#include "ingenialink/eusb/frame.h"
 
 /*******************************************************************************
  * Private
@@ -540,8 +540,9 @@ int il_monitor_ch_configure(il_monitor_t *monitor, int ch, const il_reg_t *reg,
 		bits = 64;
 	}
 
-	mapping = (IL_FRAME_IDX(reg_->address) << MAPPING_IDX_OFFSET) |
-		  (IL_FRAME_SIDX(reg_->address) << MAPPING_SIDX_OFFSET) | bits;
+	mapping = (IL_EUSB_FRAME_IDX(reg_->address) << MAPPING_IDX_OFFSET) |
+		  (IL_EUSB_FRAME_SIDX(reg_->address) << MAPPING_SIDX_OFFSET) |
+		  bits;
 
 	r = il_servo_raw_write_s32(monitor->servo, map_regs[ch], NULL,
 				   mapping, 1);

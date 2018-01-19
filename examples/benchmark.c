@@ -4,11 +4,12 @@
  * This example performs a transfer benchmark.
  */
 
+#include "utils.h"
+
 #include <stdio.h>
-#include <ingenialink/ingenialink.h>
 
 /** Register address. */
-#define ADDRESS	0x0060FF
+#define ADDRESS	0x6040
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -37,18 +38,24 @@
 	elapsed += (end.tv_usec - start.tv_usec) / 1000.0
 #endif
 
-static int run(int loops, const char *port, uint8_t id)
+static int run(int loops, il_net_prot_t prot, const char *port, uint8_t id)
 {
 	int32_t r = 0;
 
 	il_net_t *net;
+	il_net_opts_t opts;
 	il_servo_t *servo;
 	il_reg_t reg;
 
 	double elapsed;
 
 	/* create network */
-	net = il_net_create(port);
+	opts.port = port;
+	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+
+	/*net = il_net_eusb_create(&opts);*/
+	net = il_net_create(prot, &opts);
 	if (!net) {
 		fprintf(stderr, "Could not create network: %s\n", ilerr_last());
 		r = 1;
@@ -100,18 +107,20 @@ out:
 int main(int argc, char **argv)
 {
 	int loops;
+	il_net_prot_t prot;
 	const char *port;
 	uint8_t id;
 
-	if (argc < 4) {
+	if (argc < 5) {
 		fprintf(stderr,
-			"Usage: benchmark LOOPS PORT SERVO_ID\n");
+			"Usage: benchmark LOOPS PROT PORT SERVO_ID\n");
 		return 1;
 	}
 
 	loops = (int)strtoul(argv[1], NULL, 0);
-	port = argv[2];
-	id = (uint8_t)strtoul(argv[3], NULL, 0);
+	prot = str2prot(argv[2]);
+	port = argv[3];
+	id = (uint8_t)strtoul(argv[4], NULL, 0);
 
-	return run(loops, port, id);
+	return run(loops, prot, port, id);
 }

@@ -46,9 +46,11 @@ endif()
 #-------------------------------------------------------------------------------
 # Build options
 
-option(WITH_EXAMPLES    "Build library usage example apps"        OFF)
-option(WITH_DOCS        "Build library public API documentation"  OFF)
-option(WITH_PIC         "Generate position independent code"      OFF)
+option(WITH_EXAMPLES    "Build library usage example apps"                  OFF)
+option(WITH_DOCS        "Build library public API documentation"            OFF)
+option(WITH_PIC         "Generate position independent code"                OFF)
+option(WITH_PROT_EUSB   "Build with EUSB protocol support"                   ON)
+option(WITH_PROT_MCB    "Build with MCB protocol support (EXPERIMENTAL)"    OFF)
 
 # Build a shared library by default
 if(NOT DEFINED BUILD_SHARED_LIBS)
@@ -71,7 +73,6 @@ configure_file("config.h.in" "${CMAKE_BINARY_DIR}/config.h")
 set(ingenialink_srcs
   ingenialink/dict.c
   ingenialink/err.c
-  ingenialink/frame.c
   ingenialink/monitor.c
   ingenialink/net.c
   ingenialink/poller.c
@@ -80,6 +81,20 @@ set(ingenialink_srcs
   ingenialink/utils.c
   ingenialink/version.c
 )
+
+# Sources (protocols)
+if(WITH_PROT_EUSB)
+  list(APPEND ingenialink_srcs
+    ingenialink/eusb/net.c
+    ingenialink/eusb/frame.c
+  )
+endif()
+
+if(WITH_PROT_MCB)
+  list(APPEND ingenialink_srcs
+    ingenialink/mcb/net.c
+  )
+endif()
 
 # Sources (osal)
 if(UNIX)
@@ -120,8 +135,16 @@ target_include_directories(
     "$<INSTALL_INTERFACE:include>"
 )
 
-# Definitions (common)
+# Definitions
 target_compile_definitions(ingenialink PRIVATE IL_BUILDING)
+
+if(WITH_PROT_EUSB)
+  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_EUSB)
+endif()
+
+if(WITH_PROT_MCB)
+  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_MCB)
+endif()
 
 # Dependencies
 find_package(sercomm CONFIG REQUIRED)
@@ -152,7 +175,9 @@ if(STYLE_CHECK_AVAILABLE)
     "ingenialink/*.h"
     "osal/**/*.c"
     "osal/**/*.h"
-    "include/**/*.h")
+    "include/ingenialink/**/*.h"
+    "include/osal/**/*.h"
+    "include/public/**/*.h")
 endif()
 
 #-------------------------------------------------------------------------------

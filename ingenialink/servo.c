@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -120,8 +120,7 @@ static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
 		return IL_EACCESS;
 	}
 
-	return il_net__read(servo->net, servo->id, reg->address, buf, sz,
-			    servo->timeout);
+	return il_net__read(servo->net, servo->id, reg->address, buf, sz);
 }
 
 /**
@@ -172,7 +171,7 @@ static int raw_write(il_servo_t *servo, const il_reg_t *reg_pdef,
 	confirmed_ = (reg->access == IL_REG_ACCESS_WO) ? 0 : confirmed;
 
 	return il_net__write(servo->net, servo->id, reg->address, data, sz,
-			     confirmed_, servo->timeout);
+			     confirmed_);
 }
 
 /**
@@ -772,7 +771,8 @@ void il_servo_destroy(il_servo_t *servo)
 	il_utils__refcnt_release(servo->refcnt);
 }
 
-int il_servo_lucky(il_net_t **net, il_servo_t **servo, const char *dict)
+int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
+		   const char *dict)
 {
 	il_net_dev_list_t *devs, *dev;
 	il_net_servos_list_t *servo_ids, *servo_id;
@@ -781,9 +781,15 @@ int il_servo_lucky(il_net_t **net, il_servo_t **servo, const char *dict)
 	assert(servo);
 
 	/* scan all available network devices */
-	devs = il_net_dev_list_get();
+	devs = il_net_dev_list_get(prot);
 	il_net_dev_list_foreach(dev, devs) {
-		*net = il_net_create(dev->port);
+		il_net_opts_t opts;
+
+		opts.port = dev->port;
+		opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+		opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+
+		*net = il_net_create(prot, &opts);
 		if (!*net)
 			continue;
 
