@@ -73,10 +73,8 @@ configure_file("config.h.in" "${CMAKE_BINARY_DIR}/config.h")
 set(ingenialink_srcs
   ingenialink/dict.c
   ingenialink/err.c
-  ingenialink/monitor.c
   ingenialink/net.c
   ingenialink/poller.c
-  ingenialink/registers.c
   ingenialink/servo.c
   ingenialink/utils.c
   ingenialink/version.c
@@ -87,12 +85,16 @@ if(WITH_PROT_EUSB)
   list(APPEND ingenialink_srcs
     ingenialink/eusb/net.c
     ingenialink/eusb/frame.c
+    ingenialink/eusb/monitor.c
+    ingenialink/eusb/registers.c
+    ingenialink/eusb/servo.c
   )
 endif()
 
 if(WITH_PROT_MCB)
   list(APPEND ingenialink_srcs
     ingenialink/mcb/net.c
+    ingenialink/mcb/servo.c
   )
 endif()
 

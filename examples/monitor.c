@@ -56,7 +56,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	}
 
 	/* create servo */
-	servo = il_servo_create(net, id, NULL, IL_SERVO_TIMEOUT_DEF);
+	servo = il_servo_create(net, id, NULL);
 	if (!servo) {
 		fprintf(stderr, "Could not create servo: %s\n", ilerr_last());
 		r = 1;

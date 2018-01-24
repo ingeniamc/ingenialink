@@ -33,23 +33,11 @@
 
 #include "osal/osal.h"
 
-/** Minimum servo id. */
-#define SERVOID_MIN		1
-
-/** Maximum servo id. */
-#define SERVOID_MAX		127
-
-/** PDS default timeout (ms). */
-#define PDS_TIMEOUT		1000
-
 /** State external subscribers default array size. */
 #define STATE_SUBS_SZ_DEF	10
 
 /** State external subscribers period timeout (ms). */
 #define STATE_SUBS_TIMEOUT	100
-
-/** Flags position offset in statusword. */
-#define FLAGS_SW_POS		10
 
 /** Emergencies queue size. */
 #define EMCY_QUEUE_SZ		4
@@ -59,26 +47,6 @@
 
 /** Emergency external subscribers monitor period timeout (ms). */
 #define EMCY_SUBS_TIMEOUT	100
-
-/*
- * Constants associated to types of velocity and position feedbacks.
- *
- * References:
- *	http://doc.ingeniamc.com/display/i14402/0x2310+-+Feedbacks
- */
-
-#define DIGITAL_HALLS_CONSTANT	6
-#define ANALOG_HALLS_CONSTANT	4096
-#define ANALOG_INPUT_CONSTANT	4096
-#define SINCOS_CONSTANT		1024
-#define PWM_CONSTANT		65535
-#define RESOLVER_CONSTANT	65535
-
-/** Relative voltage range. */
-#define VOLT_REL_RANGE		32767
-
-/** Radians range. */
-#define RAD_RANGE		65535
 
 /** Servo units. */
 typedef struct {
@@ -186,12 +154,8 @@ typedef struct {
 struct il_servo {
 	/** Associated IngeniaLink network. */
 	il_net_t *net;
-	/** Reference counter. */
-	il_utils_refcnt_t *refcnt;
-	/** Servo id. */
-	uint8_t id;
-	/** Communications timeout (ms). */
-	int timeout;
+	/** ID. */
+	uint16_t id;
 	/** Dictionary. */
 	il_dict_t *dict;
 	/** Units. */
@@ -208,6 +172,17 @@ struct il_servo {
 	il_servo_emcy_t emcy;
 	/** External emergency subscriptors. */
 	il_servo_emcy_subscriber_lst_t emcy_subs;
+	/** Operations. */
+	const il_servo_ops_t *ops;
 };
+
+/** Servo implementations. */
+#ifdef IL_HAS_PROT_EUSB
+extern const il_servo_ops_t il_eusb_servo_ops;
+#endif
+
+#ifdef IL_HAS_PROT_MCB
+extern const il_servo_ops_t il_mcb_servo_ops;
+#endif
 
 #endif

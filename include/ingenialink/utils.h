@@ -80,6 +80,17 @@
 #define __swap_64(x) (x)
 #endif
 
+/** Swap float value on big-endian systems. */
+#ifdef IL_BIG_ENDIAN
+#define __swap_float(x) \
+	((float)((((uint32_t)(x) & 0xFF000000U) >> 24) | \
+		 (((uint32_t)(x) & 0x00FF0000U) >>  8) | \
+		 (((uint32_t)(x) & 0x0000FF00U) <<  8) | \
+		 (((uint32_t)(x) & 0x000000FFU) << 24)))
+#else
+#define __swap_float(x) (x)
+#endif
+
 /*
  * Reference counting
  */

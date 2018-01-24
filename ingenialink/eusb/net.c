@@ -467,6 +467,7 @@ static il_net_t *il_eusb_net_create(const il_net_opts_t *opts)
 		goto cleanup_this;
 
 	this->net.ops = &il_eusb_net_ops;
+	this->net.prot = IL_NET_PROT_EUSB;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(enet_destroy, this);
@@ -760,25 +761,25 @@ il_net_dev_list_t *il_eusb_net_dev_list_get()
 /** E-USB network operations. */
 const il_net_ops_t il_eusb_net_ops = {
 	/* internal */
-	._retain = il_eusb_net__retain,
-	._release = il_eusb_net__release,
-	._read = il_eusb_net__read,
-	._write = il_eusb_net__write,
-	._sw_subscribe = il_net_base__sw_subscribe,
-	._sw_unsubscribe = il_net_base__sw_unsubscribe,
-	._emcy_subscribe = il_net_base__emcy_subscribe,
-	._emcy_unsubscribe = il_net_base__emcy_unsubscribe,
+	il_eusb_net__retain,
+	il_eusb_net__release,
+	il_eusb_net__read,
+	il_eusb_net__write,
+	il_net_base__sw_subscribe,
+	il_net_base__sw_unsubscribe,
+	il_net_base__emcy_subscribe,
+	il_net_base__emcy_unsubscribe,
 	/* public */
-	.create = il_eusb_net_create,
-	.destroy = il_eusb_net_destroy,
-	.state_get = il_net_base__state_get,
-	.servos_list_get = il_eusb_net_servos_list_get,
+	il_eusb_net_create,
+	il_eusb_net_destroy,
+	il_net_base__state_get,
+	il_eusb_net_servos_list_get,
 };
 
 /** E-USB network device monitor operations. */
 const il_net_dev_mon_ops_t il_eusb_net_dev_mon_ops = {
-	.create = il_eusb_net_dev_mon_create,
-	.destroy = il_eusb_net_dev_mon_destroy,
-	.start = il_eusb_net_dev_mon_start,
-	.stop = il_eusb_net_dev_mon_stop,
+	il_eusb_net_dev_mon_create,
+	il_eusb_net_dev_mon_destroy,
+	il_eusb_net_dev_mon_start,
+	il_eusb_net_dev_mon_stop,
 };

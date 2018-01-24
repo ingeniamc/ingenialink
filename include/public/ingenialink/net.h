@@ -132,6 +132,17 @@ IL_EXPORT il_net_t *il_net_create(il_net_prot_t prot,
 IL_EXPORT void il_net_destroy(il_net_t *net);
 
 /**
+ * Obtain network protocol.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Network protocol.
+ */
+IL_EXPORT il_net_prot_t il_net_prot_get(il_net_t *net);
+
+/**
  * Obtain network state.
  *
  * @param [in] net

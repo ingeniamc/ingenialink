@@ -66,6 +66,7 @@ static int get_dtype(const char *name, il_reg_dtype_t *dtype)
 		{ "s32", IL_REG_DTYPE_S32 },
 		{ "u64", IL_REG_DTYPE_U64 },
 		{ "s64", IL_REG_DTYPE_S64 },
+		{ "float", IL_REG_DTYPE_FLOAT },
 	};
 
 	size_t i;

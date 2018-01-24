@@ -63,7 +63,7 @@ static int run(int loops, il_net_prot_t prot, const char *port, uint8_t id)
 	}
 
 	/* create servo */
-	servo = il_servo_create(net, id, NULL, IL_SERVO_TIMEOUT_DEF);
+	servo = il_servo_create(net, id, NULL);
 	if (!servo) {
 		fprintf(stderr, "Could not create servo: %s\n", ilerr_last());
 		goto cleanup_net;

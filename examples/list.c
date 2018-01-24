@@ -44,12 +44,9 @@ int main(int argc, const char *argv[])
 			il_servo_t *servo;
 			il_servo_info_t info;
 
-			servo = il_servo_create(net, servo_id->id, NULL,
-						IL_SERVO_TIMEOUT_DEF);
+			servo = il_servo_create(net, servo_id->id, NULL);
 			if (!servo)
 				continue;
-
-			printf("found: %d\n", servo_id->id);
 
 			if (il_servo_info_get(servo, &info) < 0)
 				goto cleanup_servo;

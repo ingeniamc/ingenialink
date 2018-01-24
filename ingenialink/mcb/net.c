@@ -313,6 +313,7 @@ static il_net_t *il_mcb_net_create(const il_net_opts_t *opts)
 		goto cleanup_this;
 
 	this->net.ops = &il_mcb_net_ops;
+	this->net.prot = IL_NET_PROT_MCB;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(mcb_net_destroy, this);
@@ -486,25 +487,25 @@ il_net_dev_list_t *il_mcb_net_dev_list_get()
 /** MCB network operations. */
 const il_net_ops_t il_mcb_net_ops = {
 	/* internal */
-	._retain = il_mcb_net__retain,
-	._release = il_mcb_net__release,
-	._read = il_mcb_net__read,
-	._write = il_mcb_net__write,
-	._sw_subscribe = il_net_base__sw_subscribe,
-	._sw_unsubscribe = il_net_base__sw_unsubscribe,
-	._emcy_subscribe = il_net_base__emcy_subscribe,
-	._emcy_unsubscribe = il_net_base__emcy_unsubscribe,
+	il_mcb_net__retain,
+	il_mcb_net__release,
+	il_mcb_net__read,
+	il_mcb_net__write,
+	il_net_base__sw_subscribe,
+	il_net_base__sw_unsubscribe,
+	il_net_base__emcy_subscribe,
+	il_net_base__emcy_unsubscribe,
 	/* public */
-	.create = il_mcb_net_create,
-	.destroy = il_mcb_net_destroy,
-	.state_get = il_net_base__state_get,
-	.servos_list_get = il_mcb_net_servos_list_get,
+	il_mcb_net_create,
+	il_mcb_net_destroy,
+	il_net_base__state_get,
+	il_mcb_net_servos_list_get,
 };
 
 /** MCB network device monitor operations. */
 const il_net_dev_mon_ops_t il_mcb_net_dev_mon_ops = {
-	.create = il_mcb_net_dev_mon_create,
-	.destroy = il_mcb_net_dev_mon_destroy,
-	.start = il_mcb_net_dev_mon_start,
-	.stop = il_mcb_net_dev_mon_stop,
+	il_mcb_net_dev_mon_create,
+	il_mcb_net_dev_mon_destroy,
+	il_mcb_net_dev_mon_start,
+	il_mcb_net_dev_mon_stop,
 };

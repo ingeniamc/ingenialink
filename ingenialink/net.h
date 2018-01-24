@@ -90,6 +90,8 @@ typedef struct {
 
 /** Network. */
 struct il_net {
+	/** Protocol */
+	il_net_prot_t prot;
 	/** Read timeout. */
 	int timeout_rd;
 	/** Write timeout. */

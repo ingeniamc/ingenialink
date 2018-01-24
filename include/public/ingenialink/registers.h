@@ -39,8 +39,6 @@ IL_BEGIN_DECL
 
 /** IngeniaLink register data type. */
 typedef enum {
-	/** Raw data. */
-	IL_REG_DTYPE_RAW,
 	/** Unsigned 8-bit integer. */
 	IL_REG_DTYPE_U8,
 	/** Signed 8-bit integer. */
@@ -57,6 +55,8 @@ typedef enum {
 	IL_REG_DTYPE_U64,
 	/** Signed 64-bit integer. */
 	IL_REG_DTYPE_S64,
+	/** Float. */
+	IL_REG_DTYPE_FLOAT,
 } il_reg_dtype_t;
 
 /** IngeniaLink register access. */

@@ -344,6 +344,11 @@ void il_net_destroy(il_net_t *net)
 	net->ops->destroy(net);
 }
 
+il_net_prot_t il_net_prot_get(il_net_t *net)
+{
+	return net->prot;
+}
+
 il_net_state_t il_net_state_get(il_net_t *net)
 {
 	return net->ops->state_get(net);
