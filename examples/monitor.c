@@ -8,9 +8,6 @@
 #include <stdio.h>
 #include <ingenialink/ingenialink.h>
 
-/** Network protocol. */
-#define PROTOCOL	IL_NET_PROT_MCB
-
 /** Enable timeout. */
 #define ENABLE_TIMEOUT	2000
 
@@ -48,7 +45,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
 
-	net = il_net_create(PROTOCOL, &opts);
+	net = il_net_create(IL_NET_PROT_EUSB, &opts);
 	if (!net) {
 		fprintf(stderr, "Could not create network: %s\n", ilerr_last());
 		r = 1;

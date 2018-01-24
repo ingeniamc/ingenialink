@@ -604,6 +604,8 @@ void il_servo_base__deinit(il_servo_t *servo)
 
 	if (servo->dict)
 		il_dict_destroy(servo->dict);
+
+	il_net__release(servo->net);
 }
 
 void il_servo_base__state_get(il_servo_t *servo, il_servo_state_t *state,
