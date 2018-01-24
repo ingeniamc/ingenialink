@@ -15,7 +15,7 @@ before_script:
   - cmake --build external/sercomm/_build --target install
 
 script:
-  - cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
+  - cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install -DWITH_PROT_MCB=ON
   - cmake --build _build
 
 notifications:

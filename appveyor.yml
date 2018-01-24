@@ -19,5 +19,5 @@ install:
   - cmd: cmake --build external\libxml2\_build --config %configuration% --target install
 
 build_script:
-  - cmd: cmake -H. -B_build -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_INSTALL_PREFIX=_install
+  - cmd: cmake -H. -B_build -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_INSTALL_PREFIX=_install -DWITH_PROT_MCB=ON
   - cmd: cmake --build _build --config %configuration%
