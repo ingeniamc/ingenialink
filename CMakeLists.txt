@@ -93,6 +93,7 @@ endif()
 
 if(WITH_PROT_MCB)
   list(APPEND ingenialink_srcs
+    ingenialink/mcb/frame.c
     ingenialink/mcb/net.c
     ingenialink/mcb/servo.c
   )

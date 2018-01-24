@@ -22,28 +22,10 @@
  * SOFTWARE.
  */
 
-#ifndef INGENIALINK_MCB_FRAME_H_
-#define INGENIALINK_MCB_FRAME_H_
+#ifndef MCB_FRAME_H_
+#define MCB_FRAME_H_
 
-#include "public/ingenialink/common.h"
-
-/** Swap a buffer word-wise on LE systems. */
-#ifndef IL_BIG_ENDIAN
-static inline void il_mcb_frame__swap(uint8_t *frame, size_t sz)
-{
-	size_t i;
-
-	for (i = 0; i < sz; i += 2) {
-		uint8_t tmp;
-
-		tmp = frame[i];
-		frame[i] = frame[i + 1];
-		frame[i + 1] = tmp;
-	}
-}
-#else
-#define il_mcb_frame__swap(frame, sz)
-#endif
+#include "ingenialink/mcb/frame.h"
 
 /** MCB frame CRC polynomial (16-CCITT). */
 #define MCB_CRC_POLY	0x1021
