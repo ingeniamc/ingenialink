@@ -57,6 +57,8 @@ typedef enum {
 	IL_REG_DTYPE_S64,
 	/** Float. */
 	IL_REG_DTYPE_FLOAT,
+	/** String. */
+	IL_REG_DTYPE_STR,
 } il_reg_dtype_t;
 
 /** IngeniaLink register access. */
