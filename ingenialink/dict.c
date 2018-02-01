@@ -361,7 +361,7 @@ int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
 
 	k = kh_get(str, dict->h, id);
 	if (k == kh_end(dict->h)) {
-		ilerr__set("Register not found");
+		ilerr__set("Register not found (%s)", id);
 		return IL_EFAIL;
 	}
 
