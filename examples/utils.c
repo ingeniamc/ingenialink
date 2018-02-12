@@ -22,20 +22,15 @@
  * SOFTWARE.
  */
 
-#ifndef UTILS_H_
-#define UTILS_H_
+#include "utils.h"
 
-#include <ingenialink/ingenialink.h>
+#include <string.h>
 
-/**
- * Obtain protocol type from string
- *
- * @param [in] name
- *	Protocol name.
- *
- * @return
- *	Protocol type (defaults to E-USB).
- */
-il_net_prot_t str2prot(const char *name);
-
-#endif
+il_net_prot_t str2prot(const char *name) {
+	if (strcmp(name, "eusb") == 0)
+		return IL_NET_PROT_EUSB;
+	if (strcmp(name, "mcb") == 0)
+		return IL_NET_PROT_MCB;
+	else
+		return IL_NET_PROT_EUSB;
+}
