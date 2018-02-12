@@ -74,7 +74,7 @@ void il_net__release(il_net_t *net);
  * @returns
  *	0 on success, error code otherwise.
  */
-int il_net__write(il_net_t *net, uint8_t id, uint32_t address, const void *buf,
+int il_net__write(il_net_t *net, uint16_t id, uint32_t address, const void *buf,
 		  size_t sz, int confirmed);
 
 /**
@@ -94,7 +94,7 @@ int il_net__write(il_net_t *net, uint8_t id, uint32_t address, const void *buf,
  * @returns
  *	0 on success, error code otherwise.
  */
-int il_net__read(il_net_t *net, uint8_t id, uint32_t address, void *buf,
+int il_net__read(il_net_t *net, uint16_t id, uint32_t address, void *buf,
 		 size_t sz);
 
 /**
@@ -112,7 +112,7 @@ int il_net__read(il_net_t *net, uint8_t id, uint32_t address, void *buf,
  * @returns
  *	Assigned slot (>=0) or error code (< 0).
  */
-int il_net__sw_subscribe(il_net_t *net, uint8_t id,
+int il_net__sw_subscribe(il_net_t *net, uint16_t id,
 			 il_net_sw_subscriber_cb_t cb, void *ctx);
 
 /**
@@ -140,7 +140,7 @@ void il_net__sw_unsubscribe(il_net_t *net, int slot);
  * @returns
  *	Assigned slot (>=0) or error code (< 0).
  */
-int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
+int il_net__emcy_subscribe(il_net_t *net, uint16_t id,
 			   il_net_emcy_subscriber_cb_t cb, void *ctx);
 
 /**
@@ -163,22 +163,22 @@ typedef struct {
 		il_net_t *net);
 	/** Read. */
 	int (*_read)(
-		il_net_t *net, uint8_t id, uint32_t address, void *buf,
+		il_net_t *net, uint16_t id, uint32_t address, void *buf,
 		size_t sz);
 	/** Write. */
 	int (*_write)(
-		il_net_t *net, uint8_t id, uint32_t address, const void *buf,
+		il_net_t *net, uint16_t id, uint32_t address, const void *buf,
 		size_t sz, int confirmed);
 	/** Subscribe to state updates. */
 	int (*_sw_subscribe)(
-		il_net_t *net, uint8_t id, il_net_sw_subscriber_cb_t cb,
+		il_net_t *net, uint16_t id, il_net_sw_subscriber_cb_t cb,
 		void *ctx);
 	/** Unsubscribe from state updares. */
 	void (*_sw_unsubscribe)(
 		il_net_t *net, int slot);
 	/** Subscribe to emergencies. */
 	int (*_emcy_subscribe)(
-		il_net_t *net, uint8_t id, il_net_emcy_subscriber_cb_t cb,
+		il_net_t *net, uint16_t id, il_net_emcy_subscriber_cb_t cb,
 		void *ctx);
 	/** Unsubscribe to emergencies. */
 	void (*_emcy_unsubscribe)(
@@ -212,12 +212,12 @@ typedef struct {
 		il_net_dev_mon_t *mon);
 } il_net_dev_mon_ops_t;
 
-int il_net_base__sw_subscribe(il_net_t *net, uint8_t id,
+int il_net_base__sw_subscribe(il_net_t *net, uint16_t id,
 			      il_net_sw_subscriber_cb_t cb, void *ctx);
 
 void il_net_base__sw_unsubscribe(il_net_t *net, int slot);
 
-int il_net_base__emcy_subscribe(il_net_t *net, uint8_t id,
+int il_net_base__emcy_subscribe(il_net_t *net, uint16_t id,
 				il_net_emcy_subscriber_cb_t cb, void *ctx);
 
 void il_net_base__emcy_unsubscribe(il_net_t *net, int slot);

@@ -39,7 +39,7 @@
 /** Statusword update subscriber. */
 struct il_net_sw_subscriber {
 	/** Node ID. */
-	uint8_t id;
+	uint16_t id;
 	/** Callback. */
 	il_net_sw_subscriber_cb_t cb;
 	/** Callback context. */
@@ -65,7 +65,7 @@ typedef struct {
 /** Emergency subscriber. */
 struct il_net_emcy_subscriber {
 	/** Node ID. */
-	uint8_t id;
+	uint16_t id;
 	/** Callback. */
 	il_net_emcy_subscriber_cb_t cb;
 	/** Callback context. */

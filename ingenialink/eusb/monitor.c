@@ -24,7 +24,6 @@
 
 #include "monitor.h"
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -344,8 +343,6 @@ void il_monitor_destroy(il_monitor_t *monitor)
 {
 	int i, ch;
 
-	assert(monitor);
-
 	il_monitor_stop(monitor);
 
 	osal_cond_destroy(monitor->acq.finished_cond);
@@ -371,8 +368,6 @@ void il_monitor_destroy(il_monitor_t *monitor)
 int il_monitor_start(il_monitor_t *monitor)
 {
 	int r;
-
-	assert(monitor);
 
 	if (!acquisition_has_finished(monitor)) {
 		ilerr__set("Acquisition already in progress");
@@ -410,8 +405,6 @@ int il_monitor_start(il_monitor_t *monitor)
 
 void il_monitor_stop(il_monitor_t *monitor)
 {
-	assert(monitor);
-
 	if (monitor->acq.td) {
 		monitor->acq.stop = 1;
 		osal_thread_join(monitor->acq.td, NULL);
@@ -422,8 +415,6 @@ void il_monitor_stop(il_monitor_t *monitor)
 int il_monitor_wait(il_monitor_t *monitor, int timeout)
 {
 	int r = 0;
-
-	assert(monitor);
 
 	osal_mutex_lock(monitor->acq.lock);
 
@@ -446,9 +437,6 @@ int il_monitor_wait(il_monitor_t *monitor, int timeout)
 
 void il_monitor_data_get(il_monitor_t *monitor, il_monitor_acq_t **acq)
 {
-	assert(monitor);
-	assert(acq);
-
 	osal_mutex_lock(monitor->acq.lock);
 
 	*acq = &monitor->acq.acq[monitor->acq.curr];
@@ -464,8 +452,6 @@ int il_monitor_configure(il_monitor_t *monitor, unsigned int t_s,
 {
 	int r;
 	uint16_t t_s_;
-
-	assert(monitor);
 
 	if (!acquisition_has_finished(monitor)) {
 		ilerr__set("Acquisition in progress");
@@ -503,9 +489,6 @@ int il_monitor_ch_configure(il_monitor_t *monitor, int ch, const il_reg_t *reg,
 	const il_reg_t *reg_;
 	uint8_t bits;
 	int32_t mapping;
-
-	assert(monitor);
-	assert(reg);
 
 	if ((ch < 0) || (ch >= IL_MONITOR_CH_NUM)) {
 		ilerr__set("Invalid channel");
@@ -558,8 +541,6 @@ int il_monitor_ch_disable(il_monitor_t *monitor, int ch)
 {
 	int r;
 
-	assert(monitor);
-
 	if ((ch < 0) || (ch >= IL_MONITOR_CH_NUM)) {
 		ilerr__set("Invalid channel");
 		return IL_EINVAL;
@@ -603,8 +584,6 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	int r;
 	const il_reg_t *source_;
 
-	assert(monitor);
-
 	if (!acquisition_has_finished(monitor)) {
 		ilerr__set("Acquisition in progress");
 		return IL_ESTATE;
@@ -626,8 +605,6 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	if ((mode == IL_MONITOR_TRIGGER_POS) ||
 	    (mode == IL_MONITOR_TRIGGER_NEG) ||
 	    (mode == IL_MONITOR_TRIGGER_WINDOW)) {
-		assert(source);
-
 		r = get_reg(monitor->servo, source, source_id, &source_);
 		if (r < 0)
 			return r;
@@ -642,6 +619,10 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	/* positive threshold */
 	if ((mode == IL_MONITOR_TRIGGER_POS) ||
 	    (mode == IL_MONITOR_TRIGGER_WINDOW)) {
+		r = get_reg(monitor->servo, source, source_id, &source_);
+		if (r < 0)
+			return r;
+
 		int32_t th_pos_ = (int32_t)(
 			th_pos / il_servo_units_factor(monitor->servo,
 						       source_));
@@ -656,6 +637,10 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	/* negative threshold */
 	if ((mode == IL_MONITOR_TRIGGER_NEG) ||
 	    (mode == IL_MONITOR_TRIGGER_WINDOW)) {
+		r = get_reg(monitor->servo, source, source_id, &source_);
+		if (r < 0)
+			return r;
+
 		int32_t th_neg_ = (int32_t)(
 			th_neg / il_servo_units_factor(monitor->servo,
 						       source_));

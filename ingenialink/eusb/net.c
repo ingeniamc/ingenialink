@@ -24,7 +24,6 @@
 
 #include "net.h"
 
-#include <assert.h>
 #include <string.h>
 
 #include "osal/clock.h"
@@ -371,7 +370,7 @@ static void il_eusb_net__release(il_net_t *net)
 	il_utils__refcnt_release(this->refcnt);
 }
 
-static int il_eusb_net__read(il_net_t *net, uint8_t id, uint32_t address,
+static int il_eusb_net__read(il_net_t *net, uint16_t id, uint32_t address,
 			     void *buf, size_t sz)
 {
 	il_eusb_net_t *this = to_eusb_net(net);
@@ -385,14 +384,14 @@ static int il_eusb_net__read(il_net_t *net, uint8_t id, uint32_t address,
 
 	osal_mutex_lock(this->net.lock);
 
-	r = net_read(this, id, address, buf, sz);
+	r = net_read(this, (uint8_t)id, address, buf, sz);
 
 	osal_mutex_unlock(this->net.lock);
 
 	return r;
 }
 
-static int il_eusb_net__write(il_net_t *net, uint8_t id, uint32_t address,
+static int il_eusb_net__write(il_net_t *net, uint16_t id, uint32_t address,
 			      const void *buf, size_t sz, int confirmed)
 {
 	il_eusb_net_t *this = to_eusb_net(net);
@@ -408,7 +407,7 @@ static int il_eusb_net__write(il_net_t *net, uint8_t id, uint32_t address,
 	osal_mutex_lock(this->net.lock);
 
 	/* write */
-	il_eusb_frame__init(&frame, id, address, buf, sz);
+	il_eusb_frame__init(&frame, (uint8_t)id, address, buf, sz);
 
 	r = ser_write(this->ser, frame.buf, frame.sz, NULL);
 	if (r < 0) {
@@ -427,7 +426,7 @@ static int il_eusb_net__write(il_net_t *net, uint8_t id, uint32_t address,
 			goto unlock;
 		}
 
-		r = net_read(this, id, address, buf_, sz);
+		r = net_read(this, (uint8_t)id, address, buf_, sz);
 		if (r == 0) {
 			if (memcmp(buf, buf_, sz) != 0) {
 				ilerr__set("Write failed (content mismatch)");
@@ -663,7 +662,7 @@ sync_unlock:
 	return lst;
 }
 
-static il_net_dev_mon_t *il_eusb_net_dev_mon_create()
+static il_net_dev_mon_t *il_eusb_net_dev_mon_create(void)
 {
 	il_eusb_net_dev_mon_t *this;
 

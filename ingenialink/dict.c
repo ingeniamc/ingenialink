@@ -24,8 +24,6 @@
 
 #include "dict.h"
 
-#include <assert.h>
-
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
@@ -339,8 +337,6 @@ void il_dict_destroy(il_dict_t *dict)
 {
 	khint_t k;
 
-	assert(dict);
-
 	for (k = 0; k < kh_end(dict->h); ++k) {
 		if (kh_exist(dict->h, k))
 			xmlFree((char *)kh_key(dict->h, k));
@@ -355,10 +351,6 @@ int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
 {
 	khint_t k;
 
-	assert(dict);
-	assert(id);
-	assert(reg);
-
 	k = kh_get(str, dict->h, id);
 	if (k == kh_end(dict->h)) {
 		ilerr__set("Register not found (%s)", id);
@@ -372,8 +364,6 @@ int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
 
 size_t il_dict_nregs_get(il_dict_t *dict)
 {
-	assert(dict);
-
 	return (size_t)kh_size(dict->h);
 }
 
@@ -382,8 +372,6 @@ const char **il_dict_ids_get(il_dict_t *dict)
 	const char **ids;
 	size_t i;
 	khint_t k;
-
-	assert(dict);
 
 	/* allocate array for register keys */
 	ids = malloc(sizeof(const char *) * (il_dict_nregs_get(dict) + 1));
@@ -407,7 +395,5 @@ const char **il_dict_ids_get(il_dict_t *dict)
 
 void il_dict_ids_destroy(const char **ids)
 {
-	assert(ids);
-
 	free((char **)ids);
 }

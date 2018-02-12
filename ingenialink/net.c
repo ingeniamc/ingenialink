@@ -30,7 +30,7 @@
  * Base implementation
  ******************************************************************************/
 
-int il_net_base__sw_subscribe(il_net_t *net, uint8_t id,
+int il_net_base__sw_subscribe(il_net_t *net, uint16_t id,
 			      il_net_sw_subscriber_cb_t cb, void *ctx)
 {
 	int r = 0;
@@ -99,7 +99,7 @@ unlock:
 	osal_mutex_unlock(net->sw_subs.lock);
 }
 
-int il_net_base__emcy_subscribe(il_net_t *net, uint8_t id,
+int il_net_base__emcy_subscribe(il_net_t *net, uint16_t id,
 				il_net_emcy_subscriber_cb_t cb, void *ctx)
 {
 	int r;
@@ -284,19 +284,19 @@ void il_net__release(il_net_t *net)
 	net->ops->_release(net);
 }
 
-int il_net__write(il_net_t *net, uint8_t id, uint32_t address, const void *buf,
+int il_net__write(il_net_t *net, uint16_t id, uint32_t address, const void *buf,
 		  size_t sz, int confirmed)
 {
 	return net->ops->_write(net, id, address, buf, sz, confirmed);
 }
 
-int il_net__read(il_net_t *net, uint8_t id, uint32_t address, void *buf,
+int il_net__read(il_net_t *net, uint16_t id, uint32_t address, void *buf,
 		 size_t sz)
 {
 	return net->ops->_read(net, id, address, buf, sz);
 }
 
-int il_net__sw_subscribe(il_net_t *net, uint8_t id,
+int il_net__sw_subscribe(il_net_t *net, uint16_t id,
 			 il_net_sw_subscriber_cb_t cb, void *ctx)
 {
 	return net->ops->_sw_subscribe(net, id, cb, ctx);
@@ -307,7 +307,7 @@ void il_net__sw_unsubscribe(il_net_t *net, int slot)
 	net->ops->_sw_unsubscribe(net, slot);
 }
 
-int il_net__emcy_subscribe(il_net_t *net, uint8_t id,
+int il_net__emcy_subscribe(il_net_t *net, uint16_t id,
 			   il_net_emcy_subscriber_cb_t cb, void *ctx)
 {
 	return net->ops->_emcy_subscribe(net, id, cb, ctx);

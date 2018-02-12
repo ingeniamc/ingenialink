@@ -24,7 +24,6 @@
 
 #include "poller.h"
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -164,8 +163,6 @@ void il_poller_destroy(il_poller_t *poller)
 {
 	int i;
 
-	assert(poller);
-
 	if (poller->running)
 		il_poller_stop(poller);
 
@@ -199,8 +196,6 @@ void il_poller_destroy(il_poller_t *poller)
 
 int il_poller_start(il_poller_t *poller)
 {
-	assert(poller);
-
 	if (poller->running) {
 		ilerr__set("Poller already running");
 		return IL_EALREADY;
@@ -237,8 +232,6 @@ int il_poller_start(il_poller_t *poller)
 
 void il_poller_stop(il_poller_t *poller)
 {
-	assert(poller);
-
 	if (!poller->running)
 		return;
 
@@ -250,9 +243,6 @@ void il_poller_stop(il_poller_t *poller)
 
 void il_poller_data_get(il_poller_t *poller, il_poller_acq_t **acq)
 {
-	assert(poller);
-	assert(acq);
-
 	osal_mutex_lock(poller->lock);
 
 	*acq = &poller->acq[poller->acq_curr];
@@ -267,8 +257,6 @@ void il_poller_data_get(il_poller_t *poller, il_poller_acq_t **acq)
 int il_poller_configure(il_poller_t *poller, unsigned int t_s, size_t sz)
 {
 	int i;
-
-	assert(poller);
 
 	if (poller->running) {
 		ilerr__set("Poller is running");
@@ -306,8 +294,6 @@ int il_poller_ch_configure(il_poller_t *poller, unsigned int ch,
 {
 	const il_reg_t *reg_;
 
-	assert(poller);
-
 	if (poller->running) {
 		ilerr__set("Poller is running");
 		return IL_ESTATE;
@@ -343,8 +329,6 @@ int il_poller_ch_configure(il_poller_t *poller, unsigned int ch,
 
 int il_poller_ch_disable(il_poller_t *poller, unsigned int ch)
 {
-	assert(poller);
-
 	if (poller->running) {
 		ilerr__set("Poller is running");
 		return IL_ESTATE;

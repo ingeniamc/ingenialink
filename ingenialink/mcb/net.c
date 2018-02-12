@@ -244,7 +244,7 @@ static void il_mcb_net__release(il_net_t *net)
 	il_utils__refcnt_release(this->refcnt);
 }
 
-static int il_mcb_net__read(il_net_t *net, uint8_t id, uint32_t address,
+static int il_mcb_net__read(il_net_t *net, uint16_t id, uint32_t address,
 			    void *buf, size_t sz)
 {
 	il_mcb_net_t *this = to_mcb_net(net);
@@ -259,7 +259,7 @@ static int il_mcb_net__read(il_net_t *net, uint8_t id, uint32_t address,
 	if (r < 0)
 		goto unlock;
 
-	r = net_recv(this, address, buf, sz);
+	r = net_recv(this, (uint16_t)address, buf, sz);
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -267,7 +267,7 @@ unlock:
 	return r;
 }
 
-static int il_mcb_net__write(il_net_t *net, uint8_t id, uint32_t address,
+static int il_mcb_net__write(il_net_t *net, uint16_t id, uint32_t address,
 			     const void *buf, size_t sz, int confirmed)
 {
 	il_mcb_net_t *this = to_mcb_net(net);
@@ -283,7 +283,7 @@ static int il_mcb_net__write(il_net_t *net, uint8_t id, uint32_t address,
 	if (r < 0)
 		goto unlock;
 
-	r = net_recv(this, address, NULL, 0);
+	r = net_recv(this, (uint16_t)address, NULL, 0);
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -389,7 +389,7 @@ static il_net_servos_list_t *il_mcb_net_servos_list_get(
 	return lst;
 }
 
-static il_net_dev_mon_t *il_mcb_net_dev_mon_create()
+static il_net_dev_mon_t *il_mcb_net_dev_mon_create(void)
 {
 	il_mcb_net_dev_mon_t *this;
 
