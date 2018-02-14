@@ -619,7 +619,7 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	/* positive threshold */
 	if ((mode == IL_MONITOR_TRIGGER_POS) ||
 	    (mode == IL_MONITOR_TRIGGER_WINDOW)) {
-        int32_t th_pos_;
+		int32_t th_pos_;
 
 		r = get_reg(monitor->servo, source, source_id, &source_);
 		if (r < 0)
@@ -639,7 +639,7 @@ int il_monitor_trigger_configure(il_monitor_t *monitor,
 	/* negative threshold */
 	if ((mode == IL_MONITOR_TRIGGER_NEG) ||
 	    (mode == IL_MONITOR_TRIGGER_WINDOW)) {
-        int32_t th_neg_;
+		int32_t th_neg_;
 
 		r = get_reg(monitor->servo, source, source_id, &source_);
 		if (r < 0)

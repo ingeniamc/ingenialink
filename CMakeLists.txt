@@ -75,6 +75,7 @@ set(ingenialink_srcs
   ingenialink/err.c
   ingenialink/net.c
   ingenialink/poller.c
+  ingenialink/registers.c
   ingenialink/servo.c
   ingenialink/utils.c
   ingenialink/version.c

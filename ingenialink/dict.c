@@ -145,6 +145,68 @@ static il_reg_phy_t get_phy(const char *name)
 }
 
 /**
+ * Parse register labels.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] reg
+ *	Register.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+static int parse_labels(xmlNodePtr node, il_reg_t *reg)
+{
+	int r;
+	xmlNode *prop;
+
+	reg->labels = il_reg_labels_create();
+	if (!reg->labels)
+		return IL_EFAIL;
+
+	for (prop = node->children; prop; prop = prop->next) {
+		xmlNode *label;
+
+		if (prop->type != XML_ELEMENT_NODE)
+			continue;
+
+		if (xmlStrcmp(prop->name, (const xmlChar *)"Labels") != 0)
+			continue;
+
+		for (label = prop->children; label; label = label->next) {
+			xmlChar *lang, *content;
+
+			if (label->type != XML_ELEMENT_NODE)
+				continue;
+
+			lang = xmlGetProp(label, (const xmlChar *)"lang");
+			if (!lang) {
+				ilerr__set("Malformed label entry");
+				r = IL_EFAIL;
+				goto cleanup_labels;
+			}
+
+			content = xmlNodeGetContent(label);
+			if (content) {
+				il_reg_labels_set(reg->labels,
+						  (const char *)lang,
+						  (const char *)content);
+				xmlFree(content);
+			}
+
+			xmlFree(lang);
+		}
+	}
+
+	return 0;
+
+cleanup_labels:
+	il_reg_labels_destroy(reg->labels);
+
+	return r;
+}
+
+/**
  * Parse register node.
  *
  * @param [in] node
@@ -159,6 +221,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 {
 	int r, absent;
 	khint_t k;
+	il_reg_t *reg;
 	xmlChar *id, *param;
 
 	/* parse: id (required), insert to hash table */
@@ -175,6 +238,8 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
+	reg = &kh_val(dict->h, k);
+
 	/* parse: address */
 	param = xmlGetProp(node, (const xmlChar *)"address");
 	if (!param) {
@@ -182,7 +247,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
-	kh_val(dict->h, k).address = strtoul((char *)param, NULL, 16);
+	reg->address = strtoul((char *)param, NULL, 16);
 
 	xmlFree(param);
 
@@ -193,7 +258,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
-	r = get_dtype((char *)param, &kh_val(dict->h, k).dtype);
+	r = get_dtype((char *)param, &reg->dtype);
 	xmlFree(param);
 	if (r < 0)
 		return r;
@@ -205,7 +270,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
-	r = get_access((char *)param, &kh_val(dict->h, k).access);
+	r = get_access((char *)param, &reg->access);
 	xmlFree(param);
 	if (r < 0)
 		return r;
@@ -213,13 +278,14 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 	/* parse: phyisical units (optional) */
 	param = xmlGetProp(node, (const xmlChar *)"phy");
 	if (param) {
-		kh_val(dict->h, k).phy = get_phy((char *)param);
+		reg->phy = get_phy((char *)param);
 		xmlFree(param);
 	} else {
-		kh_val(dict->h, k).phy = IL_REG_PHY_NONE;
+		reg->phy = IL_REG_PHY_NONE;
 	}
 
-	return 0;
+	/* parse: labels */
+	return parse_labels(node, reg);
 }
 
 /*******************************************************************************
@@ -308,8 +374,15 @@ il_dict_t *il_dict_create(const char *dict_f)
 
 cleanup_h:
 	for (k = 0; k < kh_end(dict->h); ++k) {
-		if (kh_exist(dict->h, k))
+		if (kh_exist(dict->h, k)) {
+			il_reg_t *reg;
+
+			reg = &kh_value(dict->h, k);
+			if (reg->labels)
+				il_reg_labels_destroy(reg->labels);
+
 			xmlFree((char *)kh_key(dict->h, k));
+		}
 	}
 
 cleanup_obj:
@@ -338,8 +411,15 @@ void il_dict_destroy(il_dict_t *dict)
 	khint_t k;
 
 	for (k = 0; k < kh_end(dict->h); ++k) {
-		if (kh_exist(dict->h, k))
+		if (kh_exist(dict->h, k)) {
+			il_reg_t *reg;
+
+			reg = &kh_value(dict->h, k);
+			if (reg->labels)
+				il_reg_labels_destroy(reg->labels);
+
 			xmlFree((char *)kh_key(dict->h, k));
+		}
 	}
 
 	kh_destroy(str, dict->h);

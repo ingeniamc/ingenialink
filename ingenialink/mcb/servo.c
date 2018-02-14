@@ -32,7 +32,7 @@
  * Private
  ******************************************************************************/
 
-static int not_supported()
+static int not_supported(void)
 {
 	ilerr__set("Functionality not supported");
 
@@ -82,7 +82,7 @@ void il_mcb_servo__release(il_servo_t *servo)
  *	PDS state (IL_SERVO_STATE_NRDY if unknown).
  */
 void il_mcb_servo__state_decode(uint16_t sw, il_servo_state_t *state,
-				 int *flags)
+				int *flags)
 {
 	(void)sw;
 	(void)state;
@@ -94,7 +94,7 @@ void il_mcb_servo__state_decode(uint16_t sw, il_servo_state_t *state,
  ******************************************************************************/
 
 static il_servo_t *il_mcb_servo_create(il_net_t *net, uint16_t id,
-					const char *dict)
+				       const char *dict)
 {
 	int r;
 
@@ -321,8 +321,8 @@ static int il_mcb_servo_position_get(il_servo_t *servo, double *pos)
 }
 
 static int il_mcb_servo_position_set(il_servo_t *servo, double pos,
-				      int immediate, int relative,
-				      int sp_timeout)
+				     int immediate, int relative,
+				     int sp_timeout)
 {
 	(void)servo;
 	(void)pos;

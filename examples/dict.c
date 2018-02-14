@@ -10,6 +10,8 @@
 static void print_reg(const il_reg_t *reg)
 {
 	const char *name;
+	const char **langs;
+	size_t i;
 
 	/* address */
 	printf("Address: %08x\n", reg->address);
@@ -91,6 +93,26 @@ static void print_reg(const il_reg_t *reg)
 	}
 
 	printf("Physical units: %s\n", name);
+
+	/* labels */
+	printf("Labels:\n");
+
+
+	if (reg->labels && il_reg_labels_nlabels_get(reg->labels) > 0) {
+		langs = il_reg_labels_langs_get(reg->labels);
+
+		for (i = 0; langs[i]; i++) {
+			const char *label;
+
+			(void)il_reg_labels_get(reg->labels, langs[i], &label);
+
+			printf("\t%s: %s\n", langs[i], label);
+		}
+
+		il_reg_labels_langs_destroy(langs);
+	} else {
+		printf("\tNone\n");
+	}
 
 	printf("==============================\n");
 }
