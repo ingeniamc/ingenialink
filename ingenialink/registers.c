@@ -103,6 +103,19 @@ void il_reg_labels_set(il_reg_labels_t *labels, const char *lang,
 	kh_val(labels->h, k) = strdup(label);
 }
 
+void il_reg_labels_del(il_reg_labels_t *labels, const char *lang)
+{
+	khint_t k;
+
+	k = kh_get(str, labels->h, lang);
+	if (k != kh_end(labels->h)) {
+		free((char *)kh_key(labels->h, k));
+		free((char *)kh_val(labels->h, k));
+
+		kh_del(str, labels->h, k);
+	}
+}
+
 size_t il_reg_labels_nlabels_get(il_reg_labels_t *labels)
 {
 	return (size_t)kh_size(labels->h);

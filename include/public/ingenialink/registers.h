@@ -155,6 +155,16 @@ void il_reg_labels_set(il_reg_labels_t *labels, const char *lang,
 		       const char *label);
 
 /**
+ * Remove the label of the given language.
+ *
+ * @param [in] labels
+ *	Labels dictionary.
+ * @param [in] lang
+ *	Language (ISO code).
+ */
+void il_reg_labels_del(il_reg_labels_t *labels, const char *lang);
+
+/**
  * Obtain the number of labels.
  *
  * @param [in] labels
