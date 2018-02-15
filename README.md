@@ -110,9 +110,7 @@ read this list of [useful CMake variables][cmakeuseful].
 ## Coding standards
 
 `libingenialink` is written in [ANSI C][ansic] (C99), so any modern compiler
-should work. The non-C99 compatible MSVC 9.0 (Visual Studio 2008) is also
-supported so that the Python 2.7 extension can be built. However, its support
-will likely be dropped in future versions.
+should work.
 
 Code is written following the [Linux Kernel coding style][kernelstyle]. You can
 check for errors or suggestions like this (uses `checkpatch.pl`):

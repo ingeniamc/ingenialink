@@ -1,9 +1,5 @@
 environment:
   matrix:
-    - CMAKE_GENERATOR_NAME: Visual Studio 9 2008
-      platform: Any CPU
-    - CMAKE_GENERATOR_NAME: Visual Studio 10 2010
-      platform: Any CPU
     - CMAKE_GENERATOR_NAME: Visual Studio 14 2015
       platform: Any CPU
     - CMAKE_GENERATOR_NAME: Visual Studio 14 2015 Win64
