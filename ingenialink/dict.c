@@ -24,6 +24,8 @@
 
 #include "dict.h"
 
+#include <float.h>
+
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
