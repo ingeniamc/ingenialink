@@ -116,10 +116,8 @@ static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
  *
  * @param [in] servo
  *	Servo.
- * @param [in] reg_pdef
+ * @param [in] reg
  *	Pre-defined register.
- * @param [in] id
- *	Register ID.
  * @param [in] dtype
  *	Expected data type.
  * @param [in] data
@@ -132,17 +130,11 @@ static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
  * @return
  *	0 on success, error code otherwise.
  */
-static int raw_write(il_servo_t *servo, const il_reg_t *reg_pdef,
-		     const char *id, il_reg_dtype_t dtype, const void *data,
-		     size_t sz, int confirmed)
+static int raw_write(il_servo_t *servo, const il_reg_t *reg,
+		     il_reg_dtype_t dtype, const void *data, size_t sz,
+		     int confirmed)
 {
-	int r, confirmed_;
-	const il_reg_t *reg;
-
-	/* obtain register (predefined or from dictionary) */
-	r = get_reg(servo->dict, reg_pdef, id, &reg);
-	if (r < 0)
-		return r;
+	int confirmed_;
 
 	/* verify register properties */
 	if (reg->dtype != dtype) {
@@ -1000,91 +992,192 @@ int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 int il_servo_base__raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
 				const char *id, uint8_t val, int confirm)
 {
-	return raw_write(servo, reg, id, IL_REG_DTYPE_U8, &val, sizeof(val),
+	int r;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.u8) || (val > reg->range.max.u8)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
+
+	return raw_write(servo, reg_, IL_REG_DTYPE_U8, &val, sizeof(val),
 			 confirm);
 }
 
 int il_servo_base__raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
 				const char *id, int8_t val, int confirm)
 {
-	return raw_write(servo, reg, id, IL_REG_DTYPE_S8, &val, sizeof(val),
+	int r;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.s8) || (val > reg->range.max.s8)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
+
+	return raw_write(servo, reg_, IL_REG_DTYPE_S8, &val, sizeof(val),
 			 confirm);
 }
 
 int il_servo_base__raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
 				 const char *id, uint16_t val, int confirm)
 {
+	int r;
 	uint16_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.u16) || (val > reg->range.max.u16)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = __swap_16(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_U16, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_U16, &val_, sizeof(val_),
 			 confirm);
 }
 
 int il_servo_base__raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
 				 const char *id, int16_t val, int confirm)
 {
+	int r;
 	int16_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.s16) || (val > reg->range.max.s16)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = (int16_t)__swap_16(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_S16, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_S16, &val_, sizeof(val_),
 			 confirm);
 }
 
 int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
 				 const char *id, uint32_t val, int confirm)
 {
+	int r;
 	uint32_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.u32) || (val > reg->range.max.u32)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = __swap_32(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_U32, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_U32, &val_, sizeof(val_),
 			 confirm);
 }
 
 int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
 				 const char *id, int32_t val, int confirm)
 {
+	int r;
 	int32_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.s32) || (val > reg->range.max.s32)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = (int32_t)__swap_32(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_S32, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_S32, &val_, sizeof(val_),
 			 confirm);
 }
 
 int il_servo_base__raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
 				 const char *id, uint64_t val, int confirm)
 {
+	int r;
 	uint64_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.u64) || (val > reg->range.max.u64)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = __swap_64(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_U64, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_U64, &val_, sizeof(val_),
 			 confirm);
 }
 
 int il_servo_base__raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
 				 const char *id, int64_t val, int confirm)
 {
+	int r;
 	int64_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.s64) || (val > reg->range.max.s64)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = (int64_t)__swap_64(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_S64, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_S64, &val_, sizeof(val_),
 			 confirm);
 }
 
 int il_servo_base__raw_write_float(il_servo_t *servo, const il_reg_t *reg,
 				   const char *id, float val, int confirm)
 {
+	int r;
 	float val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.flt) || (val > reg->range.max.flt)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = __swap_float(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_FLOAT, &val_,
+	return raw_write(servo, reg_, IL_REG_DTYPE_FLOAT, &val_,
 			 sizeof(val_), confirm);
 }
 

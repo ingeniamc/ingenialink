@@ -44,13 +44,27 @@ static int run(const char *log_fname)
 	FILE *log_f;
 
 	const il_reg_t IL_REG_POS_ACT = {
-		0x006064, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_POS,
-		NULL
+		.address = 0x006064,
+		.dtype = IL_REG_DTYPE_S32,
+		.access = IL_REG_ACCESS_RW,
+		.phy = IL_REG_PHY_VEL,
+		.range = {
+			.min.s32 = INT32_MIN,
+			.max.s32 = INT32_MAX
+		},
+		.labels = NULL
 	};
 
 	const il_reg_t IL_REG_VEL_ACT = {
-		0x00606C, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_VEL,
-		NULL
+		.address = 0x00606c,
+		.dtype = IL_REG_DTYPE_S32,
+		.access = IL_REG_ACCESS_RW,
+		.phy = IL_REG_PHY_VEL,
+		.range = {
+			.min.s32 = INT32_MIN,
+			.max.s32 = INT32_MAX
+		},
+		.labels = NULL
 	};
 
 	r = il_servo_lucky(IL_NET_PROT_EUSB, &net, &servo, NULL);

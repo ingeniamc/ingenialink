@@ -158,44 +158,34 @@ static il_reg_phy_t get_phy(const char *name)
 static int parse_labels(xmlNodePtr node, il_reg_t *reg)
 {
 	int r;
-	xmlNode *prop;
+	xmlNode *label;
 
 	reg->labels = il_reg_labels_create();
 	if (!reg->labels)
 		return IL_EFAIL;
 
-	for (prop = node->children; prop; prop = prop->next) {
-		xmlNode *label;
+	for (label = node->children; label; label = label->next) {
+		xmlChar *lang, *content;
 
-		if (prop->type != XML_ELEMENT_NODE)
+		if (label->type != XML_ELEMENT_NODE)
 			continue;
 
-		if (xmlStrcmp(prop->name, (const xmlChar *)"Labels") != 0)
-			continue;
-
-		for (label = prop->children; label; label = label->next) {
-			xmlChar *lang, *content;
-
-			if (label->type != XML_ELEMENT_NODE)
-				continue;
-
-			lang = xmlGetProp(label, (const xmlChar *)"lang");
-			if (!lang) {
-				ilerr__set("Malformed label entry");
-				r = IL_EFAIL;
-				goto cleanup_labels;
-			}
-
-			content = xmlNodeGetContent(label);
-			if (content) {
-				il_reg_labels_set(reg->labels,
-						  (const char *)lang,
-						  (const char *)content);
-				xmlFree(content);
-			}
-
-			xmlFree(lang);
+		lang = xmlGetProp(label, (const xmlChar *)"lang");
+		if (!lang) {
+			ilerr__set("Malformed label entry");
+			r = IL_EFAIL;
+			goto cleanup_labels;
 		}
+
+		content = xmlNodeGetContent(label);
+		if (content) {
+			il_reg_labels_set(reg->labels,
+					  (const char *)lang,
+					  (const char *)content);
+			xmlFree(content);
+		}
+
+		xmlFree(lang);
 	}
 
 	return 0;
@@ -204,6 +194,142 @@ cleanup_labels:
 	il_reg_labels_destroy(reg->labels);
 
 	return r;
+}
+
+/**
+ * Parse register range.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] reg
+ *	Register.
+ */
+static void parse_range(xmlNodePtr node, il_reg_t *reg)
+{
+	xmlChar *val;
+
+	val = xmlGetProp(node, (const xmlChar *)"min");
+	if (val) {
+		switch (reg->dtype) {
+		case IL_REG_DTYPE_U8:
+			reg->range.min.u8 = (uint8_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S8:
+			reg->range.min.s8 = (int8_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U16:
+			reg->range.min.u16 = (uint16_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S16:
+			reg->range.min.s16 = (int16_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U32:
+			reg->range.min.u32 = (uint32_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S32:
+			reg->range.min.s32 = (int32_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U64:
+			reg->range.min.u64 = (uint64_t)strtoull(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S64:
+			reg->range.min.s64 = (int64_t)strtoll(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_FLOAT:
+			reg->range.min.flt = strtof((const char *)val, NULL);
+			break;
+		default:
+			break;
+		}
+
+		xmlFree(val);
+	}
+
+	val = xmlGetProp(node, (const xmlChar *)"max");
+	if (val) {
+		switch (reg->dtype) {
+		case IL_REG_DTYPE_U8:
+			reg->range.max.u8 = (uint8_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S8:
+			reg->range.max.s8 = (int8_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U16:
+			reg->range.max.u16 = (uint16_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S16:
+			reg->range.max.s16 = (int16_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U32:
+			reg->range.max.u32 = (uint32_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S32:
+			reg->range.max.s32 = (int32_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U64:
+			reg->range.max.u64 = (uint64_t)strtoull(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S64:
+			reg->range.max.s64 = (int64_t)strtoll(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_FLOAT:
+			reg->range.max.flt = strtof((const char *)val, NULL);
+			break;
+		default:
+			break;
+		}
+
+		xmlFree(val);
+	}
+}
+
+/**
+ * Parse register properties.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] reg
+ *	Register.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+static int parse_props(xmlNodePtr node, il_reg_t *reg)
+{
+	int r;
+	xmlNode *prop;
+
+	for (prop = node->children; prop; prop = prop->next) {
+		if (prop->type != XML_ELEMENT_NODE)
+			continue;
+
+		if (xmlStrcmp(prop->name, (const xmlChar *)"Labels") == 0) {
+			r = parse_labels(prop, reg);
+			if (r < 0)
+				return r;
+		}
+
+		if (xmlStrcmp(prop->name, (const xmlChar *)"Range") == 0)
+			parse_range(prop, reg);
+	}
+
+	return 0;
 }
 
 /**
@@ -284,8 +410,50 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		reg->phy = IL_REG_PHY_NONE;
 	}
 
-	/* parse: labels */
-	return parse_labels(node, reg);
+	/* assign default min/max */
+	switch (reg->dtype) {
+	case IL_REG_DTYPE_U8:
+		reg->range.min.u8 = 0;
+		reg->range.max.u8 = UINT8_MAX;
+		break;
+	case IL_REG_DTYPE_S8:
+		reg->range.min.s8 = INT8_MIN;
+		reg->range.max.s8 = INT8_MAX;
+		break;
+	case IL_REG_DTYPE_U16:
+		reg->range.min.u16 = 0;
+		reg->range.max.u16 = UINT16_MAX;
+		break;
+	case IL_REG_DTYPE_S16:
+		reg->range.min.s16 = INT16_MIN;
+		reg->range.max.s16 = INT16_MAX;
+		break;
+	case IL_REG_DTYPE_U32:
+		reg->range.min.u32 = 0;
+		reg->range.max.u32 = UINT32_MAX;
+		break;
+	case IL_REG_DTYPE_S32:
+		reg->range.min.s32 = INT32_MIN;
+		reg->range.max.s32 = INT32_MAX;
+		break;
+	case IL_REG_DTYPE_U64:
+		reg->range.min.u64 = 0;
+		reg->range.max.u64 = UINT64_MAX;
+		break;
+	case IL_REG_DTYPE_S64:
+		reg->range.min.s64 = INT64_MIN;
+		reg->range.max.s64 = INT64_MAX;
+		break;
+	case IL_REG_DTYPE_FLOAT:
+		reg->range.min.flt = FLT_MIN;
+		reg->range.max.flt = FLT_MAX;
+		break;
+	default:
+		break;
+	}
+
+	/* parse: nested properties (e.g. labels, ranges, etc.) */
+	return parse_props(node, reg);
 }
 
 /*******************************************************************************

@@ -5,6 +5,7 @@
  */
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <ingenialink/ingenialink.h>
 
 static void print_reg(const il_reg_t *reg)
@@ -92,7 +93,52 @@ static void print_reg(const il_reg_t *reg)
 		name = "unknown";
 	}
 
+	/* physical units */
 	printf("Physical units: %s\n", name);
+
+	/* range */
+	printf("Range: ");
+
+	switch (reg->dtype) {
+	case IL_REG_DTYPE_U8:
+		printf("(%"PRIu8", %"PRIu8")\n",
+		       reg->range.min.u8, reg->range.max.u8);
+		break;
+	case IL_REG_DTYPE_S8:
+		printf("(%"PRId8", %"PRId8")\n",
+		       reg->range.min.s8, reg->range.max.s8);
+		break;
+	case IL_REG_DTYPE_U16:
+		printf("(%"PRIu16", %"PRIu16")\n",
+		       reg->range.min.u16, reg->range.max.u16);
+		break;
+	case IL_REG_DTYPE_S16:
+		printf("(%"PRId16", %"PRId16")\n",
+		       reg->range.min.s16, reg->range.max.s16);
+		break;
+	case IL_REG_DTYPE_U32:
+		printf("(%"PRIu32", %"PRIu32")\n",
+		       reg->range.min.u32, reg->range.max.u32);
+		break;
+	case IL_REG_DTYPE_S32:
+		printf("(%"PRId32", %"PRId32")\n",
+		       reg->range.min.s32, reg->range.max.s32);
+		break;
+	case IL_REG_DTYPE_U64:
+		printf("(%"PRIu64", %"PRIu64")\n",
+		       reg->range.min.u64, reg->range.max.u64);
+		break;
+	case IL_REG_DTYPE_S64:
+		printf("(%"PRId64", %"PRId64")\n",
+		       reg->range.min.s64, reg->range.max.s64);
+		break;
+	case IL_REG_DTYPE_FLOAT:
+		printf("(%f, %f)\n",
+		       reg->range.min.flt, reg->range.max.flt);
+		break;
+	default:
+		printf("Undefined\n");
+	}
 
 	/* labels */
 	printf("Labels:\n");

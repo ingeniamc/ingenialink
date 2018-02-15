@@ -33,31 +33,87 @@
  */
 
 const il_reg_t IL_REG_SW_VERSION = {
-	0x00100A, IL_REG_DTYPE_U64, IL_REG_ACCESS_RO, IL_REG_PHY_NONE, NULL
+	.address = 0x00100A,
+	.dtype = IL_REG_DTYPE_U64,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u64 = 0,
+		.max.u64 = UINT64_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_STORE_ALL = {
-	0x011010, IL_REG_DTYPE_U32, IL_REG_ACCESS_WO, IL_REG_PHY_NONE, NULL
+	.address = 0x011010,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_WO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_STORE_COMM = {
-	0x021010, IL_REG_DTYPE_U32, IL_REG_ACCESS_WO, IL_REG_PHY_NONE, NULL
+	.address = 0x021010,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_WO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_STORE_APP = {
-	0x031010, IL_REG_DTYPE_U32, IL_REG_ACCESS_WO, IL_REG_PHY_NONE, NULL
+	.address = 0x031010,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_WO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_ID_PROD_CODE = {
-	0x021018, IL_REG_DTYPE_U32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE, NULL
+	.address = 0x021018,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_ID_REVISION = {
-	0x031018, IL_REG_DTYPE_U32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE, NULL
+	.address = 0x031018,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_ID_SERIAL = {
-	0x041018, IL_REG_DTYPE_U32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE, NULL
+	.address = 0x041018,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 /*
@@ -65,178 +121,530 @@ const il_reg_t IL_REG_ID_SERIAL = {
  */
 
 const il_reg_t IL_REG_PAIR_POLES = {
-	0x002301, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x002301,
+	.dtype = IL_REG_DTYPE_U8,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u8 = 0,
+		.max.u8 = UINT8_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_FB_VEL_SENSOR = {
-	0x022310, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x022310,
+	.dtype = IL_REG_DTYPE_U8,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u8 = 0,
+		.max.u8 = UINT8_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_FB_POS_SENSOR = {
-	0x032310, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x032310,
+	.dtype = IL_REG_DTYPE_U8,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u8 = 0,
+		.max.u8 = UINT8_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_SSI_STURNBITS = {
-	0x052380, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x052380,
+	.dtype = IL_REG_DTYPE_U8,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u8 = 0,
+		.max.u8 = UINT8_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MOTPARAM_PPITCH = {
-	0x032701, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x032701,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_CFG_T_S = {
-	0x012c50, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x012c50,
+	.dtype = IL_REG_DTYPE_U16,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u16 = 0,
+		.max.u16 = UINT16_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_CFG_ENABLE = {
-	0x022c50, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x022c50,
+	.dtype = IL_REG_DTYPE_U8,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u8 = 0,
+		.max.u8 = UINT8_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_CFG_DELAY_SAMPLES = {
-	0x032c50, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x032c50,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_RESULT_SZ = {
-	0x012c51, IL_REG_DTYPE_U16, IL_REG_ACCESS_RO, IL_REG_PHY_NONE, NULL
+	.address = 0x012c51,
+	.dtype = IL_REG_DTYPE_U16,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u16 = 0,
+		.max.u16 = UINT16_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_RESULT_FILLED = {
-	0x022c51, IL_REG_DTYPE_U16, IL_REG_ACCESS_RO, IL_REG_PHY_NONE, NULL
+	.address = 0x022c51,
+	.dtype = IL_REG_DTYPE_U16,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u16 = 0,
+		.max.u16 = UINT16_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_RESULT_ENTRY = {
-	0x032c51, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x032c51,
+	.dtype = IL_REG_DTYPE_U16,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u16 = 0,
+		.max.u16 = UINT16_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_RESULT_CH_1 = {
-	0x042c51, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE, NULL
+	.address = 0x042c51,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_RESULT_CH_2 = {
-	0x052c51, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE, NULL
+	.address = 0x052c51,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_RESULT_CH_3 = {
-	0x062c51, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE, NULL
+	.address = 0x062c51,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_RESULT_CH_4 = {
-	0x072c51, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE, NULL
+	.address = 0x072c51,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_MAP_CH_1 = {
-	0x012c52, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x012c52,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_MAP_CH_2 = {
-	0x022c52, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x022c52,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_MAP_CH_3 = {
-	0x032c52, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x032c52,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_MAP_CH_4 = {
-	0x042c52, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x042c52,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_TRIG_MODE = {
-	0x012c55, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x012c55,
+	.dtype = IL_REG_DTYPE_U8,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u8 = 0,
+		.max.u8 = UINT8_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_TRIG_SRC = {
-	0x022c55, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x022c55,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_TRIG_TH_POS = {
-	0x032c55, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x032c55,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_TRIG_TH_NEG = {
-	0x042c55, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x042c55,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_TRIG_DIN_MSK = {
-	0x052c55, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x052c55,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_MONITOR_TRIG_DELAY = {
-	0x062c55, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x062c55,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_OL_VOLTAGE = {
-	0x012d00, IL_REG_DTYPE_S16, IL_REG_ACCESS_RW, IL_REG_PHY_VOLT_REL, NULL
+	.address = 0x012d00,
+	.dtype = IL_REG_DTYPE_S16,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_VOLT_REL,
+	.range = {
+		.min.s16 = INT16_MIN,
+		.max.s16 = INT16_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_OL_FREQUENCY = {
-	0x022d00, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x022d00,
+	.dtype = IL_REG_DTYPE_U16,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u16 = 0,
+		.max.u16 = UINT16_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_HW_VARIANT = {
-	0x022ff4, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x022ff4,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_DRIVE_NAME = {
-	0x002ffe, IL_REG_DTYPE_U64, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x002ffe,
+	.dtype = IL_REG_DTYPE_U64,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u64 = 0,
+		.max.u64 = UINT64_MAX
+	},
+	.labels = NULL
 };
 
 /* CiA 402 */
 const il_reg_t IL_REG_CTL_WORD = {
-	0x006040, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x006040,
+	.dtype = IL_REG_DTYPE_U16,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u16 = 0,
+		.max.u16 = UINT16_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_STS_WORD = {
-	0x006041, IL_REG_DTYPE_U16, IL_REG_ACCESS_RO, IL_REG_PHY_NONE, NULL
+	.address = 0x006041,
+	.dtype = IL_REG_DTYPE_U16,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u16 = 0,
+		.max.u16 = UINT16_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_OP_MODE = {
-	0x006060, IL_REG_DTYPE_S8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x006060,
+	.dtype = IL_REG_DTYPE_S8,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s8 = INT8_MIN,
+		.max.s8 = INT8_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_OP_MODE_DISP = {
-	0x006061, IL_REG_DTYPE_S8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x006061,
+	.dtype = IL_REG_DTYPE_S8,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.s8 = INT8_MIN,
+		.max.s8 = INT8_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_POS_ACT = {
-	0x006064, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_POS, NULL
+	.address = 0x006064,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_POS,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_VEL_ACT = {
-	0x00606C, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_VEL, NULL
+	.address = 0x00606C,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_VEL,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_TORQUE_TGT = {
-	0x006071, IL_REG_DTYPE_S16, IL_REG_ACCESS_RW, IL_REG_PHY_TORQUE, NULL
+	.address = 0x006071,
+	.dtype = IL_REG_DTYPE_S16,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_TORQUE,
+	.range = {
+		.min.s16 = INT16_MIN,
+		.max.s16 = INT16_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_RATED_TORQUE = {
-	0x006076, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x006076,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_TORQUE_ACT = {
-	0x006077, IL_REG_DTYPE_S16, IL_REG_ACCESS_RW, IL_REG_PHY_TORQUE, NULL
+	.address = 0x006077,
+	.dtype = IL_REG_DTYPE_S16,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_TORQUE,
+	.range = {
+		.min.s16 = INT16_MIN,
+		.max.s16 = INT16_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_POS_TGT = {
-	0x00607A, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_POS, NULL
+	.address = 0x00607A,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_POS,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_PRES_ENC_INCR = {
-	0x01608F, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x01608F,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_PRES_MOTOR_REVS = {
-	0x02608F, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x02608F,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_VRES_ENC_INCR = {
-	0x016090, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x016090,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_VRES_MOTOR_REVS = {
-	0x026090, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE, NULL
+	.address = 0x026090,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
 };
 
 const il_reg_t IL_REG_VEL_TGT = {
-	0x0060FF, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_VEL, NULL
+	.address = 0x0060FF,
+	.dtype = IL_REG_DTYPE_S32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_VEL,
+	.range = {
+		.min.s32 = INT32_MIN,
+		.max.s32 = INT32_MAX
+	},
+	.labels = NULL
 };

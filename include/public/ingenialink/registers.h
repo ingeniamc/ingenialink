@@ -89,6 +89,36 @@ typedef enum {
 	IL_REG_PHY_RAD,
 } il_reg_phy_t;
 
+/** Limits. */
+typedef union {
+	/** Unsigned 8-bit value. */
+	uint8_t u8;
+	/** Signed 8-bit value. */
+	int8_t s8;
+	/** Unsigned 16-bit value. */
+	uint16_t u16;
+	/** Signed 16-bit value. */
+	int16_t s16;
+	/** Unsigned 32-bit value. */
+	uint32_t u32;
+	/** Signed 32-bit value. */
+	int32_t s32;
+	/** Unsigned 64-bit value. */
+	uint64_t u64;
+	/** Signed 64-bit value. */
+	int64_t s64;
+	/** Float value. */
+	float flt;
+} il_reg_limit_t;
+
+/** Range. */
+typedef struct {
+	/** Minimum. */
+	il_reg_limit_t min;
+	/** Maximum. */
+	il_reg_limit_t max;
+} il_reg_range_t;
+
 /** Labels dictionary. */
 typedef struct il_reg_labels il_reg_labels_t;
 
@@ -102,6 +132,8 @@ typedef struct {
 	il_reg_access_t access;
 	/** Physical units type. */
 	il_reg_phy_t phy;
+	/** Range. */
+	il_reg_range_t range;
 	/** Labels dictionary. */
 	il_reg_labels_t *labels;
 } il_reg_t;
