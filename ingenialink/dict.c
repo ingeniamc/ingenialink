@@ -24,8 +24,6 @@
 
 #include "dict.h"
 
-#include <float.h>
-
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
@@ -245,9 +243,6 @@ static void parse_range(xmlNodePtr node, il_reg_t *reg)
 			reg->range.min.s64 = (int64_t)strtoll(
 				(const char *)val, NULL, 0);
 			break;
-		case IL_REG_DTYPE_FLOAT:
-			reg->range.min.flt = strtof((const char *)val, NULL);
-			break;
 		default:
 			break;
 		}
@@ -289,9 +284,6 @@ static void parse_range(xmlNodePtr node, il_reg_t *reg)
 		case IL_REG_DTYPE_S64:
 			reg->range.max.s64 = (int64_t)strtoll(
 				(const char *)val, NULL, 0);
-			break;
-		case IL_REG_DTYPE_FLOAT:
-			reg->range.max.flt = strtof((const char *)val, NULL);
 			break;
 		default:
 			break;
@@ -445,10 +437,6 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 	case IL_REG_DTYPE_S64:
 		reg->range.min.s64 = INT64_MIN;
 		reg->range.max.s64 = INT64_MAX;
-		break;
-	case IL_REG_DTYPE_FLOAT:
-		reg->range.min.flt = FLT_MIN;
-		reg->range.max.flt = FLT_MAX;
 		break;
 	default:
 		break;

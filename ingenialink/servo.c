@@ -1170,11 +1170,6 @@ int il_servo_base__raw_write_float(il_servo_t *servo, const il_reg_t *reg,
 	if (r < 0)
 		return r;
 
-	if ((val < reg->range.min.flt) || (val > reg->range.max.flt)) {
-		ilerr__set("Value out of range");
-		return IL_EINVAL;
-	}
-
 	val_ = __swap_float(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_FLOAT, &val_,

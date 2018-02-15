@@ -107,8 +107,6 @@ typedef union {
 	uint64_t u64;
 	/** Signed 64-bit value. */
 	int64_t s64;
-	/** Float value. */
-	float flt;
 } il_reg_limit_t;
 
 /** Range. */

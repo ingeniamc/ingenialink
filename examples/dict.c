@@ -132,10 +132,6 @@ static void print_reg(const il_reg_t *reg)
 		printf("(%"PRId64", %"PRId64")\n",
 		       reg->range.min.s64, reg->range.max.s64);
 		break;
-	case IL_REG_DTYPE_FLOAT:
-		printf("(%f, %f)\n",
-		       reg->range.min.flt, reg->range.max.flt);
-		break;
 	default:
 		printf("Undefined\n");
 	}
