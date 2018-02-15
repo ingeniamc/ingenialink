@@ -13,36 +13,64 @@ control tasks and communications with Ingenia drives.
 The library provides:
 
 * Simple motion control functions (homing, profile position, etc.)
-* Communications API for Ingenia drives using the IngeniaLink protocol
-  (available on the USB/RS232/RS485 interfaces)
+* Communications API for Ingenia drives (multiple protocols supported)
+* Load and use IngeniaDictionary XML dictionaries
 * Operate directly using units (e.g. degrees, rad/s, etc.)
-* Register polling and monitoring
-* Object oriented interface
-* Supports single link and daisy-chain topologies
+* Register polling and monitoring for scope applications
 * Servo listing and monitoring
+* Object oriented interface
 * Thread-safe communications
 * Descriptive and detailed error messages
 
-It is worth to note that the IngeniaLink protocol was not designed for
-applications (where high-reliability and bandwidth are likely strong
-requirements). You should limit its usage to configuration or evaluation tasks.
-
 ## Building libingenialink
 
-The `libingenialink` library is built using [CMake][cmake] (version 3.0 or
-newer) on all platforms. It depends on [libsercomm][sercomm] and
+`libingenialink` depends on [libsercomm][sercomm] and [libxml2][libxml2]. A
+couple of sections below you will find some instructions on how to build and
+install them. `libingenialink` can be built and installed on any system like
+this:
+
+```sh
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake --build _build
+cmake --build _build --target install
+```
+
+Note that a `INSTALL` is the installation folder.
+
+[sercomm]: https://github.com/ingeniamc/sercomm
+[libxml2]: https://xmlsoft.org
+
+### Build options
+
+The following build options are available:
+
+- `WITH_PROT_EUSB` (ON): Build `EUSB` protocol support.
+- `WITH_PROT_MCB` (OFF): Build `MCB` protocol support (EXPERIMENTAL).
+- `WITH_EXAMPLES` (OFF): When enabled, the library usage example applications
+  will be built.
+- `WITH_DOCS` (OFF): When enabled the API documentation can be built.
+- `WITH_PIC` (OFF): When enabled, generated code will be position independent.
+  This may be useful if you want to embed ingenialink into a dynamic library.
+
+Furthermore, *standard* CMake build options can be used. You may find useful to
+read this list of [useful CMake variables][cmakeuseful].
+
+[cmakeuseful]: https://cmake.org/Wiki/CMake_Useful_Variables
+
+## Dependencies
+
+As mentioned before, `libingenialink` depends on [libsercomm][sercomm] and
 [libxml2][libxml2], both referenced in the [external][external] folder as
-submodules. Therefore, if building them make sure initialize the submodules
+submodules. Therefore, if building them make sure to initialize the submodules
 first:
 
 ```sh
 git submodule init --update --recursive
 ```
 
-Below you can find some building instructions for dependencies and
-`libingenialink`. A local installation folder is assumed (`_install`).
+Below you can find some building instructions for dependencies. Note that
+`INSTALL` is the installation folder.
 
-[cmake]: https://cmake.org
 [sercomm]: https://github.com/ingeniamc/sercomm
 [libxml2]: https://xmlsoft.org
 [external]: https://github.com/ingeniamc/ingenialink/tree/master/external
@@ -53,9 +81,9 @@ Below you can find some building instructions for dependencies and
 like this:
 
 ```sh
-cmake -Hexternal/sercomm -Bexternal/sercomm/_build -DCMAKE_INSTALL_PREFIX=_install
-cmake --build external/sercomm/_build
-cmake --build external/sercomm/_build --target install
+cd external/sercomm
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake --build _build --target install
 ```
 
 ### libxml2
@@ -65,9 +93,9 @@ on some systems, specially on Windows. This is why we provide a CMake script
 to build it on the systems we support. It can be built and installed like this:
 
 ```sh
-cmake -Hexternal/libxml2 -Bexternal/libxml2/_build -DCMAKE_INSTALL_PREFIX=_install
-cmake --build external/libxml2/_build
-cmake --build external/libxml2/_build --target install
+cd external/libxml2
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake --build _build --target install
 ```
 
 If using Linux, we actually recommend installing the library packages from
@@ -81,31 +109,6 @@ On recent versions of macOS, it seems to be already installed on the system. If
 not, you can also use [brew][brew] to install it.
 
 [brew]: https://brew.sh
-
-### libingenialink
-
-`libingenialink` can be built and installed on any system like this:
-
-```sh
-cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
-cmake --build _build
-cmake --build _build --target install
-```
-
-### Build options
-
-The following build options are available:
-
-- `WITH_EXAMPLES` (OFF): When enabled, the library usage example applications
-  will be built.
-- `WITH_DOCS` (OFF): When enabled the API documentation can be built.
-- `WITH_PIC` (OFF): When enabled, generated code will be position independent.
-  This may be useful if you want to embed ingenialink into a dynamic library.
-
-Furthermore, *standard* CMake build options can be used. You may find useful to
-read this list of [useful CMake variables][cmakeuseful].
-
-[cmakeuseful]: https://cmake.org/Wiki/CMake_Useful_Variables
 
 ## Coding standards
 
