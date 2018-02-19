@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,20 +23,8 @@
  */
 
 #include "servo.h"
-#include "mc.h"
 
-#include <assert.h>
-#include <ctype.h>
-#include <string.h>
-
-#define _USE_MATH_DEFINES
-#include <math.h>
-
-#include "public/ingenialink/const.h"
-#include "public/ingenialink/dict.h"
 #include "ingenialink/err.h"
-#include "ingenialink/registers.h"
-#include "ingenialink/utils.h"
 
 /*******************************************************************************
  * Private
@@ -99,7 +87,7 @@ static int get_reg(il_dict_t *dict, const il_reg_t *reg_pdef,
  *	0 on success, error code otherwise.
  */
 static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
-		     const char *id, il_reg_dtype_t dtype, void *buf, size_t sz)
+		    const char *id, il_reg_dtype_t dtype, void *buf, size_t sz)
 {
 	int r;
 	const il_reg_t *reg;
@@ -110,7 +98,7 @@ static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
 		return r;
 
 	/* verify register properties */
-	if ((dtype != IL_REG_DTYPE_RAW) && (reg->dtype != dtype)) {
+	if (reg->dtype != dtype) {
 		ilerr__set("Unexpected register data type");
 		return IL_EINVAL;
 	}
@@ -120,8 +108,7 @@ static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
 		return IL_EACCESS;
 	}
 
-	return il_net__read(servo->net, servo->id, reg->address, buf, sz,
-			    servo->timeout);
+	return il_net__read(servo->net, servo->id, reg->address, buf, sz);
 }
 
 /**
@@ -129,10 +116,8 @@ static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
  *
  * @param [in] servo
  *	Servo.
- * @param [in] reg_pdef
+ * @param [in] reg
  *	Pre-defined register.
- * @param [in] id
- *	Register ID.
  * @param [in] dtype
  *	Expected data type.
  * @param [in] data
@@ -145,20 +130,14 @@ static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
  * @return
  *	0 on success, error code otherwise.
  */
-static int raw_write(il_servo_t *servo, const il_reg_t *reg_pdef,
-		     const char *id, il_reg_dtype_t dtype, const void *data,
-		     size_t sz, int confirmed)
+static int raw_write(il_servo_t *servo, const il_reg_t *reg,
+		     il_reg_dtype_t dtype, const void *data, size_t sz,
+		     int confirmed)
 {
-	int r, confirmed_;
-	const il_reg_t *reg;
-
-	/* obtain register (predefined or from dictionary) */
-	r = get_reg(servo->dict, reg_pdef, id, &reg);
-	if (r < 0)
-		return r;
+	int confirmed_;
 
 	/* verify register properties */
-	if ((dtype != IL_REG_DTYPE_RAW) && (reg->dtype != dtype)) {
+	if (reg->dtype != dtype) {
 		ilerr__set("Unexpected register data type");
 		return IL_EINVAL;
 	}
@@ -172,80 +151,7 @@ static int raw_write(il_servo_t *servo, const il_reg_t *reg_pdef,
 	confirmed_ = (reg->access == IL_REG_ACCESS_WO) ? 0 : confirmed;
 
 	return il_net__write(servo->net, servo->id, reg->address, data, sz,
-			     confirmed_, servo->timeout);
-}
-
-/**
- * Decode the PDS state.
- *
- * @param [in] sw
- *	Statusword value.
- *
- * @return
- *	PDS state (IL_SERVO_STATE_NRDY if unknown).
- */
-static il_servo_state_t pds_state_decode(uint16_t sw)
-{
-	if ((sw & IL_MC_PDS_STA_NRTSO_MSK) == IL_MC_PDS_STA_NRTSO)
-		return IL_SERVO_STATE_NRDY;
-	else if ((sw & IL_MC_PDS_STA_SOD_MSK) == IL_MC_PDS_STA_SOD)
-		return IL_SERVO_STATE_DISABLED;
-	else if ((sw & IL_MC_PDS_STA_RTSO_MSK) == IL_MC_PDS_STA_RTSO)
-		return IL_SERVO_STATE_RDY;
-	else if ((sw & IL_MC_PDS_STA_SO_MSK) == IL_MC_PDS_STA_SO)
-		return IL_SERVO_STATE_ON;
-	else if ((sw & IL_MC_PDS_STA_OE_MSK) == IL_MC_PDS_STA_OE)
-		return IL_SERVO_STATE_ENABLED;
-	else if ((sw & IL_MC_PDS_STA_QSA_MSK) == IL_MC_PDS_STA_QSA)
-		return IL_SERVO_STATE_QSTOP;
-	else if ((sw & IL_MC_PDS_STA_FRA_MSK) == IL_MC_PDS_STA_FRA)
-		return IL_SERVO_STATE_FAULTR;
-	else if ((sw & IL_MC_PDS_STA_F_MSK) == IL_MC_PDS_STA_F)
-		return IL_SERVO_STATE_FAULT;
-
-	return IL_SERVO_STATE_NRDY;
-}
-
-/**
- * Statusword update callback
- *
- * @param [in] ctx
- *	Context (servo_t *).
- * @param [in] sw
- *	Statusword value.
- */
-static void sw_update(void *ctx, uint16_t sw)
-{
-	il_servo_t *servo = ctx;
-
-	osal_mutex_lock(servo->sw.lock);
-
-	if (servo->sw.value != sw) {
-		servo->sw.value = sw;
-		osal_cond_broadcast(servo->sw.changed);
-	}
-
-	osal_mutex_unlock(servo->sw.lock);
-}
-
-/**
- * Obtain the current statusword value.
- *
- * @param [in] servo
- *	IngeniaLink servo.
- *
- * @return
- *	Statusword value.
- */
-static uint16_t sw_get(il_servo_t *servo)
-{
-	uint16_t sw;
-
-	osal_mutex_lock(servo->sw.lock);
-	sw = servo->sw.value;
-	osal_mutex_unlock(servo->sw.lock);
-
-	return sw;
+			     confirmed_);
 }
 
 /**
@@ -326,47 +232,25 @@ unlock:
 }
 
 /**
- * Wait until the statusword has the requested value
+ * Statusword update callback
  *
- * @note
- *	The timeout is not an absolute timeout, but an interval timeout.
- *
- * @param [in] servo
- *	IngeniaLink servo.
- * @param [in] msk
- *	Statusword mask.
- * @param [in] val
+ * @param [in] ctx
+ *	Context (servo_t *).
+ * @param [in] sw
  *	Statusword value.
- * @param [in] timeout
- *	Timeout (ms).
  */
-static int sw_wait_value(il_servo_t *servo, uint16_t msk, uint16_t val,
-			 int timeout)
+static void sw_update(void *ctx, uint16_t sw)
 {
-	int r = 0;
-	uint16_t result;
+	il_servo_t *servo = ctx;
 
-	/* wait until the flag changes to the requested state */
 	osal_mutex_lock(servo->sw.lock);
 
-	do {
-		result = servo->sw.value & msk;
-		if (result != val) {
-			r = osal_cond_wait(servo->sw.changed, servo->sw.lock,
-					   timeout);
-			if (r == OSAL_ETIMEDOUT) {
-				ilerr__set("Operation timed out");
-				r = IL_ETIMEDOUT;
-			} else if (r < 0) {
-				ilerr__set("Statusword wait change failed");
-				r = IL_EFAIL;
-			}
-		}
-	} while ((result != val) && (r == 0));
+	if (servo->sw.value != sw) {
+		servo->sw.value = sw;
+		osal_cond_broadcast(servo->sw.changed);
+	}
 
 	osal_mutex_unlock(servo->sw.lock);
-
-	return r;
 }
 
 /**
@@ -380,7 +264,9 @@ static int state_subs_monitor(void *args)
 	il_servo_t *servo = args;
 	uint16_t sw;
 
-	sw = sw_get(servo);
+	osal_mutex_lock(servo->sw.lock);
+	sw = servo->sw.value;
+	osal_mutex_unlock(servo->sw.lock);
 
 	while (!servo->state_subs.stop) {
 		int timeout;
@@ -394,8 +280,7 @@ static int state_subs_monitor(void *args)
 			continue;
 
 		/* obtain state/flags */
-		state = pds_state_decode(sw);
-		flags = (int)(sw >> FLAGS_SW_POS);
+		servo->ops->_state_decode(sw, &state, &flags);
 
 		/* notify all subscribers */
 		osal_mutex_lock(servo->state_subs.lock);
@@ -497,120 +382,39 @@ static int emcy_subs_monitor(void *args)
 	return 0;
 }
 
-/**
- * Destroy servo instance.
- *
- * @param [in] ctx
- *	Context (il_servo_t *).
- */
-static void servo_destroy(void *ctx)
-{
-	il_servo_t *servo = ctx;
-
-	servo->emcy_subs.stop = 1;
-	(void)osal_thread_join(servo->emcy_subs.monitor, NULL);
-	osal_mutex_destroy(servo->emcy_subs.lock);
-	free(servo->emcy_subs.subs);
-
-	il_net__emcy_unsubscribe(servo->net, servo->emcy.slot);
-	osal_cond_destroy(servo->emcy.not_empty);
-	osal_mutex_destroy(servo->emcy.lock);
-
-	servo->state_subs.stop = 1;
-	(void)osal_thread_join(servo->state_subs.monitor, NULL);
-	osal_mutex_destroy(servo->state_subs.lock);
-	free(servo->state_subs.subs);
-
-	il_net__sw_unsubscribe(servo->net, servo->sw.slot);
-	osal_cond_destroy(servo->sw.changed);
-	osal_mutex_destroy(servo->sw.lock);
-
-	osal_mutex_destroy(servo->units.lock);
-
-	if (servo->dict)
-		il_dict_destroy(servo->dict);
-
-	il_net__release(servo->net);
-
-	free(servo);
-}
-
 /*******************************************************************************
- * Internal
+ * Base implementation
  ******************************************************************************/
 
-void il_servo__retain(il_servo_t *servo)
-{
-	il_utils__refcnt_retain(servo->refcnt);
-}
-
-void il_servo__release(il_servo_t *servo)
-{
-	il_utils__refcnt_release(servo->refcnt);
-}
-
-/*******************************************************************************
- * Public
- ******************************************************************************/
-
-il_servo_t *il_servo_create(il_net_t *net, uint8_t id, const char *dict,
-			    int timeout)
+int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
+			const char *dict)
 {
 	int r;
 
-	il_servo_t *servo;
-	uint16_t sw;
+	/* initialize */
+	servo->net = net;
+	servo->id = id;
 
-	assert(net);
-
-	/* validate node id */
-	if ((id < SERVOID_MIN) || (id > SERVOID_MAX)) {
-		ilerr__set("Servo id out of range");
-		return NULL;
-	}
-
-	/* allocate servo */
-	servo = malloc(sizeof(*servo));
-	if (!servo) {
-		ilerr__set("Servo allocation failed");
-		return NULL;
-	}
+	il_net__retain(servo->net);
 
 	/* load dictionary (optional) */
 	if (dict) {
 		servo->dict = il_dict_create(dict);
-		if (!servo->dict)
-			goto cleanup_servo;
+		if (!servo->dict) {
+			r = IL_EFAIL;
+			goto cleanup_net;
+		}
 	} else {
 		servo->dict = NULL;
 	}
-
-	/* initialize, setup refcnt */
-	servo->net = net;
-	il_net__retain(servo->net);
-	servo->id = id;
-	servo->timeout = timeout;
-
-	servo->refcnt = il_utils__refcnt_create(servo_destroy, servo);
-	if (!servo->refcnt)
-		goto cleanup_dict;
-
-
-	/* obtain current operation mode */
-	r = il_servo_mode_get(servo, &servo->mode);
-	if (r < 0)
-		goto cleanup_refcnt;
 
 	/* configure units */
 	servo->units.lock = osal_mutex_create();
 	if (!servo->units.lock) {
 		ilerr__set("Units lock allocation failed");
-		goto cleanup_refcnt;
+		r = IL_EFAIL;
+		goto cleanup_dict;
 	}
-
-	r = il_servo_units_update(servo);
-	if (r < 0)
-		goto cleanup_units_lock;
 
 	servo->units.torque = IL_UNITS_TORQUE_NATIVE;
 	servo->units.pos = IL_UNITS_POS_NATIVE;
@@ -621,12 +425,14 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, const char *dict,
 	servo->sw.lock = osal_mutex_create();
 	if (!servo->sw.lock) {
 		ilerr__set("Statusword subscriber lock allocation failed");
+		r = IL_EFAIL;
 		goto cleanup_units_lock;
 	}
 
 	servo->sw.changed = osal_cond_create();
 	if (!servo->sw.changed) {
 		ilerr__set("Statusword subscriber condition allocation failed");
+		r = IL_EFAIL;
 		goto cleanup_sw_lock;
 	}
 
@@ -638,14 +444,12 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, const char *dict,
 
 	servo->sw.slot = r;
 
-	/* trigger update (with manual read) */
-	(void)il_servo_raw_read_u16(servo, &IL_REG_STS_WORD, NULL, &sw);
-
 	/* configute external state subscriptors */
 	servo->state_subs.subs = calloc(STATE_SUBS_SZ_DEF,
 					sizeof(*servo->state_subs.subs));
 	if (!servo->state_subs.subs) {
 		ilerr__set("State subscribers allocation failed");
+		r = IL_EFAIL;
 		goto cleanup_sw_subscribe;
 	}
 
@@ -654,6 +458,7 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, const char *dict,
 	servo->state_subs.lock = osal_mutex_create();
 	if (!servo->state_subs.lock) {
 		ilerr__set("State subscription lock allocation failed");
+		r = IL_EFAIL;
 		goto cleanup_state_subs_subs;
 	}
 
@@ -663,6 +468,7 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, const char *dict,
 						       servo);
 	if (!servo->state_subs.monitor) {
 		ilerr__set("State change monitor could not be created");
+		r = IL_EFAIL;
 		goto cleanup_state_subs_lock;
 	}
 
@@ -670,12 +476,14 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, const char *dict,
 	servo->emcy.lock = osal_mutex_create();
 	if (!servo->emcy.lock) {
 		ilerr__set("Emergency subscriber lock allocation failed");
+		r = IL_EFAIL;
 		goto cleanup_state_subs_monitor;
 	}
 
 	servo->emcy.not_empty = osal_cond_create();
 	if (!servo->emcy.not_empty) {
 		ilerr__set("Emergency subscriber condition allocation failed");
+		r = IL_EFAIL;
 		goto cleanup_emcy_lock;
 	}
 
@@ -694,6 +502,7 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, const char *dict,
 				       sizeof(*servo->emcy_subs.subs));
 	if (!servo->emcy_subs.subs) {
 		ilerr__set("Emergency subscribers allocation failed");
+		r = IL_EFAIL;
 		goto cleanup_emcy_subscribe;
 	}
 
@@ -702,6 +511,7 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, const char *dict,
 	servo->emcy_subs.lock = osal_mutex_create();
 	if (!servo->emcy_subs.lock) {
 		ilerr__set("Emergency subscription lock allocation failed");
+		r = IL_EFAIL;
 		goto cleanup_emcy_subs_subs;
 	}
 
@@ -709,10 +519,11 @@ il_servo_t *il_servo_create(il_net_t *net, uint8_t id, const char *dict,
 	servo->emcy_subs.monitor = osal_thread_create(emcy_subs_monitor, servo);
 	if (!servo->emcy_subs.monitor) {
 		ilerr__set("Emergency monitor could not be created");
+		r = IL_EFAIL;
 		goto cleanup_emcy_subs_lock;
 	}
 
-	return servo;
+	return 0;
 
 cleanup_emcy_subs_lock:
 	osal_mutex_destroy(servo->emcy_subs.lock);
@@ -751,88 +562,61 @@ cleanup_sw_lock:
 cleanup_units_lock:
 	osal_mutex_destroy(servo->units.lock);
 
-cleanup_refcnt:
-	il_utils__refcnt_destroy(servo->refcnt);
-
 cleanup_dict:
 	if (servo->dict)
 		il_dict_destroy(servo->dict);
 
-cleanup_servo:
+cleanup_net:
 	il_net__release(servo->net);
-	free(servo);
 
-	return NULL;
+	return r;
 }
 
-void il_servo_destroy(il_servo_t *servo)
+void il_servo_base__deinit(il_servo_t *servo)
 {
-	assert(servo);
+	servo->emcy_subs.stop = 1;
+	(void)osal_thread_join(servo->emcy_subs.monitor, NULL);
+	osal_mutex_destroy(servo->emcy_subs.lock);
+	free(servo->emcy_subs.subs);
 
-	il_utils__refcnt_release(servo->refcnt);
+	il_net__emcy_unsubscribe(servo->net, servo->emcy.slot);
+	osal_cond_destroy(servo->emcy.not_empty);
+	osal_mutex_destroy(servo->emcy.lock);
+
+	servo->state_subs.stop = 1;
+	(void)osal_thread_join(servo->state_subs.monitor, NULL);
+	osal_mutex_destroy(servo->state_subs.lock);
+	free(servo->state_subs.subs);
+
+	il_net__sw_unsubscribe(servo->net, servo->sw.slot);
+	osal_cond_destroy(servo->sw.changed);
+	osal_mutex_destroy(servo->sw.lock);
+
+	osal_mutex_destroy(servo->units.lock);
+
+	if (servo->dict)
+		il_dict_destroy(servo->dict);
+
+	il_net__release(servo->net);
 }
 
-int il_servo_lucky(il_net_t **net, il_servo_t **servo, const char *dict)
-{
-	il_net_dev_list_t *devs, *dev;
-	il_net_servos_list_t *servo_ids, *servo_id;
-
-	assert(net);
-	assert(servo);
-
-	/* scan all available network devices */
-	devs = il_net_dev_list_get();
-	il_net_dev_list_foreach(dev, devs) {
-		*net = il_net_create(dev->port);
-		if (!*net)
-			continue;
-
-		/* try to connect to any available servo */
-		servo_ids = il_net_servos_list_get(*net, NULL, NULL);
-		il_net_servos_list_foreach(servo_id, servo_ids) {
-			*servo = il_servo_create(*net, servo_id->id, dict,
-						 IL_SERVO_TIMEOUT_DEF);
-			/* found */
-			if (*servo) {
-				il_net_servos_list_destroy(servo_ids);
-				il_net_dev_list_destroy(devs);
-
-				return 0;
-			}
-		}
-
-		il_net_servos_list_destroy(servo_ids);
-		il_net_destroy(*net);
-	}
-
-	il_net_dev_list_destroy(devs);
-
-	ilerr__set("No connected servos found");
-	return IL_EFAIL;
-}
-
-void il_servo_state_get(il_servo_t *servo, il_servo_state_t *state, int *flags)
+void il_servo_base__state_get(il_servo_t *servo, il_servo_state_t *state,
+			      int *flags)
 {
 	uint16_t sw;
 
-	assert(servo);
-	assert(state);
-	assert(flags);
+	osal_mutex_lock(servo->sw.lock);
+	sw = servo->sw.value;
+	osal_mutex_unlock(servo->sw.lock);
 
-	sw = sw_get(servo);
-
-	*state = pds_state_decode(sw);
-	*flags = (int)(sw >> FLAGS_SW_POS);
+	servo->ops->_state_decode(sw, state, flags);
 }
 
-int il_servo_state_subscribe(il_servo_t *servo,
-			     il_servo_state_subscriber_cb_t cb, void *ctx)
+int il_servo_base__state_subscribe(il_servo_t *servo,
+				   il_servo_state_subscriber_cb_t cb, void *ctx)
 {
 	int r = 0;
 	int slot;
-
-	assert(servo);
-	assert(cb);
 
 	osal_mutex_lock(servo->state_subs.lock);
 
@@ -871,10 +655,8 @@ unlock:
 	return r;
 }
 
-void il_servo_state_unsubscribe(il_servo_t *servo, int slot)
+void il_servo_base__state_unsubscribe(il_servo_t *servo, int slot)
 {
-	assert(servo);
-
 	osal_mutex_lock(servo->state_subs.lock);
 
 	/* skip out of range slot */
@@ -887,14 +669,11 @@ void il_servo_state_unsubscribe(il_servo_t *servo, int slot)
 	osal_mutex_unlock(servo->state_subs.lock);
 }
 
-int il_servo_emcy_subscribe(il_servo_t *servo, il_servo_emcy_subscriber_cb_t cb,
-			    void *ctx)
+int il_servo_base__emcy_subscribe(il_servo_t *servo,
+				  il_servo_emcy_subscriber_cb_t cb, void *ctx)
 {
 	int r = 0;
 	int slot;
-
-	assert(servo);
-	assert(cb);
 
 	osal_mutex_lock(servo->emcy_subs.lock);
 
@@ -933,10 +712,8 @@ unlock:
 	return r;
 }
 
-void il_servo_emcy_unsubscribe(il_servo_t *servo, int slot)
+void il_servo_base__emcy_unsubscribe(il_servo_t *servo, int slot)
 {
-	assert(servo);
-
 	osal_mutex_lock(servo->emcy_subs.lock);
 
 	/* skip out of range slot */
@@ -949,17 +726,13 @@ void il_servo_emcy_unsubscribe(il_servo_t *servo, int slot)
 	osal_mutex_unlock(servo->emcy_subs.lock);
 }
 
-il_dict_t *il_servo_dict_get(il_servo_t *servo)
+il_dict_t *il_servo_base__dict_get(il_servo_t *servo)
 {
-	assert(servo);
-
 	return servo->dict;
 }
 
-int il_servo_dict_load(il_servo_t *servo, const char *dict)
+int il_servo_base__dict_load(il_servo_t *servo, const char *dict)
 {
-	assert(servo);
-
 	if (servo->dict) {
 		ilerr__set("Dictionary already loaded");
 		return IL_EALREADY;
@@ -972,284 +745,9 @@ int il_servo_dict_load(il_servo_t *servo, const char *dict)
 	return 0;
 }
 
-int il_servo_name_get(il_servo_t *servo, char *name, size_t sz)
-{
-	int r;
-
-	assert(name);
-
-	if (sz < IL_SERVO_NAME_SZ) {
-		ilerr__set("Insufficient name buffer size");
-		return IL_ENOMEM;
-	}
-
-	r = raw_read(servo, &IL_REG_DRIVE_NAME, NULL, IL_REG_DTYPE_RAW,
-		     name, sz);
-	if (r < 0)
-		return r;
-
-	name[IL_SERVO_NAME_SZ - 1] = '\0';
-
-	return 0;
-}
-
-int il_servo_name_set(il_servo_t *servo, const char *name)
-{
-	size_t sz;
-	char name_[IL_SERVO_NAME_SZ] = { '\0' };
-
-	assert(name);
-
-	/* clip name to the maximum size */
-	sz = MIN(strlen(name), IL_SERVO_NAME_SZ - 1);
-	memcpy(name_, name, sz);
-
-	return raw_write(servo, &IL_REG_DRIVE_NAME, NULL, IL_REG_DTYPE_RAW,
-			 name_, sizeof(name_) - 1, 1);
-}
-
-int il_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
-{
-	int r;
-	size_t i;
-
-	assert(info);
-
-	r = il_servo_raw_read_u32(servo, &IL_REG_ID_SERIAL, NULL,
-				  &info->serial);
-	if (r < 0)
-		return r;
-
-	r = il_servo_name_get(servo, info->name, sizeof(info->name));
-	if (r < 0)
-		return r;
-
-	memset(info->sw_version, 0, sizeof(info->sw_version));
-	r = raw_read(servo, &IL_REG_SW_VERSION, NULL, IL_REG_DTYPE_RAW,
-		     info->sw_version, sizeof(info->sw_version) - 1);
-	if (r < 0)
-		return r;
-
-	memset(info->hw_variant, 0, sizeof(info->hw_variant));
-	r = raw_read(servo, &IL_REG_HW_VARIANT, NULL, IL_REG_DTYPE_RAW,
-		     info->hw_variant, sizeof(info->hw_variant) - 1);
-	if (r < 0)
-		return r;
-
-	/* FIX: hardware variant may not be present in all devices. If not
-	 * present it may contain random non-printable characters, so make
-	 * it null.
-	 */
-	for (i = 0; i < sizeof(info->hw_variant); i++) {
-		if (info->hw_variant[i] != '\0' &&
-		    !isprint((int)info->hw_variant[i])) {
-			memset(info->hw_variant, 0, sizeof(info->hw_variant));
-			break;
-		}
-	}
-
-	r = il_servo_raw_read_u32(servo, &IL_REG_ID_PROD_CODE, NULL,
-				  &info->prod_code);
-	if (r < 0)
-		return r;
-
-	return il_servo_raw_read_u32(servo, &IL_REG_ID_REVISION, NULL,
-				     &info->revision);
-}
-
-int il_servo_store_all(il_servo_t *servo)
-{
-	return il_servo_raw_write_u32(servo, &IL_REG_STORE_ALL, NULL,
-				      ILK_SIGNATURE_STORE, 0);
-}
-
-int il_servo_store_comm(il_servo_t *servo)
-{
-	return il_servo_raw_write_u32(servo, &IL_REG_STORE_COMM, NULL,
-				      ILK_SIGNATURE_STORE, 0);
-}
-
-int il_servo_store_app(il_servo_t *servo)
-{
-	return il_servo_raw_write_u32(servo, &IL_REG_STORE_APP, NULL,
-				      ILK_SIGNATURE_STORE, 0);
-}
-
-int il_servo_units_update(il_servo_t *servo)
-{
-	int r;
-	uint32_t rated_torque, pos_res, vel_res, ppitch;
-
-	assert(servo);
-
-	r = il_servo_raw_read_u32(servo, &IL_REG_RATED_TORQUE, NULL,
-				  &rated_torque);
-	if (r < 0)
-		return r;
-
-	r = il_servo_position_res_get(servo, &pos_res);
-	if (r < 0)
-		return r;
-
-	r = il_servo_velocity_res_get(servo, &vel_res);
-	if (r < 0)
-		return r;
-
-	r = il_servo_raw_read_u32(servo, &IL_REG_MOTPARAM_PPITCH, NULL,
-				  &ppitch);
-	if (r < 0)
-		return r;
-
-	servo->cfg.rated_torque = (double)rated_torque;
-	servo->cfg.pos_res = (double)pos_res;
-	servo->cfg.vel_res = (double)vel_res;
-	servo->cfg.acc_res = servo->cfg.pos_res;
-	servo->cfg.ppitch = (double)ppitch / 1000000;
-
-	return 0;
-}
-
-double il_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
-{
-	double factor;
-
-	assert(servo);
-	assert(reg);
-
-	osal_mutex_lock(servo->units.lock);
-
-	switch (reg->phy) {
-	case IL_REG_PHY_TORQUE:
-		switch (servo->units.torque) {
-		case IL_UNITS_TORQUE_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_TORQUE_MN:
-			factor = servo->cfg.rated_torque / 1000000.;
-			break;
-		case IL_UNITS_TORQUE_N:
-			factor = servo->cfg.rated_torque / 1000.;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	case IL_REG_PHY_POS:
-		switch (servo->units.pos) {
-		case IL_UNITS_POS_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_POS_REV:
-			factor = 1. / servo->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_RAD:
-			factor = 2. * M_PI / servo->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_DEG:
-			factor = 360. / servo->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_UM:
-			factor = 1000000. * servo->cfg.ppitch /
-				 servo->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_MM:
-			factor = 1000. * servo->cfg.ppitch / servo->cfg.pos_res;
-			break;
-		case IL_UNITS_POS_M:
-			factor = 1. * servo->cfg.ppitch / servo->cfg.pos_res;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	case IL_REG_PHY_VEL:
-		switch (servo->units.vel) {
-		case IL_UNITS_VEL_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_VEL_RPS:
-			factor = 1. / servo->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_RPM:
-			factor = 60. / servo->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_RAD_S:
-			factor = 2. * M_PI / servo->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_DEG_S:
-			factor = 360. / servo->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_UM_S:
-			factor = 1000000. * servo->cfg.ppitch /
-				 servo->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_MM_S:
-			factor = 1000. * servo->cfg.ppitch / servo->cfg.vel_res;
-			break;
-		case IL_UNITS_VEL_M_S:
-			factor = 1. * servo->cfg.ppitch / servo->cfg.vel_res;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	case IL_REG_PHY_ACC:
-		switch (servo->units.acc) {
-		case IL_UNITS_ACC_NATIVE:
-			factor = 1.;
-			break;
-		case IL_UNITS_ACC_REV_S2:
-			factor = 1. / servo->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_RAD_S2:
-			factor = 2. * M_PI / servo->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_DEG_S2:
-			factor = 360. / servo->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_UM_S2:
-			factor = 1000000. * servo->cfg.ppitch /
-				 servo->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_MM_S2:
-			factor = 1000. * servo->cfg.ppitch / servo->cfg.acc_res;
-			break;
-		case IL_UNITS_ACC_M_S2:
-			factor = 1. * servo->cfg.ppitch / servo->cfg.acc_res;
-			break;
-		default:
-			factor = 1.;
-			break;
-		}
-
-		break;
-	case IL_REG_PHY_VOLT_REL:
-		factor = 1. / VOLT_REL_RANGE;
-		break;
-	case IL_REG_PHY_RAD:
-		factor = 2. * M_PI / RAD_RANGE;
-		break;
-	default:
-		factor = 1.;
-		break;
-	}
-
-	osal_mutex_unlock(servo->units.lock);
-
-	return factor;
-}
-
-il_units_torque_t il_servo_units_torque_get(il_servo_t *servo)
+il_units_torque_t il_servo_base__units_torque_get(il_servo_t *servo)
 {
 	il_units_torque_t units;
-
-	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	units = servo->units.torque;
@@ -1258,20 +756,16 @@ il_units_torque_t il_servo_units_torque_get(il_servo_t *servo)
 	return units;
 }
 
-void il_servo_units_torque_set(il_servo_t *servo, il_units_torque_t units)
+void il_servo_base__units_torque_set(il_servo_t *servo, il_units_torque_t units)
 {
-	assert(servo);
-
 	osal_mutex_lock(servo->units.lock);
 	servo->units.torque = units;
 	osal_mutex_unlock(servo->units.lock);
 }
 
-il_units_pos_t il_servo_units_pos_get(il_servo_t *servo)
+il_units_pos_t il_servo_base__units_pos_get(il_servo_t *servo)
 {
 	il_units_pos_t units;
-
-	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	units = servo->units.pos;
@@ -1280,20 +774,16 @@ il_units_pos_t il_servo_units_pos_get(il_servo_t *servo)
 	return units;
 }
 
-void il_servo_units_pos_set(il_servo_t *servo, il_units_pos_t units)
+void il_servo_base__units_pos_set(il_servo_t *servo, il_units_pos_t units)
 {
-	assert(servo);
-
 	osal_mutex_lock(servo->units.lock);
 	servo->units.pos = units;
 	osal_mutex_unlock(servo->units.lock);
 }
 
-il_units_vel_t il_servo_units_vel_get(il_servo_t *servo)
+il_units_vel_t il_servo_base__units_vel_get(il_servo_t *servo)
 {
 	il_units_vel_t units;
-
-	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	units = servo->units.vel;
@@ -1302,20 +792,16 @@ il_units_vel_t il_servo_units_vel_get(il_servo_t *servo)
 	return units;
 }
 
-void il_servo_units_vel_set(il_servo_t *servo, il_units_vel_t units)
+void il_servo_base__units_vel_set(il_servo_t *servo, il_units_vel_t units)
 {
-	assert(servo);
-
 	osal_mutex_lock(servo->units.lock);
 	servo->units.vel = units;
 	osal_mutex_unlock(servo->units.lock);
 }
 
-il_units_acc_t il_servo_units_acc_get(il_servo_t *servo)
+il_units_acc_t il_servo_base__units_acc_get(il_servo_t *servo)
 {
 	il_units_acc_t units;
-
-	assert(servo);
 
 	osal_mutex_lock(servo->units.lock);
 	units = servo->units.acc;
@@ -1324,29 +810,27 @@ il_units_acc_t il_servo_units_acc_get(il_servo_t *servo)
 	return units;
 }
 
-void il_servo_units_acc_set(il_servo_t *servo, il_units_acc_t units)
+void il_servo_base__units_acc_set(il_servo_t *servo, il_units_acc_t units)
 {
-	assert(servo);
-
 	osal_mutex_lock(servo->units.lock);
 	servo->units.acc = units;
 	osal_mutex_unlock(servo->units.lock);
 }
 
-int il_servo_raw_read_u8(il_servo_t *servo, const il_reg_t *reg, const char *id,
-			 uint8_t *buf)
+int il_servo_base__raw_read_u8(il_servo_t *servo, const il_reg_t *reg,
+			       const char *id, uint8_t *buf)
 {
 	return raw_read(servo, reg, id, IL_REG_DTYPE_U8, buf, sizeof(*buf));
 }
 
-int il_servo_raw_read_s8(il_servo_t *servo, const il_reg_t *reg, const char *id,
-			 int8_t *buf)
+int il_servo_base__raw_read_s8(il_servo_t *servo, const il_reg_t *reg,
+			       const char *id, int8_t *buf)
 {
 	return raw_read(servo, reg, id, IL_REG_DTYPE_S8, buf, sizeof(*buf));
 }
 
-int il_servo_raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, uint16_t *buf)
+int il_servo_base__raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
+				const char *id, uint16_t *buf)
 {
 	int r;
 
@@ -1357,8 +841,8 @@ int il_servo_raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
 	return r;
 }
 
-int il_servo_raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, int16_t *buf)
+int il_servo_base__raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
+				const char *id, int16_t *buf)
 {
 	int r;
 
@@ -1369,8 +853,8 @@ int il_servo_raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
 	return r;
 }
 
-int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, uint32_t *buf)
+int il_servo_base__raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
+				const char *id, uint32_t *buf)
 {
 	int r;
 
@@ -1381,8 +865,8 @@ int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
 	return r;
 }
 
-int il_servo_raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, int32_t *buf)
+int il_servo_base__raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
+				const char *id, int32_t *buf)
 {
 	int r;
 
@@ -1393,8 +877,8 @@ int il_servo_raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
 	return r;
 }
 
-int il_servo_raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, uint64_t *buf)
+int il_servo_base__raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
+				const char *id, uint64_t *buf)
 {
 	int r;
 
@@ -1405,8 +889,8 @@ int il_servo_raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
 	return r;
 }
 
-int il_servo_raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, int64_t *buf)
+int il_servo_base__raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
+				const char *id, int64_t *buf)
 {
 	int r;
 
@@ -1417,8 +901,20 @@ int il_servo_raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
 	return r;
 }
 
-int il_servo_read(il_servo_t *servo, const il_reg_t *reg, const char *id,
-		  double *buf)
+int il_servo_base__raw_read_float(il_servo_t *servo, const il_reg_t *reg,
+				  const char *id, float *buf)
+{
+	int r;
+
+	r = raw_read(servo, reg, id, IL_REG_DTYPE_FLOAT, buf, sizeof(*buf));
+	if (r == 0)
+		*buf = __swap_float(*buf);
+
+	return r;
+}
+
+int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
+			double *buf)
 {
 	int r;
 
@@ -1431,11 +927,10 @@ int il_servo_read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	int8_t s8_v;
 	int16_t s16_v;
 	int32_t s32_v;
+	int64_t s64_v;
+	float float_v;
 
-	int64_t buf_;
-
-	assert(servo);
-	assert(buf);
+	double buf_;
 
 	/* obtain register (predefined or from dictionary) */
 	r = get_reg(servo->dict, reg, id, &reg_);
@@ -1446,34 +941,39 @@ int il_servo_read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	switch (reg_->dtype) {
 	case IL_REG_DTYPE_U8:
 		r = il_servo_raw_read_u8(servo, reg_, NULL, &u8_v);
-		buf_ = (int64_t)u8_v;
+		buf_ = (float)u8_v;
 		break;
 	case IL_REG_DTYPE_S8:
 		r = il_servo_raw_read_s8(servo, reg_, NULL, &s8_v);
-		buf_ = (int64_t)s8_v;
+		buf_ = (float)s8_v;
 		break;
 	case IL_REG_DTYPE_U16:
 		r = il_servo_raw_read_u16(servo, reg_, NULL, &u16_v);
-		buf_ = (int64_t)u16_v;
+		buf_ = (float)u16_v;
 		break;
 	case IL_REG_DTYPE_S16:
 		r = il_servo_raw_read_s16(servo, reg_, NULL, &s16_v);
-		buf_ = (int64_t)s16_v;
+		buf_ = (float)s16_v;
 		break;
 	case IL_REG_DTYPE_U32:
 		r = il_servo_raw_read_u32(servo, reg_, NULL, &u32_v);
-		buf_ = (int64_t)u32_v;
+		buf_ = (float)u32_v;
 		break;
 	case IL_REG_DTYPE_S32:
 		r = il_servo_raw_read_s32(servo, reg_, NULL, &s32_v);
-		buf_ = (int64_t)s32_v;
+		buf_ = (float)s32_v;
 		break;
 	case IL_REG_DTYPE_U64:
 		r = il_servo_raw_read_u64(servo, reg_, NULL, &u64_v);
-		buf_ = (int64_t)u64_v;
+		buf_ = (float)u64_v;
 		break;
 	case IL_REG_DTYPE_S64:
-		r = il_servo_raw_read_s64(servo, reg_, NULL, &buf_);
+		r = il_servo_raw_read_s64(servo, reg_, NULL, &s64_v);
+		buf_ = (float)s64_v;
+		break;
+	case IL_REG_DTYPE_FLOAT:
+		r = il_servo_raw_read_float(servo, reg_, NULL, &float_v);
+		buf_ = (double)float_v;
 		break;
 	default:
 		ilerr__set("Unsupported register data type");
@@ -1489,95 +989,200 @@ int il_servo_read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	return 0;
 }
 
-int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, uint8_t val, int confirm)
+int il_servo_base__raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
+				const char *id, uint8_t val, int confirm)
 {
-	return raw_write(servo, reg, id, IL_REG_DTYPE_U8, &val, sizeof(val),
+	int r;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.u8) || (val > reg->range.max.u8)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
+
+	return raw_write(servo, reg_, IL_REG_DTYPE_U8, &val, sizeof(val),
 			 confirm);
 }
 
-int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, int8_t val, int confirm)
+int il_servo_base__raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
+				const char *id, int8_t val, int confirm)
 {
-	return raw_write(servo, reg, id, IL_REG_DTYPE_S8, &val, sizeof(val),
+	int r;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.s8) || (val > reg->range.max.s8)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
+
+	return raw_write(servo, reg_, IL_REG_DTYPE_S8, &val, sizeof(val),
 			 confirm);
 }
 
-int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, uint16_t val, int confirm)
+int il_servo_base__raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
+				 const char *id, uint16_t val, int confirm)
 {
+	int r;
 	uint16_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.u16) || (val > reg->range.max.u16)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = __swap_16(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_U16, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_U16, &val_, sizeof(val_),
 			 confirm);
 }
 
-int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, int16_t val, int confirm)
+int il_servo_base__raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
+				 const char *id, int16_t val, int confirm)
 {
+	int r;
 	int16_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.s16) || (val > reg->range.max.s16)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = (int16_t)__swap_16(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_S16, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_S16, &val_, sizeof(val_),
 			 confirm);
 }
 
-int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, uint32_t val, int confirm)
+int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
+				 const char *id, uint32_t val, int confirm)
 {
+	int r;
 	uint32_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.u32) || (val > reg->range.max.u32)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = __swap_32(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_U32, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_U32, &val_, sizeof(val_),
 			 confirm);
 }
 
-int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, int32_t val, int confirm)
+int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
+				 const char *id, int32_t val, int confirm)
 {
+	int r;
 	int32_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.s32) || (val > reg->range.max.s32)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = (int32_t)__swap_32(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_S32, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_S32, &val_, sizeof(val_),
 			 confirm);
 }
 
-int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, uint64_t val, int confirm)
+int il_servo_base__raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
+				 const char *id, uint64_t val, int confirm)
 {
+	int r;
 	uint64_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.u64) || (val > reg->range.max.u64)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = __swap_64(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_U64, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_U64, &val_, sizeof(val_),
 			 confirm);
 }
 
-int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, int64_t val, int confirm)
+int il_servo_base__raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
+				 const char *id, int64_t val, int confirm)
 {
+	int r;
 	int64_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if ((val < reg->range.min.s64) || (val > reg->range.max.s64)) {
+		ilerr__set("Value out of range");
+		return IL_EINVAL;
+	}
 
 	val_ = (int64_t)__swap_64(val);
 
-	return raw_write(servo, reg, id, IL_REG_DTYPE_S64, &val_, sizeof(val_),
+	return raw_write(servo, reg_, IL_REG_DTYPE_S64, &val_, sizeof(val_),
 			 confirm);
 }
 
-int il_servo_write(il_servo_t *servo, const il_reg_t *reg, const char *id,
-		   double val, int confirm)
+int il_servo_base__raw_write_float(il_servo_t *servo, const il_reg_t *reg,
+				   const char *id, float val, int confirm)
+{
+	int r;
+	float val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	val_ = __swap_float(val);
+
+	return raw_write(servo, reg_, IL_REG_DTYPE_FLOAT, &val_,
+			 sizeof(val_), confirm);
+}
+
+int il_servo_base__write(il_servo_t *servo, const il_reg_t *reg, const char *id,
+			 double val, int confirm)
 {
 	int r;
 
 	const il_reg_t *reg_;
-	int64_t val_;
-
-	assert(servo);
+	double val_;
 
 	/* obtain register (predefined or from dictionary) */
 	r = get_reg(servo->dict, reg, id, &reg_);
@@ -1585,7 +1190,7 @@ int il_servo_write(il_servo_t *servo, const il_reg_t *reg, const char *id,
 		return r;
 
 	/* convert to native units */
-	val_ = (int64_t)(val / il_servo_units_factor(servo, reg_));
+	val_ = val / il_servo_units_factor(servo, reg_);
 
 	/* write using the appropriate native type */
 	switch (reg_->dtype) {
@@ -1613,572 +1218,446 @@ int il_servo_write(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	case IL_REG_DTYPE_S64:
 		return il_servo_raw_write_s64(servo, reg_, NULL, (int64_t)val_,
 					      confirm);
+	case IL_REG_DTYPE_FLOAT:
+		return il_servo_raw_write_float(servo, reg_, NULL, (float)val_,
+						confirm);
 	default:
 		ilerr__set("Unsupported register data type");
 		return IL_EINVAL;
 	}
 }
 
-int il_servo_disable(il_servo_t *servo)
+/*******************************************************************************
+ * Internal
+ ******************************************************************************/
+
+void il_servo__retain(il_servo_t *servo)
 {
-	int r;
-	uint16_t sw;
-	il_servo_state_t state;
-	int timeout = PDS_TIMEOUT;
+	servo->ops->_retain(servo);
+}
 
-	assert(servo);
+void il_servo__release(il_servo_t *servo)
+{
+	servo->ops->_release(servo);
+}
 
-	sw = sw_get(servo);
+/*******************************************************************************
+ * Public
+ ******************************************************************************/
 
-	do {
-		state = pds_state_decode(sw);
+il_servo_t *il_servo_create(il_net_t *net, uint16_t id, const char *dict)
+{
+	switch (il_net_prot_get(net)) {
+#ifdef IL_HAS_PROT_EUSB
+	case IL_NET_PROT_EUSB:
+		return il_eusb_servo_ops.create(net, id, dict);
+#endif
+#ifdef IL_HAS_PROT_MCB
+	case IL_NET_PROT_MCB:
+		return il_mcb_servo_ops.create(net, id, dict);
+#endif
+	default:
+		ilerr__set("Unsupported network protocol");
+		return NULL;
+	}
+}
 
-		/* try fault reset if faulty */
-		if ((state == IL_SERVO_STATE_FAULT) ||
-		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_servo_fault_reset(servo);
-			if (r < 0)
-				return r;
+void il_servo_destroy(il_servo_t *servo)
+{
+	servo->ops->destroy(servo);
+}
 
-			sw = sw_get(servo);
-		/* check state and command action to reach disabled */
-		} else if (state != IL_SERVO_STATE_DISABLED) {
-			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
-						   NULL, IL_MC_PDS_CMD_DV, 1);
-			if (r < 0)
-				return r;
+void il_servo_state_get(il_servo_t *servo, il_servo_state_t *state, int *flags)
+{
+	servo->ops->state_get(servo, state, flags);
+}
 
-			/* wait until statusword changes */
-			r = sw_wait_change(servo, &sw, &timeout);
-			if (r < 0)
-				return r;
-		}
-	} while (state != IL_SERVO_STATE_DISABLED);
+int il_servo_state_subscribe(il_servo_t *servo,
+			     il_servo_state_subscriber_cb_t cb, void *ctx)
+{
+	return servo->ops->state_subscribe(servo, cb, ctx);
+}
+
+void il_servo_state_unsubscribe(il_servo_t *servo, int slot)
+{
+	servo->ops->state_unsubscribe(servo, slot);
+}
+
+int il_servo_emcy_subscribe(il_servo_t *servo, il_servo_emcy_subscriber_cb_t cb,
+			    void *ctx)
+{
+	return servo->ops->emcy_subscribe(servo, cb, ctx);
+}
+
+void il_servo_emcy_unsubscribe(il_servo_t *servo, int slot)
+{
+	servo->ops->emcy_unsubscribe(servo, slot);
+}
+
+il_dict_t *il_servo_dict_get(il_servo_t *servo)
+{
+	return servo->dict;
+}
+
+int il_servo_dict_load(il_servo_t *servo, const char *dict)
+{
+	if (servo->dict) {
+		ilerr__set("Dictionary already loaded");
+		return IL_EALREADY;
+	}
+
+	servo->dict = il_dict_create(dict);
+	if (!servo->dict)
+		return IL_EFAIL;
 
 	return 0;
+}
+
+int il_servo_name_get(il_servo_t *servo, char *name, size_t sz)
+{
+	return servo->ops->name_get(servo, name, sz);
+}
+
+int il_servo_name_set(il_servo_t *servo, const char *name)
+{
+	return servo->ops->name_set(servo, name);
+}
+
+int il_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
+{
+	return servo->ops->info_get(servo, info);
+}
+
+int il_servo_store_all(il_servo_t *servo)
+{
+	return servo->ops->store_all(servo);
+}
+
+int il_servo_store_comm(il_servo_t *servo)
+{
+	return servo->ops->store_comm(servo);
+}
+
+int il_servo_store_app(il_servo_t *servo)
+{
+	return servo->ops->store_app(servo);
+}
+
+int il_servo_units_update(il_servo_t *servo)
+{
+	return servo->ops->units_update(servo);
+}
+
+double il_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
+{
+	return servo->ops->units_factor(servo, reg);
+}
+
+il_units_torque_t il_servo_units_torque_get(il_servo_t *servo)
+{
+	return servo->ops->units_torque_get(servo);
+}
+
+void il_servo_units_torque_set(il_servo_t *servo, il_units_torque_t units)
+{
+	servo->ops->units_torque_set(servo, units);
+}
+
+il_units_pos_t il_servo_units_pos_get(il_servo_t *servo)
+{
+	return servo->ops->units_pos_get(servo);
+}
+
+void il_servo_units_pos_set(il_servo_t *servo, il_units_pos_t units)
+{
+	servo->ops->units_pos_set(servo, units);
+}
+
+il_units_vel_t il_servo_units_vel_get(il_servo_t *servo)
+{
+	return servo->ops->units_vel_get(servo);
+}
+
+void il_servo_units_vel_set(il_servo_t *servo, il_units_vel_t units)
+{
+	servo->ops->units_vel_set(servo, units);
+}
+
+il_units_acc_t il_servo_units_acc_get(il_servo_t *servo)
+{
+	return servo->ops->units_acc_get(servo);
+}
+
+void il_servo_units_acc_set(il_servo_t *servo, il_units_acc_t units)
+{
+	servo->ops->units_acc_set(servo, units);
+}
+
+int il_servo_raw_read_u8(il_servo_t *servo, const il_reg_t *reg, const char *id,
+			 uint8_t *buf)
+{
+	return servo->ops->raw_read_u8(servo, reg, id, buf);
+}
+
+int il_servo_raw_read_s8(il_servo_t *servo, const il_reg_t *reg, const char *id,
+			 int8_t *buf)
+{
+	return servo->ops->raw_read_s8(servo, reg, id, buf);
+}
+
+int il_servo_raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
+			  const char *id, uint16_t *buf)
+{
+	return servo->ops->raw_read_u16(servo, reg, id, buf);
+}
+
+int il_servo_raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
+			  const char *id, int16_t *buf)
+{
+	return servo->ops->raw_read_s16(servo, reg, id, buf);
+}
+
+int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
+			  const char *id, uint32_t *buf)
+{
+	return servo->ops->raw_read_u32(servo, reg, id, buf);
+}
+
+int il_servo_raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
+			  const char *id, int32_t *buf)
+{
+	return servo->ops->raw_read_s32(servo, reg, id, buf);
+}
+
+int il_servo_raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
+			  const char *id, uint64_t *buf)
+{
+	return servo->ops->raw_read_u64(servo, reg, id, buf);
+}
+
+int il_servo_raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
+			  const char *id, int64_t *buf)
+{
+	return servo->ops->raw_read_s64(servo, reg, id, buf);
+}
+
+int il_servo_raw_read_float(il_servo_t *servo, const il_reg_t *reg,
+			    const char *id, float *buf)
+{
+	return servo->ops->raw_read_float(servo, reg, id, buf);
+}
+
+int il_servo_read(il_servo_t *servo, const il_reg_t *reg, const char *id,
+		  double *buf)
+{
+	return servo->ops->read(servo, reg, id, buf);
+}
+
+int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
+			  const char *id, uint8_t val, int confirm)
+{
+	return servo->ops->raw_write_u8(servo, reg, id, val, confirm);
+}
+
+int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
+			  const char *id, int8_t val, int confirm)
+{
+	return servo->ops->raw_write_s8(servo, reg, id, val, confirm);
+}
+
+int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
+			   const char *id, uint16_t val, int confirm)
+{
+	return servo->ops->raw_write_u16(servo, reg, id, val, confirm);
+}
+
+int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
+			   const char *id, int16_t val, int confirm)
+{
+	return servo->ops->raw_write_s16(servo, reg, id, val, confirm);
+}
+
+int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
+			   const char *id, uint32_t val, int confirm)
+{
+	return servo->ops->raw_write_u32(servo, reg, id, val, confirm);
+}
+
+int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
+			   const char *id, int32_t val, int confirm)
+{
+	return servo->ops->raw_write_s32(servo, reg, id, val, confirm);
+}
+
+int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
+			   const char *id, uint64_t val, int confirm)
+{
+	return servo->ops->raw_write_u64(servo, reg, id, val, confirm);
+}
+
+int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
+			   const char *id, int64_t val, int confirm)
+{
+	return servo->ops->raw_write_s64(servo, reg, id, val, confirm);
+}
+
+int il_servo_raw_write_float(il_servo_t *servo, const il_reg_t *reg,
+			     const char *id, float val, int confirm)
+{
+	return servo->ops->raw_write_float(servo, reg, id, val, confirm);
+}
+
+int il_servo_write(il_servo_t *servo, const il_reg_t *reg, const char *id,
+		   double val, int confirm)
+{
+	return servo->ops->write(servo, reg, id, val, confirm);
+}
+
+int il_servo_disable(il_servo_t *servo)
+{
+	return servo->ops->disable(servo);
 }
 
 int il_servo_switch_on(il_servo_t *servo, int timeout)
 {
-	int r;
-	uint16_t sw, cmd;
-	il_servo_state_t state;
-	int timeout_ = timeout;
-
-	assert(servo);
-
-	sw = sw_get(servo);
-
-	do {
-		state = pds_state_decode(sw);
-
-		/* try fault reset if faulty */
-		if ((state == IL_SERVO_STATE_FAULT) ||
-		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_servo_fault_reset(servo);
-			if (r < 0)
-				return r;
-
-			sw = sw_get(servo);
-		/* check state and command action to reach switch on */
-		} else if (state != IL_SERVO_STATE_ON) {
-			if (state == IL_SERVO_STATE_NRDY)
-				cmd = IL_MC_PDS_CMD_DV;
-			else if (state == IL_SERVO_STATE_DISABLED)
-				cmd = IL_MC_PDS_CMD_SD;
-			else if (state == IL_SERVO_STATE_RDY)
-				cmd = IL_MC_PDS_CMD_SO;
-			else if (state == IL_SERVO_STATE_ENABLED)
-				cmd = IL_MC_PDS_CMD_DO;
-			else
-				cmd = IL_MC_PDS_CMD_DV;
-
-			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
-						   NULL, cmd, 1);
-			if (r < 0)
-				return r;
-
-			/* wait for state change */
-			r = sw_wait_change(servo, &sw, &timeout_);
-			if (r < 0)
-				return r;
-		}
-	} while (state != IL_SERVO_STATE_ON);
-
-	return 0;
+	return servo->ops->switch_on(servo, timeout);
 }
 
 int il_servo_enable(il_servo_t *servo, int timeout)
 {
-	int r;
-	uint16_t sw, cmd;
-	il_servo_state_t state;
-	int timeout_ = timeout;
-
-	assert(servo);
-
-	sw = sw_get(servo);
-
-	do {
-		state = pds_state_decode(sw);
-
-		/* try fault reset if faulty */
-		if ((state == IL_SERVO_STATE_FAULT) ||
-		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_servo_fault_reset(servo);
-			if (r < 0)
-				return r;
-
-			sw = sw_get(servo);
-		/* check state and command action to reach enabled */
-		} else if ((state != IL_SERVO_STATE_ENABLED) ||
-			   !(sw & IL_MC_SW_IANGLE)) {
-			if (state == IL_SERVO_STATE_NRDY)
-				cmd = IL_MC_PDS_CMD_DV;
-			else if (state == IL_SERVO_STATE_DISABLED)
-				cmd = IL_MC_PDS_CMD_SD;
-			else if (state == IL_SERVO_STATE_RDY)
-				cmd = IL_MC_PDS_CMD_SOEO;
-			else
-				cmd = IL_MC_PDS_CMD_EO;
-
-			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
-						   NULL, cmd, 1);
-			if (r < 0)
-				return r;
-
-			/* wait for state change */
-			r = sw_wait_change(servo, &sw, &timeout_);
-			if (r < 0)
-				return r;
-		}
-	} while ((state != IL_SERVO_STATE_ENABLED) || !(sw & IL_MC_SW_IANGLE));
-
-	return 0;
+	return servo->ops->enable(servo, timeout);
 }
 
 int il_servo_fault_reset(il_servo_t *servo)
 {
-	int r;
-	uint16_t sw;
-	il_servo_state_t state;
-	int timeout = PDS_TIMEOUT;
-
-	assert(servo);
-
-	sw = sw_get(servo);
-
-	do {
-		state = pds_state_decode(sw);
-
-		/* check if faulty, if so try to reset (0->1) */
-		if ((state == IL_SERVO_STATE_FAULT) ||
-		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
-						   NULL, 0, 1);
-			if (r < 0)
-				return r;
-
-			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
-						   NULL, IL_MC_PDS_CMD_FR, 1);
-			if (r < 0)
-				return r;
-
-			/* wait until statusword changes */
-			r = sw_wait_change(servo, &sw, &timeout);
-			if (r < 0)
-				return r;
-		}
-	} while ((state == IL_SERVO_STATE_FAULT) ||
-		 (state == IL_SERVO_STATE_FAULTR));
-
-	return 0;
+	return servo->ops->fault_reset(servo);
 }
 
 int il_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode)
 {
-	int r;
-	int8_t code;
-
-	assert(mode);
-
-	r = il_servo_raw_read_s8(servo, &IL_REG_OP_MODE_DISP, NULL, &code);
-	if (r < 0)
-		return r;
-
-	switch (code) {
-	case ILK_OP_MODE_OLV:
-		*mode = IL_SERVO_MODE_OLV;
-		break;
-	case ILK_OP_MODE_OLS:
-		*mode = IL_SERVO_MODE_OLS;
-		break;
-	case ILK_OP_MODE_PP:
-		*mode = IL_SERVO_MODE_PP;
-		break;
-	case ILK_OP_MODE_VEL:
-		*mode = IL_SERVO_MODE_VEL;
-		break;
-	case ILK_OP_MODE_PV:
-		*mode = IL_SERVO_MODE_PV;
-		break;
-	case ILK_OP_MODE_PT:
-		*mode = IL_SERVO_MODE_PT;
-		break;
-	case ILK_OP_MODE_HOMING:
-		*mode = IL_SERVO_MODE_HOMING;
-		break;
-	case ILK_OP_MODE_IP:
-		*mode = IL_SERVO_MODE_IP;
-		break;
-	case ILK_OP_MODE_CSP:
-		*mode = IL_SERVO_MODE_CSP;
-		break;
-	case ILK_OP_MODE_CSV:
-		*mode = IL_SERVO_MODE_CSV;
-		break;
-	case ILK_OP_MODE_CST:
-		*mode = IL_SERVO_MODE_CST;
-		break;
-	default:
-		ilerr__set("Unknown operation mode: %d", code);
-		return IL_EINVAL;
-	}
-
-	return 0;
+	return servo->ops->mode_get(servo, mode);
 }
 
 int il_servo_mode_set(il_servo_t *servo, il_servo_mode_t mode)
 {
-	int r;
-	int8_t code;
-
-	switch (mode) {
-	case IL_SERVO_MODE_OLV:
-		code = ILK_OP_MODE_OLV;
-		break;
-	case IL_SERVO_MODE_OLS:
-		code = ILK_OP_MODE_OLS;
-		break;
-	case IL_SERVO_MODE_PP:
-		code = ILK_OP_MODE_PP;
-		break;
-	case IL_SERVO_MODE_VEL:
-		code = ILK_OP_MODE_VEL;
-		break;
-	case IL_SERVO_MODE_PV:
-		code = ILK_OP_MODE_PV;
-		break;
-	case IL_SERVO_MODE_PT:
-		code = ILK_OP_MODE_PT;
-		break;
-	case IL_SERVO_MODE_HOMING:
-		code = ILK_OP_MODE_HOMING;
-		break;
-	case IL_SERVO_MODE_IP:
-		code = ILK_OP_MODE_IP;
-		break;
-	case IL_SERVO_MODE_CSP:
-		code = ILK_OP_MODE_CSP;
-		break;
-	case IL_SERVO_MODE_CSV:
-		code = ILK_OP_MODE_CSV;
-		break;
-	case IL_SERVO_MODE_CST:
-		code = ILK_OP_MODE_CST;
-		break;
-	default:
-		ilerr__set("Invalid mode");
-		return IL_EINVAL;
-	}
-
-	r = il_servo_raw_write_s8(servo, &IL_REG_OP_MODE, NULL, code, 1);
-	if (r < 0)
-		return r;
-
-	servo->mode = mode;
-
-	return 0;
+	return servo->ops->mode_set(servo, mode);
 }
 
 int il_servo_ol_voltage_get(il_servo_t *servo, double *voltage)
 {
-	return il_servo_read(servo, &IL_REG_OL_VOLTAGE, NULL, voltage);
+	return servo->ops->ol_voltage_get(servo, voltage);
 }
 
 int il_servo_ol_voltage_set(il_servo_t *servo, double voltage)
 {
-	return il_servo_write(servo, &IL_REG_OL_VOLTAGE, NULL, voltage, 1);
+	return servo->ops->ol_voltage_set(servo, voltage);
 }
 
 int il_servo_ol_frequency_get(il_servo_t *servo, double *freq)
 {
-	return il_servo_read(servo, &IL_REG_OL_FREQUENCY, NULL, freq);
+	return servo->ops->ol_frequency_get(servo, freq);
 }
 
 int il_servo_ol_frequency_set(il_servo_t *servo, double freq)
 {
-	return il_servo_write(servo, &IL_REG_OL_FREQUENCY, NULL, freq, 1);
+	return servo->ops->ol_frequency_set(servo, freq);
 }
 
 int il_servo_homing_start(il_servo_t *servo)
 {
-	return il_servo_raw_write_u16(
-			servo, &IL_REG_CTL_WORD, NULL,
-			IL_MC_HOMING_CW_START | IL_MC_PDS_CMD_EO, 1);
+	return servo->ops->homing_start(servo);
 }
 
 int il_servo_homing_wait(il_servo_t *servo, int timeout)
 {
-	int r;
-	uint16_t sw, state;
-	int timeout_ = timeout;
-
-	assert(servo);
-
-	sw = sw_get(servo);
-
-	do {
-		state = sw & IL_MC_HOMING_STA_MSK;
-
-		if (state == IL_MC_HOMING_STA_INPROG) {
-			r = sw_wait_change(servo, &sw, &timeout_);
-			if (r < 0)
-				return r;
-		}
-	} while (state == IL_MC_HOMING_STA_INPROG);
-
-	if (state == IL_MC_HOMING_STA_SUCCESS)
-		return 0;
-
-	/* report failures */
-	if (state == IL_MC_HOMING_STA_INT)
-		ilerr__set("Homing procedure is interrupted or not started");
-	else if (state == IL_MC_HOMING_STA_ATT)
-		ilerr__set("Homing is attained, but target is not reached");
-	else if (state == IL_MC_HOMING_STA_ERR_VNZ)
-		ilerr__set("Homing error occurred, velocity is not zero");
-	else if (state == IL_MC_HOMING_STA_ERR_VZ)
-		ilerr__set("Homing error occurred, velocity is zero");
-
-	return IL_EFAIL;
+	return servo->ops->homing_wait(servo, timeout);
 }
 
 int il_servo_torque_get(il_servo_t *servo, double *torque)
 {
-	return il_servo_read(servo, &IL_REG_TORQUE_ACT, NULL, torque);
+	return servo->ops->torque_get(servo, torque);
 }
 
 int il_servo_torque_set(il_servo_t *servo, double torque)
 {
-	return il_servo_write(servo, &IL_REG_TORQUE_TGT, NULL, torque, 1);
+	return servo->ops->torque_set(servo, torque);
 }
 
 int il_servo_position_get(il_servo_t *servo, double *pos)
 {
-	return il_servo_read(servo, &IL_REG_POS_ACT, NULL, pos);
+	return servo->ops->position_get(servo, pos);
 }
 
 int il_servo_position_set(il_servo_t *servo, double pos, int immediate,
 			  int relative, int sp_timeout)
 {
-	int r;
-	uint16_t cmd;
-	il_servo_state_t state;
-	int flags;
-
-	/* send position */
-	r = il_servo_write(servo, &IL_REG_POS_TGT, NULL, pos, 1);
-	if (r < 0)
-		return r;
-
-	/* wait for SP ack if enabled and in PP */
-	il_servo_state_get(servo, &state, &flags);
-
-	if ((state == IL_SERVO_STATE_ENABLED) &&
-	    (servo->mode == IL_SERVO_MODE_PP)) {
-		/* new set-point (0->1) */
-		cmd = IL_MC_PDS_CMD_EO;
-		r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD, NULL,
-					   cmd, 1);
-		if (r < 0)
-			return r;
-
-		/* wait set-point ack clear */
-		r = sw_wait_value(servo, IL_MC_PP_SW_SPACK, 0, sp_timeout);
-		if (r < 0)
-			return r;
-
-		/* set-point */
-		cmd |= IL_MC_PP_CW_NEWSP;
-
-		if (immediate)
-			cmd |= IL_MC_PP_CW_IMMEDIATE;
-
-		if (relative)
-			cmd |= IL_MC_PP_CW_REL;
-
-		r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD, NULL,
-					   cmd, 1);
-		if (r < 0)
-			return r;
-
-		/* wait set-point ack */
-		r = sw_wait_value(servo, IL_MC_PP_SW_SPACK, IL_MC_PP_SW_SPACK,
-				  sp_timeout);
-		if (r < 0)
-			return r;
-	}
-
-	return 0;
+	return servo->ops->position_set(servo, pos, immediate, relative,
+					sp_timeout);
 }
 
 int il_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 {
-	int r;
-	uint8_t fb, ppoles, turnbits;
-	uint32_t incrs, revs;
-
-	assert(servo);
-	assert(res);
-
-	r = il_servo_raw_read_u8(servo, &IL_REG_FB_POS_SENSOR, NULL, &fb);
-	if (r < 0)
-		return r;
-
-	switch (fb) {
-	case ILK_POS_SENSOR_DIGITAL_ENCODER:
-		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, NULL,
-					  &incrs);
-		if (r < 0)
-			return r;
-
-		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_MOTOR_REVS, NULL,
-					  &revs);
-		if (r < 0)
-			return r;
-
-		*res = incrs / revs;
-		break;
-
-	case ILK_POS_SENSOR_DIGITAL_HALLS:
-		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, NULL,
-					 &ppoles);
-		if (r < 0)
-			return r;
-
-		*res = ppoles * DIGITAL_HALLS_CONSTANT;
-		break;
-
-	case ILK_POS_SENSOR_ANALOG_HALLS:
-		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, NULL,
-					 &ppoles);
-		if (r < 0)
-			return r;
-
-		*res = ppoles * ANALOG_HALLS_CONSTANT;
-		break;
-
-	case ILK_POS_SENSOR_ANALOG_INPUT:
-		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, NULL,
-					 &ppoles);
-		if (r < 0)
-			return r;
-
-		*res = ppoles * ANALOG_INPUT_CONSTANT;
-		break;
-
-	case ILK_POS_SENSOR_SINCOS:
-		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_ENC_INCR, NULL,
-					  &incrs);
-		if (r < 0)
-			return r;
-
-		r = il_servo_raw_read_u32(servo, &IL_REG_PRES_MOTOR_REVS, NULL,
-					  &revs);
-		if (r < 0)
-			return r;
-
-		*res = (incrs / revs) * SINCOS_CONSTANT;
-		break;
-
-	case ILK_POS_SENSOR_PWM:
-		*res = PWM_CONSTANT;
-		break;
-
-	case ILK_POS_SENSOR_RESOLVER:
-		*res = RESOLVER_CONSTANT;
-		break;
-
-	case ILK_POS_SENSOR_SSI:
-		r = il_servo_raw_read_u8(servo, &IL_REG_SSI_STURNBITS, NULL,
-					 &turnbits);
-		if (r < 0)
-			return r;
-
-		*res = 2 << turnbits;
-		break;
-
-	default:
-		*res = 1;
-	}
-
-	return 0;
+	return servo->ops->position_res_get(servo, res);
 }
 
 int il_servo_velocity_get(il_servo_t *servo, double *vel)
 {
-	return il_servo_read(servo, &IL_REG_VEL_ACT, NULL, vel);
+	return servo->ops->velocity_get(servo, vel);
 }
 
 int il_servo_velocity_set(il_servo_t *servo, double vel)
 {
-	return il_servo_write(servo, &IL_REG_VEL_TGT, NULL, vel, 1);
+	return servo->ops->velocity_set(servo, vel);
 }
 
 int il_servo_velocity_res_get(il_servo_t *servo, uint32_t *res)
 {
-	int r;
-	uint8_t fb;
-	uint32_t incrs, revs;
-
-	assert(servo);
-	assert(res);
-
-	r = il_servo_raw_read_u8(servo, &IL_REG_FB_VEL_SENSOR, NULL, &fb);
-	if (r < 0)
-		return r;
-
-	switch (fb) {
-	case ILK_VEL_SENSOR_POS:
-		r = il_servo_position_res_get(servo, res);
-		break;
-
-	case ILK_VEL_SENSOR_TACHOMETER:
-		r = il_servo_raw_read_u32(servo, &IL_REG_VRES_ENC_INCR, NULL,
-					  &incrs);
-		if (r < 0)
-			return r;
-
-		r = il_servo_raw_read_u32(servo, &IL_REG_VRES_MOTOR_REVS, NULL,
-					  &revs);
-		if (r < 0)
-			return r;
-
-		*res = incrs / revs;
-		break;
-
-	default:
-		*res = 1;
-	}
-
-	return 0;
+	return servo->ops->velocity_res_get(servo, res);
 }
 
 int il_servo_wait_reached(il_servo_t *servo, int timeout)
 {
-	assert(servo);
+	return servo->ops->wait_reached(servo, timeout);
+}
 
-	/* wait until target reached */
-	return sw_wait_value(servo, IL_MC_SW_TR, IL_MC_SW_TR, timeout);
+int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
+		   const char *dict)
+{
+	il_net_dev_list_t *devs, *dev;
+	il_net_servos_list_t *servo_ids, *servo_id;
+
+	/* scan all available network devices */
+	devs = il_net_dev_list_get(prot);
+	il_net_dev_list_foreach(dev, devs) {
+		il_net_opts_t opts;
+
+		opts.port = dev->port;
+		opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+		opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+
+		*net = il_net_create(prot, &opts);
+		if (!*net)
+			continue;
+
+		/* try to connect to any available servo */
+		servo_ids = il_net_servos_list_get(*net, NULL, NULL);
+		il_net_servos_list_foreach(servo_id, servo_ids) {
+			*servo = il_servo_create(*net, servo_id->id, dict);
+			/* found */
+			if (*servo) {
+				il_net_servos_list_destroy(servo_ids);
+				il_net_dev_list_destroy(devs);
+
+				return 0;
+			}
+		}
+
+		il_net_servos_list_destroy(servo_ids);
+		il_net_destroy(*net);
+	}
+
+	il_net_dev_list_destroy(devs);
+
+	ilerr__set("No connected servos found");
+	return IL_EFAIL;
 }

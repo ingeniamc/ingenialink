@@ -1,9 +1,5 @@
 environment:
   matrix:
-    - CMAKE_GENERATOR_NAME: Visual Studio 9 2008
-      platform: Any CPU
-    - CMAKE_GENERATOR_NAME: Visual Studio 10 2010
-      platform: Any CPU
     - CMAKE_GENERATOR_NAME: Visual Studio 14 2015
       platform: Any CPU
     - CMAKE_GENERATOR_NAME: Visual Studio 14 2015 Win64
@@ -19,5 +15,5 @@ install:
   - cmd: cmake --build external\libxml2\_build --config %configuration% --target install
 
 build_script:
-  - cmd: cmake -H. -B_build -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_INSTALL_PREFIX=_install
+  - cmd: cmake -H. -B_build -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_INSTALL_PREFIX=_install -DWITH_PROT_MCB=ON
   - cmd: cmake --build _build --config %configuration%

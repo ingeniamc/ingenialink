@@ -1,11 +1,12 @@
 /**
  * @example servo_monitor.c
  *
- * This example monitors the connection of IngeniaLink devices/servos.
+ * This example monitors the connection of devices/servos.
  */
 
+#include "utils.h"
+
 #include <stdio.h>
-#include <ingenialink/ingenialink.h>
 
 void on_found(void *ctx, uint8_t id)
 {
@@ -16,16 +17,21 @@ void on_found(void *ctx, uint8_t id)
 
 void on_evt(void *ctx, il_net_dev_evt_t evt, const char *port)
 {
-	il_net_t *net;
-	il_net_servos_list_t *servos;
-
-	(void)ctx;
+	il_net_prot_t *prot = ctx;
 
 	if (evt == IL_NET_DEV_EVT_ADDED) {
+		il_net_t *net;
+		il_net_opts_t opts;
+		il_net_servos_list_t *servos;
+
 		printf("Plugged device %s\n", port);
 
 		/* create network */
-		net = il_net_create(port);
+		opts.port = port;
+		opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+		opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+
+		net = il_net_create(*prot, &opts);
 		if (!net)
 			return;
 
@@ -42,18 +48,26 @@ void on_evt(void *ctx, il_net_dev_evt_t evt, const char *port)
 	}
 }
 
-int main(void)
+int main(int argc, const char *argv[])
 {
 	int r;
+	il_net_prot_t prot;
 	il_net_dev_mon_t *mon;
 
-	mon = il_net_dev_mon_create();
+	if (argc < 2) {
+		fprintf(stderr, "Usage: ./servo_monitor PROT\n");
+		return -1;
+	}
+
+	prot = str2prot(argv[1]);
+
+	mon = il_net_dev_mon_create(prot);
 	if (!mon) {
 		fprintf(stderr, "Could not create monitor: %s\n", ilerr_last());
 		return 1;
 	}
 
-	r = il_net_dev_mon_start(mon, on_evt, NULL);
+	r = il_net_dev_mon_start(mon, on_evt, &prot);
 	if (r < 0) {
 		goto cleanup;
 	}

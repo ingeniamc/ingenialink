@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 #ifndef FRAME_H
 #define FRAME_H
 
-#include "ingenialink/frame.h"
+#include "ingenialink/eusb/frame.h"
 
 /**
  * Swap index value on little-endian systems.

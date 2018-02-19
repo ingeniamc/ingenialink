@@ -28,6 +28,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	int r = 0;
 
 	il_net_t *net;
+	il_net_opts_t opts;
 	il_servo_t *servo;
 	il_monitor_t *monitor;
 
@@ -36,11 +37,23 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	FILE *log_f;
 
 	const il_reg_t IL_REG_VEL_ACT = {
-		0x00606C, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_VEL
+		.address = 0x00606C,
+		.dtype = IL_REG_DTYPE_S32,
+		.access = IL_REG_ACCESS_RW,
+		.phy = IL_REG_PHY_VEL,
+		.range = {
+			.min.s32 = INT32_MIN,
+			.max.s32 = INT32_MAX
+		},
+		.labels = NULL
 	};
 
 	/* create network */
-	net = il_net_create(port);
+	opts.port = port;
+	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+
+	net = il_net_create(IL_NET_PROT_EUSB, &opts);
 	if (!net) {
 		fprintf(stderr, "Could not create network: %s\n", ilerr_last());
 		r = 1;
@@ -48,7 +61,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	}
 
 	/* create servo */
-	servo = il_servo_create(net, id, NULL, IL_SERVO_TIMEOUT_DEF);
+	servo = il_servo_create(net, id, NULL);
 	if (!servo) {
 		fprintf(stderr, "Could not create servo: %s\n", ilerr_last());
 		r = 1;

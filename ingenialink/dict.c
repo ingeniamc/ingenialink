@@ -24,8 +24,6 @@
 
 #include "dict.h"
 
-#include <assert.h>
-
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
@@ -66,6 +64,8 @@ static int get_dtype(const char *name, il_reg_dtype_t *dtype)
 		{ "s32", IL_REG_DTYPE_S32 },
 		{ "u64", IL_REG_DTYPE_U64 },
 		{ "s64", IL_REG_DTYPE_S64 },
+		{ "float", IL_REG_DTYPE_FLOAT },
+		{ "str", IL_REG_DTYPE_STR },
 	};
 
 	size_t i;
@@ -145,6 +145,188 @@ static il_reg_phy_t get_phy(const char *name)
 }
 
 /**
+ * Parse register labels.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] reg
+ *	Register.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+static int parse_labels(xmlNodePtr node, il_reg_t *reg)
+{
+	int r;
+	xmlNode *label;
+
+	reg->labels = il_reg_labels_create();
+	if (!reg->labels)
+		return IL_EFAIL;
+
+	for (label = node->children; label; label = label->next) {
+		xmlChar *lang, *content;
+
+		if (label->type != XML_ELEMENT_NODE)
+			continue;
+
+		lang = xmlGetProp(label, (const xmlChar *)"lang");
+		if (!lang) {
+			ilerr__set("Malformed label entry");
+			r = IL_EFAIL;
+			goto cleanup_labels;
+		}
+
+		content = xmlNodeGetContent(label);
+		if (content) {
+			il_reg_labels_set(reg->labels,
+					  (const char *)lang,
+					  (const char *)content);
+			xmlFree(content);
+		}
+
+		xmlFree(lang);
+	}
+
+	return 0;
+
+cleanup_labels:
+	il_reg_labels_destroy(reg->labels);
+
+	return r;
+}
+
+/**
+ * Parse register range.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] reg
+ *	Register.
+ */
+static void parse_range(xmlNodePtr node, il_reg_t *reg)
+{
+	xmlChar *val;
+
+	val = xmlGetProp(node, (const xmlChar *)"min");
+	if (val) {
+		switch (reg->dtype) {
+		case IL_REG_DTYPE_U8:
+			reg->range.min.u8 = (uint8_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S8:
+			reg->range.min.s8 = (int8_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U16:
+			reg->range.min.u16 = (uint16_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S16:
+			reg->range.min.s16 = (int16_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U32:
+			reg->range.min.u32 = (uint32_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S32:
+			reg->range.min.s32 = (int32_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U64:
+			reg->range.min.u64 = (uint64_t)strtoull(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S64:
+			reg->range.min.s64 = (int64_t)strtoll(
+				(const char *)val, NULL, 0);
+			break;
+		default:
+			break;
+		}
+
+		xmlFree(val);
+	}
+
+	val = xmlGetProp(node, (const xmlChar *)"max");
+	if (val) {
+		switch (reg->dtype) {
+		case IL_REG_DTYPE_U8:
+			reg->range.max.u8 = (uint8_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S8:
+			reg->range.max.s8 = (int8_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U16:
+			reg->range.max.u16 = (uint16_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S16:
+			reg->range.max.s16 = (int16_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U32:
+			reg->range.max.u32 = (uint32_t)strtoul(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S32:
+			reg->range.max.s32 = (int32_t)strtol(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_U64:
+			reg->range.max.u64 = (uint64_t)strtoull(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_S64:
+			reg->range.max.s64 = (int64_t)strtoll(
+				(const char *)val, NULL, 0);
+			break;
+		default:
+			break;
+		}
+
+		xmlFree(val);
+	}
+}
+
+/**
+ * Parse register properties.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] reg
+ *	Register.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+static int parse_props(xmlNodePtr node, il_reg_t *reg)
+{
+	int r;
+	xmlNode *prop;
+
+	for (prop = node->children; prop; prop = prop->next) {
+		if (prop->type != XML_ELEMENT_NODE)
+			continue;
+
+		if (xmlStrcmp(prop->name, (const xmlChar *)"Labels") == 0) {
+			r = parse_labels(prop, reg);
+			if (r < 0)
+				return r;
+		}
+
+		if (xmlStrcmp(prop->name, (const xmlChar *)"Range") == 0)
+			parse_range(prop, reg);
+	}
+
+	return 0;
+}
+
+/**
  * Parse register node.
  *
  * @param [in] node
@@ -159,6 +341,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 {
 	int r, absent;
 	khint_t k;
+	il_reg_t *reg;
 	xmlChar *id, *param;
 
 	/* parse: id (required), insert to hash table */
@@ -175,6 +358,8 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
+	reg = &kh_val(dict->h, k);
+
 	/* parse: address */
 	param = xmlGetProp(node, (const xmlChar *)"address");
 	if (!param) {
@@ -182,7 +367,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
-	kh_val(dict->h, k).address = strtoul((char *)param, NULL, 16);
+	reg->address = strtoul((char *)param, NULL, 16);
 
 	xmlFree(param);
 
@@ -193,7 +378,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
-	r = get_dtype((char *)param, &kh_val(dict->h, k).dtype);
+	r = get_dtype((char *)param, &reg->dtype);
 	xmlFree(param);
 	if (r < 0)
 		return r;
@@ -205,7 +390,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
-	r = get_access((char *)param, &kh_val(dict->h, k).access);
+	r = get_access((char *)param, &reg->access);
 	xmlFree(param);
 	if (r < 0)
 		return r;
@@ -213,13 +398,52 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 	/* parse: phyisical units (optional) */
 	param = xmlGetProp(node, (const xmlChar *)"phy");
 	if (param) {
-		kh_val(dict->h, k).phy = get_phy((char *)param);
+		reg->phy = get_phy((char *)param);
 		xmlFree(param);
 	} else {
-		kh_val(dict->h, k).phy = IL_REG_PHY_NONE;
+		reg->phy = IL_REG_PHY_NONE;
 	}
 
-	return 0;
+	/* assign default min/max */
+	switch (reg->dtype) {
+	case IL_REG_DTYPE_U8:
+		reg->range.min.u8 = 0;
+		reg->range.max.u8 = UINT8_MAX;
+		break;
+	case IL_REG_DTYPE_S8:
+		reg->range.min.s8 = INT8_MIN;
+		reg->range.max.s8 = INT8_MAX;
+		break;
+	case IL_REG_DTYPE_U16:
+		reg->range.min.u16 = 0;
+		reg->range.max.u16 = UINT16_MAX;
+		break;
+	case IL_REG_DTYPE_S16:
+		reg->range.min.s16 = INT16_MIN;
+		reg->range.max.s16 = INT16_MAX;
+		break;
+	case IL_REG_DTYPE_U32:
+		reg->range.min.u32 = 0;
+		reg->range.max.u32 = UINT32_MAX;
+		break;
+	case IL_REG_DTYPE_S32:
+		reg->range.min.s32 = INT32_MIN;
+		reg->range.max.s32 = INT32_MAX;
+		break;
+	case IL_REG_DTYPE_U64:
+		reg->range.min.u64 = 0;
+		reg->range.max.u64 = UINT64_MAX;
+		break;
+	case IL_REG_DTYPE_S64:
+		reg->range.min.s64 = INT64_MIN;
+		reg->range.max.s64 = INT64_MAX;
+		break;
+	default:
+		break;
+	}
+
+	/* parse: nested properties (e.g. labels, ranges, etc.) */
+	return parse_props(node, reg);
 }
 
 /*******************************************************************************
@@ -308,8 +532,15 @@ il_dict_t *il_dict_create(const char *dict_f)
 
 cleanup_h:
 	for (k = 0; k < kh_end(dict->h); ++k) {
-		if (kh_exist(dict->h, k))
+		if (kh_exist(dict->h, k)) {
+			il_reg_t *reg;
+
+			reg = &kh_value(dict->h, k);
+			if (reg->labels)
+				il_reg_labels_destroy(reg->labels);
+
 			xmlFree((char *)kh_key(dict->h, k));
+		}
 	}
 
 cleanup_obj:
@@ -337,11 +568,16 @@ void il_dict_destroy(il_dict_t *dict)
 {
 	khint_t k;
 
-	assert(dict);
-
 	for (k = 0; k < kh_end(dict->h); ++k) {
-		if (kh_exist(dict->h, k))
+		if (kh_exist(dict->h, k)) {
+			il_reg_t *reg;
+
+			reg = &kh_value(dict->h, k);
+			if (reg->labels)
+				il_reg_labels_destroy(reg->labels);
+
 			xmlFree((char *)kh_key(dict->h, k));
+		}
 	}
 
 	kh_destroy(str, dict->h);
@@ -353,13 +589,9 @@ int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
 {
 	khint_t k;
 
-	assert(dict);
-	assert(id);
-	assert(reg);
-
 	k = kh_get(str, dict->h, id);
 	if (k == kh_end(dict->h)) {
-		ilerr__set("Register not found");
+		ilerr__set("Register not found (%s)", id);
 		return IL_EFAIL;
 	}
 
@@ -370,8 +602,6 @@ int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
 
 size_t il_dict_nregs_get(il_dict_t *dict)
 {
-	assert(dict);
-
 	return (size_t)kh_size(dict->h);
 }
 
@@ -380,8 +610,6 @@ const char **il_dict_ids_get(il_dict_t *dict)
 	const char **ids;
 	size_t i;
 	khint_t k;
-
-	assert(dict);
 
 	/* allocate array for register keys */
 	ids = malloc(sizeof(const char *) * (il_dict_nregs_get(dict) + 1));
@@ -405,7 +633,5 @@ const char **il_dict_ids_get(il_dict_t *dict)
 
 void il_dict_ids_destroy(const char **ids)
 {
-	assert(ids);
-
 	free((char **)ids);
 }

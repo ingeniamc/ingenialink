@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,18 +40,18 @@ static const uint8_t sync[FR_SYNC_SZ] = { FR_SYNC, FR_SYNC, FR_SYNC, FR_SYNC };
  * Update the frame state.
  *
  * @param [in, out] frame
- *	IngeniaLink frame.
+ *	Frame.
  *
  * @returns
  *	IL_EFAIL if there is any framing error.
  */
-static int state_update(il_frame_t *frame)
+static int state_update(il_eusb_frame_t *frame)
 {
 	switch (frame->state) {
-	case IL_FRAME_STATE_WAITING_FUNC:
+	case IL_EUSB_FRAME_STATE_WAITING_FUNC:
 		if (frame->sz == (FR_FUNC_FLD + 1)) {
 			if (frame->buf[FR_FUNC_FLD] == FR_FUNC) {
-				frame->state = IL_FRAME_STATE_WAITING_MEI;
+				frame->state = IL_EUSB_FRAME_STATE_WAITING_MEI;
 			} else {
 				ilerr__set("Unexpected FUNC code");
 				return IL_EFAIL;
@@ -59,32 +59,33 @@ static int state_update(il_frame_t *frame)
 		}
 
 		break;
-	case IL_FRAME_STATE_WAITING_MEI:
+	case IL_EUSB_FRAME_STATE_WAITING_MEI:
 		if (frame->buf[FR_MEI_FLD] == FR_MEI) {
-			frame->state = IL_FRAME_STATE_WAITING_DATA;
+			frame->state = IL_EUSB_FRAME_STATE_WAITING_DATA;
 		} else {
 			ilerr__set("Unexpected MEI code");
 			return IL_EFAIL;
 		}
 
 		break;
-	case IL_FRAME_STATE_WAITING_DATA:
+	case IL_EUSB_FRAME_STATE_WAITING_DATA:
 		if (frame->sz == (FR_NDATA_L_FLD + 1)) {
-			if (frame->buf[FR_NDATA_L_FLD] > IL_FRAME_MAX_DATA_SZ) {
+			if (frame->buf[FR_NDATA_L_FLD] >
+			    IL_EUSB_FRAME_MAX_DATA_SZ) {
 				ilerr__set("Received data size is too large");
 				return IL_EFAIL;
 			}
 
-			frame->state = IL_FRAME_STATE_WAITING_SYNC;
+			frame->state = IL_EUSB_FRAME_STATE_WAITING_SYNC;
 		}
 
 		break;
-	case IL_FRAME_STATE_WAITING_SYNC:
+	case IL_EUSB_FRAME_STATE_WAITING_SYNC:
 		if (frame->sz == (FR_DATA_FLD + frame->buf[FR_NDATA_L_FLD] +
 				  FR_SYNC_SZ)) {
 			if (memcmp(&frame->buf[frame->sz - FR_SYNC_SZ], sync,
 				   sizeof(sync)) == 0) {
-				frame->state = IL_FRAME_STATE_COMPLETE;
+				frame->state = IL_EUSB_FRAME_STATE_COMPLETE;
 			} else {
 				ilerr__set("Frame synchronization failed");
 				return IL_EFAIL;
@@ -103,14 +104,14 @@ static int state_update(il_frame_t *frame)
  * Internal
  ******************************************************************************/
 
-int il_frame__init(il_frame_t *frame, uint8_t id, uint32_t address,
-		   const void *data, size_t sz)
+int il_eusb_frame__init(il_eusb_frame_t *frame, uint8_t id, uint32_t address,
+			const void *data, size_t sz)
 {
 	uint16_t idx;
 	uint8_t sidx;
 
 	/* validate size */
-	if (sz > IL_FRAME_MAX_DATA_SZ) {
+	if (sz > IL_EUSB_FRAME_MAX_DATA_SZ) {
 		ilerr__set("Data size is too large");
 		return IL_EINVAL;
 	}
@@ -129,8 +130,8 @@ int il_frame__init(il_frame_t *frame, uint8_t id, uint32_t address,
 	frame->buf[FR_NODE_FLD] = id;
 
 	/* index, subindex, address (0) */
-	idx = __swap_index(IL_FRAME_IDX(address));
-	sidx = IL_FRAME_SIDX(address);
+	idx = __swap_index(IL_EUSB_FRAME_IDX(address));
+	sidx = IL_EUSB_FRAME_SIDX(address);
 
 	memcpy(&frame->buf[FR_INDEX_H_FLD], &idx, sizeof(idx));
 	frame->buf[FR_SINDEX_FLD] = sidx;
@@ -144,23 +145,23 @@ int il_frame__init(il_frame_t *frame, uint8_t id, uint32_t address,
 		memcpy(&frame->buf[FR_DATA_FLD], data, sz);
 
 	/* trailing sync bytes */
-	memcpy(&frame->buf[IL_FRAME_MIN_SZ + sz - FR_SYNC_SZ], sync,
+	memcpy(&frame->buf[IL_EUSB_FRAME_MIN_SZ + sz - FR_SYNC_SZ], sync,
 	       FR_SYNC_SZ);
 
 	/* update buffer counter */
-	frame->sz = IL_FRAME_MIN_SZ + sz;
-	frame->state = IL_FRAME_STATE_COMPLETE;
+	frame->sz = IL_EUSB_FRAME_MIN_SZ + sz;
+	frame->state = IL_EUSB_FRAME_STATE_COMPLETE;
 
 	return 0;
 }
 
-void il_frame__reset(il_frame_t *frame)
+void il_eusb_frame__reset(il_eusb_frame_t *frame)
 {
-	frame->state = IL_FRAME_STATE_WAITING_FUNC;
+	frame->state = IL_EUSB_FRAME_STATE_WAITING_FUNC;
 	frame->sz = 0;
 }
 
-int il_frame__push(il_frame_t *frame, uint8_t c)
+int il_eusb_frame__push(il_eusb_frame_t *frame, uint8_t c)
 {
 	/* check buffer size */
 	if (frame->sz >= sizeof(frame->buf)) {
@@ -176,12 +177,12 @@ int il_frame__push(il_frame_t *frame, uint8_t c)
 	return state_update(frame);
 }
 
-uint8_t il_frame__get_id(const il_frame_t *frame)
+uint8_t il_eusb_frame__get_id(const il_eusb_frame_t *frame)
 {
 	return frame->buf[FR_ADDR_FLD];
 }
 
-uint32_t il_frame__get_address(const il_frame_t *frame)
+uint32_t il_eusb_frame__get_address(const il_eusb_frame_t *frame)
 {
 	uint16_t idx;
 	uint8_t sidx;
@@ -190,20 +191,20 @@ uint32_t il_frame__get_address(const il_frame_t *frame)
 	idx = __swap_index(idx);
 	sidx = frame->buf[FR_SINDEX_FLD];
 
-	return IL_FRAME_ADDR(idx, sidx);
+	return IL_EUSB_FRAME_ADDR(idx, sidx);
 }
 
-size_t il_frame__get_sz(const il_frame_t *frame)
+size_t il_eusb_frame__get_sz(const il_eusb_frame_t *frame)
 {
 	return (size_t)frame->buf[FR_NDATA_L_FLD];
 }
 
-void *il_frame__get_data(il_frame_t *frame)
+void *il_eusb_frame__get_data(il_eusb_frame_t *frame)
 {
 	return &frame->buf[FR_DATA_FLD];
 }
 
-int il_frame__is_resp(const il_frame_t *frame)
+int il_eusb_frame__is_resp(const il_eusb_frame_t *frame)
 {
 	return (int)frame->buf[FR_PROT_FLD];
 }

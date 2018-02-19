@@ -22,60 +22,15 @@
  * SOFTWARE.
  */
 
-#ifndef PUBLIC_INGENIALINK_ERR_H_
-#define PUBLIC_INGENIALINK_ERR_H_
+#include "utils.h"
 
-#include "common.h"
+#include <string.h>
 
-IL_BEGIN_DECL
-
-/**
- * @file ingenialink/err.h
- * @brief Error reporting.
- * @defgroup IL_ERR Error reporting
- * @ingroup IL
- * @{
- */
-
-/*
- * Library error codes.
- */
-
-/** General failure. */
-#define IL_EFAIL	-1
-/** Invalid values. */
-#define IL_EINVAL       -2
-/** Operation timed out. */
-#define IL_ETIMEDOUT    -3
-/** Not enough memory. */
-#define IL_ENOMEM	-4
-/** Already initialized. */
-#define IL_EALREADY	-5
-/** Device disconnected. */
-#define IL_EDISCONN	-6
-/** Access error. */
-#define IL_EACCESS	-7
-/** State error. */
-#define IL_ESTATE	-8
-/** I/O error. */
-#define IL_EIO		-9
-/** Not supported. */
-#define IL_ENOTSUP	-10
-
-/**
- * Obtain library last error details.
- *
- * @note
- *     If host target supports thread local storage (TLS) the last error
- *     description is kept on a per-thread basis.
- *
- * @return
- *      Last error details.
- */
-IL_EXPORT const char *ilerr_last(void);
-
-/** @} */
-
-IL_END_DECL
-
-#endif
+il_net_prot_t str2prot(const char *name) {
+	if (strcmp(name, "eusb") == 0)
+		return IL_NET_PROT_EUSB;
+	if (strcmp(name, "mcb") == 0)
+		return IL_NET_PROT_MCB;
+	else
+		return IL_NET_PROT_EUSB;
+}

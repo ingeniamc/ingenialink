@@ -22,60 +22,23 @@
  * SOFTWARE.
  */
 
-#ifndef PUBLIC_INGENIALINK_ERR_H_
-#define PUBLIC_INGENIALINK_ERR_H_
+#ifndef INGENIALINK_MCB_FRAME_H_
+#define INGENIALINK_MCB_FRAME_H_
 
-#include "common.h"
-
-IL_BEGIN_DECL
+#include "public/ingenialink/common.h"
 
 /**
- * @file ingenialink/err.h
- * @brief Error reporting.
- * @defgroup IL_ERR Error reporting
- * @ingroup IL
- * @{
- */
-
-/*
- * Library error codes.
- */
-
-/** General failure. */
-#define IL_EFAIL	-1
-/** Invalid values. */
-#define IL_EINVAL       -2
-/** Operation timed out. */
-#define IL_ETIMEDOUT    -3
-/** Not enough memory. */
-#define IL_ENOMEM	-4
-/** Already initialized. */
-#define IL_EALREADY	-5
-/** Device disconnected. */
-#define IL_EDISCONN	-6
-/** Access error. */
-#define IL_EACCESS	-7
-/** State error. */
-#define IL_ESTATE	-8
-/** I/O error. */
-#define IL_EIO		-9
-/** Not supported. */
-#define IL_ENOTSUP	-10
-
-/**
- * Obtain library last error details.
+ * Swap a buffer word-wise on LE systems.
  *
- * @note
- *     If host target supports thread local storage (TLS) the last error
- *     description is kept on a per-thread basis.
- *
- * @return
- *      Last error details.
+ * @param [in, out] frame
+ *	Frame.
+ * @param [in] sz
+ *	Size.
  */
-IL_EXPORT const char *ilerr_last(void);
-
-/** @} */
-
-IL_END_DECL
+#ifndef IL_BIG_ENDIAN
+void il_mcb_frame__swap(uint8_t *frame, size_t sz);
+#else
+#define il_mcb_frame__swap(frame, sz)
+#endif
 
 #endif

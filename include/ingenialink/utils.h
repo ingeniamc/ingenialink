@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,8 @@
 #ifndef INGENIALINK_UTILS_H_
 #define INGENIALINK_UTILS_H_
 
+#include <stddef.h>
+
 #include "public/ingenialink/common.h"
 
 /** Obtain the minimum of a, b. */
@@ -38,6 +40,10 @@
 
 /** Return space available on a circular queue. */
 #define CIRC_SPACE(head, tail, size) CIRC_CNT((tail), ((head) + 1), (size))
+
+/** Cast a member of a structure out to the containing structure. */
+#define container_of(ptr, type, member) \
+	((type *)((char *)(ptr) - offsetof(type, member)))
 
 /** Swap 16-bit value on big-endian systems. */
 #ifdef IL_BIG_ENDIAN
@@ -72,6 +78,17 @@
 	 (((uint64_t)(x) & 0x00000000000000FFU) << 56))
 #else
 #define __swap_64(x) (x)
+#endif
+
+/** Swap float value on big-endian systems. */
+#ifdef IL_BIG_ENDIAN
+#define __swap_float(x) \
+	((float)((((uint32_t)(x) & 0xFF000000U) >> 24) | \
+		 (((uint32_t)(x) & 0x00FF0000U) >>  8) | \
+		 (((uint32_t)(x) & 0x0000FF00U) <<  8) | \
+		 (((uint32_t)(x) & 0x000000FFU) << 24)))
+#else
+#define __swap_float(x) (x)
 #endif
 
 /*

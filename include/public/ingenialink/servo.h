@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,9 +40,6 @@ IL_BEGIN_DECL
 
 /** IngeniaLink servo instance. */
 typedef struct il_servo il_servo_t;
-
-/** Default communications timeout (ms). */
-#define IL_SERVO_TIMEOUT_DEF	100
 
 /** Set-point acknowledge default timeout (ms). */
 #define IL_SERVO_SP_TIMEOUT_DEF	1000
@@ -230,14 +227,12 @@ typedef enum {
  *	Servo id.
  * @param [in] dict
  *	Dictionary (optional).
- * @param [in] timeout
- *	Communications timeout (ms).
  *
  * @return
  *	Servo instance (NULL if it could not be created).
  */
-IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint8_t id,
-				      const char *dict, int timeout);
+IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint16_t id,
+				      const char *dict);
 
 /**
  * Destroy an IngeniaLink servo instance.
@@ -250,6 +245,8 @@ IL_EXPORT void il_servo_destroy(il_servo_t *servo);
 /**
  * Utility function to connect to the first available servo drive.
  *
+ * @param [in] prot
+ *	Network protocol.
  * @param [out] net
  *	Where the servo network will be stored.
  * @param [out] servo
@@ -260,8 +257,8 @@ IL_EXPORT void il_servo_destroy(il_servo_t *servo);
  * @return
  *	0 if a servo is found, IL_EFAIL if none are found.
  */
-IL_EXPORT int il_servo_lucky(il_net_t **net, il_servo_t **servo,
-			     const char *dict);
+IL_EXPORT int il_servo_lucky(il_net_prot_t prot, il_net_t **net,
+			     il_servo_t **servo, const char *dict);
 
 /**
  * Obtain current servo PDS state.
@@ -699,6 +696,24 @@ IL_EXPORT int il_servo_raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
 				    const char *id, int64_t *buf);
 
 /**
+ * Read signed 64-bit value from a register.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [in] reg
+ *	Register.
+ * @param [in] id
+ *	Register id.
+ * @param [out] buf
+ *	Buffer where to store received data.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_raw_read_float(il_servo_t *servo, const il_reg_t *reg,
+				      const char *id, float *buf);
+
+/**
  * Read a register.
  *
  * This function will read from a register and also perform a unit conversion to
@@ -878,6 +893,26 @@ IL_EXPORT int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
  */
 IL_EXPORT int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
 				     const char *id, int64_t val, int confirm);
+
+/**
+ * Write float to a register.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [in] reg
+ *	Pre-defined register.
+ * @param [in] id
+ *	Register ID.
+ * @param [in] val
+ *	Value.
+ * @param [in] confirm
+ *	Confirm the write.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_raw_write_float(il_servo_t *servo, const il_reg_t *reg,
+				       const char *id, float val, int confirm);
 
 /**
  * Write to a register.

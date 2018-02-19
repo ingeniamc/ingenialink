@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017-2018 Ingenia-CAT S.L.
+ * Copyright (c) 2017 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,60 +22,20 @@
  * SOFTWARE.
  */
 
-#ifndef PUBLIC_INGENIALINK_ERR_H_
-#define PUBLIC_INGENIALINK_ERR_H_
+#ifndef MCB_SERVO_H
+#define MCB_SERVO_H
 
-#include "common.h"
+#include "../servo.h"
 
-IL_BEGIN_DECL
+/** IngeniaLink servo. */
+typedef struct il_mcb_servo {
+	/** Servo (parent). */
+	il_servo_t servo;
+	/** Reference counter. */
+	il_utils_refcnt_t *refcnt;
+} il_mcb_servo_t;
 
-/**
- * @file ingenialink/err.h
- * @brief Error reporting.
- * @defgroup IL_ERR Error reporting
- * @ingroup IL
- * @{
- */
-
-/*
- * Library error codes.
- */
-
-/** General failure. */
-#define IL_EFAIL	-1
-/** Invalid values. */
-#define IL_EINVAL       -2
-/** Operation timed out. */
-#define IL_ETIMEDOUT    -3
-/** Not enough memory. */
-#define IL_ENOMEM	-4
-/** Already initialized. */
-#define IL_EALREADY	-5
-/** Device disconnected. */
-#define IL_EDISCONN	-6
-/** Access error. */
-#define IL_EACCESS	-7
-/** State error. */
-#define IL_ESTATE	-8
-/** I/O error. */
-#define IL_EIO		-9
-/** Not supported. */
-#define IL_ENOTSUP	-10
-
-/**
- * Obtain library last error details.
- *
- * @note
- *     If host target supports thread local storage (TLS) the last error
- *     description is kept on a per-thread basis.
- *
- * @return
- *      Last error details.
- */
-IL_EXPORT const char *ilerr_last(void);
-
-/** @} */
-
-IL_END_DECL
+/** Obtain MCB servo from parent. */
+#define to_mcb_servo(ptr) container_of(ptr, struct il_mcb_servo, servo)
 
 #endif

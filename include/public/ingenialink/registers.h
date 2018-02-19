@@ -37,10 +37,8 @@ IL_BEGIN_DECL
  * @{
  */
 
-/** IngeniaLink register data type. */
+/** Register data type. */
 typedef enum {
-	/** Raw data. */
-	IL_REG_DTYPE_RAW,
 	/** Unsigned 8-bit integer. */
 	IL_REG_DTYPE_U8,
 	/** Signed 8-bit integer. */
@@ -57,9 +55,13 @@ typedef enum {
 	IL_REG_DTYPE_U64,
 	/** Signed 64-bit integer. */
 	IL_REG_DTYPE_S64,
+	/** Float. */
+	IL_REG_DTYPE_FLOAT,
+	/** String. */
+	IL_REG_DTYPE_STR,
 } il_reg_dtype_t;
 
-/** IngeniaLink register access. */
+/** Register access. */
 typedef enum {
 	/** Read/Write. */
 	IL_REG_ACCESS_RW,
@@ -69,7 +71,7 @@ typedef enum {
 	IL_REG_ACCESS_WO,
 } il_reg_access_t;
 
-/** IngeniaLink register physical units type. */
+/** Register physical units type. */
 typedef enum {
 	/** None. */
 	IL_REG_PHY_NONE,
@@ -87,7 +89,38 @@ typedef enum {
 	IL_REG_PHY_RAD,
 } il_reg_phy_t;
 
-/** IngeniaLink register. */
+/** Limits. */
+typedef union {
+	/** Unsigned 8-bit value. */
+	uint8_t u8;
+	/** Signed 8-bit value. */
+	int8_t s8;
+	/** Unsigned 16-bit value. */
+	uint16_t u16;
+	/** Signed 16-bit value. */
+	int16_t s16;
+	/** Unsigned 32-bit value. */
+	uint32_t u32;
+	/** Signed 32-bit value. */
+	int32_t s32;
+	/** Unsigned 64-bit value. */
+	uint64_t u64;
+	/** Signed 64-bit value. */
+	int64_t s64;
+} il_reg_limit_t;
+
+/** Range. */
+typedef struct {
+	/** Minimum. */
+	il_reg_limit_t min;
+	/** Maximum. */
+	il_reg_limit_t max;
+} il_reg_range_t;
+
+/** Labels dictionary. */
+typedef struct il_reg_labels il_reg_labels_t;
+
+/** Register. */
 typedef struct {
 	/** Address. */
 	uint32_t address;
@@ -97,7 +130,99 @@ typedef struct {
 	il_reg_access_t access;
 	/** Physical units type. */
 	il_reg_phy_t phy;
+	/** Range. */
+	il_reg_range_t range;
+	/** Labels dictionary. */
+	il_reg_labels_t *labels;
 } il_reg_t;
+
+/**
+ * Create a labels dictionary.
+ *
+ * @return
+ *	Labels dictionary instance (NULL if it could not be created).
+ */
+il_reg_labels_t *il_reg_labels_create(void);
+
+/**
+ * Destroy a labels dictionary.
+ *
+ * @param [in] labels
+ *	Labels dictionary.
+ */
+void il_reg_labels_destroy(il_reg_labels_t *labels);
+
+/**
+ * Obtain the label given a language.
+ *
+ * @param [in] labels
+ *	Labels dictionary.
+ * @param [in] lang
+ *	Language (ISO code).
+ * @param [out] label
+ *	Label.
+ *
+ * @return
+ *	0 if label exists for the given language, IL_EFAIL otherwise.
+ */
+int il_reg_labels_get(il_reg_labels_t *labels, const char *lang,
+		      const char **label);
+
+/**
+ * Set the label for a given language.
+ *
+ * @note
+ *	A copy of label is stored internally.
+ *
+ * @param [in] labels
+ *	Labels dictionary.
+ * @param [in] lang
+ *	Language (ISO code).
+ * @param [in] label
+ *	Label.
+ */
+void il_reg_labels_set(il_reg_labels_t *labels, const char *lang,
+		       const char *label);
+
+/**
+ * Remove the label of the given language.
+ *
+ * @param [in] labels
+ *	Labels dictionary.
+ * @param [in] lang
+ *	Language (ISO code).
+ */
+void il_reg_labels_del(il_reg_labels_t *labels, const char *lang);
+
+/**
+ * Obtain the number of labels.
+ *
+ * @param [in] labels
+ *	Labels dictionary.
+ */
+size_t il_reg_labels_nlabels_get(il_reg_labels_t *labels);
+
+/**
+ * Obtain the languages available in the labels dictionary.
+ *
+ * @param [in] labels
+ *	Labels dictionary.
+ *
+ * @return
+ *	Null-terminated list of languages.
+ *
+ * @see
+ *	il_reg_labels_langs_destroy
+ */
+const char **il_reg_labels_langs_get(il_reg_labels_t *labels);
+
+/**
+ * Destroy a list of languages.
+ *
+ * @param [in] langs
+ *	List of languages.
+ */
+void il_reg_labels_langs_destroy(const char **langs);
 
 /** @} */
 

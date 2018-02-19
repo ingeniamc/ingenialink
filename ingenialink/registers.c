@@ -22,221 +22,134 @@
  * SOFTWARE.
  */
 
-#include "public/ingenialink/registers.h"
+#include "registers.h"
+
+#include <string.h>
+
+#include "ingenialink/err.h"
 
 /*******************************************************************************
  * Public
  ******************************************************************************/
 
-/*
- * CiA 301.
- */
+il_reg_labels_t *il_reg_labels_create()
+{
+	il_reg_labels_t *labels;
 
-const il_reg_t IL_REG_SW_VERSION = {
-	0x00100A, IL_REG_DTYPE_U64, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
-};
+	labels = malloc(sizeof(*labels));
+	if (!labels) {
+		ilerr__set("Labels dictionary allocation failed");
+		return NULL;
+	}
 
-const il_reg_t IL_REG_STORE_ALL = {
-	0x011010, IL_REG_DTYPE_U32, IL_REG_ACCESS_WO, IL_REG_PHY_NONE
-};
+	/* create hash table for labels */
+	labels->h = kh_init(str);
+	if (!labels->h) {
+		ilerr__set("Labels hash table allocation failed");
+		goto cleanup_labels;
+	}
 
-const il_reg_t IL_REG_STORE_COMM = {
-	0x021010, IL_REG_DTYPE_U32, IL_REG_ACCESS_WO, IL_REG_PHY_NONE
-};
+	return labels;
 
-const il_reg_t IL_REG_STORE_APP = {
-	0x031010, IL_REG_DTYPE_U32, IL_REG_ACCESS_WO, IL_REG_PHY_NONE
-};
+cleanup_labels:
+	free(labels);
+	return NULL;
+}
 
-const il_reg_t IL_REG_ID_PROD_CODE = {
-	0x021018, IL_REG_DTYPE_U32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
-};
+void il_reg_labels_destroy(il_reg_labels_t *labels)
+{
+	khint_t k;
 
-const il_reg_t IL_REG_ID_REVISION = {
-	0x031018, IL_REG_DTYPE_U32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
-};
+	for (k = 0; k < kh_end(labels->h); ++k) {
+		if (kh_exist(labels->h, k)) {
+			free((char *)kh_key(labels->h, k));
+			free((char *)kh_val(labels->h, k));
+		}
+	}
 
-const il_reg_t IL_REG_ID_SERIAL = {
-	0x041018, IL_REG_DTYPE_U32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
-};
+	kh_destroy(str, labels->h);
 
-/*
- * Vendor specific (Ingenia).
- */
+	free(labels);
+}
 
-const il_reg_t IL_REG_PAIR_POLES = {
-	0x002301, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
+int il_reg_labels_get(il_reg_labels_t *labels, const char *lang,
+		      const char **label)
+{
+	khint_t k;
 
-const il_reg_t IL_REG_FB_VEL_SENSOR = {
-	0x022310, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
+	k = kh_get(str, labels->h, lang);
+	if (k == kh_end(labels->h)) {
+		ilerr__set("Language not available (%s)", lang);
+		return IL_EFAIL;
+	}
 
-const il_reg_t IL_REG_FB_POS_SENSOR = {
-	0x032310, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
+	*label = kh_value(labels->h, k);
 
-const il_reg_t IL_REG_SSI_STURNBITS = {
-	0x052380, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
+	return 0;
+}
 
-const il_reg_t IL_REG_MOTPARAM_PPITCH = {
-	0x032701, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
+void il_reg_labels_set(il_reg_labels_t *labels, const char *lang,
+		       const char *label)
+{
+	int absent;
+	khint_t k;
 
-const il_reg_t IL_REG_MONITOR_CFG_T_S = {
-	0x012c50, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
+	k = kh_put(str, labels->h, lang, &absent);
+	if (absent)
+		kh_key(labels->h, k) = strdup(lang);
+	else
+		free((char *)kh_val(labels->h, k));
 
-const il_reg_t IL_REG_MONITOR_CFG_ENABLE = {
-	0x022c50, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
+	kh_val(labels->h, k) = strdup(label);
+}
 
-const il_reg_t IL_REG_MONITOR_CFG_DELAY_SAMPLES = {
-	0x032c50, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
+void il_reg_labels_del(il_reg_labels_t *labels, const char *lang)
+{
+	khint_t k;
 
-const il_reg_t IL_REG_MONITOR_RESULT_SZ = {
-	0x012c51, IL_REG_DTYPE_U16, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
-};
+	k = kh_get(str, labels->h, lang);
+	if (k != kh_end(labels->h)) {
+		free((char *)kh_key(labels->h, k));
+		free((char *)kh_val(labels->h, k));
 
-const il_reg_t IL_REG_MONITOR_RESULT_FILLED = {
-	0x022c51, IL_REG_DTYPE_U16, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
-};
+		kh_del(str, labels->h, k);
+	}
+}
 
-const il_reg_t IL_REG_MONITOR_RESULT_ENTRY = {
-	0x032c51, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
+size_t il_reg_labels_nlabels_get(il_reg_labels_t *labels)
+{
+	return (size_t)kh_size(labels->h);
+}
 
-const il_reg_t IL_REG_MONITOR_RESULT_CH_1 = {
-	0x042c51, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
-};
+const char **il_reg_labels_langs_get(il_reg_labels_t *labels)
+{
+	const char **langs;
+	size_t i;
+	khint_t k;
 
-const il_reg_t IL_REG_MONITOR_RESULT_CH_2 = {
-	0x052c51, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
-};
+	/* allocate array for register keys */
+	langs = malloc(sizeof(char *) *
+		       (il_reg_labels_nlabels_get(labels) + 1));
+	if (!langs) {
+		ilerr__set("Languages array allocation failed");
+		return NULL;
+	}
 
-const il_reg_t IL_REG_MONITOR_RESULT_CH_3 = {
-	0x062c51, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
-};
+	/* assign keys, null-terminate */
+	for (i = 0, k = 0; k < kh_end(labels->h); ++k) {
+		if (kh_exist(labels->h, k)) {
+			langs[i] = (const char *)kh_key(labels->h, k);
+			i++;
+		}
+	}
 
-const il_reg_t IL_REG_MONITOR_RESULT_CH_4 = {
-	0x072c51, IL_REG_DTYPE_S32, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
-};
+	langs[i] = NULL;
 
-const il_reg_t IL_REG_MONITOR_MAP_CH_1 = {
-	0x012c52, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
+	return langs;
+}
 
-const il_reg_t IL_REG_MONITOR_MAP_CH_2 = {
-	0x022c52, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
+void il_reg_labels_langs_destroy(const char **langs)
+{
+	free((char **)langs);
+}
 
-const il_reg_t IL_REG_MONITOR_MAP_CH_3 = {
-	0x032c52, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_MONITOR_MAP_CH_4 = {
-	0x042c52, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_MONITOR_TRIG_MODE = {
-	0x012c55, IL_REG_DTYPE_U8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_MONITOR_TRIG_SRC = {
-	0x022c55, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_MONITOR_TRIG_TH_POS = {
-	0x032c55, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_MONITOR_TRIG_TH_NEG = {
-	0x042c55, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_MONITOR_TRIG_DIN_MSK = {
-	0x052c55, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_MONITOR_TRIG_DELAY = {
-	0x062c55, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_OL_VOLTAGE = {
-	0x012d00, IL_REG_DTYPE_S16, IL_REG_ACCESS_RW, IL_REG_PHY_VOLT_REL
-};
-
-const il_reg_t IL_REG_OL_FREQUENCY = {
-	0x022d00, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_HW_VARIANT = {
-	0x022ff4, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_DRIVE_NAME = {
-	0x002ffe, IL_REG_DTYPE_U64, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-/* CiA 402 */
-const il_reg_t IL_REG_CTL_WORD = {
-	0x006040, IL_REG_DTYPE_U16, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_STS_WORD = {
-	0x006041, IL_REG_DTYPE_U16, IL_REG_ACCESS_RO, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_OP_MODE = {
-	0x006060, IL_REG_DTYPE_S8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_OP_MODE_DISP = {
-	0x006061, IL_REG_DTYPE_S8, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_POS_ACT = {
-	0x006064, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_POS
-};
-
-const il_reg_t IL_REG_VEL_ACT = {
-	0x00606C, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_VEL
-};
-
-const il_reg_t IL_REG_TORQUE_TGT = {
-	0x006071, IL_REG_DTYPE_S16, IL_REG_ACCESS_RW, IL_REG_PHY_TORQUE
-};
-
-const il_reg_t IL_REG_RATED_TORQUE = {
-	0x006076, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_TORQUE_ACT = {
-	0x006077, IL_REG_DTYPE_S16, IL_REG_ACCESS_RW, IL_REG_PHY_TORQUE
-};
-
-const il_reg_t IL_REG_POS_TGT = {
-	0x00607A, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_POS
-};
-
-const il_reg_t IL_REG_PRES_ENC_INCR = {
-	0x01608F, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_PRES_MOTOR_REVS = {
-	0x02608F, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_VRES_ENC_INCR = {
-	0x016090, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_VRES_MOTOR_REVS = {
-	0x026090, IL_REG_DTYPE_U32, IL_REG_ACCESS_RW, IL_REG_PHY_NONE
-};
-
-const il_reg_t IL_REG_VEL_TGT = {
-	0x0060FF, IL_REG_DTYPE_S32, IL_REG_ACCESS_RW, IL_REG_PHY_VEL
-};

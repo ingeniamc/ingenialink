@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017-2018 Ingenia-CAT S.L.
+ * Copyright (c) 2017 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,60 +22,52 @@
  * SOFTWARE.
  */
 
-#ifndef PUBLIC_INGENIALINK_ERR_H_
-#define PUBLIC_INGENIALINK_ERR_H_
+#ifndef EUSB_SERVO_H
+#define EUSB_SERVO_H
 
-#include "common.h"
+#include "../servo.h"
 
-IL_BEGIN_DECL
+/** Minimum servo id. */
+#define SERVOID_MIN		1
 
-/**
- * @file ingenialink/err.h
- * @brief Error reporting.
- * @defgroup IL_ERR Error reporting
- * @ingroup IL
- * @{
- */
+/** Maximum servo id. */
+#define SERVOID_MAX		127
+
+/** PDS default timeout (ms). */
+#define PDS_TIMEOUT		1000
+
+/** Flags position offset in statusword. */
+#define FLAGS_SW_POS		10
 
 /*
- * Library error codes.
+ * Constants associated to types of velocity and position feedbacks.
+ *
+ * References:
+ *	http://doc.ingeniamc.com/display/i14402/0x2310+-+Feedbacks
  */
 
-/** General failure. */
-#define IL_EFAIL	-1
-/** Invalid values. */
-#define IL_EINVAL       -2
-/** Operation timed out. */
-#define IL_ETIMEDOUT    -3
-/** Not enough memory. */
-#define IL_ENOMEM	-4
-/** Already initialized. */
-#define IL_EALREADY	-5
-/** Device disconnected. */
-#define IL_EDISCONN	-6
-/** Access error. */
-#define IL_EACCESS	-7
-/** State error. */
-#define IL_ESTATE	-8
-/** I/O error. */
-#define IL_EIO		-9
-/** Not supported. */
-#define IL_ENOTSUP	-10
+#define DIGITAL_HALLS_CONSTANT	6
+#define ANALOG_HALLS_CONSTANT	4096
+#define ANALOG_INPUT_CONSTANT	4096
+#define SINCOS_CONSTANT		1024
+#define PWM_CONSTANT		65535
+#define RESOLVER_CONSTANT	65535
 
-/**
- * Obtain library last error details.
- *
- * @note
- *     If host target supports thread local storage (TLS) the last error
- *     description is kept on a per-thread basis.
- *
- * @return
- *      Last error details.
- */
-IL_EXPORT const char *ilerr_last(void);
+/** Relative voltage range. */
+#define VOLT_REL_RANGE		32767
 
-/** @} */
+/** Radians range. */
+#define RAD_RANGE		65535
 
-IL_END_DECL
+/** IngeniaLink servo. */
+typedef struct il_eusb_servo {
+	/** Servo (parent). */
+	il_servo_t servo;
+	/** Reference counter. */
+	il_utils_refcnt_t *refcnt;
+} il_eusb_servo_t;
+
+/** Obtain E-USB servo from parent. */
+#define to_eusb_servo(ptr) container_of(ptr, struct il_eusb_servo, servo)
 
 #endif

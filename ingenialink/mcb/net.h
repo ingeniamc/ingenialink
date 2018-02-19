@@ -22,60 +22,52 @@
  * SOFTWARE.
  */
 
-#ifndef PUBLIC_INGENIALINK_ERR_H_
-#define PUBLIC_INGENIALINK_ERR_H_
+#ifndef MCB_NET_H_
+#define MCB_NET_H_
 
-#include "common.h"
+#include "../net.h"
 
-IL_BEGIN_DECL
+#include "ingenialink/utils.h"
 
-/**
- * @file ingenialink/err.h
- * @brief Error reporting.
- * @defgroup IL_ERR Error reporting
- * @ingroup IL
- * @{
- */
+#include "osal/osal.h"
 
-/*
- * Library error codes.
- */
+#define _SER_NO_LEGACY_STDINT
+#include <sercomm/sercomm.h>
 
-/** General failure. */
-#define IL_EFAIL	-1
-/** Invalid values. */
-#define IL_EINVAL       -2
-/** Operation timed out. */
-#define IL_ETIMEDOUT    -3
-/** Not enough memory. */
-#define IL_ENOMEM	-4
-/** Already initialized. */
-#define IL_EALREADY	-5
-/** Device disconnected. */
-#define IL_EDISCONN	-6
-/** Access error. */
-#define IL_EACCESS	-7
-/** State error. */
-#define IL_ESTATE	-8
-/** I/O error. */
-#define IL_EIO		-9
-/** Not supported. */
-#define IL_ENOTSUP	-10
+/** Default baudrate. */
+#define BAUDRATE_DEF		115200
 
-/**
- * Obtain library last error details.
- *
- * @note
- *     If host target supports thread local storage (TLS) the last error
- *     description is kept on a per-thread basis.
- *
- * @return
- *      Last error details.
- */
-IL_EXPORT const char *ilerr_last(void);
+/** Vendor ID register address. */
+#define VENDOR_ID_ADDR		0x0010
 
-/** @} */
+/** MCB network. */
+typedef struct il_mcb_net {
+	/** Network (parent). */
+	il_net_t net;
+	/** Reference counter. */
+	il_utils_refcnt_t *refcnt;
+	/** Serial communications channel. */
+	ser_t *ser;
+} il_mcb_net_t;
 
-IL_END_DECL
+/** MCB network device monitor */
+typedef struct il_mcb_net_dev_mon {
+	/** Network monitor (parent). */
+	il_net_dev_mon_t mon;
+	/** Serial port monitor. */
+	ser_dev_mon_t *smon;
+	/** Running flag. */
+	int running;
+	/** Callback */
+	il_net_dev_on_evt_t on_evt;
+	/** Context */
+	void *ctx;
+} il_mcb_net_dev_mon_t;
+
+/** Obtain MCB Network from parent. */
+#define to_mcb_net(ptr) container_of(ptr, struct il_mcb_net, net)
+
+/** Obtain MCB Network device monitor from parent. */
+#define to_mcb_mon(ptr) container_of(ptr, struct il_mcb_net_dev_mon, mon)
 
 #endif
