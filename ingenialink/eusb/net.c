@@ -495,11 +495,11 @@ static il_net_t *il_eusb_net_create(const il_net_opts_t *opts)
 		goto cleanup_sync_cond;
 	}
 
-	/* open serial port, TODO: review timeouts */
+	/* open serial port */
 	sopts.port = opts->port;
 	sopts.baudrate = BAUDRATE_DEF;
-	sopts.timeouts.rd = TIMEOUT_RD_DEF;
-	sopts.timeouts.wr = TIMEOUT_WR_DEF;
+	sopts.timeouts.rd = SER_POLL_TIMEOUT;
+	sopts.timeouts.wr = opts->timeout_wr;
 
 	r = ser_open(this->ser, &sopts);
 	if (r < 0) {

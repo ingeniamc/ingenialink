@@ -330,8 +330,8 @@ static il_net_t *il_mcb_net_create(const il_net_opts_t *opts)
 	/* open serial port */
 	sopts.port = opts->port;
 	sopts.baudrate = BAUDRATE_DEF;
-	sopts.timeouts.rd = TIMEOUT_RD_DEF;
-	sopts.timeouts.wr = TIMEOUT_WR_DEF;
+	sopts.timeouts.rd = opts->timeout_rd;
+	sopts.timeouts.wr = opts->timeout_wr;
 
 	r = ser_open(this->ser, &sopts);
 	if (r < 0) {

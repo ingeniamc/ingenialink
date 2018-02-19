@@ -37,12 +37,6 @@
 /** Default baudrate. */
 #define BAUDRATE_DEF		115200
 
-/** Default read timeout (ms) */
-#define TIMEOUT_RD_DEF		100
-
-/** Default write timeout (ms) */
-#define TIMEOUT_WR_DEF		100
-
 /** Vendor ID register address. */
 #define VENDOR_ID_ADDR		0x0010
 
