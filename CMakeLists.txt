@@ -167,6 +167,9 @@ if(UNIX)
   find_package(Threads REQUIRED)
 
   target_link_libraries(ingenialink PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+elseif(WIN32)
+  # required by: libxml2
+  target_link_libraries(ingenialink PRIVATE ws2_32)
 endif()
 
 #-------------------------------------------------------------------------------
