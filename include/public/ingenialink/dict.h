@@ -45,7 +45,7 @@ typedef struct il_dict il_dict_t;
 /**
  * Create a dictionary.
  *
- * @params [in] dict_f
+ * @param [in] dict_f
  *	Dictionary file.
  *
  * @return
@@ -56,7 +56,7 @@ IL_EXPORT il_dict_t *il_dict_create(const char *dict_f);
 /**
  * Destroy a dictionary.
  *
- * @params [in, out] dict
+ * @param [in, out] dict
  *	Dictionary instance.
  */
 IL_EXPORT void il_dict_destroy(il_dict_t *dict);
@@ -105,8 +105,8 @@ IL_EXPORT const char **il_dict_ids_get(il_dict_t *dict);
 /**
  * Destroy the list of obtained dictionary IDs.
  *
- * @param [in] ids
- *	IDs list.
+ * @param [in] regs
+ *	Register list.
  *
  * @see
  *	il_dict_ids_get

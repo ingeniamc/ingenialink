@@ -201,7 +201,6 @@ if(WITH_DOCS)
   find_package(Doxygen REQUIRED)
 
   # Doxyfile variables
-  set(DOCS_TMPL_DIR ${CMAKE_SOURCE_DIR}/docs/template)
   set(DOCS_OUT_DIR ${CMAKE_BINARY_DIR}/docs)
 
   set(DOCS_EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
@@ -215,7 +214,7 @@ if(WITH_DOCS)
 
   # Generate Doxyfile
   configure_file(
-    "docs/template/Doxyfile.in"
+    "docs/Doxyfile.in"
     "${CMAKE_BINARY_DIR}/Doxyfile"
   )
 
