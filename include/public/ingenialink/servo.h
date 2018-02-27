@@ -156,10 +156,10 @@ typedef enum {
 typedef enum {
 	/** Native. */
 	IL_UNITS_TORQUE_NATIVE,
-	/** Millinewtons. */
-	IL_UNITS_TORQUE_MN,
-	/** Newtons. */
-	IL_UNITS_TORQUE_N
+	/** Millinewtons*m. */
+	IL_UNITS_TORQUE_MNM,
+	/** Newtons*m. */
+	IL_UNITS_TORQUE_NM
 } il_units_torque_t;
 
 /** Position units. */

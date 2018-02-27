@@ -459,10 +459,10 @@ static double il_eusb_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 		case IL_UNITS_TORQUE_NATIVE:
 			factor = 1.;
 			break;
-		case IL_UNITS_TORQUE_MN:
+		case IL_UNITS_TORQUE_MNM:
 			factor = servo->cfg.rated_torque / 1000000.;
 			break;
-		case IL_UNITS_TORQUE_N:
+		case IL_UNITS_TORQUE_NM:
 			factor = servo->cfg.rated_torque / 1000.;
 			break;
 		default:
