@@ -836,7 +836,7 @@ int il_servo_base__raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
 
 	r = raw_read(servo, reg, id, IL_REG_DTYPE_U16, buf, sizeof(*buf));
 	if (r == 0)
-		*buf = __swap_16(*buf);
+		*buf = __swap_be_16(*buf);
 
 	return r;
 }
@@ -848,7 +848,7 @@ int il_servo_base__raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
 
 	r = raw_read(servo, reg, id, IL_REG_DTYPE_S16, buf, sizeof(*buf));
 	if (r == 0)
-		*buf = (int16_t)__swap_16(*buf);
+		*buf = (int16_t)__swap_be_16(*buf);
 
 	return r;
 }
@@ -860,7 +860,7 @@ int il_servo_base__raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
 
 	r = raw_read(servo, reg, id, IL_REG_DTYPE_U32, buf, sizeof(*buf));
 	if (r == 0)
-		*buf = __swap_32(*buf);
+		*buf = __swap_be_32(*buf);
 
 	return r;
 }
@@ -872,7 +872,7 @@ int il_servo_base__raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
 
 	r = raw_read(servo, reg, id, IL_REG_DTYPE_S32, buf, sizeof(*buf));
 	if (r == 0)
-		*buf = (int32_t)__swap_32(*buf);
+		*buf = (int32_t)__swap_be_32(*buf);
 
 	return r;
 }
@@ -884,7 +884,7 @@ int il_servo_base__raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
 
 	r = raw_read(servo, reg, id, IL_REG_DTYPE_U64, buf, sizeof(*buf));
 	if (r == 0)
-		*buf = __swap_64(*buf);
+		*buf = __swap_be_64(*buf);
 
 	return r;
 }
@@ -896,7 +896,7 @@ int il_servo_base__raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
 
 	r = raw_read(servo, reg, id, IL_REG_DTYPE_S64, buf, sizeof(*buf));
 	if (r == 0)
-		*buf = (int64_t)__swap_64(*buf);
+		*buf = (int64_t)__swap_be_64(*buf);
 
 	return r;
 }
@@ -908,7 +908,7 @@ int il_servo_base__raw_read_float(il_servo_t *servo, const il_reg_t *reg,
 
 	r = raw_read(servo, reg, id, IL_REG_DTYPE_FLOAT, buf, sizeof(*buf));
 	if (r == 0)
-		*buf = __swap_float(*buf);
+		*buf = __swap_be_float(*buf);
 
 	return r;
 }
@@ -1043,7 +1043,7 @@ int il_servo_base__raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
 		return IL_EINVAL;
 	}
 
-	val_ = __swap_16(val);
+	val_ = __swap_be_16(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U16, &val_, sizeof(val_),
 			 confirm);
@@ -1065,7 +1065,7 @@ int il_servo_base__raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
 		return IL_EINVAL;
 	}
 
-	val_ = (int16_t)__swap_16(val);
+	val_ = (int16_t)__swap_be_16(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S16, &val_, sizeof(val_),
 			 confirm);
@@ -1087,7 +1087,7 @@ int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
 		return IL_EINVAL;
 	}
 
-	val_ = __swap_32(val);
+	val_ = __swap_be_32(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U32, &val_, sizeof(val_),
 			 confirm);
@@ -1109,7 +1109,7 @@ int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
 		return IL_EINVAL;
 	}
 
-	val_ = (int32_t)__swap_32(val);
+	val_ = (int32_t)__swap_be_32(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S32, &val_, sizeof(val_),
 			 confirm);
@@ -1131,7 +1131,7 @@ int il_servo_base__raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
 		return IL_EINVAL;
 	}
 
-	val_ = __swap_64(val);
+	val_ = __swap_be_64(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U64, &val_, sizeof(val_),
 			 confirm);
@@ -1153,7 +1153,7 @@ int il_servo_base__raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
 		return IL_EINVAL;
 	}
 
-	val_ = (int64_t)__swap_64(val);
+	val_ = (int64_t)__swap_be_64(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S64, &val_, sizeof(val_),
 			 confirm);
@@ -1170,7 +1170,7 @@ int il_servo_base__raw_write_float(il_servo_t *servo, const il_reg_t *reg,
 	if (r < 0)
 		return r;
 
-	val_ = __swap_float(val);
+	val_ = __swap_be_float(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_FLOAT, &val_,
 			 sizeof(val_), confirm);

@@ -47,27 +47,36 @@
 
 /** Swap 16-bit value on big-endian systems. */
 #ifdef IL_BIG_ENDIAN
-#define __swap_16(x) \
+#define __swap_be_16(x) \
 	((((uint16_t)(x) & 0xFF00U) >> 8) | \
 	 (((uint16_t)(x) & 0x00FFU) << 8))
 #else
-#define __swap_16(x) (x)
+#define __swap_be_16(x) (x)
+#endif
+
+/** Swap 16-bit value on little-endian systems. */
+#ifndef IL_BIG_ENDIAN
+#define __swap_le_16(x) \
+	((((uint16_t)(x) & 0xFF00U) >> 8) | \
+	 (((uint16_t)(x) & 0x00FFU) << 8))
+#else
+#define __swap_le_16(x) (x)
 #endif
 
 /** Swap 32-bit value on big-endian systems. */
 #ifdef IL_BIG_ENDIAN
-#define __swap_32(x) \
+#define __swap_be_32(x) \
 	((((uint32_t)(x) & 0xFF000000U) >> 24) | \
 	 (((uint32_t)(x) & 0x00FF0000U) >>  8) | \
 	 (((uint32_t)(x) & 0x0000FF00U) <<  8) | \
 	 (((uint32_t)(x) & 0x000000FFU) << 24))
 #else
-#define __swap_32(x) (x)
+#define __swap_be_32(x) (x)
 #endif
 
 /** Swap 64-bit value on big-endian systems. */
 #ifdef IL_BIG_ENDIAN
-#define __swap_64(x) \
+#define __swap_be_64(x) \
 	((((uint64_t)(x) & 0xFF00000000000000U) >> 56) | \
 	 (((uint64_t)(x) & 0x00FF000000000000U) >> 40) | \
 	 (((uint64_t)(x) & 0x0000FF0000000000U) >> 24) | \
@@ -77,18 +86,18 @@
 	 (((uint64_t)(x) & 0x000000000000FF00U) << 40) | \
 	 (((uint64_t)(x) & 0x00000000000000FFU) << 56))
 #else
-#define __swap_64(x) (x)
+#define __swap_be_64(x) (x)
 #endif
 
 /** Swap float value on big-endian systems. */
 #ifdef IL_BIG_ENDIAN
-#define __swap_float(x) \
+#define __swap_be_float(x) \
 	((float)((((uint32_t)(x) & 0xFF000000U) >> 24) | \
 		 (((uint32_t)(x) & 0x00FF0000U) >>  8) | \
 		 (((uint32_t)(x) & 0x0000FF00U) <<  8) | \
 		 (((uint32_t)(x) & 0x000000FFU) << 24)))
 #else
-#define __swap_float(x) (x)
+#define __swap_be_float(x) (x)
 #endif
 
 /*

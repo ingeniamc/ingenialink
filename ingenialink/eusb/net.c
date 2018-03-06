@@ -57,7 +57,7 @@ static void process_statusword(il_eusb_net_t *this, il_eusb_frame_t *frame)
 		subs = &this->net.sw_subs;
 
 		id = il_eusb_frame__get_id(frame);
-		sw = __swap_16(*(uint16_t *)il_eusb_frame__get_data(frame));
+		sw = __swap_be_16(*(uint16_t *)il_eusb_frame__get_data(frame));
 
 		osal_mutex_lock(subs->lock);
 
@@ -99,7 +99,8 @@ static void process_emcy(il_eusb_net_t *this, il_eusb_frame_t *frame)
 		subs = &this->net.emcy_subs;
 
 		id = il_eusb_frame__get_id(frame);
-		code = __swap_32(*(uint32_t *)il_eusb_frame__get_data(frame));
+		code = __swap_be_32(
+			*(uint32_t *)il_eusb_frame__get_data(frame));
 
 		osal_mutex_lock(subs->lock);
 

@@ -95,11 +95,11 @@ static int net_send(il_mcb_net_t *this, uint16_t address, const void *data,
 		memset(&frame[MCB_DATA_POS + chunk_sz], 0,
 		       MCB_DATA_SZ - chunk_sz);
 
+		il_mcb_frame__swap(frame, sizeof(frame));
+
 		/* crc */
 		crc = crc_calc(frame, MCB_PAYLOAD_SZ);
-		*(uint16_t *)&frame[MCB_CRC_H] = crc;
-
-		il_mcb_frame__swap(frame, sizeof(frame));
+		*(uint16_t *)&frame[MCB_CRC_H] = __swap_le_16(crc);
 
 		/* send frame */
 		r = ser_write(this->ser, frame, sizeof(frame), NULL);
@@ -145,20 +145,21 @@ static int net_recv(il_mcb_net_t *this, uint16_t address, uint8_t *buf,
 		}
 
 		/* process frame: validate CRC, address, ACK */
-		il_mcb_frame__swap(frame, sizeof(frame));
-
 		crc = *(uint16_t *)&frame[MCB_CRC_H];
+		crc = __swap_le_16(crc);
 		if (crc_calc(frame, MCB_PAYLOAD_SZ) != crc) {
 			ilerr__set("Communications error (CRC mismatch)");
 			return IL_EIO;
 		}
+
+		il_mcb_frame__swap(frame, sizeof(frame));
 
 		hdr = *(uint16_t *)&frame[MCB_HDR_H];
 
 		if (((hdr & MCB_CMD_MSK) >> MCB_CMD_POS) != MCB_CMD_ACK) {
 			uint32_t err;
 
-			err = __swap_32(*(uint32_t *)&frame[MCB_DATA_POS]);
+			err = __swap_be_32(*(uint32_t *)&frame[MCB_DATA_POS]);
 
 			ilerr__set("Communications error (NACK -> %08x)", err);
 			return IL_EIO;
