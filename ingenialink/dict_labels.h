@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-#ifndef REGISTERS_H_
-#define REGISTERS_H_
+#ifndef DICT_LABELS_H_
+#define DICT_LABELS_H_
 
-#include "public/ingenialink/registers.h"
+#include "public/ingenialink/dict_labels.h"
 
 #include "klib/khash.h"
 
@@ -33,7 +33,7 @@
 KHASH_MAP_INIT_STR(str, const char *)
 
 /** Labels dictionary. */
-struct il_reg_labels {
+struct il_dict_labels {
 	/** Hash table. */
 	khash_t(str) * h;
 };

@@ -72,10 +72,10 @@ configure_file("config.h.in" "${CMAKE_BINARY_DIR}/config.h")
 # Sources
 set(ingenialink_srcs
   ingenialink/dict.c
+  ingenialink/dict_labels.c
   ingenialink/err.c
   ingenialink/net.c
   ingenialink/poller.c
-  ingenialink/registers.c
   ingenialink/servo.c
   ingenialink/utils.c
   ingenialink/version.c

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "registers.h"
+#include "dict_labels.h"
 
 #include <string.h>
 
@@ -32,9 +32,9 @@
  * Public
  ******************************************************************************/
 
-il_reg_labels_t *il_reg_labels_create()
+il_dict_labels_t *il_dict_labels_create()
 {
-	il_reg_labels_t *labels;
+	il_dict_labels_t *labels;
 
 	labels = malloc(sizeof(*labels));
 	if (!labels) {
@@ -56,7 +56,7 @@ cleanup_labels:
 	return NULL;
 }
 
-void il_reg_labels_destroy(il_reg_labels_t *labels)
+void il_dict_labels_destroy(il_dict_labels_t *labels)
 {
 	khint_t k;
 
@@ -72,8 +72,8 @@ void il_reg_labels_destroy(il_reg_labels_t *labels)
 	free(labels);
 }
 
-int il_reg_labels_get(il_reg_labels_t *labels, const char *lang,
-		      const char **label)
+int il_dict_labels_get(il_dict_labels_t *labels, const char *lang,
+		       const char **label)
 {
 	khint_t k;
 
@@ -88,8 +88,8 @@ int il_reg_labels_get(il_reg_labels_t *labels, const char *lang,
 	return 0;
 }
 
-void il_reg_labels_set(il_reg_labels_t *labels, const char *lang,
-		       const char *label)
+void il_dict_labels_set(il_dict_labels_t *labels, const char *lang,
+			const char *label)
 {
 	int absent;
 	khint_t k;
@@ -103,7 +103,7 @@ void il_reg_labels_set(il_reg_labels_t *labels, const char *lang,
 	kh_val(labels->h, k) = strdup(label);
 }
 
-void il_reg_labels_del(il_reg_labels_t *labels, const char *lang)
+void il_dict_labels_del(il_dict_labels_t *labels, const char *lang)
 {
 	khint_t k;
 
@@ -116,20 +116,20 @@ void il_reg_labels_del(il_reg_labels_t *labels, const char *lang)
 	}
 }
 
-size_t il_reg_labels_nlabels_get(il_reg_labels_t *labels)
+size_t il_dict_labels_nlabels_get(il_dict_labels_t *labels)
 {
 	return (size_t)kh_size(labels->h);
 }
 
-const char **il_reg_labels_langs_get(il_reg_labels_t *labels)
+const char **il_dict_labels_langs_get(il_dict_labels_t *labels)
 {
 	const char **langs;
 	size_t i;
 	khint_t k;
 
-	/* allocate array for register keys */
+	/* allocate array for dictister keys */
 	langs = malloc(sizeof(char *) *
-		       (il_reg_labels_nlabels_get(labels) + 1));
+		       (il_dict_labels_nlabels_get(labels) + 1));
 	if (!langs) {
 		ilerr__set("Languages array allocation failed");
 		return NULL;
@@ -148,7 +148,7 @@ const char **il_reg_labels_langs_get(il_reg_labels_t *labels)
 	return langs;
 }
 
-void il_reg_labels_langs_destroy(const char **langs)
+void il_dict_labels_langs_destroy(const char **langs)
 {
 	free((char **)langs);
 }

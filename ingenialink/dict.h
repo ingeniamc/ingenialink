@@ -29,11 +29,17 @@
 
 #include "klib/khash.h"
 
-/** khash type for str<->register dictionary */
-KHASH_MAP_INIT_STR(str, il_reg_t)
+/** khash type for reg_id<->register dictionary. */
+KHASH_MAP_INIT_STR(reg_id, il_reg_t)
+
+/** khash type for cat_id<->labels dictionary. */
+KHASH_MAP_INIT_STR(cat_id, il_dict_labels_t *)
 
 /** Dictionary root name. */
 #define ROOT_NAME	"IngeniaDictionary"
+
+/** XPath for categories. */
+#define XPATH_CATS	"//Categories/Category"
 
 /** XPath for registers. */
 #define XPATH_REGS	"//Registers/Register"
@@ -64,8 +70,10 @@ typedef struct {
 
 /** IngeniaLink dictionary. */
 struct il_dict {
-	/** Hash table. */
-	khash_t(str) * h;
+	/** Categories hash table. */
+	khash_t(cat_id) * h_cats;
+	/** Registers hash table. */
+	khash_t(reg_id) * h_regs;
 };
 
 #endif
