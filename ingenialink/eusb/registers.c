@@ -180,6 +180,18 @@ const il_reg_t IL_REG_MOTPARAM_PPITCH = {
 	.labels = NULL
 };
 
+const il_reg_t IL_REG_MOTPARAM_STROKE = {
+	.address = 0x052701,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
+};
+
 const il_reg_t IL_REG_MONITOR_CFG_T_S = {
 	.address = 0x012c50,
 	.dtype = IL_REG_DTYPE_U16,
@@ -485,6 +497,18 @@ const il_reg_t IL_REG_STS_WORD = {
 	.address = 0x006041,
 	.dtype = IL_REG_DTYPE_U16,
 	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u16 = 0,
+		.max.u16 = UINT16_MAX
+	},
+	.labels = NULL
+};
+
+const il_reg_t IL_REG_MOTOR_TYPE = {
+	.address = 0x006402,
+	.dtype = IL_REG_DTYPE_U16,
+	.access = IL_REG_ACCESS_RW,
 	.phy = IL_REG_PHY_NONE,
 	.range = {
 		.min.u16 = 0,

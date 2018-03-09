@@ -71,6 +71,9 @@ extern const il_reg_t IL_REG_SSI_STURNBITS;
 /** Motor parameters: pole pitch. */
 extern const il_reg_t IL_REG_MOTPARAM_PPITCH;
 
+/** Motor parameters: stroke. */
+extern const il_reg_t IL_REG_MOTPARAM_STROKE;
+
 /** Monitor config: sampling rage (period). */
 extern const il_reg_t IL_REG_MONITOR_CFG_T_S;
 
@@ -152,6 +155,9 @@ extern const il_reg_t IL_REG_CTL_WORD;
 
 /** Status word. */
 extern const il_reg_t IL_REG_STS_WORD;
+
+/** Motor type. */
+extern const il_reg_t IL_REG_MOTOR_TYPE;
 
 /** Operation mode. */
 extern const il_reg_t IL_REG_OP_MODE;

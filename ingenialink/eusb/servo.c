@@ -418,7 +418,8 @@ static int il_eusb_servo_store_app(il_servo_t *servo)
 static int il_eusb_servo_units_update(il_servo_t *servo)
 {
 	int r;
-	uint32_t rated_torque, pos_res, vel_res, ppitch;
+	uint16_t motor_type;
+	uint32_t rated_torque, pos_res, vel_res, dist_scale;
 
 	r = il_servo_raw_read_u32(servo, &IL_REG_RATED_TORQUE, NULL,
 				  &rated_torque);
@@ -433,16 +434,36 @@ static int il_eusb_servo_units_update(il_servo_t *servo)
 	if (r < 0)
 		return r;
 
-	r = il_servo_raw_read_u32(servo, &IL_REG_MOTPARAM_PPITCH, NULL,
-				  &ppitch);
+	/* distance constant (pole pitch for rotary, stroke for linear) */
+	r = il_servo_raw_read_u16(servo, &IL_REG_MOTOR_TYPE, NULL, &motor_type);
 	if (r < 0)
 		return r;
+
+	switch (motor_type) {
+	/* linear */
+	case ILK_MOTOR_LIN_BLAC:
+	case ILK_MOTOR_LIN_BLDC:
+	case ILK_MOTOR_LIN_VC:
+	case ILK_MOTOR_LIN_DC:
+		r = il_servo_raw_read_u32(servo, &IL_REG_MOTPARAM_STROKE, NULL,
+					  &dist_scale);
+		if (r < 0)
+			return r;
+
+		break;
+	/* rotary (or default) */
+	default:
+		r = il_servo_raw_read_u32(servo, &IL_REG_MOTPARAM_PPITCH, NULL,
+					  &dist_scale);
+		if (r < 0)
+			return r;
+	}
 
 	servo->cfg.rated_torque = (double)rated_torque;
 	servo->cfg.pos_res = (double)pos_res;
 	servo->cfg.vel_res = (double)vel_res;
 	servo->cfg.acc_res = servo->cfg.pos_res;
-	servo->cfg.ppitch = (double)ppitch / 1000000;
+	servo->cfg.dist_scale = (double)dist_scale / 1000000;
 
 	return 0;
 }
@@ -486,14 +507,16 @@ static double il_eusb_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 			factor = 360. / servo->cfg.pos_res;
 			break;
 		case IL_UNITS_POS_UM:
-			factor = 1000000. * servo->cfg.ppitch /
+			factor = 1000000. * servo->cfg.dist_scale /
 				 servo->cfg.pos_res;
 			break;
 		case IL_UNITS_POS_MM:
-			factor = 1000. * servo->cfg.ppitch / servo->cfg.pos_res;
+			factor = 1000. * servo->cfg.dist_scale /
+				 servo->cfg.pos_res;
 			break;
 		case IL_UNITS_POS_M:
-			factor = 1. * servo->cfg.ppitch / servo->cfg.pos_res;
+			factor = 1. * servo->cfg.dist_scale /
+				 servo->cfg.pos_res;
 			break;
 		default:
 			factor = 1.;
@@ -519,14 +542,16 @@ static double il_eusb_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 			factor = 360. / servo->cfg.vel_res;
 			break;
 		case IL_UNITS_VEL_UM_S:
-			factor = 1000000. * servo->cfg.ppitch /
+			factor = 1000000. * servo->cfg.dist_scale /
 				 servo->cfg.vel_res;
 			break;
 		case IL_UNITS_VEL_MM_S:
-			factor = 1000. * servo->cfg.ppitch / servo->cfg.vel_res;
+			factor = 1000. * servo->cfg.dist_scale /
+				 servo->cfg.vel_res;
 			break;
 		case IL_UNITS_VEL_M_S:
-			factor = 1. * servo->cfg.ppitch / servo->cfg.vel_res;
+			factor = 1. * servo->cfg.dist_scale /
+				 servo->cfg.vel_res;
 			break;
 		default:
 			factor = 1.;
@@ -549,14 +574,16 @@ static double il_eusb_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 			factor = 360. / servo->cfg.acc_res;
 			break;
 		case IL_UNITS_ACC_UM_S2:
-			factor = 1000000. * servo->cfg.ppitch /
+			factor = 1000000. * servo->cfg.dist_scale /
 				 servo->cfg.acc_res;
 			break;
 		case IL_UNITS_ACC_MM_S2:
-			factor = 1000. * servo->cfg.ppitch / servo->cfg.acc_res;
+			factor = 1000. * servo->cfg.dist_scale /
+				 servo->cfg.acc_res;
 			break;
 		case IL_UNITS_ACC_M_S2:
-			factor = 1. * servo->cfg.ppitch / servo->cfg.acc_res;
+			factor = 1. * servo->cfg.dist_scale /
+				 servo->cfg.acc_res;
 			break;
 		default:
 			factor = 1.;
@@ -1027,12 +1054,7 @@ static int il_eusb_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		break;
 
 	case ILK_POS_SENSOR_ANALOG_INPUT:
-		r = il_servo_raw_read_u8(servo, &IL_REG_PAIR_POLES, NULL,
-					 &ppoles);
-		if (r < 0)
-			return r;
-
-		*res = ppoles * ANALOG_INPUT_CONSTANT;
+		*res = ANALOG_INPUT_CONSTANT;
 		break;
 
 	case ILK_POS_SENSOR_SINCOS:

@@ -72,8 +72,8 @@ typedef struct {
 	double vel_res;
 	/** Acceleration resolution (counts/rev/s^2). */
 	double acc_res;
-	/** Pole pitch (m). */
-	double ppitch;
+	/** Distance scale (m). */
+	double dist_scale;
 } il_servo_cfg_t;
 
 /** Emergency subscriber. */
