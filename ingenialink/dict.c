@@ -43,6 +43,105 @@ static void xml_error(void *ctx, const char *msg, ...)
 }
 
 /**
+ * Parse category labels.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] cat
+ *	Category.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+static int parse_cat_labels(xmlNodePtr node, il_dict_labels_t *labels)
+{
+	xmlNode *label;
+
+	for (label = node->children; label; label = label->next) {
+		xmlChar *lang, *content;
+
+		if (label->type != XML_ELEMENT_NODE)
+			continue;
+
+		lang = xmlGetProp(label, (const xmlChar *)"lang");
+		if (!lang) {
+			ilerr__set("Malformed label entry");
+			return IL_EFAIL;
+		}
+
+		content = xmlNodeGetContent(label);
+		if (content) {
+			il_dict_labels_set(labels,
+					   (const char *)lang,
+					   (const char *)content);
+			xmlFree(content);
+		}
+
+		xmlFree(lang);
+	}
+
+	return 0;
+}
+
+/**
+ * Parse category node.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] dict
+ *	Dictionary instance.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+static int parse_cat(xmlNodePtr node, il_dict_t *dict)
+{
+	int r, absent;
+	khint_t k;
+	il_dict_labels_t *labels;
+	xmlChar *id;
+
+	/* parse: id (required), insert to hash table */
+	id = xmlGetProp(node, (const xmlChar *)"id");
+	if (!id) {
+		ilerr__set("Malformed category entry (id missing)");
+		return IL_EFAIL;
+	}
+
+	k = kh_put(cat_id, dict->h_cats, (char *)id, &absent);
+	if (!absent) {
+		ilerr__set("Found duplicated category: %s", id);
+		xmlFree(id);
+		return IL_EFAIL;
+	}
+
+	/* parse: labels */
+	labels = il_dict_labels_create();
+	if (!labels)
+		return IL_EFAIL;
+
+	kh_val(dict->h_cats, k) = labels;
+
+	for (node = node->children; node; node = node->next) {
+		if (node->type != XML_ELEMENT_NODE)
+			continue;
+
+		if (xmlStrcmp(node->name, (const xmlChar *)"Labels") == 0) {
+			r = parse_cat_labels(node, labels);
+			if (r < 0)
+				goto cleanup_labels;
+		}
+	}
+
+	return 0;
+
+cleanup_labels:
+	il_dict_labels_destroy(labels);
+
+	return r;
+}
+
+/**
  * Obtain data type from dictionary name.
  *
  * @param [in] name
@@ -155,12 +254,12 @@ static il_reg_phy_t get_phy(const char *name)
  * @return
  *	0 on success, error code otherwise.
  */
-static int parse_labels(xmlNodePtr node, il_reg_t *reg)
+static int parse_dict_labels(xmlNodePtr node, il_reg_t *reg)
 {
 	int r;
 	xmlNode *label;
 
-	reg->labels = il_reg_labels_create();
+	reg->labels = il_dict_labels_create();
 	if (!reg->labels)
 		return IL_EFAIL;
 
@@ -179,9 +278,9 @@ static int parse_labels(xmlNodePtr node, il_reg_t *reg)
 
 		content = xmlNodeGetContent(label);
 		if (content) {
-			il_reg_labels_set(reg->labels,
-					  (const char *)lang,
-					  (const char *)content);
+			il_dict_labels_set(reg->labels,
+					   (const char *)lang,
+					   (const char *)content);
 			xmlFree(content);
 		}
 
@@ -191,7 +290,7 @@ static int parse_labels(xmlNodePtr node, il_reg_t *reg)
 	return 0;
 
 cleanup_labels:
-	il_reg_labels_destroy(reg->labels);
+	il_dict_labels_destroy(reg->labels);
 
 	return r;
 }
@@ -204,7 +303,7 @@ cleanup_labels:
  * @param [in, out] reg
  *	Register.
  */
-static void parse_range(xmlNodePtr node, il_reg_t *reg)
+static void parse_reg_range(xmlNodePtr node, il_reg_t *reg)
 {
 	xmlChar *val;
 
@@ -304,7 +403,7 @@ static void parse_range(xmlNodePtr node, il_reg_t *reg)
  * @return
  *	0 on success, error code otherwise.
  */
-static int parse_props(xmlNodePtr node, il_reg_t *reg)
+static int parse_reg_props(xmlNodePtr node, il_reg_t *reg)
 {
 	int r;
 	xmlNode *prop;
@@ -314,13 +413,13 @@ static int parse_props(xmlNodePtr node, il_reg_t *reg)
 			continue;
 
 		if (xmlStrcmp(prop->name, (const xmlChar *)"Labels") == 0) {
-			r = parse_labels(prop, reg);
+			r = parse_dict_labels(prop, reg);
 			if (r < 0)
 				return r;
 		}
 
 		if (xmlStrcmp(prop->name, (const xmlChar *)"Range") == 0)
-			parse_range(prop, reg);
+			parse_reg_range(prop, reg);
 	}
 
 	return 0;
@@ -337,7 +436,7 @@ static int parse_props(xmlNodePtr node, il_reg_t *reg)
  * @return
  *	0 on success, error code otherwise.
  */
-static int parse_register(xmlNodePtr node, il_dict_t *dict)
+static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 {
 	int r, absent;
 	khint_t k;
@@ -351,14 +450,14 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
-	k = kh_put(str, dict->h, (char *)id, &absent);
+	k = kh_put(reg_id, dict->h_regs, (char *)id, &absent);
 	if (!absent) {
 		ilerr__set("Found duplicated register: %s", id);
 		xmlFree(id);
 		return IL_EFAIL;
 	}
 
-	reg = &kh_val(dict->h, k);
+	reg = &kh_val(dict->h_regs, k);
 
 	/* parse: address */
 	param = xmlGetProp(node, (const xmlChar *)"address");
@@ -404,6 +503,15 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 		reg->phy = IL_REG_PHY_NONE;
 	}
 
+	/* parse: category ID (optional) */
+	param = xmlGetProp(node, (const xmlChar *)"cat_id");
+	if (param) {
+		reg->cat_id = strdup((const char *)param);
+		xmlFree(param);
+	} else {
+		reg->cat_id = NULL;
+	}
+
 	/* assign default min/max */
 	switch (reg->dtype) {
 	case IL_REG_DTYPE_U8:
@@ -443,7 +551,7 @@ static int parse_register(xmlNodePtr node, il_dict_t *dict)
 	}
 
 	/* parse: nested properties (e.g. labels, ranges, etc.) */
-	return parse_props(node, reg);
+	return parse_reg_props(node, reg);
 }
 
 /*******************************************************************************
@@ -459,7 +567,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 	xmlParserCtxtPtr ctxt;
 	xmlDocPtr doc;
 	xmlXPathContextPtr xpath;
-	xmlXPathObjectPtr obj;
+	xmlXPathObjectPtr obj_cats, obj_regs;
 	xmlNodePtr root;
 
 	khint_t k;
@@ -470,12 +578,19 @@ il_dict_t *il_dict_create(const char *dict_f)
 		return NULL;
 	}
 
-	/* create hash table for registers */
-	dict->h = kh_init(str);
-	if (!dict->h) {
-		ilerr__set("Dictionary hash table allocation failed");
+	/* create hash table for categories and registers */
+	dict->h_cats = kh_init(cat_id);
+	if (!dict->h_cats) {
+		ilerr__set("Categories hash table allocation failed");
 		r = IL_EFAIL;
 		goto cleanup_dict;
+	}
+
+	dict->h_regs = kh_init(reg_id);
+	if (!dict->h_regs) {
+		ilerr__set("Registers hash table allocation failed");
+		r = IL_EFAIL;
+		goto cleanup_h_cats;
 	}
 
 	/* set library error function (to prevent stdout/stderr garbage) */
@@ -486,7 +601,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 	if (!ctxt) {
 		ilerr__set("XML context allocation failed");
 		r = IL_EFAIL;
-		goto cleanup_dict;
+		goto cleanup_h_regs;
 	}
 
 	doc = xmlCtxtReadFile(ctxt, dict_f, NULL, 0);
@@ -504,7 +619,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 		goto cleanup_doc;
 	}
 
-	/* create and evaluate XPath to find all registers */
+	/* create a new XPath context */
 	xpath = xmlXPathNewContext(doc);
 	if (!xpath) {
 		ilerr__set("xml: %s", xmlCtxtGetLastError(ctxt)->message);
@@ -512,39 +627,76 @@ il_dict_t *il_dict_create(const char *dict_f)
 		goto cleanup_doc;
 	}
 
-	obj = xmlXPathEvalExpression((const xmlChar *)XPATH_REGS, xpath);
-	if (!obj) {
+	/* evaluate XPath for categories */
+	obj_cats = xmlXPathEvalExpression((const xmlChar *)XPATH_CATS, xpath);
+	if (!obj_cats) {
 		ilerr__set("xml: %s", xmlCtxtGetLastError(ctxt)->message);
 		r = IL_EFAIL;
 		goto cleanup_xpath;
 	}
 
-	/* parse each register */
-	for (i = 0; i < obj->nodesetval->nodeNr; i++) {
-		xmlNodePtr node = obj->nodesetval->nodeTab[i];
+	/* parse each category */
+	for (i = 0; i < obj_cats->nodesetval->nodeNr; i++) {
+		xmlNodePtr node = obj_cats->nodesetval->nodeTab[i];
 
-		r = parse_register(node, dict);
+		r = parse_cat(node, dict);
 		if (r < 0)
-			goto cleanup_h;
+			goto cleanup_h_cats_entries;
 	}
 
-	goto cleanup_obj;
+	/* evaluate XPath for registers */
+	obj_regs = xmlXPathEvalExpression((const xmlChar *)XPATH_REGS, xpath);
+	if (!obj_regs) {
+		ilerr__set("xml: %s", xmlCtxtGetLastError(ctxt)->message);
+		r = IL_EFAIL;
+		goto cleanup_h_cats;
+	}
 
-cleanup_h:
-	for (k = 0; k < kh_end(dict->h); ++k) {
-		if (kh_exist(dict->h, k)) {
+	/* parse each register */
+	for (i = 0; i < obj_regs->nodesetval->nodeNr; i++) {
+		xmlNodePtr node = obj_regs->nodesetval->nodeTab[i];
+
+		r = parse_reg(node, dict);
+		if (r < 0)
+			goto cleanup_h_regs_entries;
+	}
+
+	xmlXPathFreeObject(obj_regs);
+	xmlXPathFreeObject(obj_cats);
+
+	goto cleanup_xpath;
+
+cleanup_h_regs_entries:
+	for (k = 0; k < kh_end(dict->h_regs); ++k) {
+		if (kh_exist(dict->h_regs, k)) {
 			il_reg_t *reg;
 
-			reg = &kh_value(dict->h, k);
+			reg = &kh_value(dict->h_regs, k);
+			if (reg->cat_id)
+				free((char *)reg->cat_id);
 			if (reg->labels)
-				il_reg_labels_destroy(reg->labels);
+				il_dict_labels_destroy(reg->labels);
 
-			xmlFree((char *)kh_key(dict->h, k));
+			xmlFree((char *)kh_key(dict->h_regs, k));
 		}
 	}
 
-cleanup_obj:
-	xmlXPathFreeObject(obj);
+	xmlXPathFreeObject(obj_regs);
+
+cleanup_h_cats_entries:
+	for (k = 0; k < kh_end(dict->h_cats); ++k) {
+		if (kh_exist(dict->h_cats, k)) {
+			il_dict_labels_t *labels;
+
+			labels = kh_value(dict->h_cats, k);
+			if (labels)
+				il_dict_labels_destroy(labels);
+
+			xmlFree((char *)kh_key(dict->h_cats, k));
+		}
+	}
+
+	xmlXPathFreeObject(obj_cats);
 
 cleanup_xpath:
 	xmlXPathFreeContext(xpath);
@@ -554,6 +706,14 @@ cleanup_doc:
 
 cleanup_ctxt:
 	xmlFreeParserCtxt(ctxt);
+
+cleanup_h_regs:
+	if (r < 0)
+		kh_destroy(reg_id, dict->h_regs);
+
+cleanup_h_cats:
+	if (r < 0)
+		kh_destroy(cat_id, dict->h_cats);
 
 cleanup_dict:
 	if (r < 0) {
@@ -568,60 +728,76 @@ void il_dict_destroy(il_dict_t *dict)
 {
 	khint_t k;
 
-	for (k = 0; k < kh_end(dict->h); ++k) {
-		if (kh_exist(dict->h, k)) {
+	for (k = 0; k < kh_end(dict->h_regs); ++k) {
+		if (kh_exist(dict->h_regs, k)) {
 			il_reg_t *reg;
 
-			reg = &kh_value(dict->h, k);
+			reg = &kh_value(dict->h_regs, k);
+			if (reg->cat_id)
+				free((char *)reg->cat_id);
 			if (reg->labels)
-				il_reg_labels_destroy(reg->labels);
+				il_dict_labels_destroy(reg->labels);
 
-			xmlFree((char *)kh_key(dict->h, k));
+			xmlFree((char *)kh_key(dict->h_regs, k));
 		}
 	}
 
-	kh_destroy(str, dict->h);
+	kh_destroy(reg_id, dict->h_regs);
+
+	for (k = 0; k < kh_end(dict->h_cats); ++k) {
+		if (kh_exist(dict->h_cats, k)) {
+			il_dict_labels_t *labels;
+
+			labels = kh_value(dict->h_cats, k);
+			if (labels)
+				il_dict_labels_destroy(labels);
+
+			xmlFree((char *)kh_key(dict->h_cats, k));
+		}
+	}
+
+	kh_destroy(cat_id, dict->h_cats);
 
 	free(dict);
 }
 
-int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
+int il_dict_cat_get(il_dict_t *dict, const char *id, il_dict_labels_t **labels)
 {
 	khint_t k;
 
-	k = kh_get(str, dict->h, id);
-	if (k == kh_end(dict->h)) {
-		ilerr__set("Register not found (%s)", id);
+	k = kh_get(cat_id, dict->h_cats, id);
+	if (k == kh_end(dict->h_cats)) {
+		ilerr__set("Category not found (%s)", id);
 		return IL_EFAIL;
 	}
 
-	*reg = (const il_reg_t *)&kh_value(dict->h, k);
+	*labels = (il_dict_labels_t *)kh_value(dict->h_cats, k);
 
 	return 0;
 }
 
-size_t il_dict_nregs_get(il_dict_t *dict)
+size_t il_dict_cat_cnt(il_dict_t *dict)
 {
-	return (size_t)kh_size(dict->h);
+	return (size_t)kh_size(dict->h_cats);
 }
 
-const char **il_dict_ids_get(il_dict_t *dict)
+const char **il_dict_cat_ids_get(il_dict_t *dict)
 {
 	const char **ids;
 	size_t i;
 	khint_t k;
 
-	/* allocate array for register keys */
-	ids = malloc(sizeof(const char *) * (il_dict_nregs_get(dict) + 1));
+	/* allocate array for category keys */
+	ids = malloc(sizeof(const char *) * (il_dict_cat_cnt(dict) + 1));
 	if (!ids) {
-		ilerr__set("Registers array allocation failed");
+		ilerr__set("Categories array allocation failed");
 		return NULL;
 	}
 
 	/* assign keys, null-terminate */
-	for (i = 0, k = 0; k < kh_end(dict->h); ++k) {
-		if (kh_exist(dict->h, k)) {
-			ids[i] = (const char *)kh_key(dict->h, k);
+	for (i = 0, k = 0; k < kh_end(dict->h_cats); ++k) {
+		if (kh_exist(dict->h_cats, k)) {
+			ids[i] = (const char *)kh_key(dict->h_cats, k);
 			i++;
 		}
 	}
@@ -631,7 +807,58 @@ const char **il_dict_ids_get(il_dict_t *dict)
 	return ids;
 }
 
-void il_dict_ids_destroy(const char **ids)
+void il_dict_cat_ids_destroy(const char **ids)
+{
+	free((char **)ids);
+}
+
+int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
+{
+	khint_t k;
+
+	k = kh_get(reg_id, dict->h_regs, id);
+	if (k == kh_end(dict->h_regs)) {
+		ilerr__set("Register not found (%s)", id);
+		return IL_EFAIL;
+	}
+
+	*reg = (const il_reg_t *)&kh_value(dict->h_regs, k);
+
+	return 0;
+}
+
+size_t il_dict_reg_cnt(il_dict_t *dict)
+{
+	return (size_t)kh_size(dict->h_regs);
+}
+
+const char **il_dict_reg_ids_get(il_dict_t *dict)
+{
+	const char **ids;
+	size_t i;
+	khint_t k;
+
+	/* allocate array for register keys */
+	ids = malloc(sizeof(const char *) * (il_dict_reg_cnt(dict) + 1));
+	if (!ids) {
+		ilerr__set("Registers array allocation failed");
+		return NULL;
+	}
+
+	/* assign keys, null-terminate */
+	for (i = 0, k = 0; k < kh_end(dict->h_regs); ++k) {
+		if (kh_exist(dict->h_regs, k)) {
+			ids[i] = (const char *)kh_key(dict->h_regs, k);
+			i++;
+		}
+	}
+
+	ids[i] = NULL;
+
+	return ids;
+}
+
+void il_dict_reg_ids_destroy(const char **ids)
 {
 	free((char **)ids);
 }

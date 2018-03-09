@@ -25,8 +25,7 @@
 #ifndef PUBLIC_INGENIALINK_DICT_H_
 #define PUBLIC_INGENIALINK_DICT_H_
 
-#include "common.h"
-
+#include "dict_labels.h"
 #include "registers.h"
 
 IL_BEGIN_DECL
@@ -62,6 +61,58 @@ IL_EXPORT il_dict_t *il_dict_create(const char *dict_f);
 IL_EXPORT void il_dict_destroy(il_dict_t *dict);
 
 /**
+ * Obtain category labels from ID.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ * @param [in] id
+ *	Register ID.
+ * @param [out] labels
+ *	Where labels for the given ID will be stored.
+ *
+ * @return
+ *	0 on success, IL_EFAIL if the register does not exist.
+ */
+IL_EXPORT int il_dict_cat_get(il_dict_t *dict, const char *id,
+			      il_dict_labels_t **labels);
+
+/**
+ * Obtain number of categories in the dictionary.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ *
+ * @return
+ *	Number of categories in the dictionary.
+ */
+IL_EXPORT size_t il_dict_cat_cnt(il_dict_t *dict);
+
+/**
+ * Obtain the list of category IDs.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ *
+ * @return
+ *	Category IDs (NULL if none or error).
+ *
+ * @see
+ *	il_dict_cat_ids_destroy
+ */
+IL_EXPORT const char **il_dict_cat_ids_get(il_dict_t *dict);
+
+/**
+ * Destroy the list of obtained category IDs.
+ *
+ * @param [in] regs
+ *	Register list.
+ *
+ * @see
+ *	il_dict_cat_ids_get
+ */
+IL_EXPORT void il_dict_cat_ids_destroy(const char **regs);
+
+/**
  * Obtain register from ID.
  *
  * @param [in] dict
@@ -86,10 +137,10 @@ IL_EXPORT int il_dict_reg_get(il_dict_t *dict, const char *id,
  * @return
  *	Number of registers in the dictionary.
  */
-IL_EXPORT size_t il_dict_nregs_get(il_dict_t *dict);
+IL_EXPORT size_t il_dict_reg_cnt(il_dict_t *dict);
 
 /**
- * Obtain the list of dictionary IDs.
+ * Obtain the list of register IDs.
  *
  * @param [in] dict
  *	Dictionary instance.
@@ -98,20 +149,20 @@ IL_EXPORT size_t il_dict_nregs_get(il_dict_t *dict);
  *	Dictionary IDs (NULL if none or error).
  *
  * @see
- *	il_dict_ids_destroy
+ *	il_dict_reg_ids_destroy
  */
-IL_EXPORT const char **il_dict_ids_get(il_dict_t *dict);
+IL_EXPORT const char **il_dict_reg_ids_get(il_dict_t *dict);
 
 /**
- * Destroy the list of obtained dictionary IDs.
+ * Destroy the list of obtained register IDs.
  *
  * @param [in] regs
  *	Register list.
  *
  * @see
- *	il_dict_ids_get
+ *	il_dict_reg_ids_get
  */
-IL_EXPORT void il_dict_ids_destroy(const char **regs);
+IL_EXPORT void il_dict_reg_ids_destroy(const char **regs);
 
 /** @} */
 

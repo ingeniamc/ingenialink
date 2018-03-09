@@ -25,7 +25,7 @@
 #ifndef PUBLIC_INGENIALINK_REGISTERS_H_
 #define PUBLIC_INGENIALINK_REGISTERS_H_
 
-#include "common.h"
+#include "dict_labels.h"
 
 IL_BEGIN_DECL
 
@@ -117,9 +117,6 @@ typedef struct {
 	il_reg_limit_t max;
 } il_reg_range_t;
 
-/** Labels dictionary. */
-typedef struct il_reg_labels il_reg_labels_t;
-
 /** Register. */
 typedef struct {
 	/** Address. */
@@ -133,96 +130,10 @@ typedef struct {
 	/** Range. */
 	il_reg_range_t range;
 	/** Labels dictionary. */
-	il_reg_labels_t *labels;
+	il_dict_labels_t *labels;
+	/** Category ID. */
+	const char *cat_id;
 } il_reg_t;
-
-/**
- * Create a labels dictionary.
- *
- * @return
- *	Labels dictionary instance (NULL if it could not be created).
- */
-il_reg_labels_t *il_reg_labels_create(void);
-
-/**
- * Destroy a labels dictionary.
- *
- * @param [in] labels
- *	Labels dictionary.
- */
-void il_reg_labels_destroy(il_reg_labels_t *labels);
-
-/**
- * Obtain the label given a language.
- *
- * @param [in] labels
- *	Labels dictionary.
- * @param [in] lang
- *	Language (ISO code).
- * @param [out] label
- *	Label.
- *
- * @return
- *	0 if label exists for the given language, IL_EFAIL otherwise.
- */
-int il_reg_labels_get(il_reg_labels_t *labels, const char *lang,
-		      const char **label);
-
-/**
- * Set the label for a given language.
- *
- * @note
- *	A copy of label is stored internally.
- *
- * @param [in] labels
- *	Labels dictionary.
- * @param [in] lang
- *	Language (ISO code).
- * @param [in] label
- *	Label.
- */
-void il_reg_labels_set(il_reg_labels_t *labels, const char *lang,
-		       const char *label);
-
-/**
- * Remove the label of the given language.
- *
- * @param [in] labels
- *	Labels dictionary.
- * @param [in] lang
- *	Language (ISO code).
- */
-void il_reg_labels_del(il_reg_labels_t *labels, const char *lang);
-
-/**
- * Obtain the number of labels.
- *
- * @param [in] labels
- *	Labels dictionary.
- */
-size_t il_reg_labels_nlabels_get(il_reg_labels_t *labels);
-
-/**
- * Obtain the languages available in the labels dictionary.
- *
- * @param [in] labels
- *	Labels dictionary.
- *
- * @return
- *	Null-terminated list of languages.
- *
- * @see
- *	il_reg_labels_langs_destroy
- */
-const char **il_reg_labels_langs_get(il_reg_labels_t *labels);
-
-/**
- * Destroy a list of languages.
- *
- * @param [in] langs
- *	List of languages.
- */
-void il_reg_labels_langs_destroy(const char **langs);
 
 /** @} */
 
