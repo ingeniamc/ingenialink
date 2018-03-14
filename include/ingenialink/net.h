@@ -56,6 +56,16 @@ void il_net__retain(il_net_t *net);
 void il_net__release(il_net_t *net);
 
 /**
+ * Set state of the network.
+ *
+ * @param [in] net
+ *	Network.
+ * @param [in] state
+ *	State.
+ */
+void il_net__state_set(il_net_t *net, il_net_state_t state);
+
+/**
  * Write.
  *
  * @param [in] net
@@ -161,6 +171,10 @@ typedef struct {
 	/** Release. */
 	void (*_release)(
 		il_net_t *net);
+
+	/** Set state. */
+	void (*_state_set)(
+		il_net_t *net, il_net_state_t state);
 	/** Read. */
 	int (*_read)(
 		il_net_t *net, uint16_t id, uint32_t address, void *buf,
@@ -189,6 +203,12 @@ typedef struct {
 	/** Destroy network. */
 	void (*destroy)(
 		il_net_t *net);
+	/** Connect network. */
+	int (*connect)(
+		il_net_t *net);
+	/** Disconnect network. */
+	void (*disconnect)(
+		il_net_t *net);
 	/** Obtain network state. */
 	il_net_state_t (*state_get)(
 		il_net_t *net);
@@ -211,6 +231,8 @@ typedef struct {
 	void (*stop)(
 		il_net_dev_mon_t *mon);
 } il_net_dev_mon_ops_t;
+
+void il_net_base__state_set(il_net_t *net, il_net_state_t state);
 
 int il_net_base__sw_subscribe(il_net_t *net, uint16_t id,
 			      il_net_sw_subscriber_cb_t cb, void *ctx);

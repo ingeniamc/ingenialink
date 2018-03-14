@@ -219,7 +219,9 @@ static void mcb_net_destroy(void *ctx)
 {
 	il_mcb_net_t *this = ctx;
 
-	ser_close(this->ser);
+	if (il_net_state_get(&this->net) != IL_NET_STATE_DISCONNECTED)
+		ser_close(this->ser);
+
 	ser_destroy(this->ser);
 
 	il_net_base__deinit(&this->net);
@@ -299,7 +301,6 @@ unlock:
 static il_net_t *il_mcb_net_create(const il_net_opts_t *opts)
 {
 	il_mcb_net_t *this;
-	ser_opts_t sopts = SER_OPTS_INIT;
 	int r;
 
 	this = calloc(1, sizeof(*this));
@@ -329,16 +330,14 @@ static il_net_t *il_mcb_net_create(const il_net_opts_t *opts)
 	}
 
 	/* open serial port */
-	sopts.port = opts->port;
-	sopts.baudrate = BAUDRATE_DEF;
-	sopts.timeouts.rd = opts->timeout_rd;
-	sopts.timeouts.wr = opts->timeout_wr;
+	this->sopts.port = il_net_port_get(&this->net);
+	this->sopts.baudrate = BAUDRATE_DEF;
+	this->sopts.timeouts.rd = opts->timeout_rd;
+	this->sopts.timeouts.wr = opts->timeout_wr;
 
-	r = ser_open(this->ser, &sopts);
-	if (r < 0) {
-		ilerr__set("Serial port open failed (%s)", sererr_last());
+	r = il_net_connect(&this->net);
+	if (r < 0)
 		goto cleanup_ser;
-	}
 
 	return &this->net;
 
@@ -362,6 +361,37 @@ static void il_mcb_net_destroy(il_net_t *net)
 	il_mcb_net_t *this = to_mcb_net(net);
 
 	il_utils__refcnt_release(this->refcnt);
+}
+
+static int il_mcb_net_connect(il_net_t *net)
+{
+	int r;
+	il_mcb_net_t *this = to_mcb_net(net);
+
+	if (il_net_state_get(&this->net) == IL_NET_STATE_CONNECTED) {
+		ilerr__set("Network already connected");
+		return IL_EALREADY;
+	}
+
+	r = ser_open(this->ser, &this->sopts);
+	if (r < 0) {
+		ilerr__set("Serial port open failed (%s)", sererr_last());
+		return IL_EFAIL;
+	}
+
+	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+
+	return 0;
+}
+
+static void il_mcb_net_disconnect(il_net_t *net)
+{
+	il_mcb_net_t *this = to_mcb_net(net);
+
+	if (il_net_state_get(&this->net) != IL_NET_STATE_DISCONNECTED) {
+		ser_close(this->ser);
+		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
+	}
 }
 
 static il_net_servos_list_t *il_mcb_net_servos_list_get(
@@ -488,25 +518,28 @@ il_net_dev_list_t *il_mcb_net_dev_list_get()
 /** MCB network operations. */
 const il_net_ops_t il_mcb_net_ops = {
 	/* internal */
-	il_mcb_net__retain,
-	il_mcb_net__release,
-	il_mcb_net__read,
-	il_mcb_net__write,
-	il_net_base__sw_subscribe,
-	il_net_base__sw_unsubscribe,
-	il_net_base__emcy_subscribe,
-	il_net_base__emcy_unsubscribe,
+	._retain = il_mcb_net__retain,
+	._release = il_mcb_net__release,
+	._state_set = il_net_base__state_set,
+	._read = il_mcb_net__read,
+	._write = il_mcb_net__write,
+	._sw_subscribe = il_net_base__sw_subscribe,
+	._sw_unsubscribe = il_net_base__sw_unsubscribe,
+	._emcy_subscribe = il_net_base__emcy_subscribe,
+	._emcy_unsubscribe = il_net_base__emcy_unsubscribe,
 	/* public */
-	il_mcb_net_create,
-	il_mcb_net_destroy,
-	il_net_base__state_get,
-	il_mcb_net_servos_list_get,
+	.create = il_mcb_net_create,
+	.destroy = il_mcb_net_destroy,
+	.connect = il_mcb_net_connect,
+	.disconnect = il_mcb_net_disconnect,
+	.state_get = il_net_base__state_get,
+	.servos_list_get = il_mcb_net_servos_list_get,
 };
 
 /** MCB network device monitor operations. */
 const il_net_dev_mon_ops_t il_mcb_net_dev_mon_ops = {
-	il_mcb_net_dev_mon_create,
-	il_mcb_net_dev_mon_destroy,
-	il_mcb_net_dev_mon_start,
-	il_mcb_net_dev_mon_stop,
+	.create = il_mcb_net_dev_mon_create,
+	.destroy = il_mcb_net_dev_mon_destroy,
+	.start = il_mcb_net_dev_mon_start,
+	.stop = il_mcb_net_dev_mon_stop,
 };

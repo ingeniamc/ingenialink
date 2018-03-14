@@ -66,9 +66,11 @@ typedef struct {
 
 /** Network state. */
 typedef enum {
-	/** Operative. */
-	IL_NET_STATE_OPERATIVE,
-	/** Faulty (eg disconnected or non-operative). */
+	/** Connected. */
+	IL_NET_STATE_CONNECTED,
+	/** Disconnected. */
+	IL_NET_STATE_DISCONNECTED,
+	/** Faulty (e.g. device was physically disconnected). */
 	IL_NET_STATE_FAULTY,
 } il_net_state_t;
 
@@ -112,6 +114,9 @@ typedef void (*il_net_dev_on_evt_t)(void *ctx, il_net_dev_evt_t evt,
 /**
  * Create a network.
  *
+ * @notes
+ *	Network is connected when created.
+ *
  * @param [in] prot
  *	Protocol.
  * @param [in] opts
@@ -130,6 +135,25 @@ IL_EXPORT il_net_t *il_net_create(il_net_prot_t prot,
  *	  Network.
  */
 IL_EXPORT void il_net_destroy(il_net_t *net);
+
+/**
+ * Connect network.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_net_connect(il_net_t *net);
+
+/**
+ * Disconnect network.
+ *
+ * @param [in] net
+ *	  Network.
+ */
+IL_EXPORT void il_net_disconnect(il_net_t *net);
 
 /**
  * Obtain network protocol.
@@ -152,6 +176,17 @@ IL_EXPORT il_net_prot_t il_net_prot_get(il_net_t *net);
  *	Network state.
  */
 IL_EXPORT il_net_state_t il_net_state_get(il_net_t *net);
+
+/**
+ * Obtain network port.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Network port.
+ */
+IL_EXPORT const char *il_net_port_get(il_net_t *net);
 
 /**
  * Obtain network servos list.

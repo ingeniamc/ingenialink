@@ -48,6 +48,8 @@ typedef struct il_mcb_net {
 	il_utils_refcnt_t *refcnt;
 	/** Serial communications channel. */
 	ser_t *ser;
+	/** Serial communications options. */
+	ser_opts_t sopts;
 } il_mcb_net_t;
 
 /** MCB network device monitor */

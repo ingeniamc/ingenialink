@@ -237,12 +237,13 @@ int listener(void *args)
 		}
 	}
 
+	ser_close(this->ser);
+
 	return 0;
 
 err:
-	osal_mutex_lock(this->net.state_lock);
-	this->net.state = IL_NET_STATE_FAULTY;
-	osal_mutex_unlock(this->net.state_lock);
+	ser_close(this->ser);
+	il_net__state_set(&this->net, IL_NET_STATE_FAULTY);
 
 	return IL_EFAIL;
 }
@@ -270,10 +271,10 @@ static void enet_destroy(void *ctx)
 {
 	il_eusb_net_t *this = ctx;
 
-	this->stop = 1;
-	osal_thread_join(this->listener, NULL);
-
-	ser_close(this->ser);
+	if (il_net_state_get(&this->net) != IL_NET_STATE_DISCONNECTED) {
+		this->stop = 1;
+		osal_thread_join(this->listener, NULL);
+	}
 
 	osal_cond_destroy(this->sync.cond);
 	osal_mutex_destroy(this->sync.lock);
@@ -378,8 +379,8 @@ static int il_eusb_net__read(il_net_t *net, uint16_t id, uint32_t address,
 
 	int r;
 
-	if (il_net_state_get(&this->net) != IL_NET_STATE_OPERATIVE) {
-		ilerr__set("Network is not operative");
+	if (il_net_state_get(&this->net) != IL_NET_STATE_CONNECTED) {
+		ilerr__set("Network is not connected");
 		return IL_ESTATE;
 	}
 
@@ -400,8 +401,8 @@ static int il_eusb_net__write(il_net_t *net, uint16_t id, uint32_t address,
 	int r;
 	il_eusb_frame_t frame;
 
-	if (il_net_state_get(&this->net) != IL_NET_STATE_OPERATIVE) {
-		ilerr__set("Network is not operative");
+	if (il_net_state_get(&this->net) != IL_NET_STATE_CONNECTED) {
+		ilerr__set("Network is not connected");
 		return IL_ESTATE;
 	}
 
@@ -451,9 +452,7 @@ unlock:
 static il_net_t *il_eusb_net_create(const il_net_opts_t *opts)
 {
 	il_eusb_net_t *this;
-	ser_opts_t sopts = SER_OPTS_INIT;
-	int r, i;
-	uint8_t val;
+	int r;
 
 	this = calloc(1, sizeof(*this));
 	if (!this) {
@@ -496,50 +495,17 @@ static il_net_t *il_eusb_net_create(const il_net_opts_t *opts)
 		goto cleanup_sync_cond;
 	}
 
-	/* open serial port */
-	sopts.port = opts->port;
-	sopts.baudrate = BAUDRATE_DEF;
-	sopts.timeouts.rd = SER_POLL_TIMEOUT;
-	sopts.timeouts.wr = opts->timeout_wr;
+	/* connect */
+	this->sopts.port = il_net_port_get(&this->net);
+	this->sopts.baudrate = BAUDRATE_DEF;
+	this->sopts.timeouts.rd = SER_POLL_TIMEOUT;
+	this->sopts.timeouts.wr = opts->timeout_wr;
 
-	r = ser_open(this->ser, &sopts);
-	if (r < 0) {
-		ilerr__set("Serial port open failed (%s)", sererr_last());
+	r = il_net_connect(&this->net);
+	if (r < 0)
 		goto cleanup_ser;
-	}
-
-	/* QUIRK: drive may not be operative immediately */
-	osal_clock_sleep_ms(INIT_WAIT_TIME);
-
-	/* send ascii message to force binary */
-	r = ser_write(this->ser, MSG_A2B, sizeof(MSG_A2B) - 1, NULL);
-	if (r < 0) {
-		ilerr__set("Binary configuration failed (%s)", sererr_last());
-		goto close_ser;
-	}
-
-	/* send the same message twice in binary (will flush) */
-	val = 1;
-	for (i = 0; i < BIN_FLUSH; i++) {
-		r = il_eusb_net__write(&this->net, 0, UARTCFG_BIN_ADDRESS, &val,
-				       sizeof(val), 0);
-		if (r < 0)
-			goto close_ser;
-	}
-
-	/* start listener thread */
-	this->stop = 0;
-
-	this->listener = osal_thread_create(listener, this);
-	if (!this->listener) {
-		ilerr__set("Listener thread creation failed");
-		goto close_ser;
-	}
 
 	return &this->net;
-
-close_ser:
-	ser_close(this->ser);
 
 cleanup_ser:
 	ser_destroy(this->ser);
@@ -569,6 +535,86 @@ static void il_eusb_net_destroy(il_net_t *net)
 	il_utils__refcnt_release(this->refcnt);
 }
 
+static int il_eusb_net_connect(il_net_t *net)
+{
+	int r, i;
+	uint8_t val;
+	il_net_state_t state;
+
+	il_eusb_net_t *this = to_eusb_net(net);
+
+	/* check state, proceed only if not connected */
+	state = il_net_state_get(&this->net);
+	if (state == IL_NET_STATE_CONNECTED) {
+		ilerr__set("Network already connected");
+		return IL_EALREADY;
+	} else if (state == IL_NET_STATE_FAULTY) {
+		/* free resources if faulty */
+		this->stop = 1;
+		osal_thread_join(this->listener, NULL);
+
+		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
+	}
+
+	/* open port */
+	r = ser_open(this->ser, &this->sopts);
+	if (r < 0) {
+		ilerr__set("Serial port open failed (%s)", sererr_last());
+		return IL_EFAIL;
+	}
+
+	/* QUIRK: drive may not be operative immediately */
+	osal_clock_sleep_ms(INIT_WAIT_TIME);
+
+	/* connect (so that binary can be enabled) */
+	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+
+	/* send ascii message to force binary */
+	r = ser_write(this->ser, MSG_A2B, sizeof(MSG_A2B) - 1, NULL);
+	if (r < 0) {
+		ilerr__set("Binary configuration failed (%s)", sererr_last());
+		goto close_ser;
+	}
+
+	/* send the same message twice in binary (will flush) */
+	val = 1;
+	for (i = 0; i < BIN_FLUSH; i++) {
+		r = il_eusb_net__write(&this->net, 0, UARTCFG_BIN_ADDRESS, &val,
+				       sizeof(val), 0);
+		if (r < 0)
+			goto close_ser;
+	}
+
+	/* start listener thread */
+	this->stop = 0;
+
+	this->listener = osal_thread_create(listener, this);
+	if (!this->listener) {
+		ilerr__set("Listener thread creation failed");
+		goto close_ser;
+	}
+
+	return 0;
+
+close_ser:
+	ser_close(this->ser);
+	il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
+
+	return IL_EFAIL;
+}
+
+static void il_eusb_net_disconnect(il_net_t *net)
+{
+	il_eusb_net_t *this = to_eusb_net(net);
+
+	if (il_net_state_get(&this->net) != IL_NET_STATE_DISCONNECTED) {
+		this->stop = 1;
+		osal_thread_join(this->listener, NULL);
+
+		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
+	}
+}
+
 static il_net_servos_list_t *il_eusb_net_servos_list_get(
 	il_net_t *net, il_net_servos_on_found_t on_found, void *ctx)
 {
@@ -582,8 +628,8 @@ static il_net_servos_list_t *il_eusb_net_servos_list_get(
 	il_net_servos_list_t *prev;
 
 	/* check network state */
-	if (il_net_state_get(net) != IL_NET_STATE_OPERATIVE) {
-		ilerr__set("Network is not operative");
+	if (il_net_state_get(net) != IL_NET_STATE_CONNECTED) {
+		ilerr__set("Network is not connected");
 		return NULL;
 	}
 
@@ -761,25 +807,28 @@ il_net_dev_list_t *il_eusb_net_dev_list_get()
 /** E-USB network operations. */
 const il_net_ops_t il_eusb_net_ops = {
 	/* internal */
-	il_eusb_net__retain,
-	il_eusb_net__release,
-	il_eusb_net__read,
-	il_eusb_net__write,
-	il_net_base__sw_subscribe,
-	il_net_base__sw_unsubscribe,
-	il_net_base__emcy_subscribe,
-	il_net_base__emcy_unsubscribe,
+	._retain = il_eusb_net__retain,
+	._release = il_eusb_net__release,
+	._state_set = il_net_base__state_set,
+	._read = il_eusb_net__read,
+	._write = il_eusb_net__write,
+	._sw_subscribe = il_net_base__sw_subscribe,
+	._sw_unsubscribe = il_net_base__sw_unsubscribe,
+	._emcy_subscribe = il_net_base__emcy_subscribe,
+	._emcy_unsubscribe = il_net_base__emcy_unsubscribe,
 	/* public */
-	il_eusb_net_create,
-	il_eusb_net_destroy,
-	il_net_base__state_get,
-	il_eusb_net_servos_list_get,
+	.create = il_eusb_net_create,
+	.destroy = il_eusb_net_destroy,
+	.connect = il_eusb_net_connect,
+	.disconnect = il_eusb_net_disconnect,
+	.state_get = il_net_base__state_get,
+	.servos_list_get = il_eusb_net_servos_list_get,
 };
 
 /** E-USB network device monitor operations. */
 const il_net_dev_mon_ops_t il_eusb_net_dev_mon_ops = {
-	il_eusb_net_dev_mon_create,
-	il_eusb_net_dev_mon_destroy,
-	il_eusb_net_dev_mon_start,
-	il_eusb_net_dev_mon_stop,
+	.create = il_eusb_net_dev_mon_create,
+	.destroy = il_eusb_net_dev_mon_destroy,
+	.start = il_eusb_net_dev_mon_start,
+	.stop = il_eusb_net_dev_mon_stop,
 };

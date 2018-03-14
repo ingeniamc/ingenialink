@@ -24,11 +24,20 @@
 
 #include "net.h"
 
+#include <string.h>
+
 #include "ingenialink/err.h"
 
 /*******************************************************************************
  * Base implementation
  ******************************************************************************/
+
+void il_net_base__state_set(il_net_t *net, il_net_state_t state)
+{
+	osal_mutex_lock(net->state_lock);
+	net->state = state;
+	osal_mutex_unlock(net->state_lock);
+}
 
 int il_net_base__sw_subscribe(il_net_t *net, uint16_t id,
 			      il_net_sw_subscriber_cb_t cb, void *ctx)
@@ -171,6 +180,7 @@ int il_net_base__init(il_net_t *net, const il_net_opts_t *opts)
 	int r;
 
 	/* initialize */
+	net->port = strdup(opts->port);
 	net->timeout_rd = opts->timeout_rd;
 	net->timeout_wr = opts->timeout_wr;
 
@@ -178,7 +188,8 @@ int il_net_base__init(il_net_t *net, const il_net_opts_t *opts)
 	net->lock = osal_mutex_create();
 	if (!net->lock) {
 		ilerr__set("Network lock allocation failed");
-		return IL_ENOMEM;
+		r = IL_ENOMEM;
+		goto cleanup_init;
 	}
 
 	/* initialize network state */
@@ -189,7 +200,7 @@ int il_net_base__init(il_net_t *net, const il_net_opts_t *opts)
 		goto cleanup_lock;
 	}
 
-	net->state = IL_NET_STATE_OPERATIVE;
+	net->state = IL_NET_STATE_DISCONNECTED;
 
 	/* initialize statusword update subscribers */
 	net->sw_subs.subs = calloc(SW_SUBS_SZ_DEF, sizeof(*net->sw_subs.subs));
@@ -243,6 +254,9 @@ cleanup_state_lock:
 cleanup_lock:
 	osal_mutex_destroy(net->lock);
 
+cleanup_init:
+	free(net->port);
+
 	return r;
 }
 
@@ -257,6 +271,8 @@ void il_net_base__deinit(il_net_t *net)
 	osal_mutex_destroy(net->state_lock);
 
 	osal_mutex_destroy(net->lock);
+
+	free(net->port);
 }
 
 il_net_state_t il_net_base__state_get(il_net_t *net)
@@ -282,6 +298,11 @@ void il_net__retain(il_net_t *net)
 void il_net__release(il_net_t *net)
 {
 	net->ops->_release(net);
+}
+
+void il_net__state_set(il_net_t *net, il_net_state_t state)
+{
+	net->ops->_state_set(net, state);
 }
 
 int il_net__write(il_net_t *net, uint16_t id, uint32_t address, const void *buf,
@@ -344,6 +365,16 @@ void il_net_destroy(il_net_t *net)
 	net->ops->destroy(net);
 }
 
+int il_net_connect(il_net_t *net)
+{
+	return net->ops->connect(net);
+}
+
+void il_net_disconnect(il_net_t *net)
+{
+	net->ops->disconnect(net);
+}
+
 il_net_prot_t il_net_prot_get(il_net_t *net)
 {
 	return net->prot;
@@ -352,6 +383,11 @@ il_net_prot_t il_net_prot_get(il_net_t *net)
 il_net_state_t il_net_state_get(il_net_t *net)
 {
 	return net->ops->state_get(net);
+}
+
+const char *il_net_port_get(il_net_t *net)
+{
+	return (const char *)net->port;
 }
 
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
