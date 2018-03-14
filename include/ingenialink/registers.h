@@ -146,6 +146,9 @@ extern const il_reg_t IL_REG_HW_VARIANT;
 /** Drive name. */
 extern const il_reg_t IL_REG_DRIVE_NAME;
 
+/** Reset device. */
+extern const il_reg_t IL_REG_RESET_DEVICE;
+
 /*
  * CiA 402
  */

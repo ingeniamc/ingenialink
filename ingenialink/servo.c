@@ -1267,6 +1267,11 @@ void il_servo_destroy(il_servo_t *servo)
 	servo->ops->destroy(servo);
 }
 
+int il_servo_reset(il_servo_t *servo)
+{
+	return servo->ops->reset(servo);
+}
+
 void il_servo_state_get(il_servo_t *servo, il_servo_state_t *state, int *flags)
 {
 	servo->ops->state_get(servo, state, flags);

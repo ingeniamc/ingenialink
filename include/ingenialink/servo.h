@@ -64,6 +64,7 @@ typedef struct {
 	/* public */
 	il_servo_t *(*create)(il_net_t *net, uint16_t id, const char *dict);
 	void (*destroy)(il_servo_t *servo);
+	int (*reset)(il_servo_t *servo);
 	void (*state_get)(
 		il_servo_t *servo, il_servo_state_t *state, int *flags);
 	int (*state_subscribe)(

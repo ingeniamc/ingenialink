@@ -243,22 +243,18 @@ IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint16_t id,
 IL_EXPORT void il_servo_destroy(il_servo_t *servo);
 
 /**
- * Utility function to connect to the first available servo drive.
+ * Reset servo.
  *
- * @param [in] prot
- *	Network protocol.
- * @param [out] net
- *	Where the servo network will be stored.
- * @param [out] servo
- *	Where the first available servo will be stored.
- * @param [in] dict
- *	Dictionary (optional).
+ * @notes
+ *	You may need to reconnect the network after a reset.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
  *
  * @return
- *	0 if a servo is found, IL_EFAIL if none are found.
+ *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_lucky(il_net_prot_t prot, il_net_t **net,
-			     il_servo_t **servo, const char *dict);
+IL_EXPORT int il_servo_reset(il_servo_t *servo);
 
 /**
  * Obtain current servo PDS state.
@@ -1223,6 +1219,24 @@ IL_EXPORT int il_servo_velocity_res_get(il_servo_t *servo, uint32_t *res);
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_wait_reached(il_servo_t *servo, int timeout);
+
+/**
+ * Utility function to connect to the first available servo drive.
+ *
+ * @param [in] prot
+ *	Network protocol.
+ * @param [out] net
+ *	Where the servo network will be stored.
+ * @param [out] servo
+ *	Where the first available servo will be stored.
+ * @param [in] dict
+ *	Dictionary (optional).
+ *
+ * @return
+ *	0 if a servo is found, IL_EFAIL if none are found.
+ */
+IL_EXPORT int il_servo_lucky(il_net_prot_t prot, il_net_t **net,
+			     il_servo_t **servo, const char *dict);
 
 /** @} */
 

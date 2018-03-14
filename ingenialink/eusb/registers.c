@@ -480,6 +480,18 @@ const il_reg_t IL_REG_DRIVE_NAME = {
 	.labels = NULL
 };
 
+const il_reg_t IL_REG_RESET_DEVICE = {
+	.address = 0x002fff,
+	.dtype = IL_REG_DTYPE_U32,
+	.access = IL_REG_ACCESS_RW,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u32 = 0,
+		.max.u32 = UINT32_MAX
+	},
+	.labels = NULL
+};
+
 /* CiA 402 */
 const il_reg_t IL_REG_CTL_WORD = {
 	.address = 0x006040,
