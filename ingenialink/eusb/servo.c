@@ -333,12 +333,14 @@ static int il_eusb_servo_name_get(il_servo_t *servo, char *name, size_t sz)
 		return IL_ENOMEM;
 	}
 
+	/* QUIRK: some firmware do not have the name feature */
 	r = il_servo_raw_read_u64(servo, &IL_REG_DRIVE_NAME, NULL, &name_);
-	if (r < 0)
-		return r;
-
-	memcpy(name, &name_, sizeof(name_));
-	name[IL_SERVO_NAME_SZ - 1] = '\0';
+	if (r == 0) {
+		memcpy(name, &name_, sizeof(name_));
+		name[IL_SERVO_NAME_SZ - 1] = '\0';
+	} else {
+		strncpy(name, "Default", sz);
+	}
 
 	return 0;
 }
@@ -379,18 +381,19 @@ static int il_eusb_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
 	memset(info->hw_variant, 0, sizeof(info->hw_variant));
 	r = il_servo_raw_read_u32(servo, &IL_REG_HW_VARIANT, NULL,
 				  (uint32_t *)info->hw_variant);
-	if (r < 0)
-		return r;
-
-	/* FIX: hardware variant may not be present in all devices. If not
-	 * present it may contain random non-printable characters, so make
-	 * it null.
-	 */
-	for (i = 0; i < sizeof(info->hw_variant); i++) {
-		if (info->hw_variant[i] != '\0' &&
-		    !isprint((int)info->hw_variant[i])) {
-			memset(info->hw_variant, 0, sizeof(info->hw_variant));
-			break;
+	/* QUIRK: some firmwares do not have this register */
+	if (r == 0) {
+		/* QUIRK: hardware variant may not be present in all devices. If
+		 * not present it may contain random non-printable characters,
+		 * so make it null.
+		 */
+		for (i = 0; i < sizeof(info->hw_variant); i++) {
+			if (info->hw_variant[i] != '\0' &&
+			    !isprint((int)info->hw_variant[i])) {
+				memset(info->hw_variant, 0,
+				       sizeof(info->hw_variant));
+				break;
+			}
 		}
 	}
 
