@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "ingenialink/err.h"
+#include "ingenialink/base/servo.h"
 
 /*******************************************************************************
  * Private

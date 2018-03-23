@@ -28,6 +28,7 @@
 #include <string.h>
 
 #include "ingenialink/err.h"
+#include "ingenialink/base/net.h"
 
 /*******************************************************************************
  * Private

@@ -82,6 +82,11 @@ set(ingenialink_srcs
 )
 
 # Sources (protocols)
+list(APPEND ingenialink_srcs
+  ingenialink/base/net.c
+  ingenialink/base/servo.c
+)
+
 if(WITH_PROT_EUSB)
   list(APPEND ingenialink_srcs
     ingenialink/eusb/net.c

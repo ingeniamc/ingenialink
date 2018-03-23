@@ -29,6 +29,7 @@
 #include "osal/clock.h"
 
 #include "ingenialink/err.h"
+#include "ingenialink/base/net.h"
 
 /*******************************************************************************
  * Private

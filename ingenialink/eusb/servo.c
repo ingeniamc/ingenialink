@@ -34,6 +34,7 @@
 #include "public/ingenialink/const.h"
 #include "ingenialink/err.h"
 #include "ingenialink/registers.h"
+#include "ingenialink/base/servo.h"
 
 /*******************************************************************************
  * Private
