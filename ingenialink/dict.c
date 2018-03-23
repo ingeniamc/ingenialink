@@ -459,6 +459,10 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 
 	reg = &kh_val(dict->h_regs, k);
 
+	/* initialize register */
+	reg->labels = NULL;
+	reg->cat_id = NULL;
+
 	/* parse: address */
 	param = xmlGetProp(node, (const xmlChar *)"address");
 	if (!param) {
