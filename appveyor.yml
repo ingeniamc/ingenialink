@@ -1,9 +1,5 @@
 environment:
   matrix:
-    - CMAKE_GENERATOR_NAME: Visual Studio 9 2008
-      platform: Any CPU
-    - CMAKE_GENERATOR_NAME: Visual Studio 10 2010
-      platform: Any CPU
     - CMAKE_GENERATOR_NAME: Visual Studio 14 2015
       platform: Any CPU
     - CMAKE_GENERATOR_NAME: Visual Studio 14 2015 Win64
@@ -12,10 +8,12 @@ environment:
 configuration: Release
 
 install:
-  - cmd: git clone https://github.com/ingeniamc/sercomm.git _deps\sercomm
-  - cmd: cmake -H_deps\sercomm -B_deps\sercomm\_build -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_INSTALL_PREFIX=_install
-  - cmd: cmake --build _deps\sercomm\_build --config %configuration% --target install
+  - cmd: git submodule update --init --recursive
+  - cmd: cmake -Hexternal\sercomm -Bexternal\sercomm\_build -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_INSTALL_PREFIX=_install
+  - cmd: cmake --build external\sercomm\_build --config %configuration% --target install
+  - cmd: cmake -Hexternal\libxml2 -Bexternal\libxml2\_build -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_INSTALL_PREFIX=_install
+  - cmd: cmake --build external\libxml2\_build --config %configuration% --target install
 
 build_script:
-  - cmd: cmake -H. -B_build -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_INSTALL_PREFIX=_install
+  - cmd: cmake -H. -B_build -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_INSTALL_PREFIX=_install -DWITH_PROT_MCB=ON
   - cmd: cmake --build _build --config %configuration%

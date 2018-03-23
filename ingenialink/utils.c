@@ -32,9 +32,10 @@
  * Internal
  ******************************************************************************/
 
-refcnt_t *refcnt__create(refcnt_destroy_t destroy, void *ctx)
+il_utils_refcnt_t *il_utils__refcnt_create(il_utils_refcnt_destroy_t destroy,
+					   void *ctx)
 {
-	refcnt_t *refcnt;
+	il_utils_refcnt_t *refcnt;
 
 	refcnt = malloc(sizeof(*refcnt));
 	if (!refcnt) {
@@ -60,20 +61,20 @@ cleanup:
 	return NULL;
 }
 
-void refcnt__destroy(refcnt_t *refcnt)
+void il_utils__refcnt_destroy(il_utils_refcnt_t *refcnt)
 {
 	osal_mutex_destroy(refcnt->lock);
 	free(refcnt);
 }
 
-void refcnt__retain(refcnt_t *refcnt)
+void il_utils__refcnt_retain(il_utils_refcnt_t *refcnt)
 {
 	osal_mutex_lock(refcnt->lock);
 	refcnt->cnt++;
 	osal_mutex_unlock(refcnt->lock);
 }
 
-void refcnt__release(refcnt_t *refcnt)
+void il_utils__refcnt_release(il_utils_refcnt_t *refcnt)
 {
 	int release = 0;
 
@@ -85,6 +86,6 @@ void refcnt__release(refcnt_t *refcnt)
 
 	if (release) {
 		refcnt->destroy(refcnt->ctx);
-		refcnt__destroy(refcnt);
+		il_utils__refcnt_destroy(refcnt);
 	}
 }

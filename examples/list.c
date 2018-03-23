@@ -1,21 +1,38 @@
 /**
  * @example list.c
  *
- * This example scans for all availe servo on every IngeniaLink network device.
+ * This example scans for all availe servo on every network device.
  */
 
-#include <stdio.h>
-#include <ingenialink/ingenialink.h>
+#include "utils.h"
 
-int main(void)
+#include <stdio.h>
+
+int main(int argc, const char *argv[])
 {
+	il_net_prot_t prot;
 	il_net_dev_list_t *devs, *dev;
 	il_net_servos_list_t *servo_ids, *servo_id;
 
-	devs = il_net_dev_list_get();
+	if (argc < 2) {
+		fprintf(stderr, "Usage: ./list PROT\n");
+		return -1;
+	}
+
+	prot = str2prot(argv[1]);
+
+	devs = il_net_dev_list_get(prot);
 	il_net_dev_list_foreach(dev, devs) {
+		il_net_t *net;
+		il_net_opts_t opts;
+
 		/* create network */
-		il_net_t *net = il_net_create(dev->port);
+		opts.port = dev->port;
+		opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+		opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+
+		/*net = il_net_eusb_create(&opts);*/
+		net = il_net_create(prot, &opts);
 		if (!net)
 			continue;
 
@@ -27,8 +44,7 @@ int main(void)
 			il_servo_t *servo;
 			il_servo_info_t info;
 
-			servo = il_servo_create(net, servo_id->id,
-						IL_SERVO_TIMEOUT_DEF);
+			servo = il_servo_create(net, servo_id->id, NULL);
 			if (!servo)
 				continue;
 

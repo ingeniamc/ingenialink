@@ -1,7 +1,3 @@
-# CMake
-build/
-_build/
-
 # Vim
 *.swp
 *.swo
@@ -12,3 +8,6 @@ Win32
 
 # OS
 .DS_Store
+
+# Others
+_*/

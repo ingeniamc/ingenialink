@@ -24,7 +24,6 @@
 
 #include "poller.h"
 
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -69,6 +68,7 @@ int poller_td(void *args)
 
 				(void)il_servo_read(poller->servo,
 						    poller->mappings[ch],
+						    NULL,
 						    &acq->d[ch][acq->cnt]);
 			}
 
@@ -141,7 +141,7 @@ cleanup_acq_d_0:
 	free(poller->acq[0].d);
 
 cleanup_mappings:
-	free(poller->mappings);
+	free((void *)poller->mappings);
 
 cleanup_lock:
 	osal_mutex_destroy(poller->lock);
@@ -163,8 +163,6 @@ void il_poller_destroy(il_poller_t *poller)
 {
 	int i;
 
-	assert(poller);
-
 	if (poller->running)
 		il_poller_stop(poller);
 
@@ -184,7 +182,7 @@ void il_poller_destroy(il_poller_t *poller)
 	free(poller->acq[1].d);
 	free(poller->acq[0].d);
 
-	free(poller->mappings);
+	free((void *)poller->mappings);
 
 	osal_mutex_destroy(poller->lock);
 
@@ -198,8 +196,6 @@ void il_poller_destroy(il_poller_t *poller)
 
 int il_poller_start(il_poller_t *poller)
 {
-	assert(poller);
-
 	if (poller->running) {
 		ilerr__set("Poller already running");
 		return IL_EALREADY;
@@ -236,8 +232,6 @@ int il_poller_start(il_poller_t *poller)
 
 void il_poller_stop(il_poller_t *poller)
 {
-	assert(poller);
-
 	if (!poller->running)
 		return;
 
@@ -249,9 +243,6 @@ void il_poller_stop(il_poller_t *poller)
 
 void il_poller_data_get(il_poller_t *poller, il_poller_acq_t **acq)
 {
-	assert(poller);
-	assert(acq);
-
 	osal_mutex_lock(poller->lock);
 
 	*acq = &poller->acq[poller->acq_curr];
@@ -266,8 +257,6 @@ void il_poller_data_get(il_poller_t *poller, il_poller_acq_t **acq)
 int il_poller_configure(il_poller_t *poller, unsigned int t_s, size_t sz)
 {
 	int i;
-
-	assert(poller);
 
 	if (poller->running) {
 		ilerr__set("Poller is running");
@@ -301,9 +290,9 @@ int il_poller_configure(il_poller_t *poller, unsigned int t_s, size_t sz)
 }
 
 int il_poller_ch_configure(il_poller_t *poller, unsigned int ch,
-			   const il_reg_t *reg)
+			   const il_reg_t *reg, const char *id)
 {
-	assert(poller);
+	const il_reg_t *reg_;
 
 	if (poller->running) {
 		ilerr__set("Poller is running");
@@ -315,14 +304,44 @@ int il_poller_ch_configure(il_poller_t *poller, unsigned int ch,
 		return IL_EINVAL;
 	}
 
-	poller->mappings[ch] = reg;
+	/* obtain register */
+	if (reg) {
+		reg_ = reg;
+	} else {
+		int r;
+		il_dict_t *dict;
+
+		dict = il_servo_dict_get(poller->servo);
+		if (!dict) {
+			ilerr__set("No dictionary loaded");
+			return IL_EFAIL;
+		}
+
+		r = il_dict_reg_get(dict, id, &reg_);
+		if (r < 0)
+			return r;
+	}
+
+	poller->mappings[ch] = reg_;
 
 	return 0;
 }
 
 int il_poller_ch_disable(il_poller_t *poller, unsigned int ch)
 {
-	return il_poller_ch_configure(poller, ch, NULL);
+	if (poller->running) {
+		ilerr__set("Poller is running");
+		return IL_ESTATE;
+	}
+
+	if (ch >= poller->n_ch) {
+		ilerr__set("Channel out of range");
+		return IL_EINVAL;
+	}
+
+	poller->mappings[ch] = NULL;
+
+	return 0;
 }
 
 int il_poller_ch_disable_all(il_poller_t *poller)
@@ -332,7 +351,7 @@ int il_poller_ch_disable_all(il_poller_t *poller)
 	for (ch = 0; ch < poller->n_ch; ch++) {
 		int r;
 
-		r = il_poller_ch_configure(poller, ch, NULL);
+		r = il_poller_ch_disable(poller, ch);
 		if (r < 0)
 			return r;
 	}

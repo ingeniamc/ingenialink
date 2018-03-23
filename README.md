@@ -13,40 +13,39 @@ control tasks and communications with Ingenia drives.
 The library provides:
 
 * Simple motion control functions (homing, profile position, etc.)
-* Communications API for Ingenia drives using the IngeniaLink protocol
-  (available on the USB/RS232/RS485 interfaces)
+* Communications API for Ingenia drives (multiple protocols supported)
+* Load and use IngeniaDictionary XML dictionaries
 * Operate directly using units (e.g. degrees, rad/s, etc.)
-* Register polling and monitoring
-* Object oriented interface
-* Supports single link and daisy-chain topologies
+* Register polling and monitoring for scope applications
 * Servo listing and monitoring
+* Object oriented interface
 * Thread-safe communications
 * Descriptive and detailed error messages
 
-It is worth to note that the IngeniaLink protocol was not designed for
-applications (where high-reliability and bandwidth are likely strong
-requirements). You should limit its usage to configuration or evaluation tasks.
-
 ## Building libingenialink
 
-The `libingenialink` library is built using [CMake][cmake] (version 3.0 or
-newer) on all platforms. It depends on [libsercomm][sercomm], so make sure you
-have it installed before building.
-
-On most systems you can build the library using the following commands:
+`libingenialink` depends on [libsercomm][sercomm] and [libxml2][libxml2]. A
+couple of sections below you will find some instructions on how to build and
+install them. `libingenialink` can be built and installed on any system like
+this:
 
 ```sh
-cmake -H. -B_build
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
 cmake --build _build
+cmake --build _build --target install
 ```
 
-[cmake]: https://cmake.org
+Note that a `INSTALL` is the installation folder.
+
 [sercomm]: https://github.com/ingeniamc/sercomm
+[libxml2]: https://xmlsoft.org
 
 ### Build options
 
 The following build options are available:
 
+- `WITH_PROT_EUSB` (ON): Build `EUSB` protocol support.
+- `WITH_PROT_MCB` (OFF): Build `MCB` protocol support (EXPERIMENTAL).
 - `WITH_EXAMPLES` (OFF): When enabled, the library usage example applications
   will be built.
 - `WITH_DOCS` (OFF): When enabled the API documentation can be built.
@@ -58,12 +57,63 @@ read this list of [useful CMake variables][cmakeuseful].
 
 [cmakeuseful]: https://cmake.org/Wiki/CMake_Useful_Variables
 
+## Dependencies
+
+As mentioned before, `libingenialink` depends on [libsercomm][sercomm] and
+[libxml2][libxml2], both referenced in the [external][external] folder as
+submodules. Therefore, if building them make sure to initialize the submodules
+first:
+
+```sh
+git submodule init --update --recursive
+```
+
+Below you can find some building instructions for dependencies. Note that
+`INSTALL` is the installation folder.
+
+[sercomm]: https://github.com/ingeniamc/sercomm
+[libxml2]: https://xmlsoft.org
+[external]: https://github.com/ingeniamc/ingenialink/tree/master/external
+
+### libsercomm
+
+`libsercomm` also uses CMake, so it can be built and installed on any system
+like this:
+
+```sh
+cd external/sercomm
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake --build _build --target install
+```
+
+### libxml2
+
+Athough `libxml2` is multiplatform, the building process can be somewhat painful
+on some systems, specially on Windows. This is why we provide a CMake script
+to build it on the systems we support. It can be built and installed like this:
+
+```sh
+cd external/libxml2
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake --build _build --target install
+```
+
+If using Linux, we actually recommend installing the library packages from
+the official repositories. For example in Debian/Ubuntu systems:
+
+```sh
+sudo apt install libxml2-dev
+```
+
+On recent versions of macOS, it seems to be already installed on the system. If
+not, you can also use [brew][brew] to install it.
+
+[brew]: https://brew.sh
+
 ## Coding standards
 
 `libingenialink` is written in [ANSI C][ansic] (C99), so any modern compiler
-should work. The non-C99 compatible MSVC 9.0 (Visual Studio 2008) is also
-supported so that the Python 2.7 extension can be built. However, its support
-will likely be dropped in future versions.
+should work.
 
 Code is written following the [Linux Kernel coding style][kernelstyle]. You can
 check for errors or suggestions like this (uses `checkpatch.pl`):

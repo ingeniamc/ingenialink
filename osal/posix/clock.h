@@ -34,7 +34,7 @@
 #  include <time.h>
 #endif
 
- /** Performance counter (POSIX) */
+/** Performance counter (POSIX) */
 struct osal_clock_perf {
 #if defined(__MACH__) && defined(__APPLE__)
 	/** Timebase info. */

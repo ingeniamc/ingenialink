@@ -30,7 +30,7 @@ void on_emcy(void *ctx, uint32_t code)
 	printf("Emergency occurred (0x%04x)\n", code);
 }
 
-static int run(const char *port, uint8_t id, const char *log_fname)
+static int run(const char *log_fname)
 {
 	int r = 0;
 
@@ -43,27 +43,41 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	il_poller_acq_t *acq;
 	FILE *log_f;
 
-	/* create network */
-	net = il_net_create(port);
-	if (!net) {
-		fprintf(stderr, "Could not create network: %s\n", ilerr_last());
-		r = 1;
-		goto out;
-	}
+	const il_reg_t IL_REG_POS_ACT = {
+		.address = 0x006064,
+		.dtype = IL_REG_DTYPE_S32,
+		.access = IL_REG_ACCESS_RW,
+		.phy = IL_REG_PHY_VEL,
+		.range = {
+			.min.s32 = INT32_MIN,
+			.max.s32 = INT32_MAX
+		},
+		.labels = NULL
+	};
 
-	/* create servo */
-	servo = il_servo_create(net, id, IL_SERVO_TIMEOUT_DEF);
-	if (!servo) {
-		fprintf(stderr, "Could not create servo: %s\n", ilerr_last());
-		r = 1;
-		goto cleanup_net;
+	const il_reg_t IL_REG_VEL_ACT = {
+		.address = 0x00606c,
+		.dtype = IL_REG_DTYPE_S32,
+		.access = IL_REG_ACCESS_RW,
+		.phy = IL_REG_PHY_VEL,
+		.range = {
+			.min.s32 = INT32_MIN,
+			.max.s32 = INT32_MAX
+		},
+		.labels = NULL
+	};
+
+	r = il_servo_lucky(IL_NET_PROT_EUSB, &net, &servo, NULL);
+	if (r < 0) {
+		fprintf(stderr, "%s\n", ilerr_last());
+		return r;
 	}
 
 	r = il_servo_emcy_subscribe(servo, on_emcy, NULL);
 	if (r < 0) {
 		fprintf(stderr, "Could not subscribe to emergencies: %s\n",
 			ilerr_last());
-		goto cleanup_servo;
+		goto cleanup_net_servo;
 	}
 
 	il_servo_units_pos_set(servo, IL_UNITS_POS_DEG);
@@ -74,7 +88,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	if (!poller) {
 		fprintf(stderr, "Could not create poller: %s\n", ilerr_last());
 		r = 1;
-		goto cleanup_servo;
+		goto cleanup_net_servo;
 	}
 
 	r = il_poller_configure(poller, T_S, POLLER_SZ);
@@ -84,27 +98,21 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 		goto cleanup_poller;
 	}
 
-	r = il_poller_ch_configure(poller, 0, &IL_REG_POS_ACT);
+	r = il_poller_ch_configure(poller, 0, &IL_REG_POS_ACT, NULL);
 	if (r < 0) {
 		fprintf(stderr, "Could not configure poller channel: %s\n",
 			ilerr_last());
 		goto cleanup_poller;
 	}
 
-	r = il_poller_ch_configure(poller, 1, &IL_REG_VEL_ACT);
+	r = il_poller_ch_configure(poller, 1, &IL_REG_VEL_ACT, NULL);
 	if (r < 0) {
 		fprintf(stderr, "Could not configure poller channel: %s\n",
 			ilerr_last());
 		goto cleanup_poller;
 	}
 
-	/* reset faults, disable */
-	il_servo_fault_reset(servo);
-	if (r < 0) {
-		fprintf(stderr, "Could not reset fault: %s\n", ilerr_last());
-		goto cleanup_poller;
-	}
-
+	/* disable */
 	r = il_servo_disable(servo);
 	if (r < 0) {
 		fprintf(stderr, "Could not disable servo: %s\n", ilerr_last());
@@ -200,30 +208,21 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 cleanup_poller:
 	il_poller_destroy(poller);
 
-cleanup_servo:
+cleanup_net_servo:
 	il_servo_destroy(servo);
 
-cleanup_net:
 	il_net_destroy(net);
 
-out:
 	return r;
 }
 
 int main(int argc, char **argv)
 {
-	const char *port, *log_fname;
-	uint8_t id;
-
-	if (argc < 4) {
+	if (argc < 2) {
 		fprintf(stderr,
-			"Usage: motion PORT SERVO_ID LOG_FILE\n");
+			"Usage: motion LOG_FILE\n");
 		return 1;
 	}
 
-	port = argv[1];
-	id = (uint8_t)strtoul(argv[2], NULL, 0);
-	log_fname = argv[3];
-
-	return run(port, id, log_fname);
+	return run(argv[1]);
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,59 +25,10 @@
 #ifndef NET_H_
 #define NET_H_
 
-#include "ingenialink/frame.h"
 #include "ingenialink/net.h"
 #include "ingenialink/utils.h"
 
 #include "osal/osal.h"
-
-#define _SER_NO_LEGACY_STDINT
-#include <sercomm/sercomm.h>
-
-/** Default baudrate. */
-#define BAUDRATE_DEF		115200
-
-/** Default read timeout (ms) */
-#define TIMEOUT_RD_DEF		100
-
-/** Default write timeout (ms) */
-#define TIMEOUT_WR_DEF		100
-
-/** Binary mode ON message (ASCII protocol). */
-#define MSG_A2B			"\r0 W 0x82000 1\r"
-
-/** Node scanner timeout (ms) */
-#define SCAN_TIMEOUT		100
-
-/** UART node id (index) */
-#define UARTCFG_ID_IDX		0x2000
-
-/** UART node id (subindex) */
-#define UARTCFG_ID_SIDX		0x01
-
-/** UART configuration, binary mode (index). */
-#define UARTCFG_BIN_IDX		0x2000
-
-/** UART configuration, binary mode (subindex). */
-#define UARTCFG_BIN_SIDX	0x08
-
-/** Number of binary messages to flush. */
-#define BIN_FLUSH		2
-
-/** Statusword (index). */
-#define STATUSWORD_IDX		0x6041
-
-/** Statusword (subindex). */
-#define STATUSWORD_SIDX		0x00
-
-/** Emergency (index). */
-#define EMCY_IDX		0x1003
-
-/** Emergency (subindex). */
-#define EMCY_SIDX		0x01
-
-/** Initialization wait time (ms). */
-#define INIT_WAIT_TIME		500
 
 /** Statusword subscribers default array size. */
 #define SW_SUBS_SZ_DEF		10
@@ -85,32 +36,10 @@
 /** Emergency subscribers default array size. */
 #define EMCY_SUBS_SZ_DEF	10
 
-/** IngeniaLink synchronous transfer context. */
-typedef struct {
-	/** Node ID. */
-	uint8_t id;
-	/** Index. */
-	uint16_t idx;
-	/** Subindex. */
-	uint8_t sidx;
-	/** Buffer. */
-	void *buf;
-	/** Buffer size. */
-	size_t sz;
-	/** Received bytes. */
-	size_t *recvd;
-	/** Completed flag. */
-	int complete;
-	/** Lock. */
-	osal_mutex_t *lock;
-	/** Completed condition variable. */
-	osal_cond_t *cond;
-} il_net_sync_t;
-
-/** IngeniaLink statusword update subscriber. */
+/** Statusword update subscriber. */
 struct il_net_sw_subscriber {
 	/** Node ID. */
-	uint8_t id;
+	uint16_t id;
 	/** Callback. */
 	il_net_sw_subscriber_cb_t cb;
 	/** Callback context. */
@@ -118,7 +47,7 @@ struct il_net_sw_subscriber {
 };
 
 /**
- * IngeniaLink statusword update subscribers.
+ * Statusword update subscribers.
  *
  * @note
  *	This is implemented using a dynamic array so that traverse is more
@@ -133,10 +62,10 @@ typedef struct {
 	osal_mutex_t *lock;
 } il_net_sw_subscriber_lst_t;
 
-/** IngeniaLink emergency subscriber. */
+/** Emergency subscriber. */
 struct il_net_emcy_subscriber {
 	/** Node ID. */
-	uint8_t id;
+	uint16_t id;
 	/** Callback. */
 	il_net_emcy_subscriber_cb_t cb;
 	/** Callback context. */
@@ -144,7 +73,7 @@ struct il_net_emcy_subscriber {
 };
 
 /**
- * IngeniaLink emergency subscribers.
+ * Emergency subscribers.
  *
  * @note
  *	This is implemented using a dynamic array so that traverse is more
@@ -159,40 +88,47 @@ typedef struct {
 	osal_mutex_t *lock;
 } il_net_emcy_subscriber_lst_t;
 
-/** IngeniaLink network. */
+/** Network. */
 struct il_net {
-	/** Serial communications channel. */
-	ser_t *ser;
-	/** Reference counter. */
-	refcnt_t *refcnt;
+	/** Protocol */
+	il_net_prot_t prot;
+	/** Port */
+	char *port;
+	/** Read timeout. */
+	int timeout_rd;
+	/** Write timeout. */
+	int timeout_wr;
+	/** Network lock. */
+	osal_mutex_t *lock;
 	/** Network state. */
 	il_net_state_t state;
 	/** Network state lock. */
 	osal_mutex_t *state_lock;
-	/** Listener thread. */
-	osal_thread_t *listener;
-	/** Listener stop flag. */
-	int stop;
-	/** Network lock. */
-	osal_mutex_t *lock;
-	/** Network synchronous transfers context. */
-	il_net_sync_t sync;
-	/** Statusword updates subcribers. */
+	/** Status updates subcribers. */
 	il_net_sw_subscriber_lst_t sw_subs;
 	/** Emergency subcribers. */
 	il_net_emcy_subscriber_lst_t emcy_subs;
+	/** Operations. */
+	const il_net_ops_t *ops;
 };
 
-/** IngeniaLink network device monitor */
+/** Network device monitor. */
 struct il_net_dev_mon {
-	/** Serial port monitor. */
-	ser_dev_mon_t *mon;
-	/** Running flag. */
-	int running;
-	/** Callback */
-	il_net_dev_on_evt_t on_evt;
-	/** Context */
-	void *ctx;
+	/** Operations. */
+	const il_net_dev_mon_ops_t *ops;
 };
+
+/** Network implementations. */
+#ifdef IL_HAS_PROT_EUSB
+extern const il_net_ops_t il_eusb_net_ops;
+extern const il_net_dev_mon_ops_t il_eusb_net_dev_mon_ops;
+il_net_dev_list_t *il_eusb_net_dev_list_get(void);
+#endif
+
+#ifdef IL_HAS_PROT_MCB
+extern const il_net_ops_t il_mcb_net_ops;
+extern const il_net_dev_mon_ops_t il_mcb_net_dev_mon_ops;
+il_net_dev_list_t *il_mcb_net_dev_list_get(void);
+#endif
 
 #endif

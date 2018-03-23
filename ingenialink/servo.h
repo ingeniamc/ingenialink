@@ -27,39 +27,26 @@
 
 #include "ingenialink/servo.h"
 
+#include "public/ingenialink/dict.h"
 #include "ingenialink/net.h"
 #include "ingenialink/utils.h"
 
 #include "osal/osal.h"
 
-/** Minimum servo id. */
-#define SERVOID_MIN		1
+/** State external subscribers default array size. */
+#define STATE_SUBS_SZ_DEF	10
 
-/** Maximum servo id. */
-#define SERVOID_MAX		127
+/** State external subscribers period timeout (ms). */
+#define STATE_SUBS_TIMEOUT	100
 
-/** PDS default timeout (ms). */
-#define PDS_TIMEOUT		1000
+/** Emergencies queue size. */
+#define EMCY_QUEUE_SZ		4
 
-/*
- * Constants associated to types of velocity and position feedbacks.
- *
- * References:
- *	http://doc.ingeniamc.com/display/i14402/0x2310+-+Feedbacks
- */
+/** Emergency external subscribers default array size. */
+#define EMCY_SUBS_SZ_DEF	10
 
-#define DIGITAL_HALLS_CONSTANT	6
-#define ANALOG_HALLS_CONSTANT	4096
-#define ANALOG_INPUT_CONSTANT	4096
-#define SINCOS_CONSTANT		1024
-#define PWM_CONSTANT		65535
-#define RESOLVER_CONSTANT	65535
-
-/** Relative voltage range. */
-#define VOLT_REL_RANGE		32767
-
-/** Radians range. */
-#define RAD_RANGE		65535
+/** Emergency external subscribers monitor period timeout (ms). */
+#define EMCY_SUBS_TIMEOUT	100
 
 /** Servo units. */
 typedef struct {
@@ -85,9 +72,71 @@ typedef struct {
 	double vel_res;
 	/** Acceleration resolution (counts/rev/s^2). */
 	double acc_res;
-	/** Pole pitch (m). */
-	double ppitch;
+	/** Distance scale (m). */
+	double dist_scale;
 } il_servo_cfg_t;
+
+/** Emergency subscriber. */
+typedef struct {
+	/** Callback. */
+	il_servo_emcy_subscriber_cb_t cb;
+	/** Callback context. */
+	void *ctx;
+} il_servo_emcy_subscriber_t;
+
+/** Emergencies subscribers list. */
+typedef struct {
+	/** Array of subscribers. */
+	il_servo_emcy_subscriber_t *subs;
+	/** Array size. */
+	size_t sz;
+	/** Lock. */
+	osal_mutex_t *lock;
+	/** Monitor. */
+	osal_thread_t *monitor;
+	/** Monitor stop flag. */
+	int stop;
+} il_servo_emcy_subscriber_lst_t;
+
+/** Emergencies subcription. */
+typedef struct {
+	/** Queue head. */
+	size_t head;
+	/** Queue tail. */
+	size_t tail;
+	/** Queue size. */
+	size_t sz;
+	/** Queue. */
+	uint32_t queue[EMCY_QUEUE_SZ];
+	/** Lock. */
+	osal_mutex_t *lock;
+	/** Not empty condition. */
+	osal_cond_t *not_empty;
+	/** Assigned subscription slot. */
+	int slot;
+} il_servo_emcy_t;
+
+/** State update subscriber. */
+typedef struct {
+	/** Callback. */
+	il_servo_state_subscriber_cb_t cb;
+	/** Callback context. */
+	void *ctx;
+} il_servo_state_subscriber_t;
+
+/** State update subscribers list. */
+typedef struct {
+	/** Array of subscribers. */
+	il_servo_state_subscriber_t *subs;
+	/** Array size. */
+	size_t sz;
+	/** Lock. */
+	osal_mutex_t *lock;
+	/** Monitor. */
+	osal_thread_t *monitor;
+	/** Monitor stop flag. */
+	int stop;
+} il_servo_state_subscriber_lst_t;
 
 /** Statusword updates subcription. */
 typedef struct {
@@ -105,20 +154,35 @@ typedef struct {
 struct il_servo {
 	/** Associated IngeniaLink network. */
 	il_net_t *net;
-	/** Reference counter. */
-	refcnt_t *refcnt;
-	/** Servo id. */
-	uint8_t id;
-	/** Communications timeout (ms). */
-	int timeout;
+	/** ID. */
+	uint16_t id;
+	/** Dictionary. */
+	il_dict_t *dict;
 	/** Units. */
 	il_servo_units_t units;
 	/** Configuration. */
 	il_servo_cfg_t cfg;
-	/** Statusword subscription. */
-	il_servo_sw_t sw;
 	/** Operation mode. */
 	il_servo_mode_t mode;
+	/** Statusword subscription. */
+	il_servo_sw_t sw;
+	/** External state change subscriptors. */
+	il_servo_state_subscriber_lst_t state_subs;
+	/** Emergency subscription. */
+	il_servo_emcy_t emcy;
+	/** External emergency subscriptors. */
+	il_servo_emcy_subscriber_lst_t emcy_subs;
+	/** Operations. */
+	const il_servo_ops_t *ops;
 };
+
+/** Servo implementations. */
+#ifdef IL_HAS_PROT_EUSB
+extern const il_servo_ops_t il_eusb_servo_ops;
+#endif
+
+#ifdef IL_HAS_PROT_MCB
+extern const il_servo_ops_t il_mcb_servo_ops;
+#endif
 
 #endif

@@ -34,13 +34,32 @@
  */
 
 /**
+ * @defgroup IL_CONST_SYS System
+ * @{
+ */
+
+/** PWM maximum value (maximum of signed 16-bit). */
+#define ILK_SYS_PWM_MAX			32767
+/** Current/Torque loop frequency (Hz). */
+#define ILK_SYS_CLOOP_FREQ_TORQUE	10000
+/** Velocity loop frequency (Hz). */
+#define ILK_SYS_CLOOP_FREQ_VEL		1000
+/** Position loop frequency (Hz). */
+#define ILK_SYS_CLOOP_FREQ_POS		1000
+/** Maximum rated torque (maximum of INT16). */
+#define ILK_SYS_TORQUE_MAX		32767
+/** Disturbance signal maximum samples. */
+#define ILK_SYS_DSIG_MAX_SAMPLES	1000
+
+/** @} */
+
+/**
  * @defgroup IL_CONST_SIGNATURES Signatures
  * @{
  */
 
 /** Store signature. */
 #define ILK_SIGNATURE_STORE	0x65766173
-
 /** Reset signature. */
 #define ILK_SIGNATURE_RESET	0x64747372
 

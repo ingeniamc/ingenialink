@@ -27,7 +27,7 @@
 # General
 
 cmake_minimum_required(VERSION 3.0)
-project(ingenialink LANGUAGES C VERSION 3.4.0)
+project(ingenialink LANGUAGES C VERSION 3.5.1)
 
 set(CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake
@@ -46,9 +46,11 @@ endif()
 #-------------------------------------------------------------------------------
 # Build options
 
-option(WITH_EXAMPLES    "Build library usage example apps"        OFF)
-option(WITH_DOCS        "Build library public API documentation"  OFF)
-option(WITH_PIC         "Generate position independent code"      OFF)
+option(WITH_EXAMPLES    "Build library usage example apps"                  OFF)
+option(WITH_DOCS        "Build library public API documentation"            OFF)
+option(WITH_PIC         "Generate position independent code"                OFF)
+option(WITH_PROT_EUSB   "Build with EUSB protocol support"                   ON)
+option(WITH_PROT_MCB    "Build with MCB protocol support (EXPERIMENTAL)"    OFF)
 
 # Build a shared library by default
 if(NOT DEFINED BUILD_SHARED_LIBS)
@@ -69,16 +71,39 @@ configure_file("config.h.in" "${CMAKE_BINARY_DIR}/config.h")
 
 # Sources
 set(ingenialink_srcs
+  ingenialink/dict.c
+  ingenialink/dict_labels.c
   ingenialink/err.c
-  ingenialink/frame.c
-  ingenialink/monitor.c
   ingenialink/net.c
   ingenialink/poller.c
-  ingenialink/registers.c
   ingenialink/servo.c
   ingenialink/utils.c
   ingenialink/version.c
 )
+
+# Sources (protocols)
+list(APPEND ingenialink_srcs
+  ingenialink/base/net.c
+  ingenialink/base/servo.c
+)
+
+if(WITH_PROT_EUSB)
+  list(APPEND ingenialink_srcs
+    ingenialink/eusb/net.c
+    ingenialink/eusb/frame.c
+    ingenialink/eusb/monitor.c
+    ingenialink/eusb/registers.c
+    ingenialink/eusb/servo.c
+  )
+endif()
+
+if(WITH_PROT_MCB)
+  list(APPEND ingenialink_srcs
+    ingenialink/mcb/frame.c
+    ingenialink/mcb/net.c
+    ingenialink/mcb/servo.c
+  )
+endif()
 
 # Sources (osal)
 if(UNIX)
@@ -119,12 +144,24 @@ target_include_directories(
     "$<INSTALL_INTERFACE:include>"
 )
 
-# Definitions (common)
+# Definitions
 target_compile_definitions(ingenialink PRIVATE IL_BUILDING)
+
+if(WITH_PROT_EUSB)
+  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_EUSB)
+endif()
+
+if(WITH_PROT_MCB)
+  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_MCB)
+endif()
 
 # Dependencies
 find_package(sercomm CONFIG REQUIRED)
 target_link_libraries(ingenialink PRIVATE sercomm)
+
+find_package(LibXml2 REQUIRED)
+target_link_libraries(ingenialink PRIVATE ${LIBXML2_LIBRARIES})
+target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 
 if(UNIX)
   # FIX: disable TRY_RUN for pthreads when cross-compiling
@@ -135,6 +172,9 @@ if(UNIX)
   find_package(Threads REQUIRED)
 
   target_link_libraries(ingenialink PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+elseif(WIN32)
+  # required by: libxml2
+  target_link_libraries(ingenialink PRIVATE ws2_32)
 endif()
 
 #-------------------------------------------------------------------------------
@@ -147,7 +187,9 @@ if(STYLE_CHECK_AVAILABLE)
     "ingenialink/*.h"
     "osal/**/*.c"
     "osal/**/*.h"
-    "include/**/*.h")
+    "include/ingenialink/**/*.h"
+    "include/osal/**/*.h"
+    "include/public/**/*.h")
 endif()
 
 #-------------------------------------------------------------------------------
@@ -164,7 +206,6 @@ if(WITH_DOCS)
   find_package(Doxygen REQUIRED)
 
   # Doxyfile variables
-  set(DOCS_TMPL_DIR ${CMAKE_SOURCE_DIR}/docs/template)
   set(DOCS_OUT_DIR ${CMAKE_BINARY_DIR}/docs)
 
   set(DOCS_EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
@@ -178,7 +219,7 @@ if(WITH_DOCS)
 
   # Generate Doxyfile
   configure_file(
-    "docs/template/Doxyfile.in"
+    "docs/Doxyfile.in"
     "${CMAKE_BINARY_DIR}/Doxyfile"
   )
 

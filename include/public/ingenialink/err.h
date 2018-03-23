@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Ingenia-CAT S.L.
+ * Copyright (c) 2017-2018 Ingenia-CAT S.L.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,14 +51,16 @@ IL_BEGIN_DECL
 #define IL_ENOMEM	-4
 /** Already initialized. */
 #define IL_EALREADY	-5
-/** Device disconnected */
+/** Device disconnected. */
 #define IL_EDISCONN	-6
-/** Access error */
+/** Access error. */
 #define IL_EACCESS	-7
-/** State error */
+/** State error. */
 #define IL_ESTATE	-8
-/** I/O error */
+/** I/O error. */
 #define IL_EIO		-9
+/** Not supported. */
+#define IL_ENOTSUP	-10
 
 /**
  * Obtain library last error details.

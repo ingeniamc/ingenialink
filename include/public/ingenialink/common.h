@@ -28,31 +28,7 @@
 #include "config.h"
 
 #include <stdlib.h>
-
-/*
- * Visual Studio <= 2008 versions do not provide C99 fixed-size integers.
- * Define _IL_NO_LEGACY_STDINT to define them in your project.
- */
-#if defined(_MSC_VER)
-#  if _MSC_VER > 1500
-#    include <stdint.h>
-#  elif !defined(_IL_NO_LEGACY_STDINT)
-#    if _MSC_VER <= 1500
-typedef signed __int8 int8_t;
-typedef signed __int16 int16_t;
-typedef signed __int32 int32_t;
-typedef unsigned __int8 uint8_t;
-typedef unsigned __int16 uint16_t;
-typedef unsigned __int32 uint32_t;
-typedef signed __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-#    else
-#      error Unsupported MSC version
-#    endif
-#  endif
-#else
-#  include <stdint.h>
-#endif
+#include <stdint.h>
 
 /**
  * @file ingenialink/common.h

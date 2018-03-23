@@ -76,6 +76,24 @@ int osal_clock_perf_get(osal_clock_perf_t *perf, osal_timespec_t *ts)
 	return 0;
 }
 
+int osal_clock_gettime(osal_timespec_t *ts)
+{
+	LARGE_INTEGER freq, cnt;
+
+	(void)QueryPerformanceFrequency(&freq);
+	(void)QueryPerformanceCounter(&cnt);
+
+	/* convert to microseconds */
+	cnt.QuadPart *= 1000000;
+	cnt.QuadPart /= freq.QuadPart;
+
+	/* convert to timespec */
+	ts->ns = (long)((cnt.QuadPart % 1000000) * 1000);
+	ts->s = (long)(cnt.QuadPart / 1000000);
+
+	return 0;
+}
+
 void osal_clock_sleep_ms(int ms)
 {
 	Sleep(ms);
