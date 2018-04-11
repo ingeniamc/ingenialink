@@ -65,15 +65,15 @@ IL_EXPORT void il_dict_destroy(il_dict_t *dict);
  *
  * @param [in] dict
  *	Dictionary instance.
- * @param [in] id
- *	Register ID.
+ * @param [in] cat_id
+ *	Category ID.
  * @param [out] labels
  *	Where labels for the given ID will be stored.
  *
  * @return
  *	0 on success, IL_EFAIL if the register does not exist.
  */
-IL_EXPORT int il_dict_cat_get(il_dict_t *dict, const char *id,
+IL_EXPORT int il_dict_cat_get(il_dict_t *dict, const char *cat_id,
 			      il_dict_labels_t **labels);
 
 /**
@@ -104,13 +104,70 @@ IL_EXPORT const char **il_dict_cat_ids_get(il_dict_t *dict);
 /**
  * Destroy the list of obtained category IDs.
  *
- * @param [in] regs
- *	Register list.
+ * @param [in] cat_ids
+ *	Categories IDs.
  *
  * @see
  *	il_dict_cat_ids_get
  */
-IL_EXPORT void il_dict_cat_ids_destroy(const char **regs);
+IL_EXPORT void il_dict_cat_ids_destroy(const char **cat_ids);
+
+/**
+ * Obtain sub-category labels from a category.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ * @param [in] cat_id
+ *	Category ID.
+ * @param [in] scat_id
+ *	Sub-category ID.
+ * @param [out] labels
+ *	Where labels for the given ID will be stored.
+ *
+ * @return
+ *	0 on success, IL_EFAIL if the register does not exist.
+ */
+IL_EXPORT int il_dict_scat_get(il_dict_t *dict, const char *cat_id,
+			       const char *scat_id, il_dict_labels_t **labels);
+
+/**
+ * Obtain number of sub-categories in a category.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ * @param [in] cat_id
+ *	Category ID.
+ *
+ * @return
+ *	Number of categories in the dictionary.
+ */
+IL_EXPORT size_t il_dict_scat_cnt(il_dict_t *dict, const char *cat_id);
+
+/**
+ * Obtain the list of category IDs.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ *
+ * @return
+ *	Category IDs (NULL if none or error).
+ *
+ * @see
+ *	il_dict_scat_ids_destroy
+ */
+IL_EXPORT const char **il_dict_scat_ids_get(il_dict_t *dict,
+					    const char *cat_id);
+
+/**
+ * Destroy the list of obtained sub-category IDs.
+ *
+ * @param [in] scat_ids
+ *	Sub-category IDs.
+ *
+ * @see
+ *	il_dict_scat_ids_get
+ */
+IL_EXPORT void il_dict_scat_ids_destroy(const char **scat_ids);
 
 /**
  * Obtain register from ID.

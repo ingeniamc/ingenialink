@@ -133,6 +133,8 @@ typedef struct {
 	il_dict_labels_t *labels;
 	/** Category ID. */
 	const char *cat_id;
+	/** Subcategory ID. */
+	const char *scat_id;
 } il_reg_t;
 
 /** @} */

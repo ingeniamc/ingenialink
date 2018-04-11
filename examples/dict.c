@@ -8,8 +8,39 @@
 #include <inttypes.h>
 #include <ingenialink/ingenialink.h>
 
-static void print_cat(const char *id, il_dict_labels_t *labels)
+static void print_scat(const char *id, il_dict_labels_t *labels)
 {
+	/* id */
+	printf("\tID: %s\n", id);
+
+	/* labels */
+	printf("\tLabels:\n");
+
+	if (labels && il_dict_labels_nlabels_get(labels) > 0) {
+		size_t i;
+		const char **langs;
+
+		langs = il_dict_labels_langs_get(labels);
+
+		for (i = 0; langs[i]; i++) {
+			const char *label;
+
+			(void)il_dict_labels_get(labels, langs[i], &label);
+
+			printf("\t\t%s: %s\n", langs[i], label);
+		}
+
+		il_dict_labels_langs_destroy(langs);
+	} else {
+		printf("\t\tNone\n");
+	}
+}
+
+static void print_cat(il_dict_t *dict, const char *id, il_dict_labels_t *labels)
+{
+	size_t i;
+	const char **ids;
+
 	/* id */
 	printf("ID: %s\n", id);
 
@@ -34,6 +65,24 @@ static void print_cat(const char *id, il_dict_labels_t *labels)
 	} else {
 		printf("\tNone\n");
 	}
+
+	/* subcategories */
+	printf("Sub-categories:\n");
+	ids = il_dict_scat_ids_get(dict, id);
+	if (!ids) {
+		fprintf(stderr,
+			"Could not obtain sub-categories: %s\n", ilerr_last());
+		return;
+	}
+
+	for (i = 0; ids[i]; i++) {
+		il_dict_labels_t *labels;
+
+		(void)il_dict_scat_get(dict, id, ids[i], &labels);
+		print_scat(ids[i], labels);
+	}
+
+	il_dict_scat_ids_destroy(ids);
 
 	printf("==============================\n");
 }
@@ -185,8 +234,9 @@ static void print_reg(const il_reg_t *reg)
 		printf("\tNone\n");
 	}
 
-	/* category */
+	/* category and subcategory */
 	printf("Category ID: %s\n", reg->cat_id);
+	printf("Sub-category ID: %s\n", reg->scat_id);
 
 	printf("==============================\n");
 }
@@ -223,7 +273,7 @@ int main(int argc, const char **argv)
 		il_dict_labels_t *labels;
 
 		(void)il_dict_cat_get(dict, ids[i], &labels);
-		print_cat(ids[i], labels);
+		print_cat(dict, ids[i], labels);
 	}
 
 	il_dict_cat_ids_destroy(ids);

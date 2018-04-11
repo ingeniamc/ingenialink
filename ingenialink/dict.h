@@ -32,8 +32,19 @@
 /** khash type for reg_id<->register dictionary. */
 KHASH_MAP_INIT_STR(reg_id, il_reg_t)
 
+/** khash type for scat_id<->labels dictionary. */
+KHASH_MAP_INIT_STR(scat_id, il_dict_labels_t *)
+
+/** Category container. */
+typedef struct {
+	/** Labels. */
+	il_dict_labels_t *labels;
+	/** Sub-categories hash table. */
+	khash_t(scat_id) * h_scats;
+} il_dict_cat_t;
+
 /** khash type for cat_id<->labels dictionary. */
-KHASH_MAP_INIT_STR(cat_id, il_dict_labels_t *)
+KHASH_MAP_INIT_STR(cat_id, il_dict_cat_t)
 
 /** Dictionary root name. */
 #define ROOT_NAME	"IngeniaDictionary"
