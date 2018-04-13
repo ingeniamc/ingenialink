@@ -43,17 +43,17 @@ static void xml_error(void *ctx, const char *msg, ...)
 }
 
 /**
- * Parse category labels.
+ * Parse labels.
  *
  * @param [in] node
  *	XML Node.
- * @param [in, out] cat
- *	Category.
+ * @param [in, out] labels
+ *	Labels dictionary.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-static int parse_cat_labels(xmlNodePtr node, il_dict_labels_t *labels)
+static int parse_labels(xmlNodePtr node, il_dict_labels_t *labels)
 {
 	xmlNode *label;
 
@@ -84,6 +84,117 @@ static int parse_cat_labels(xmlNodePtr node, il_dict_labels_t *labels)
 }
 
 /**
+ * Parse sub-category.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] h_scats
+ *	Sub-categories hash table.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+static int parse_scat(xmlNodePtr node, khash_t(scat_id) * h_scats)
+{
+	int r, absent;
+	khint_t k;
+	il_dict_labels_t *labels;
+	xmlChar *id;
+
+	/* parse: id (required), insert to hash table */
+	id = xmlGetProp(node, (const xmlChar *)"id");
+	if (!id) {
+		ilerr__set("Malformed sub-category entry (id missing)");
+		return IL_EFAIL;
+	}
+
+	k = kh_put(scat_id, h_scats, (char *)id, &absent);
+	if (!absent) {
+		ilerr__set("Found duplicated sub-category: %s", id);
+		r = IL_EFAIL;
+		goto cleanup_id;
+	}
+
+	/* create labels dictionary */
+	labels = il_dict_labels_create();
+	if (!labels) {
+		r = IL_EFAIL;
+		goto cleanup_entry;
+	}
+
+	kh_val(h_scats, k) = labels;
+
+	/* parse labels */
+	for (node = node->children; node; node = node->next) {
+		if (node->type != XML_ELEMENT_NODE)
+			continue;
+
+		if (xmlStrcmp(node->name, (const xmlChar *)"Labels") == 0) {
+			r = parse_labels(node, labels);
+			if (r < 0)
+				goto cleanup_labels;
+		}
+	}
+
+	return 0;
+
+cleanup_labels:
+	il_dict_labels_destroy(labels);
+	kh_val(h_scats, k) = NULL;
+
+cleanup_entry:
+	kh_del(scat_id, h_scats, k);
+
+cleanup_id:
+	xmlFree(id);
+
+	return r;
+}
+
+/**
+ * Parse sub-categories.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] h_scats
+ *	Sub-categories hash table.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+static int parse_scats(xmlNodePtr node, khash_t(scat_id) * h_scats)
+{
+	int r;
+	khint_t k;
+
+	/* parse subcategories */
+	for (node = node->children; node; node = node->next) {
+		if (node->type != XML_ELEMENT_NODE)
+			continue;
+
+		if (xmlStrcmp(node->name,
+			      (const xmlChar *)"Subcategory") == 0) {
+			r = parse_scat(node, h_scats);
+			if (r < 0)
+				goto cleanup_h_scats;
+		}
+	}
+
+	return 0;
+
+cleanup_h_scats:
+	/* delete successfully inserted subcategories */
+	for (k = 0; k < kh_end(h_scats); ++k) {
+		if (kh_exist(h_scats, k)) {
+			il_dict_labels_destroy(kh_val(h_scats, k));
+			xmlFree((char *)kh_key(h_scats, k));
+		}
+	}
+
+	return r;
+}
+
+/**
  * Parse category node.
  *
  * @param [in] node
@@ -101,6 +212,8 @@ static int parse_cat(xmlNodePtr node, il_dict_t *dict)
 	il_dict_labels_t *labels;
 	xmlChar *id;
 
+	khash_t(scat_id) * h_scats;
+
 	/* parse: id (required), insert to hash table */
 	id = xmlGetProp(node, (const xmlChar *)"id");
 	if (!id) {
@@ -115,28 +228,49 @@ static int parse_cat(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
-	/* parse: labels */
+	/* create labels and sub-categories dictionaries */
 	labels = il_dict_labels_create();
 	if (!labels)
 		return IL_EFAIL;
 
-	kh_val(dict->h_cats, k) = labels;
+	kh_val(dict->h_cats, k).labels = labels;
 
+	h_scats = kh_init(scat_id);
+	if (!h_scats) {
+		ilerr__set("Sub-categories hash table allocation failed");
+		goto cleanup_labels;
+	}
+
+	kh_val(dict->h_cats, k).h_scats = h_scats;
+
+	/* parse labels and subcategories */
 	for (node = node->children; node; node = node->next) {
 		if (node->type != XML_ELEMENT_NODE)
 			continue;
 
 		if (xmlStrcmp(node->name, (const xmlChar *)"Labels") == 0) {
-			r = parse_cat_labels(node, labels);
+			r = parse_labels(node, labels);
 			if (r < 0)
-				goto cleanup_labels;
+				goto cleanup_h_scats;
+		}
+
+		if (xmlStrcmp(node->name,
+			      (const xmlChar *)"Subcategories") == 0) {
+			r = parse_scats(node, h_scats);
+			if (r < 0)
+				goto cleanup_h_scats;
 		}
 	}
 
 	return 0;
 
+cleanup_h_scats:
+	kh_destroy(scat_id, h_scats);
+	kh_val(dict->h_cats, k).h_scats = NULL;
+
 cleanup_labels:
 	il_dict_labels_destroy(labels);
+	kh_val(dict->h_cats, k).labels = NULL;
 
 	return r;
 }
@@ -241,58 +375,6 @@ static il_reg_phy_t get_phy(const char *name)
 	}
 
 	return IL_REG_PHY_NONE;
-}
-
-/**
- * Parse register labels.
- *
- * @param [in] node
- *	XML Node.
- * @param [in, out] reg
- *	Register.
- *
- * @return
- *	0 on success, error code otherwise.
- */
-static int parse_dict_labels(xmlNodePtr node, il_reg_t *reg)
-{
-	int r;
-	xmlNode *label;
-
-	reg->labels = il_dict_labels_create();
-	if (!reg->labels)
-		return IL_EFAIL;
-
-	for (label = node->children; label; label = label->next) {
-		xmlChar *lang, *content;
-
-		if (label->type != XML_ELEMENT_NODE)
-			continue;
-
-		lang = xmlGetProp(label, (const xmlChar *)"lang");
-		if (!lang) {
-			ilerr__set("Malformed label entry");
-			r = IL_EFAIL;
-			goto cleanup_labels;
-		}
-
-		content = xmlNodeGetContent(label);
-		if (content) {
-			il_dict_labels_set(reg->labels,
-					   (const char *)lang,
-					   (const char *)content);
-			xmlFree(content);
-		}
-
-		xmlFree(lang);
-	}
-
-	return 0;
-
-cleanup_labels:
-	il_dict_labels_destroy(reg->labels);
-
-	return r;
 }
 
 /**
@@ -413,9 +495,13 @@ static int parse_reg_props(xmlNodePtr node, il_reg_t *reg)
 			continue;
 
 		if (xmlStrcmp(prop->name, (const xmlChar *)"Labels") == 0) {
-			r = parse_dict_labels(prop, reg);
+			reg->labels = il_dict_labels_create();
+			if (!reg->labels)
+				return IL_EFAIL;
+
+			r = parse_labels(prop, reg->labels);
 			if (r < 0)
-				return r;
+				goto cleanup_labels;
 		}
 
 		if (xmlStrcmp(prop->name, (const xmlChar *)"Range") == 0)
@@ -423,6 +509,11 @@ static int parse_reg_props(xmlNodePtr node, il_reg_t *reg)
 	}
 
 	return 0;
+
+cleanup_labels:
+	il_dict_labels_destroy(reg->labels);
+
+	return r;
 }
 
 /**
@@ -514,6 +605,21 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 		xmlFree(param);
 	} else {
 		reg->cat_id = NULL;
+	}
+
+	/* parse: sub-category ID (optional) */
+	param = xmlGetProp(node, (const xmlChar *)"scat_id");
+	if (param) {
+		if (!reg->cat_id) {
+			ilerr__set("Subcategory %s requires a category", param);
+			xmlFree(param);
+			return IL_EFAIL;
+		}
+
+		reg->scat_id = strdup((const char *)param);
+		xmlFree(param);
+	} else {
+		reg->scat_id = NULL;
 	}
 
 	/* assign default min/max */
@@ -678,6 +784,8 @@ cleanup_h_regs_entries:
 			reg = &kh_value(dict->h_regs, k);
 			if (reg->cat_id)
 				free((char *)reg->cat_id);
+			if (reg->scat_id)
+				free((char *)reg->scat_id);
 			if (reg->labels)
 				il_dict_labels_destroy(reg->labels);
 
@@ -689,15 +797,38 @@ cleanup_h_regs_entries:
 
 cleanup_h_cats_entries:
 	for (k = 0; k < kh_end(dict->h_cats); ++k) {
-		if (kh_exist(dict->h_cats, k)) {
-			il_dict_labels_t *labels;
+		il_dict_labels_t *labels;
+		khint_t j;
 
-			labels = kh_value(dict->h_cats, k);
-			if (labels)
-				il_dict_labels_destroy(labels);
+		khash_t(scat_id) * h_scats;
 
-			xmlFree((char *)kh_key(dict->h_cats, k));
+		if (!kh_exist(dict->h_cats, k))
+			continue;
+
+		/* clear labels */
+		labels = kh_value(dict->h_cats, k).labels;
+		if (labels)
+			il_dict_labels_destroy(labels);
+
+		/* clear subcategories */
+		h_scats = kh_value(dict->h_cats, k).h_scats;
+		if (h_scats) {
+			for (j = 0; j < kh_end(h_scats); ++j) {
+				if (!kh_exist(h_scats, j))
+					continue;
+
+				/* clear labels */
+				labels = kh_value(h_scats, j);
+				if (labels)
+					il_dict_labels_destroy(labels);
+
+				xmlFree((char *)kh_key(h_scats, j));
+			}
+
+			kh_destroy(scat_id, h_scats);
 		}
+
+		xmlFree((char *)kh_key(dict->h_cats, k));
 	}
 
 	xmlXPathFreeObject(obj_cats);
@@ -739,6 +870,8 @@ void il_dict_destroy(il_dict_t *dict)
 			reg = &kh_value(dict->h_regs, k);
 			if (reg->cat_id)
 				free((char *)reg->cat_id);
+			if (reg->scat_id)
+				free((char *)reg->scat_id);
 			if (reg->labels)
 				il_dict_labels_destroy(reg->labels);
 
@@ -749,15 +882,38 @@ void il_dict_destroy(il_dict_t *dict)
 	kh_destroy(reg_id, dict->h_regs);
 
 	for (k = 0; k < kh_end(dict->h_cats); ++k) {
-		if (kh_exist(dict->h_cats, k)) {
-			il_dict_labels_t *labels;
+		il_dict_labels_t *labels;
+		khint_t j;
 
-			labels = kh_value(dict->h_cats, k);
-			if (labels)
-				il_dict_labels_destroy(labels);
+		khash_t(scat_id) * h_scats;
 
-			xmlFree((char *)kh_key(dict->h_cats, k));
+		if (!kh_exist(dict->h_cats, k))
+			continue;
+
+		/* clear labels */
+		labels = kh_value(dict->h_cats, k).labels;
+		if (labels)
+			il_dict_labels_destroy(labels);
+
+		/* clear subcategories */
+		h_scats = kh_value(dict->h_cats, k).h_scats;
+		if (h_scats) {
+			for (j = 0; j < kh_end(h_scats); ++j) {
+				if (!kh_exist(h_scats, j))
+					continue;
+
+				/* clear labels */
+				labels = kh_value(h_scats, j);
+				if (labels)
+					il_dict_labels_destroy(labels);
+
+				xmlFree((char *)kh_key(h_scats, j));
+			}
+
+			kh_destroy(scat_id, h_scats);
 		}
+
+		xmlFree((char *)kh_key(dict->h_cats, k));
 	}
 
 	kh_destroy(cat_id, dict->h_cats);
@@ -765,17 +921,18 @@ void il_dict_destroy(il_dict_t *dict)
 	free(dict);
 }
 
-int il_dict_cat_get(il_dict_t *dict, const char *id, il_dict_labels_t **labels)
+int il_dict_cat_get(il_dict_t *dict, const char *cat_id,
+		    il_dict_labels_t **labels)
 {
 	khint_t k;
 
-	k = kh_get(cat_id, dict->h_cats, id);
+	k = kh_get(cat_id, dict->h_cats, cat_id);
 	if (k == kh_end(dict->h_cats)) {
-		ilerr__set("Category not found (%s)", id);
+		ilerr__set("Category not found (%s)", cat_id);
 		return IL_EFAIL;
 	}
 
-	*labels = (il_dict_labels_t *)kh_value(dict->h_cats, k);
+	*labels = kh_value(dict->h_cats, k).labels;
 
 	return 0;
 }
@@ -811,7 +968,89 @@ const char **il_dict_cat_ids_get(il_dict_t *dict)
 	return ids;
 }
 
-void il_dict_cat_ids_destroy(const char **ids)
+void il_dict_cat_ids_destroy(const char **cat_ids)
+{
+	free((char **)cat_ids);
+}
+
+int il_dict_scat_get(il_dict_t *dict, const char *cat_id, const char *scat_id,
+		     il_dict_labels_t **labels)
+{
+	khint_t k, j;
+
+	khash_t(scat_id) * h_scats;
+
+	k = kh_get(cat_id, dict->h_cats, cat_id);
+	if (k == kh_end(dict->h_cats)) {
+		ilerr__set("Category not found (%s)", cat_id);
+		return IL_EFAIL;
+	}
+
+	h_scats = kh_value(dict->h_cats, k).h_scats;
+
+	j = kh_get(scat_id, h_scats, scat_id);
+	if (j == kh_end(h_scats)) {
+		ilerr__set("Sub-category not found (%s)", scat_id);
+		return IL_EFAIL;
+	}
+
+	*labels = kh_value(h_scats, j);
+
+	return 0;
+}
+
+size_t il_dict_scat_cnt(il_dict_t *dict, const char *cat_id)
+{
+	khint_t k;
+
+	khash_t(scat_id) * h_scats;
+
+	k = kh_get(cat_id, dict->h_cats, cat_id);
+	if (k == kh_end(dict->h_cats))
+		return 0;
+
+	h_scats = kh_value(dict->h_cats, k).h_scats;
+
+	return (size_t)kh_size(h_scats);
+}
+
+const char **il_dict_scat_ids_get(il_dict_t *dict, const char *cat_id)
+{
+	const char **ids;
+	size_t i, scats_cnt;
+	khint_t k;
+
+	khash_t(scat_id) * h_scats;
+
+	/* obtain subcategories dictionary */
+	k = kh_get(cat_id, dict->h_cats, cat_id);
+	if (k == kh_end(dict->h_cats))
+		return NULL;
+
+	h_scats = kh_value(dict->h_cats, k).h_scats;
+	scats_cnt = (size_t)kh_size(h_scats);
+
+	/* allocate array for category keys */
+	ids = malloc(sizeof(const char *) * (scats_cnt + 1));
+	if (!ids) {
+		ilerr__set("Categories array allocation failed");
+		return NULL;
+	}
+
+	/* assign keys, null-terminate */
+	for (i = 0, k = 0; k < kh_end(h_scats); ++k) {
+		if (kh_exist(h_scats, k)) {
+			ids[i] = (const char *)kh_key(h_scats, k);
+			i++;
+		}
+	}
+
+	ids[i] = NULL;
+
+	return ids;
+}
+
+void il_dict_scat_ids_destroy(const char **ids)
 {
 	free((char **)ids);
 }

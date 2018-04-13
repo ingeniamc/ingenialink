@@ -27,6 +27,12 @@
 
 #include "public/ingenialink/net.h"
 
+/** Virtual network port. */
+#define EUSB_VIRTUAL_PORT "virtual"
+
+/** Virtual network servo ID. */
+#define EUSB_VIRTUAL_ID 0x01
+
 /** Statusword updates subcriber. */
 typedef struct il_net_sw_subscriber il_net_sw_subscriber_t;
 

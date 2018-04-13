@@ -336,7 +336,7 @@ static int il_eusb_servo_name_get(il_servo_t *servo, char *name, size_t sz)
 
 	/* QUIRK: some firmware do not have the name feature */
 	r = il_servo_raw_read_u64(servo, &IL_REG_DRIVE_NAME, NULL, &name_);
-	if (r == 0) {
+	if (r == 0 && name_) {
 		memcpy(name, &name_, sizeof(name_));
 		name[IL_SERVO_NAME_SZ - 1] = '\0';
 	} else {
@@ -829,8 +829,9 @@ static int il_eusb_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode)
 		*mode = IL_SERVO_MODE_CST;
 		break;
 	default:
-		ilerr__set("Unknown operation mode: %d", code);
-		return IL_EINVAL;
+		/* assume PP if unknown */
+		*mode = IL_SERVO_MODE_PP;
+		break;
 	}
 
 	return 0;
@@ -1042,7 +1043,12 @@ static int il_eusb_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		if (r < 0)
 			return r;
 
-		*res = incrs / revs;
+		/* avoid zero division on invalid values */
+		if (revs == 0)
+			*res = 1;
+		else
+			*res = incrs / revs;
+
 		break;
 
 	case ILK_POS_SENSOR_DIGITAL_HALLS:
@@ -1078,7 +1084,12 @@ static int il_eusb_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 		if (r < 0)
 			return r;
 
-		*res = (incrs / revs) * SINCOS_CONSTANT;
+		/* avoid zero division on invalid values */
+		if (revs == 0)
+			*res = 1;
+		else
+			*res = (incrs / revs) * SINCOS_CONSTANT;
+
 		break;
 
 	case ILK_POS_SENSOR_PWM:
@@ -1101,6 +1112,12 @@ static int il_eusb_servo_position_res_get(il_servo_t *servo, uint32_t *res)
 	default:
 		*res = 1;
 	}
+
+	/* fix resolution to non-zero (to avoid divisions by zero) in case some
+	 * of the registers contain invalid values.
+	 */
+	if (*res == 0)
+		*res = 1;
 
 	return 0;
 }
@@ -1141,12 +1158,23 @@ static int il_eusb_servo_velocity_res_get(il_servo_t *servo, uint32_t *res)
 		if (r < 0)
 			return r;
 
-		*res = incrs / revs;
+		/* avoid zero division on invalid values */
+		if (revs == 0)
+			*res = 1;
+		else
+			*res = incrs / revs;
+
 		break;
 
 	default:
 		*res = 1;
 	}
+
+	/* fix resolution to non-zero (to avoid divisions by zero) in case some
+	 * of the registers contain invalid values.
+	 */
+	if (*res == 0)
+		*res = 1;
 
 	return 0;
 }
