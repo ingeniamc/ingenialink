@@ -185,4 +185,8 @@ extern const il_servo_ops_t il_eusb_servo_ops;
 extern const il_servo_ops_t il_mcb_servo_ops;
 #endif
 
+#ifdef IL_HAS_PROT_VIRTUAL
+extern const il_servo_ops_t il_virtual_servo_ops;
+#endif
+
 #endif

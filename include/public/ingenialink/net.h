@@ -46,6 +46,8 @@ typedef enum {
 	IL_NET_PROT_EUSB,
 	/** MCB. */
 	IL_NET_PROT_MCB,
+	/** Virtual. */
+	IL_NET_PROT_VIRTUAL,
 } il_net_prot_t;
 
 /** Network initialization options. */

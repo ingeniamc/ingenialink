@@ -55,6 +55,10 @@ il_servo_t *il_servo_create(il_net_t *net, uint16_t id, const char *dict)
 	case IL_NET_PROT_MCB:
 		return il_mcb_servo_ops.create(net, id, dict);
 #endif
+#ifdef IL_HAS_PROT_VIRTUAL
+	case IL_NET_PROT_VIRTUAL:
+		return il_virtual_servo_ops.create(net, id, dict);
+#endif
 	default:
 		ilerr__set("Unsupported network protocol");
 		return NULL;
