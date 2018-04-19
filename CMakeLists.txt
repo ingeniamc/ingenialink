@@ -46,11 +46,12 @@ endif()
 #-------------------------------------------------------------------------------
 # Build options
 
-option(WITH_EXAMPLES    "Build library usage example apps"                  OFF)
-option(WITH_DOCS        "Build library public API documentation"            OFF)
-option(WITH_PIC         "Generate position independent code"                OFF)
-option(WITH_PROT_EUSB   "Build with EUSB protocol support"                   ON)
-option(WITH_PROT_MCB    "Build with MCB protocol support (EXPERIMENTAL)"    OFF)
+option(WITH_EXAMPLES     "Build library usage example apps"                   OFF)
+option(WITH_DOCS         "Build library public API documentation"             OFF)
+option(WITH_PIC          "Generate position independent code"                 OFF)
+option(WITH_PROT_EUSB    "Build with EUSB protocol support"                    ON)
+option(WITH_PROT_MCB     "Build with MCB protocol support (EXPERIMENTAL)"     OFF)
+option(WITH_PROT_VIRTUAL "Build with Virtual protocol support (EXPERIMENTAL)" OFF)
 
 # Build a shared library by default
 if(NOT DEFINED BUILD_SHARED_LIBS)
@@ -105,6 +106,13 @@ if(WITH_PROT_MCB)
   )
 endif()
 
+if(WITH_PROT_VIRTUAL)
+  list(APPEND ingenialink_srcs
+    ingenialink/virtual/net.c
+    ingenialink/virtual/servo.c
+  )
+endif()
+
 # Sources (osal)
 if(UNIX)
   list(APPEND ingenialink_srcs
@@ -153,6 +161,10 @@ endif()
 
 if(WITH_PROT_MCB)
   target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_MCB)
+endif()
+
+if(WITH_PROT_VIRTUAL)
+  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_VIRTUAL)
 endif()
 
 # Dependencies

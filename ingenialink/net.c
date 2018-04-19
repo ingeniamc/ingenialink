@@ -96,6 +96,10 @@ il_net_t *il_net_create(il_net_prot_t prot, const il_net_opts_t *opts)
 	case IL_NET_PROT_MCB:
 		return il_mcb_net_ops.create(opts);
 #endif
+#ifdef IL_HAS_PROT_VIRTUAL
+	case IL_NET_PROT_VIRTUAL:
+		return il_virtual_net_ops.create(opts);
+#endif
 	default:
 		ilerr__set("Unsupported network protocol");
 		return NULL;

@@ -87,8 +87,6 @@ typedef struct il_eusb_net {
 	il_net_t net;
 	/** Reference counter. */
 	il_utils_refcnt_t *refcnt;
-	/** Virtual flag. */
-	int is_virtual;
 	/** Serial communications channel. */
 	ser_t *ser;
 	/** Serial communications options. */
