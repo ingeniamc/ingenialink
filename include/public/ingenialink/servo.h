@@ -361,6 +361,28 @@ IL_EXPORT il_dict_t *il_servo_dict_get(il_servo_t *servo);
 IL_EXPORT int il_servo_dict_load(il_servo_t *servo, const char *dict);
 
 /**
+ * Read all dictionary registers content and put it to the dictionary storage.
+ *
+ * @param [in] servo
+ *	Servo instance.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_dict_storage_read(il_servo_t *servo);
+
+/**
+ * Write current dictionary storage to the servo drive.
+ *
+ * @param [in] servo
+ *	Servo instance.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_dict_storage_write(il_servo_t *servo);
+
+/**
  * Obtain servo name.
  *
  * @param [in] servo

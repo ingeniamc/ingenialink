@@ -89,7 +89,7 @@ typedef enum {
 	IL_REG_PHY_RAD,
 } il_reg_phy_t;
 
-/** Limits. */
+/** Values. */
 typedef union {
 	/** Unsigned 8-bit value. */
 	uint8_t u8;
@@ -107,14 +107,16 @@ typedef union {
 	uint64_t u64;
 	/** Signed 64-bit value. */
 	int64_t s64;
-} il_reg_limit_t;
+	/** Float value. */
+	float flt;
+} il_reg_value_t;
 
 /** Range. */
 typedef struct {
 	/** Minimum. */
-	il_reg_limit_t min;
+	il_reg_value_t min;
 	/** Maximum. */
-	il_reg_limit_t max;
+	il_reg_value_t max;
 } il_reg_range_t;
 
 /** Register. */
@@ -129,6 +131,10 @@ typedef struct {
 	il_reg_phy_t phy;
 	/** Range. */
 	il_reg_range_t range;
+	/** Storage. */
+	il_reg_value_t storage;
+	/** Storage is valid. */
+	int storage_valid;
 	/** Labels dictionary. */
 	il_dict_labels_t *labels;
 	/** Category ID. */

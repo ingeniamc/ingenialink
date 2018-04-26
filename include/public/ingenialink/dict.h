@@ -61,6 +61,19 @@ IL_EXPORT il_dict_t *il_dict_create(const char *dict_f);
 IL_EXPORT void il_dict_destroy(il_dict_t *dict);
 
 /**
+ * Save a dictionary.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ * @param [in] fname
+ *	Output file name/path.
+ *
+ * @return
+ *	0 on success, IL_EFAIL if the dictionary could not be saved.
+ */
+IL_EXPORT int il_dict_save(il_dict_t *dict, const char *fname);
+
+/**
  * Obtain category labels from ID.
  *
  * @param [in] dict
@@ -196,6 +209,21 @@ IL_EXPORT int il_dict_reg_get(il_dict_t *dict, const char *id,
  */
 IL_EXPORT size_t il_dict_reg_cnt(il_dict_t *dict);
 
+/**
+ * Update storage value of a certain register.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ * @param [in] id
+ *	Register ID.
+ * @param [in] storage
+ *	Storage value.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
+					 il_reg_value_t storage);
 /**
  * Obtain the list of register IDs.
  *

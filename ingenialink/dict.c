@@ -24,9 +24,7 @@
 
 #include "dict.h"
 
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include <libxml/xpath.h>
+#include <inttypes.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/utils.h"
@@ -41,6 +39,10 @@ static void xml_error(void *ctx, const char *msg, ...)
 	(void)ctx;
 	(void)msg;
 }
+
+/**
+ * Parse storage.
+ */
 
 /**
  * Parse labels.
@@ -315,6 +317,49 @@ static int get_dtype(const char *name, il_reg_dtype_t *dtype)
 }
 
 /**
+ * Parse storage value.
+ *
+ * @param [in] value
+ *	Storage value.
+ * @param [out] reg
+ *	Register.
+ */
+static void get_storage(const char *value, il_reg_t *reg)
+{
+	switch (reg->dtype) {
+	case IL_REG_DTYPE_U8:
+		reg->storage.u8 = (uint8_t)strtoul(value, NULL, 0);
+		break;
+	case IL_REG_DTYPE_S8:
+		reg->storage.s8 = (int8_t)strtol(value, NULL, 0);
+		break;
+	case IL_REG_DTYPE_U16:
+		reg->storage.u16 = (uint16_t)strtol(value, NULL, 0);
+		break;
+	case IL_REG_DTYPE_S16:
+		reg->storage.s16 = (int16_t)strtoul(value, NULL, 0);
+		break;
+	case IL_REG_DTYPE_U32:
+		reg->storage.u32 = (uint32_t)strtoul(value, NULL, 0);
+		break;
+	case IL_REG_DTYPE_S32:
+		reg->storage.s32 = (int32_t)strtol(value, NULL, 0);
+		break;
+	case IL_REG_DTYPE_U64:
+		reg->storage.u64 = (uint64_t)strtoull(value, NULL, 0);
+		break;
+	case IL_REG_DTYPE_S64:
+		reg->storage.s64 = (int64_t)strtoll(value, NULL, 0);
+		break;
+	case IL_REG_DTYPE_FLOAT:
+		reg->storage.flt = strtof(value, NULL);
+		break;
+	default:
+		break;
+	}
+}
+
+/**
  * Obtain access type from dictionary name.
  *
  * @param [in] name
@@ -548,9 +593,11 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
-	reg = &kh_val(dict->h_regs, k);
+	/* store XML node (for later editions) */
+	kh_val(dict->h_regs, k).xml_node = node;
 
 	/* initialize register */
+	reg = &kh_val(dict->h_regs, k).reg;
 	reg->labels = NULL;
 	reg->cat_id = NULL;
 
@@ -577,7 +624,7 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 	if (r < 0)
 		return r;
 
-	/* parse: dtype */
+	/* parse: access */
 	param = xmlGetProp(node, (const xmlChar *)"access");
 	if (!param) {
 		ilerr__set("Malformed entry (%s, missing access)", id);
@@ -596,6 +643,16 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 		xmlFree(param);
 	} else {
 		reg->phy = IL_REG_PHY_NONE;
+	}
+
+	/* parse: storage (optional) */
+	param = xmlGetProp(node, (const xmlChar *)"storage");
+	if (param) {
+		get_storage((char *)param, reg);
+		reg->storage_valid = 1;
+		xmlFree(param);
+	} else {
+		reg->storage_valid = 0;
 	}
 
 	/* parse: category ID (optional) */
@@ -674,8 +731,6 @@ il_dict_t *il_dict_create(const char *dict_f)
 
 	il_dict_t *dict;
 
-	xmlParserCtxtPtr ctxt;
-	xmlDocPtr doc;
 	xmlXPathContextPtr xpath;
 	xmlXPathObjectPtr obj_cats, obj_regs;
 	xmlNodePtr root;
@@ -707,40 +762,43 @@ il_dict_t *il_dict_create(const char *dict_f)
 	xmlSetGenericErrorFunc(NULL, xml_error);
 
 	/* initialize parser context and parse dictionary */
-	ctxt = xmlNewParserCtxt();
-	if (!ctxt) {
+	dict->xml_ctxt = xmlNewParserCtxt();
+	if (!dict->xml_ctxt) {
 		ilerr__set("XML context allocation failed");
 		r = IL_EFAIL;
 		goto cleanup_h_regs;
 	}
 
-	doc = xmlCtxtReadFile(ctxt, dict_f, NULL, 0);
-	if (!doc) {
-		ilerr__set("xml: %s", xmlCtxtGetLastError(ctxt)->message);
+	dict->xml_doc = xmlCtxtReadFile(dict->xml_ctxt, dict_f, NULL, 0);
+	if (!dict->xml_doc) {
+		ilerr__set("xml: %s",
+			   xmlCtxtGetLastError(dict->xml_ctxt)->message);
 		r = IL_EFAIL;
-		goto cleanup_ctxt;
+		goto cleanup_xml_ctxt;
 	}
 
 	/* verify root */
-	root = xmlDocGetRootElement(doc);
+	root = xmlDocGetRootElement(dict->xml_doc);
 	if (xmlStrcmp(root->name, (const xmlChar *)ROOT_NAME) != 0) {
 		ilerr__set("Unsupported dictionary format");
 		r = IL_EFAIL;
-		goto cleanup_doc;
+		goto cleanup_xml_doc;
 	}
 
 	/* create a new XPath context */
-	xpath = xmlXPathNewContext(doc);
+	xpath = xmlXPathNewContext(dict->xml_doc);
 	if (!xpath) {
-		ilerr__set("xml: %s", xmlCtxtGetLastError(ctxt)->message);
+		ilerr__set("xml: %s",
+			   xmlCtxtGetLastError(dict->xml_ctxt)->message);
 		r = IL_EFAIL;
-		goto cleanup_doc;
+		goto cleanup_xml_doc;
 	}
 
 	/* evaluate XPath for categories */
 	obj_cats = xmlXPathEvalExpression((const xmlChar *)XPATH_CATS, xpath);
 	if (!obj_cats) {
-		ilerr__set("xml: %s", xmlCtxtGetLastError(ctxt)->message);
+		ilerr__set("xml: %s",
+			   xmlCtxtGetLastError(dict->xml_ctxt)->message);
 		r = IL_EFAIL;
 		goto cleanup_xpath;
 	}
@@ -757,7 +815,8 @@ il_dict_t *il_dict_create(const char *dict_f)
 	/* evaluate XPath for registers */
 	obj_regs = xmlXPathEvalExpression((const xmlChar *)XPATH_REGS, xpath);
 	if (!obj_regs) {
-		ilerr__set("xml: %s", xmlCtxtGetLastError(ctxt)->message);
+		ilerr__set("xml: %s",
+			   xmlCtxtGetLastError(dict->xml_ctxt)->message);
 		r = IL_EFAIL;
 		goto cleanup_h_cats;
 	}
@@ -781,7 +840,7 @@ cleanup_h_regs_entries:
 		if (kh_exist(dict->h_regs, k)) {
 			il_reg_t *reg;
 
-			reg = &kh_value(dict->h_regs, k);
+			reg = &kh_value(dict->h_regs, k).reg;
 			if (reg->cat_id)
 				free((char *)reg->cat_id);
 			if (reg->scat_id)
@@ -836,11 +895,13 @@ cleanup_h_cats_entries:
 cleanup_xpath:
 	xmlXPathFreeContext(xpath);
 
-cleanup_doc:
-	xmlFreeDoc(doc);
+cleanup_xml_doc:
+	if (r < 0)
+		xmlFreeDoc(dict->xml_doc);
 
-cleanup_ctxt:
-	xmlFreeParserCtxt(ctxt);
+cleanup_xml_ctxt:
+	if (r < 0)
+		xmlFreeParserCtxt(dict->xml_ctxt);
 
 cleanup_h_regs:
 	if (r < 0)
@@ -867,7 +928,7 @@ void il_dict_destroy(il_dict_t *dict)
 		if (kh_exist(dict->h_regs, k)) {
 			il_reg_t *reg;
 
-			reg = &kh_value(dict->h_regs, k);
+			reg = &kh_value(dict->h_regs, k).reg;
 			if (reg->cat_id)
 				free((char *)reg->cat_id);
 			if (reg->scat_id)
@@ -918,7 +979,21 @@ void il_dict_destroy(il_dict_t *dict)
 
 	kh_destroy(cat_id, dict->h_cats);
 
+	xmlFreeDoc(dict->xml_doc);
+	xmlFreeParserCtxt(dict->xml_ctxt);
+
 	free(dict);
+}
+
+int il_dict_save(il_dict_t *dict, const char *fname)
+{
+	if (xmlSaveFile(fname, dict->xml_doc) < 0) {
+		ilerr__set("xml: %s",
+			   xmlCtxtGetLastError(dict->xml_ctxt)->message);
+		return IL_EFAIL;
+	}
+
+	return 0;
 }
 
 int il_dict_cat_get(il_dict_t *dict, const char *cat_id,
@@ -1065,7 +1140,7 @@ int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
 		return IL_EFAIL;
 	}
 
-	*reg = (const il_reg_t *)&kh_value(dict->h_regs, k);
+	*reg = (const il_reg_t *)&kh_value(dict->h_regs, k).reg;
 
 	return 0;
 }
@@ -1073,6 +1148,65 @@ int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
 size_t il_dict_reg_cnt(il_dict_t *dict)
 {
 	return (size_t)kh_size(dict->h_regs);
+}
+
+int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
+			       il_reg_value_t storage)
+{
+	khint_t k;
+	char value[NUM_STR_LEN];
+	il_reg_t *reg;
+	xmlNodePtr node;
+
+	k = kh_get(reg_id, dict->h_regs, id);
+	if (k == kh_end(dict->h_regs)) {
+		ilerr__set("Register not found (%s)", id);
+		return IL_EFAIL;
+	}
+
+	/* update register */
+	reg = &kh_value(dict->h_regs, k).reg;
+	reg->storage = storage;
+	reg->storage_valid = 1;
+
+	/* update XML node */
+	switch (reg->dtype) {
+	case IL_REG_DTYPE_U8:
+		snprintf(value, sizeof(value), "%" PRIu8, storage.u8);
+		break;
+	case IL_REG_DTYPE_S8:
+		snprintf(value, sizeof(value), "%" PRId8, storage.s8);
+		break;
+	case IL_REG_DTYPE_U16:
+		snprintf(value, sizeof(value), "%" PRIu16, storage.u16);
+		break;
+	case IL_REG_DTYPE_S16:
+		snprintf(value, sizeof(value), "%" PRId16, storage.s16);
+		break;
+	case IL_REG_DTYPE_U32:
+		snprintf(value, sizeof(value), "%" PRIu32, storage.u32);
+		break;
+	case IL_REG_DTYPE_S32:
+		snprintf(value, sizeof(value), "%" PRId32, storage.s32);
+		break;
+	case IL_REG_DTYPE_U64:
+		snprintf(value, sizeof(value), "%" PRIu64, storage.u64);
+		break;
+	case IL_REG_DTYPE_S64:
+		snprintf(value, sizeof(value), "%" PRId64, storage.s64);
+		break;
+	case IL_REG_DTYPE_FLOAT:
+		snprintf(value, sizeof(value), "%f", storage.flt);
+		break;
+	default:
+		break;
+	}
+
+	node = kh_value(dict->h_regs, k).xml_node;
+	(void)xmlSetProp(node, (const xmlChar *)"storage",
+			 (const xmlChar *)value);
+
+	return 0;
 }
 
 const char **il_dict_reg_ids_get(il_dict_t *dict)
