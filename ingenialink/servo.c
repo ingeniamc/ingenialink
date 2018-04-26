@@ -110,8 +110,8 @@ il_dict_t *il_servo_dict_get(il_servo_t *servo)
 int il_servo_dict_load(il_servo_t *servo, const char *dict)
 {
 	if (servo->dict) {
-		ilerr__set("Dictionary already loaded");
-		return IL_EALREADY;
+		il_dict_destroy(servo->dict);
+		servo->dict = NULL;
 	}
 
 	servo->dict = il_dict_create(dict);

@@ -36,7 +36,9 @@ struct il_poller {
 	/** Number of channels. */
 	size_t n_ch;
 	/** Mapped registers to each channel. */
-	const il_reg_t **mappings;
+	il_reg_t *mappings;
+	/** Mappings validity. */
+	int *mappings_valid;
 	/** Acquisition (uses double buffering mechanism). */
 	il_poller_acq_t acq[2];
 	/** Current acquisition. */

@@ -132,11 +132,11 @@ static int acquisition(void *args)
 
 	/* obtain units factors */
 	for (ch = 0; ch < IL_MONITOR_CH_NUM; ch++) {
-		if (!monitor->mappings[ch])
+		if (!monitor->mappings_valid[ch])
 			continue;
 
 		scalings[ch] = il_servo_units_factor(monitor->servo,
-						     monitor->mappings[ch]);
+						     &monitor->mappings[ch]);
 	}
 
 	/* acquire */
@@ -184,7 +184,7 @@ static int acquisition(void *args)
 			for (ch = 0; ch < IL_MONITOR_CH_NUM; ch++) {
 				int32_t value;
 
-				if (!monitor->mappings[ch])
+				if (!monitor->mappings_valid[ch])
 					continue;
 
 				r = il_servo_raw_read_s32(monitor->servo,
@@ -257,7 +257,7 @@ static int update_buffers(il_monitor_t *monitor)
 		il_monitor_acq_t *acq = &monitor->acq.acq[i];
 
 		for (ch = 0; ch < IL_MONITOR_CH_NUM; ch++) {
-			if (!monitor->mappings[ch]) {
+			if (!monitor->mappings_valid[ch]) {
 				if (acq->d[ch]) {
 					free(acq->d[ch]);
 					acq->d[ch] = NULL;
@@ -532,7 +532,9 @@ int il_monitor_ch_configure(il_monitor_t *monitor, int ch, const il_reg_t *reg,
 	if (r < 0)
 		return r;
 
-	monitor->mappings[ch] = reg_;
+	/* keep a copy of the register */
+	memcpy(&monitor->mappings[ch], reg_, sizeof(*reg));
+	monitor->mappings_valid[ch] = 1;
 
 	return update_buffers(monitor);
 }
@@ -555,7 +557,7 @@ int il_monitor_ch_disable(il_monitor_t *monitor, int ch)
 	if (r < 0)
 		return r;
 
-	monitor->mappings[ch] = NULL;
+	monitor->mappings_valid[ch] = 0;
 
 	return update_buffers(monitor);
 }
