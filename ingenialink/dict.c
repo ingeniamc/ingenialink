@@ -600,6 +600,7 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 	reg = &kh_val(dict->h_regs, k).reg;
 	reg->labels = NULL;
 	reg->cat_id = NULL;
+	reg->identifier = id;
 
 	/* parse: address */
 	param = xmlGetProp(node, (const xmlChar *)"address");
