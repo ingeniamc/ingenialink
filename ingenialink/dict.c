@@ -579,13 +579,8 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 	il_reg_t *reg;
 	xmlChar *id, *param;
 
-	/* initialize register */
-	reg = &kh_val(dict->h_regs, k).reg;
-
 	/* parse: id (required), insert to hash table */
 	id = xmlGetProp(node, (const xmlChar *)"id");
-	reg->identifier = id;
-
 	if (!id) {
 		ilerr__set("Malformed entry (id missing)");
 		return IL_EFAIL;
@@ -601,9 +596,11 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 	/* store XML node (for later editions) */
 	kh_val(dict->h_regs, k).xml_node = node;
 
+	/* initialize register */
+	reg = &kh_val(dict->h_regs, k).reg;
 	reg->labels = NULL;
 	reg->cat_id = NULL;
-	
+	reg->identifier = (char *)id;
 
 	/* parse: address */
 	param = xmlGetProp(node, (const xmlChar *)"address");
