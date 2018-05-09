@@ -121,6 +121,8 @@ typedef struct {
 
 /** Register. */
 typedef struct {
+	/** Identifier. */
+	const char *identifier;
 	/** Address. */
 	uint32_t address;
 	/** Data type. */
