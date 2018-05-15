@@ -999,9 +999,11 @@ int il_servo_base__raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
 	if (r < 0)
 		return r;
 
-	if ((val < reg->range.min.u8) || (val > reg->range.max.u8)) {
-		ilerr__set("Value out of range");
-		return IL_EINVAL;
+	if (reg != NULL) {
+		if ((val < reg->range.min.u8) || (val > reg->range.max.u8)) {
+			ilerr__set("Value out of range");
+			return IL_EINVAL;
+		}
 	}
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U8, &val, sizeof(val),
@@ -1018,9 +1020,11 @@ int il_servo_base__raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
 	if (r < 0)
 		return r;
 
-	if ((val < reg->range.min.s8) || (val > reg->range.max.s8)) {
-		ilerr__set("Value out of range");
-		return IL_EINVAL;
+	if (reg != NULL) {
+		if ((val < reg->range.min.s8) || (val > reg->range.max.s8)) {
+			ilerr__set("Value out of range");
+			return IL_EINVAL;
+		}
 	}
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S8, &val, sizeof(val),
@@ -1038,10 +1042,13 @@ int il_servo_base__raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
 	if (r < 0)
 		return r;
 
-	if ((val < reg->range.min.u16) || (val > reg->range.max.u16)) {
-		ilerr__set("Value out of range");
-		return IL_EINVAL;
+	if (reg != NULL) {
+		if ((val < reg->range.min.u16) || (val > reg->range.max.u16)) {
+			ilerr__set("Value out of range");
+			return IL_EINVAL;
+		}
 	}
+	
 
 	val_ = __swap_be_16(val);
 
@@ -1060,9 +1067,11 @@ int il_servo_base__raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
 	if (r < 0)
 		return r;
 
-	if ((val < reg->range.min.s16) || (val > reg->range.max.s16)) {
-		ilerr__set("Value out of range");
-		return IL_EINVAL;
+	if (reg != NULL) {
+		if ((val < reg->range.min.s16) || (val > reg->range.max.s16)) {
+			ilerr__set("Value out of range");
+			return IL_EINVAL;
+		}
 	}
 
 	val_ = (int16_t)__swap_be_16(val);
@@ -1082,9 +1091,11 @@ int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
 	if (r < 0)
 		return r;
 
-	if ((val < reg->range.min.u32) || (val > reg->range.max.u32)) {
-		ilerr__set("Value out of range");
-		return IL_EINVAL;
+	if (reg != NULL) {
+		if ((val < reg->range.min.u32) || (val > reg->range.max.u32)) {
+			ilerr__set("Value out of range");
+			return IL_EINVAL;
+		}
 	}
 
 	val_ = __swap_be_32(val);
@@ -1104,9 +1115,11 @@ int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
 	if (r < 0)
 		return r;
 
-	if ((val < reg->range.min.s32) || (val > reg->range.max.s32)) {
-		ilerr__set("Value out of range");
-		return IL_EINVAL;
+	if (reg != NULL) {
+		if ((val < reg->range.min.s32) || (val > reg->range.max.s32)) {
+			ilerr__set("Value out of range");
+			return IL_EINVAL;
+		}
 	}
 
 	val_ = (int32_t)__swap_be_32(val);
@@ -1126,9 +1139,11 @@ int il_servo_base__raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
 	if (r < 0)
 		return r;
 
-	if ((val < reg->range.min.u64) || (val > reg->range.max.u64)) {
-		ilerr__set("Value out of range");
-		return IL_EINVAL;
+	if (reg != NULL) {
+		if ((val < reg->range.min.u64) || (val > reg->range.max.u64)) {
+			ilerr__set("Value out of range");
+			return IL_EINVAL;
+		}
 	}
 
 	val_ = __swap_be_64(val);
@@ -1148,9 +1163,11 @@ int il_servo_base__raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
 	if (r < 0)
 		return r;
 
-	if ((val < reg->range.min.s64) || (val > reg->range.max.s64)) {
-		ilerr__set("Value out of range");
-		return IL_EINVAL;
+	if (reg != NULL) {
+		if ((val < reg->range.min.s64) || (val > reg->range.max.s64)) {
+			ilerr__set("Value out of range");
+			return IL_EINVAL;
+		}
 	}
 
 	val_ = (int64_t)__swap_be_64(val);

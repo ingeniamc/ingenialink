@@ -260,7 +260,7 @@ int il_servo_dict_storage_write(il_servo_t *servo)
 		}
 
 		if (r < 0)
-			goto cleanup_ids;
+			continue;
 	}
 
 cleanup_ids:
