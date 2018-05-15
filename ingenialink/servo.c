@@ -134,11 +134,10 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 	ids = il_dict_reg_ids_get(servo->dict);
 	if (!ids)
 		return IL_EFAIL;
-
-	for (size_t i = 0; ids[i]; i++) {
+		
+	for (size_t i = 0; i < ids[i]; i++) {
 		const il_reg_t *reg;
 		il_reg_value_t storage;
-
 		(void)il_dict_reg_get(servo->dict, ids[i], &reg);
 
 		if (reg->access != IL_REG_ACCESS_RW)
@@ -186,7 +185,7 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 		}
 
 		if (r < 0)
-			goto cleanup_ids;
+			continue;
 
 		(void)il_dict_reg_storage_update(servo->dict, ids[i], storage);
 	}
