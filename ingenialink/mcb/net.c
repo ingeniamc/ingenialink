@@ -35,8 +35,10 @@
 /*******************************************************************************
  * Private
  ******************************************************************************/
+
 bool crc_tabccitt_init = false;
 uint16_t crc_tabccitt[256];
+
 /**
  * Compute CRC of the given buffer.
  *
@@ -48,7 +50,6 @@ uint16_t crc_tabccitt[256];
  * @return
  *	CRC.
  */
-
 static void init_crcccitt_tab( void ) {
 
 	uint16_t i;
@@ -57,29 +58,21 @@ static void init_crcccitt_tab( void ) {
 	uint16_t c;
 
 	for (i=0; i<256; i++) {
-
 		crc = 0;
 		c   = i << 8;
-
 		for (j=0; j<8; j++) {
-
 			if ( (crc ^ c) & 0x8000 ) crc = ( crc << 1 ) ^ 0x1021;
-			else                      crc =   crc << 1;
-
+			else crc =   crc << 1;
 			c = c << 1;
 		}
-
 		crc_tabccitt[i] = crc;
 	}
-
 	crc_tabccitt_init = true;
-
 }
 
 static uint16_t update_crc_ccitt( uint16_t crc, unsigned char c ) {
 
 	if ( ! crc_tabccitt_init ) init_crcccitt_tab();
-
 	return (crc << 8) ^ crc_tabccitt[ ((crc >> 8) ^ (uint16_t) c) & 0x00FF ];
 
 } 
@@ -89,21 +82,13 @@ static uint16_t crc_calc(const uint16_t *buf, uint16_t u16Sz)
 	
 	uint16_t crc = 0x0000;
     uint8_t* pu8In = (uint8_t*) buf;
-
-    for (uint16_t u16Idx = 0; u16Idx < u16Sz * 2; u16Idx++)
+    
+	for (uint16_t u16Idx = 0; u16Idx < u16Sz * 2; u16Idx++)
     {
         crc = update_crc_ccitt(crc, pu8In[u16Idx]);
     }
-
     return crc;
 }
-
-// union
-// {
-// 	uint64_t u64data,
-// 	uint16_t u16data[4]
-// } test;
-
 
 
 typedef union
@@ -130,98 +115,31 @@ static int net_send(il_mcb_net_t *this, uint16_t address, const void *data,
 		size_t chunk_sz;
 
 		/* header */
-		// pending = (pending_sz > MCB_CFG_DATA_SZ) ? 1 : 0;
+		// pending = (pending_sz > MCB_CFG_DATA_SZ) ? 1 : 0; // Not used right now
 		pending = 0;
 
-		// hdr = (address << MCB_ADDR_POS) | (cmd << MCB_CMD_POS) |
-		//        (pending << MCB_PENDING_POS);
 		hdr_h = (MCB_SUBNODE_MOCO << 12) | (MCB_NODE_DFLT);
 		*(uint16_t *)&frame[MCB_HDR_H_POS] = hdr_h;
 		hdr_l = (address << 4) | (cmd << 1) | (pending);
 		*(uint16_t *)&frame[MCB_HDR_L_POS] = hdr_l;
 
 		/* cfg_data */
-		//uint64_t d = data;
-		//uint64_t d = fnct();
-		//uint64_t d = (uint64_t)data;
 		uint64_t d = 0;
 		if (sz > 0) {
 			memcpy(&d, data, sz);
-			printf("data %x\n", d);
 		}
 		UINT_UNION_T u = { .u64 = d };
 		memcpy(&frame[MCB_DATA_POS], &u.u16[0], 8);
-		/*frame[MCB_CFG_DATA_POS] = u.u16[0];
-		frame[MCB_CFG_DATA_POS + 1] = u.u16[1];
-		frame[MCB_CFG_DATA_POS + 2] = u.u16[2];
-		frame[MCB_CFG_DATA_POS + 3] = u.u16[3];*/
-		
-		//frame[MCB_CFG_DATA_POS] = d;
-		
-
-		//frame[MCB_CFG_DATA_POS] = data;
-		// test d = (test)data;
-
-		//
-
-		/*data.u64data
-
-		data.u16data[0] =
-		data.u16data[0] =*/
-
-		/*memset(&frame[MCB_DATA_POS + 2], 0, MCB_DATA_SZ - chunk_sz);*/
-		/*frame[MCB_CFG_DATA_POS] = 0x0000;
-		frame[MCB_CFG_DATA_POS + 1] = 0x0000;
-		frame[MCB_CFG_DATA_POS + 2] = 0x0000;
-		frame[MCB_CFG_DATA_POS + 3] = 0x0000;*/
-
-
-
-		// *(uint16_t *)&frame[MCB_HDR_L_POS] = hdr_l;
-
-		/* data */
-		// chunk_sz = MIN(pending_sz, MCB_DATA_SZ);
-		// if (chunk_sz)
-		// 	memcpy(&frame[MCB_DATA_POS], data, chunk_sz);
-
-		// memset(&frame[MCB_DATA_POS + chunk_sz], 0,
-		//        MCB_DATA_SZ - chunk_sz);
-
-		// il_mcb_frame__swap(frame, sizeof(frame));
-
-		// /* crc */
-		// crc = crc_calc(frame, MCB_PAYLOAD_SZ);
-		// *(uint16_t *)&frame[MCB_CRC_H] = __swap_le_16(crc);
-
-		// /* send frame */
-		// r = ser_write(this->ser, frame, sizeof(frame), NULL);
-		// if (r < 0)
-		// 	return ilerr__ser(r);
 		
 		/* crc */
 		crc = crc_calc(frame, MCB_CRC_POS);
 		frame[MCB_CRC_POS] = crc;
-		// *(uint16_t *)&frame[MCB_CRC_H] = __swap_le_16(crc);
-		
-		printf("net_send: \n");
-		int i;
-		for (i=0; i < 7; i++) {
-			printf("%x\n", frame[i]);
-		}
-		printf("end\n");
-		printf("%x\n", crc);
 
-		
 		/* send frame */
 		r = ser_write(this->ser, frame, sizeof(frame), NULL);
 		if (r < 0)
 			return ilerr__ser(r);
 		finished = 1;
-
-		/* update pending */
-		// pending_sz -= chunk_sz;
-		// if (!pending_sz)
-		// 	finished = 1;
 	}
 
 	return 0;
@@ -258,14 +176,11 @@ static int net_recv(il_mcb_net_t *this, uint16_t address, uint8_t *buf,
 
 		/* process frame: validate CRC, address, ACK */
 		crc = *(uint16_t *)&frame[6];
-		//crc = __swap_le_16(crc);
 		uint16_t crc_res = crc_calc((uint16_t *)frame, 6);
 		if (crc_res != crc) {
 			ilerr__set("Communications error (CRC mismatch)");
 			return IL_EIO;
 		}
-
-		//il_mcb_frame__swap(frame, sizeof(frame));
 
 		hdr_l = *(uint16_t *)&frame[MCB_HDR_L_POS];
 		int cmd = (hdr_l & MCB_CMD_MSK) >> MCB_CMD_POS;
@@ -284,36 +199,7 @@ static int net_recv(il_mcb_net_t *this, uint16_t address, uint8_t *buf,
 			size_t data_sz;
 			data_sz = 8;	// bytes
 			memcpy(buf, &(frame[MCB_DATA_POS]), data_sz);
-			printf("GAS");
 		}
-
-		// if (((hdr & MCB_ADDR_MSK) >> MCB_ADDR_POS) != address) {
-		// 	ilerr__set("Communications error (bad address)");
-		// 	return IL_EIO;
-		// }
-
-		// if (!pending_sz) {
-		// 	finished = 1;
-		// } else {
-		// 	size_t data_sz;
-
-		// 	/* store data */
-		// 	data_sz = MIN(pending_sz, MCB_DATA_SZ);
-		// 	memcpy(buf, &frame[MCB_DATA_POS], data_sz);
-		// 	buf += data_sz;
-
-		// 	/* update pending size */
-		// 	pending_sz -= data_sz;
-		// 	if (!pending_sz) {
-		// 		if (hdr & MCB_PENDING_MSK) {
-		// 			ilerr__set("Unexpected pending data");
-		// 			return IL_EIO;
-		// 		}
-
-		// 		finished = 1;
-		// 	}
-		// }
-	/*}*/
 
 	return 0;
 }
