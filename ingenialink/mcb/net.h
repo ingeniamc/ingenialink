@@ -40,6 +40,7 @@
 /** Vendor ID register address. */
 #define VENDOR_ID_ADDR		0x0010
 
+
 /** MCB network. */
 typedef struct il_mcb_net {
 	/** Network (parent). */
