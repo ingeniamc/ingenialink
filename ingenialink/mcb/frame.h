@@ -30,15 +30,41 @@
 /** MCB frame CRC polynomial (16-CCITT). */
 #define MCB_CRC_POLY	0x1021
 
-/** MCB frame size (bytes). */
-#define MCB_FRAME_SZ	12
+/** MCB frame size (words). */
+#define MCB_FRAME_SZ	7
 
-/** MCB frame header high byte position. */
-#define MCB_HDR_H	0
-/** MCB frame header low byte position. */
-#define MCB_HDR_L	1
-/** MCB frame header size (bytes). */
+/** MCB Header */
+/** MCB frame header high word position. */
+#define MCB_HDR_H_POS	0
+/** MCB frame header low word position. */
+#define MCB_HDR_L_POS	1
+/** MCB frame header high size (words). */
+#define MCB_HDR_H_SZ	1
+/** MCB frame header high size (words). */
+#define MCB_HDR_L_SZ	1
+/** MCB frame header size (words). */
 #define MCB_HDR_SZ	2
+
+/** MCB Config Data */
+/** MCB frame config data first word position. */
+#define MCB_CFG_DATA_POS	2
+/** MCB frame config data size (words). */
+#define MCB_CFG_DATA_SZ 4
+
+/* MCB CRC */
+/** MCB frame crc first word position. */
+#define MCB_CRC_POS 6
+/** MCB frame CRC size (words). */
+#define MCB_CRC_SZ 1
+
+/** MCB COCO Subnode value */
+#define MCB_SUBNODE_COCO    0
+/** MCB MOCO Subnode value */
+#define MCB_SUBNODE_MOCO    2   
+
+/** MCB default node */
+#define MCB_NODE_DFLT   0x00A
+
 
 /** MCB frame header, pending bit */
 #define MCB_PENDING	1
