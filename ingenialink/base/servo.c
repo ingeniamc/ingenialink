@@ -983,8 +983,9 @@ int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	if (r < 0)
 		return r;
 
-	/* store converted value to buffer */
-	*buf = buf_ * il_servo_units_factor(servo, reg_);
+	/* store converted value to buffer: NOT used right now */
+	//*buf = buf_ * il_servo_units_factor(servo, reg_);
+	*buf = buf_;
 
 	return 0;
 }
@@ -1206,8 +1207,9 @@ int il_servo_base__write(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	if (r < 0)
 		return r;
 
-	/* convert to native units */
-	val_ = val / il_servo_units_factor(servo, reg_);
+	/* convert to native units: NOT used right now */
+	/*val_ = val / il_servo_units_factor(servo, reg_);*/
+	val_ = val;
 
 	/* write using the appropriate native type */
 	switch (reg_->dtype) {
