@@ -38,7 +38,7 @@
 #define BAUDRATE_DEF		115200
 
 /** Default read timeout. */
-#define READ_TIMEOUT_DEF	1000
+#define READ_TIMEOUT_DEF	2000
 
 /** Vendor ID register address. */
 #define VENDOR_ID_ADDR		0x0010
