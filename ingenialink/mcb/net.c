@@ -155,13 +155,14 @@ static int net_recv(il_mcb_net_t *this, uint16_t address, uint8_t *buf,
 		uint16_t frame[7];
 		size_t block_sz = 0;
 		uint16_t crc, hdr_l;
+		uint8_t *pBuf = (uint8_t*) &frame;
 
 		/* read next frame */
-		while (block_sz < 7) {
+		while (block_sz < 14) {
 			int r;
 			size_t chunk_sz;
-
-			r = ser_read(this->ser, &frame[block_sz],
+			
+			r = ser_read(this->ser, pBuf,
 				     sizeof(frame) - block_sz, &chunk_sz);
 			if (r == SER_EEMPTY) {
 				r = ser_read_wait(this->ser);
@@ -171,6 +172,7 @@ static int net_recv(il_mcb_net_t *this, uint16_t address, uint8_t *buf,
 				return ilerr__ser(r);
 			} else {
 				block_sz += chunk_sz;
+				pBuf += block_sz;
 			}
 		}
 
