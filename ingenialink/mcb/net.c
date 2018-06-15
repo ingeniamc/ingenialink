@@ -28,6 +28,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <windows.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
@@ -157,6 +158,7 @@ static int net_recv(il_mcb_net_t *this, uint16_t address, uint8_t *buf,
 		uint16_t crc, hdr_l;
 		uint8_t *pBuf = (uint8_t*) &frame;
 
+		Sleep(5);
 		/* read next frame */
 		while (block_sz < 14) {
 			int r;
@@ -343,7 +345,7 @@ static il_net_t *il_mcb_net_create(const il_net_opts_t *opts)
 	/* open serial port */
 	this->sopts.port = il_net_port_get(&this->net);
 	this->sopts.baudrate = BAUDRATE_DEF;
-	this->sopts.timeouts.rd = READ_TIMEOUT_DEF;
+	this->sopts.timeouts.rd = opts->timeout_rd;
 	this->sopts.timeouts.wr = opts->timeout_wr;
 
 	r = il_net_connect(&this->net);
