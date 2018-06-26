@@ -63,7 +63,7 @@
 #define MCB_SUBNODE_MOCO    2   
 
 /** MCB default node */
-#define MCB_NODE_DFLT   0x00A
+#define MCB_NODE_DFLT   0xA
 
 
 /** MCB frame header, pending bit */

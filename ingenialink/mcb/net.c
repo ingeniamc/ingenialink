@@ -119,7 +119,8 @@ static int net_send(il_mcb_net_t *this, uint16_t address, const void *data,
 		// pending = (pending_sz > MCB_CFG_DATA_SZ) ? 1 : 0; // Not used right now
 		pending = 0;
 
-		hdr_h = (MCB_SUBNODE_MOCO << 12) | (MCB_NODE_DFLT);
+		// hdr_h = (MCB_SUBNODE_MOCO << 12) | (MCB_NODE_DFLT);
+		hdr_h = (MCB_NODE_DFLT << 4) | (MCB_SUBNODE_MOCO);
 		*(uint16_t *)&frame[MCB_HDR_H_POS] = hdr_h;
 		hdr_l = (address << 4) | (cmd << 1) | (pending);
 		*(uint16_t *)&frame[MCB_HDR_L_POS] = hdr_l;
