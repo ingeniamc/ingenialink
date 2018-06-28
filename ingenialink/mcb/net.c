@@ -98,7 +98,7 @@ typedef union
 	uint16_t u16[4];
 } UINT_UNION_T;
 
-static int net_send(il_mcb_net_t *this, u_char subnode, uint16_t address, const void *data,
+static int net_send(il_mcb_net_t *this, uint8_t subnode, uint16_t address, const void *data,
 		    size_t sz)
 {	
 	int finished = 0;
@@ -147,7 +147,7 @@ static int net_send(il_mcb_net_t *this, u_char subnode, uint16_t address, const 
 	return 0;
 }
 
-static int net_recv(il_mcb_net_t *this, u_char subnode, uint16_t address, uint8_t *buf,
+static int net_recv(il_mcb_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
 		    size_t sz)
 {
 	int finished = 0;
@@ -263,7 +263,7 @@ static void il_mcb_net__release(il_net_t *net)
 	il_utils__refcnt_release(this->refcnt);
 }
 
-static int il_mcb_net__read(il_net_t *net, uint16_t id, u_char subnode, uint32_t address,
+static int il_mcb_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
 			    void *buf, size_t sz)
 {
 	il_mcb_net_t *this = to_mcb_net(net);
@@ -287,7 +287,7 @@ unlock:
 	return r;
 }
 
-static int il_mcb_net__write(il_net_t *net, uint16_t id, u_char subnode, uint32_t address,
+static int il_mcb_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
 			     const void *buf, size_t sz, int confirmed)
 {
 	il_mcb_net_t *this = to_mcb_net(net);

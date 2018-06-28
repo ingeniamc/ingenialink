@@ -47,13 +47,13 @@ void il_net__state_set(il_net_t *net, il_net_state_t state)
 	net->ops->_state_set(net, state);
 }
 
-int il_net__write(il_net_t *net, uint16_t id, char subnode, uint32_t address, const void *buf,
+int il_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, const void *buf,
 		  size_t sz, int confirmed)
 {
 	return net->ops->_write(net, id, subnode, address, buf, sz, confirmed);
 }
 
-int il_net__read(il_net_t *net, uint16_t id, char subnode, uint32_t address, void *buf,
+int il_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, void *buf,
 		 size_t sz)
 {
 	return net->ops->_read(net, id, subnode, address, buf, sz);
