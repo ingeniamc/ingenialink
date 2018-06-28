@@ -123,6 +123,8 @@ typedef struct {
 typedef struct {
 	/** Identifier. */
 	const char *identifier;
+	/** Subnode. */
+	char subnode;
 	/** Address. */
 	uint32_t address;
 	/** Data type. */

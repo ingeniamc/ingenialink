@@ -60,7 +60,7 @@
 /** MCB COCO Subnode value */
 #define MCB_SUBNODE_COCO    0
 /** MCB MOCO Subnode value */
-#define MCB_SUBNODE_MOCO    2   
+#define MCB_SUBNODE_MOCO    1   
 
 /** MCB default node */
 #define MCB_NODE_DFLT   0xA
