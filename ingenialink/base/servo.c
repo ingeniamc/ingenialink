@@ -108,7 +108,7 @@ static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
 		return IL_EACCESS;
 	}
 
-	return il_net__read(servo->net, servo->id, reg->address, buf, sz);
+	return il_net__read(servo->net, servo->id, reg->subnode, reg->address, buf, sz);
 }
 
 /**
@@ -150,7 +150,7 @@ static int raw_write(il_servo_t *servo, const il_reg_t *reg,
 	/* skip confirmation on write-only registers */
 	confirmed_ = (reg->access == IL_REG_ACCESS_WO) ? 0 : confirmed;
 
-	return il_net__write(servo->net, servo->id, reg->address, data, sz,
+	return il_net__write(servo->net, servo->id, reg->subnode, reg->address, data, sz,
 			     confirmed_);
 }
 

@@ -98,7 +98,7 @@ typedef union
 	uint16_t u16[4];
 } UINT_UNION_T;
 
-static int net_send(il_mcb_net_t *this, uint16_t address, const void *data,
+static int net_send(il_mcb_net_t *this, u_char subnode, uint16_t address, const void *data,
 		    size_t sz)
 {	
 	int finished = 0;
@@ -120,7 +120,7 @@ static int net_send(il_mcb_net_t *this, uint16_t address, const void *data,
 		pending = 0;
 
 		// hdr_h = (MCB_SUBNODE_MOCO << 12) | (MCB_NODE_DFLT);
-		hdr_h = (MCB_NODE_DFLT << 4) | (MCB_SUBNODE_MOCO);
+		hdr_h = (MCB_NODE_DFLT << 4) | (subnode);
 		*(uint16_t *)&frame[MCB_HDR_H_POS] = hdr_h;
 		hdr_l = (address << 4) | (cmd << 1) | (pending);
 		*(uint16_t *)&frame[MCB_HDR_L_POS] = hdr_l;
@@ -147,7 +147,7 @@ static int net_send(il_mcb_net_t *this, uint16_t address, const void *data,
 	return 0;
 }
 
-static int net_recv(il_mcb_net_t *this, uint16_t address, uint8_t *buf,
+static int net_recv(il_mcb_net_t *this, u_char subnode, uint16_t address, uint8_t *buf,
 		    size_t sz)
 {
 	int finished = 0;
@@ -187,6 +187,9 @@ static int net_recv(il_mcb_net_t *this, uint16_t address, uint8_t *buf,
 			return IL_EIO;
 		}
 
+		/* TODO: Check subnode */
+
+		/* Check ACK */
 		hdr_l = *(uint16_t *)&frame[MCB_HDR_L_POS];
 		int cmd = (hdr_l & MCB_CMD_MSK) >> MCB_CMD_POS;
 		if (cmd != MCB_CMD_ACK) {
@@ -260,7 +263,7 @@ static void il_mcb_net__release(il_net_t *net)
 	il_utils__refcnt_release(this->refcnt);
 }
 
-static int il_mcb_net__read(il_net_t *net, uint16_t id, uint32_t address,
+static int il_mcb_net__read(il_net_t *net, uint16_t id, u_char subnode, uint32_t address,
 			    void *buf, size_t sz)
 {
 	il_mcb_net_t *this = to_mcb_net(net);
@@ -271,11 +274,11 @@ static int il_mcb_net__read(il_net_t *net, uint16_t id, uint32_t address,
 
 	osal_mutex_lock(this->net.lock);
 	
-	r = net_send(this, (uint16_t)address, NULL, 0);
+	r = net_send(this, subnode, (uint16_t)address, NULL, 0);
 	if (r < 0)
 		goto unlock;
 
-	r = net_recv(this, (uint16_t)address, buf, sz);
+	r = net_recv(this, subnode, (uint16_t)address, buf, sz);
 
 
 unlock:
@@ -284,7 +287,7 @@ unlock:
 	return r;
 }
 
-static int il_mcb_net__write(il_net_t *net, uint16_t id, uint32_t address,
+static int il_mcb_net__write(il_net_t *net, uint16_t id, u_char subnode, uint32_t address,
 			     const void *buf, size_t sz, int confirmed)
 {
 	il_mcb_net_t *this = to_mcb_net(net);
@@ -296,11 +299,11 @@ static int il_mcb_net__write(il_net_t *net, uint16_t id, uint32_t address,
 
 	osal_mutex_lock(this->net.lock);
 
-	r = net_send(this, (uint16_t)address, buf, sz);
+	r = net_send(this, subnode, (uint16_t)address, buf, sz);
 	if (r < 0)
 		goto unlock;
 
-	r = net_recv(this, (uint16_t)address, NULL, 0);
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0);
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -416,7 +419,7 @@ static il_net_servos_list_t *il_mcb_net_servos_list_get(
 	il_net_servos_list_t *lst;
 
 	/* try to read the vendor id register to see if a servo is alive */
-	r = il_net__read(net, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
+	r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 	if (r < 0)
 		return NULL;
 
