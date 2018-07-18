@@ -602,6 +602,11 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 	reg->cat_id = NULL;
 	reg->identifier = (char *)id;
 
+	/* parse: units */
+	xmlChar *units;
+	units = xmlGetProp(node, (const xmlChar *)"units");
+	reg->units = (char *)units;
+
 	/* parse: subnode */
 	param = xmlGetProp(node, (const xmlChar *)"subnode");
 	if (!param) {
