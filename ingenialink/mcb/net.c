@@ -91,6 +91,51 @@ static uint16_t crc_calc(const uint16_t *buf, uint16_t u16Sz)
     return crc;
 }
 
+/**
+ * Process asynchronous statusword messages.
+ *
+ * @param [in] this
+ *	MCB Network.
+ * @param [in] frame
+ *	IngeniaLink frame.
+ */
+// static void process_statusword(il_mcb_net_t *this, uint16_t *frame)
+// {
+// 	uint32_t address;
+
+// 	address = il_eusb_frame__get_address(frame);
+
+// 	if (address == STATUSWORD_ADDRESS) {
+// 		il_net_sw_subscriber_lst_t *subs;
+// 		int i;
+// 		uint8_t id;
+// 		uint16_t sw;
+
+// 		subs = &this->net.sw_subs;
+
+// 		id = il_eusb_frame__get_id(frame);
+// 		sw = __swap_be_16(*(uint16_t *)il_eusb_frame__get_data(frame));
+
+// 		osal_mutex_lock(subs->lock);
+
+// 		for (i = 0; i < subs->sz; i++) {
+// 			if (subs->subs[i].id == id && subs->subs[i].cb) {
+// 				void *ctx;
+
+// 				ctx = subs->subs[i].ctx;
+// 				subs->subs[i].cb(ctx, sw);
+
+// 				break;
+// 			}
+// 		}
+
+// 		osal_mutex_unlock(subs->lock);
+// 	}
+// }
+
+
+
+
 
 typedef union
 {

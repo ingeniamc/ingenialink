@@ -23,11 +23,13 @@
  */
 
 #include "servo.h"
+#include "mc.h"
 
 #include <string.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/servo.h"
+#include "ingenialink/registers.h"
 
 /*******************************************************************************
  * Private
@@ -39,6 +41,148 @@ static int not_supported(void)
 
 	return IL_ENOTSUP;
 }
+
+/**
+ * Obtain the current statusword value.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ *
+ * @return
+ *	Statusword value.
+ */
+static uint16_t sw_get(il_servo_t *servo)
+{
+	uint16_t sw;
+
+	osal_mutex_lock(servo->sw.lock);
+	sw = servo->sw.value;
+	osal_mutex_unlock(servo->sw.lock);
+
+	return sw;
+}
+
+/**
+ * Wait until the statusword changes its value.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [in, out] sw
+ *	Current statusword value, where next value will be stored.
+ * @param [in, out] timeout
+ *	Timeout (ms), if positive will be updated with remaining ms.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
+{
+	int r = 0;
+	osal_timespec_t start = { 0, 0 }, end, diff;
+
+	/* obtain start time */
+	if (*timeout > 0) {
+		if (osal_clock_gettime(&start) < 0) {
+			ilerr__set("Could not obtain system time");
+			return IL_EFAIL;
+		}
+	}
+
+	/* wait for change */
+	osal_mutex_lock(servo->sw.lock);
+
+	if (servo->sw.value == *sw) {
+		r = osal_cond_wait(servo->sw.changed, servo->sw.lock, *timeout);
+		if (r == OSAL_ETIMEDOUT) {
+			ilerr__set("Operation timed out");
+			r = IL_ETIMEDOUT;
+			goto out;
+		} else if (r < 0) {
+			ilerr__set("Statusword wait change failed");
+			r = IL_EFAIL;
+			goto out;
+		}
+	}
+
+	*sw = servo->sw.value;
+
+out:
+	/* update timeout */
+	if ((*timeout > 0) && (r == 0)) {
+		/* obtain end time */
+		if (osal_clock_gettime(&end) < 0) {
+			ilerr__set("Could not obtain system time");
+			r = IL_EFAIL;
+			goto unlock;
+		}
+
+		/* compute difference */
+		if ((end.ns - start.ns) < 0) {
+			diff.s = end.s - start.s - 1;
+			diff.ns = end.ns - start.ns + OSAL_CLOCK_NANOSPERSEC;
+		} else {
+			diff.s = end.s - start.s;
+			diff.ns = end.ns - start.ns;
+		}
+
+		/* update timeout */
+		*timeout -= diff.s * 1000 + diff.ns / OSAL_CLOCK_NANOSPERMSEC;
+		if (*timeout <= 0) {
+			ilerr__set("Operation timed out");
+			r = IL_ETIMEDOUT;
+		}
+	}
+
+unlock:
+	osal_mutex_unlock(servo->sw.lock);
+
+	return r;
+}
+
+/**
+ * Wait until the statusword has the requested value
+ *
+ * @note
+ *	The timeout is not an absolute timeout, but an interval timeout.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [in] msk
+ *	Statusword mask.
+ * @param [in] val
+ *	Statusword value.
+ * @param [in] timeout
+ *	Timeout (ms).
+ */
+static int sw_wait_value(il_servo_t *servo, uint16_t msk, uint16_t val,
+			 int timeout)
+{
+	int r = 0;
+	uint16_t result;
+
+	/* wait until the flag changes to the requested state */
+	osal_mutex_lock(servo->sw.lock);
+
+	do {
+		result = servo->sw.value & msk;
+		if (result != val) {
+			r = osal_cond_wait(servo->sw.changed, servo->sw.lock,
+					   timeout);
+			if (r == OSAL_ETIMEDOUT) {
+				ilerr__set("Operation timed out");
+				r = IL_ETIMEDOUT;
+			} else if (r < 0) {
+				ilerr__set("Statusword wait change failed");
+				r = IL_EFAIL;
+			}
+		}
+	} while ((result != val) && (r == 0));
+
+	osal_mutex_unlock(servo->sw.lock);
+
+	return r;
+}
+
 
 /**
  * Destroy servo instance.
@@ -213,9 +357,39 @@ static double il_mcb_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 
 static int il_mcb_servo_disable(il_servo_t *servo)
 {
-	(void)servo;
+	int r;
+	uint16_t sw;
+	il_servo_state_t state;
+	int timeout = PDS_TIMEOUT;
 
-	return not_supported();
+	sw = sw_get(servo);
+
+	do {
+		servo->ops->_state_decode(sw, &state, NULL);
+
+		/* try fault reset if faulty */
+		if ((state == IL_SERVO_STATE_FAULT) ||
+		    (state == IL_SERVO_STATE_FAULTR)) {
+			r = il_servo_fault_reset(servo);
+			if (r < 0)
+				return r;
+
+			sw = sw_get(servo);
+		/* check state and command action to reach disabled */
+		} else if (state != IL_SERVO_STATE_DISABLED) {
+			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
+						   NULL, IL_MC_PDS_CMD_DV, 1);
+			if (r < 0)
+				return r;
+
+			/* wait until statusword changes */
+			r = sw_wait_change(servo, &sw, &timeout);
+			if (r < 0)
+				return r;
+		}
+	} while (state != IL_SERVO_STATE_DISABLED);
+
+	return 0;
 }
 
 static int il_mcb_servo_switch_on(il_servo_t *servo, int timeout)

@@ -651,7 +651,7 @@ static il_net_servos_list_t *il_eusb_net_servos_list_get(
 	/* QUIRK: ignore first run, as on cold-boot firmware may issue
 	 * improperly formatted binary messages, leading to no servos found.
 	 */
-	r = ser_write(this->ser, frame.buf, frame.sz, NULL);
+	/*r = ser_write(this->ser, frame.buf, frame.sz, NULL);
 	if (r < 0) {
 		ilerr__ser(r);
 		goto sync_unlock;
@@ -666,7 +666,7 @@ static il_net_servos_list_t *il_eusb_net_servos_list_get(
 		else
 			r = osal_cond_wait(this->sync.cond, this->sync.lock,
 					   SCAN_TIMEOUT);
-	}
+	}*/
 
 	/* second try */
 	this->sync.complete = 0;

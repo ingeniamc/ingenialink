@@ -41,7 +41,10 @@
 #define READ_TIMEOUT_DEF	10000
 
 /** Vendor ID register address. */
-#define VENDOR_ID_ADDR		0x0010
+#define VENDOR_ID_ADDR		0x06E0
+
+/** Statusword address. */
+#define STATUSWORD_ADDRESS	0x0010
 
 
 /** MCB network. */
