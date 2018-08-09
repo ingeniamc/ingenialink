@@ -57,6 +57,12 @@ typedef struct il_mcb_net {
 	ser_t *ser;
 	/** Serial communications options. */
 	ser_opts_t sopts;
+	/** Listener thread. */
+	osal_thread_t *listener;
+	/** Listener stop flag. */
+	int stop;
+	/** Synchronous transfers context. */
+	// il_eusb_net_sync_t sync;
 } il_mcb_net_t;
 
 /** MCB network device monitor */

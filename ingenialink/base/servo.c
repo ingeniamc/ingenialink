@@ -249,7 +249,7 @@ static void sw_update(void *ctx, uint16_t sw)
 		servo->sw.value = sw;
 		osal_cond_broadcast(servo->sw.changed);
 	}
-
+	// printf("%d\n", servo->sw.value);
 	osal_mutex_unlock(servo->sw.lock);
 }
 

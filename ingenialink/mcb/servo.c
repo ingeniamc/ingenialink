@@ -57,7 +57,6 @@ static uint16_t sw_get(il_servo_t *servo)
 
 	osal_mutex_lock(servo->sw.lock);
 	sw = servo->sw.value;
-	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
 	osal_mutex_unlock(servo->sw.lock);
 
 	return sw;
@@ -400,7 +399,7 @@ static int il_mcb_servo_disable(il_servo_t *servo)
 			sw = sw_get(servo);
 		/* check state and command action to reach disabled */
 		} else if (state != IL_SERVO_STATE_DISABLED) {
-			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
+			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
 						   NULL, IL_MC_PDS_CMD_DV, 1);
 			if (r < 0)
 				return r;
@@ -417,25 +416,133 @@ static int il_mcb_servo_disable(il_servo_t *servo)
 
 static int il_mcb_servo_switch_on(il_servo_t *servo, int timeout)
 {
-	(void)servo;
-	(void)timeout;
+	int r;
+	uint16_t sw, cmd;
+	il_servo_state_t state;
+	int timeout_ = timeout;
 
-	return not_supported();
+	sw = sw_get(servo);
+
+	do {
+		servo->ops->_state_decode(sw, &state, NULL);
+
+		/* try fault reset if faulty */
+		if ((state == IL_SERVO_STATE_FAULT) ||
+		    (state == IL_SERVO_STATE_FAULTR)) {
+			r = il_servo_fault_reset(servo);
+			if (r < 0)
+				return r;
+
+			sw = sw_get(servo);
+		/* check state and command action to reach switch on */
+		} else if (state != IL_SERVO_STATE_ON) {
+			if (state == IL_SERVO_STATE_NRDY)
+				cmd = IL_MC_PDS_CMD_DV;
+			else if (state == IL_SERVO_STATE_DISABLED)
+				cmd = IL_MC_PDS_CMD_SD;
+			else if (state == IL_SERVO_STATE_RDY)
+				cmd = IL_MC_PDS_CMD_SO;
+			else if (state == IL_SERVO_STATE_ENABLED)
+				cmd = IL_MC_PDS_CMD_DO;
+			else
+				cmd = IL_MC_PDS_CMD_DV;
+
+			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
+						   NULL, cmd, 1);
+			if (r < 0)
+				return r;
+
+			/* wait for state change */
+			r = sw_wait_change(servo, &sw, &timeout_);
+			if (r < 0)
+				return r;
+		}
+	} while (state != IL_SERVO_STATE_ON);
+
+	return 0;
 }
 
 static int il_mcb_servo_enable(il_servo_t *servo, int timeout)
 {
-	(void)servo;
-	(void)timeout;
+	int r;
+	uint16_t sw, cmd;
+	il_servo_state_t state;
+	int timeout_ = timeout;
 
-	return not_supported();
+	sw = sw_get(servo);
+
+	do {
+		servo->ops->_state_decode(sw, &state, NULL);
+
+		/* try fault reset if faulty */
+		if ((state == IL_SERVO_STATE_FAULT) ||
+		    (state == IL_SERVO_STATE_FAULTR)) {
+			r = il_servo_fault_reset(servo);
+			if (r < 0)
+				return r;
+
+			sw = sw_get(servo);
+		/* check state and command action to reach enabled */
+		} else if ((state != IL_SERVO_STATE_ENABLED) ||
+			   !(sw & IL_MC_SW_IANGLE)) {
+			if (state == IL_SERVO_STATE_NRDY)
+				cmd = IL_MC_PDS_CMD_DV;
+			else if (state == IL_SERVO_STATE_DISABLED)
+				cmd = IL_MC_PDS_CMD_SD;
+			else if (state == IL_SERVO_STATE_RDY)
+				cmd = IL_MC_PDS_CMD_SOEO;
+			else
+				cmd = IL_MC_PDS_CMD_EO;
+
+			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
+						   NULL, cmd, 1);
+			if (r < 0)
+				return r;
+
+			/* wait for state change */
+			r = sw_wait_change(servo, &sw, &timeout_);
+			if (r < 0)
+				return r;
+		}
+	} while ((state != IL_SERVO_STATE_ENABLED) || !(sw & IL_MC_SW_IANGLE));
+
+	return 0;
 }
 
 static int il_mcb_servo_fault_reset(il_servo_t *servo)
 {
-	(void)servo;
+	int r;
+	uint16_t sw;
+	il_servo_state_t state;
+	int timeout = PDS_TIMEOUT;
 
-	return not_supported();
+	sw = sw_get(servo);
+
+	do {
+		servo->ops->_state_decode(sw, &state, NULL);
+
+		/* check if faulty, if so try to reset (0->1) */
+		if ((state == IL_SERVO_STATE_FAULT) ||
+		    (state == IL_SERVO_STATE_FAULTR)) {
+			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
+						   NULL, 0, 1);
+			if (r < 0)
+				return r;
+
+			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
+						   NULL, IL_MC_PDS_CMD_FR, 1);
+			if (r < 0)
+				return r;
+
+			/* wait until statusword changes */
+			r = sw_wait_change(servo, &sw, &timeout);
+			if (r < 0)
+				return r;
+		}
+	} while ((state == IL_SERVO_STATE_FAULT) ||
+		 (state == IL_SERVO_STATE_FAULTR));
+
+	return 0;
 }
 
 static int il_mcb_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode)
