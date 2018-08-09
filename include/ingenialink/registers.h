@@ -159,6 +159,8 @@ extern const il_reg_t IL_REG_CTL_WORD;
 /** Status word. */
 extern const il_reg_t IL_REG_STS_WORD;
 
+extern const il_reg_t IL_REG_MCB_STS_WORD;
+
 /** Motor type. */
 extern const il_reg_t IL_REG_MOTOR_TYPE;
 

@@ -103,6 +103,7 @@ if(WITH_PROT_MCB)
     ingenialink/mcb/frame.c
     ingenialink/mcb/net.c
     ingenialink/mcb/servo.c
+    ingenialink/mcb/registers.c
   )
 endif()
 

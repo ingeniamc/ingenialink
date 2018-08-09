@@ -44,7 +44,7 @@
 #define VENDOR_ID_ADDR		0x06E0
 
 /** Statusword address. */
-#define STATUSWORD_ADDRESS	0x0010
+#define STATUSWORD_ADDRESS	0x0011
 
 
 /** MCB network. */

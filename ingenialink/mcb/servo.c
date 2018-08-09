@@ -57,6 +57,7 @@ static uint16_t sw_get(il_servo_t *servo)
 
 	osal_mutex_lock(servo->sw.lock);
 	sw = servo->sw.value;
+	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
 	osal_mutex_unlock(servo->sw.lock);
 
 	return sw;
@@ -229,9 +230,27 @@ void il_mcb_servo__release(il_servo_t *servo)
 void il_mcb_servo__state_decode(uint16_t sw, il_servo_state_t *state,
 				int *flags)
 {
-	(void)sw;
-	(void)state;
-	(void)flags;
+	if ((sw & IL_MC_PDS_STA_NRTSO_MSK) == IL_MC_PDS_STA_NRTSO)
+		*state = IL_SERVO_STATE_NRDY;
+	else if ((sw & IL_MC_PDS_STA_SOD_MSK) == IL_MC_PDS_STA_SOD)
+		*state = IL_SERVO_STATE_DISABLED;
+	else if ((sw & IL_MC_PDS_STA_RTSO_MSK) == IL_MC_PDS_STA_RTSO)
+		*state = IL_SERVO_STATE_RDY;
+	else if ((sw & IL_MC_PDS_STA_SO_MSK) == IL_MC_PDS_STA_SO)
+		*state = IL_SERVO_STATE_ON;
+	else if ((sw & IL_MC_PDS_STA_OE_MSK) == IL_MC_PDS_STA_OE)
+		*state = IL_SERVO_STATE_ENABLED;
+	else if ((sw & IL_MC_PDS_STA_QSA_MSK) == IL_MC_PDS_STA_QSA)
+		*state = IL_SERVO_STATE_QSTOP;
+	else if ((sw & IL_MC_PDS_STA_FRA_MSK) == IL_MC_PDS_STA_FRA)
+		*state = IL_SERVO_STATE_FAULTR;
+	else if ((sw & IL_MC_PDS_STA_F_MSK) == IL_MC_PDS_STA_F)
+		*state = IL_SERVO_STATE_FAULT;
+	else
+		*state = IL_SERVO_STATE_NRDY;
+
+	if (flags)
+		*flags = (int)(sw >> FLAGS_SW_POS);
 }
 
 /*******************************************************************************
@@ -244,6 +263,7 @@ static il_servo_t *il_mcb_servo_create(il_net_t *net, uint16_t id,
 	int r;
 
 	il_mcb_servo_t *this;
+	uint16_t sw;
 
 	/* allocate servo */
 	this = malloc(sizeof(*this));
@@ -262,6 +282,9 @@ static il_servo_t *il_mcb_servo_create(il_net_t *net, uint16_t id,
 	this->refcnt = il_utils__refcnt_create(servo_destroy, this);
 	if (!this->refcnt)
 		goto cleanup_base;
+
+	/* trigger status update (with manual read) */
+	(void)il_servo_raw_read_u16(&this->servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
 
 	return &this->servo;
 
@@ -549,10 +572,7 @@ static int il_mcb_servo_velocity_res_get(il_servo_t *servo, uint32_t *res)
 
 static int il_mcb_servo_wait_reached(il_servo_t *servo, int timeout)
 {
-	(void)servo;
-	(void)timeout;
-
-	return not_supported();
+	return sw_wait_value(servo, IL_MC_SW_TR, IL_MC_SW_TR, timeout);
 }
 
 /** E-USB servo operations. */
