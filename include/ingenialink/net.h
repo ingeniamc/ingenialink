@@ -78,6 +78,8 @@ void il_net__state_set(il_net_t *net, il_net_state_t state);
  *	IngeniaLink network.
  * @param [in] id
  *	Node id.
+ * @param [in] subnode
+ *	Subnode.
  * @param [in] address
  *	Address.
  * @param [in] buf
@@ -90,7 +92,7 @@ void il_net__state_set(il_net_t *net, il_net_state_t state);
  * @returns
  *	0 on success, error code otherwise.
  */
-int il_net__write(il_net_t *net, uint16_t id, uint32_t address, const void *buf,
+int il_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, const void *buf,
 		  size_t sz, int confirmed);
 
 /**
@@ -100,6 +102,8 @@ int il_net__write(il_net_t *net, uint16_t id, uint32_t address, const void *buf,
  *	IngeniaLink network.
  * @param [in] id
  *	Expected node id (0 to match any).
+ * @param [in] subnode
+ *	Subnode.
  * @param [in] address
  *	Expected address.
  * @param [out] buf
@@ -110,7 +114,7 @@ int il_net__write(il_net_t *net, uint16_t id, uint32_t address, const void *buf,
  * @returns
  *	0 on success, error code otherwise.
  */
-int il_net__read(il_net_t *net, uint16_t id, uint32_t address, void *buf,
+int il_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, void *buf,
 		 size_t sz);
 
 /**
