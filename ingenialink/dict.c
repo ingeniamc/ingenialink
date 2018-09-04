@@ -29,6 +29,8 @@
 #include "ingenialink/err.h"
 #include "ingenialink/utils.h"
 
+#include <stdio.h>
+
 /*******************************************************************************
  * Private
  ******************************************************************************/
@@ -519,6 +521,25 @@ static void parse_reg_range(xmlNodePtr node, il_reg_t *reg)
 	}
 }
 
+
+il_reg_enums_t *il_dict_enums_create()
+{
+	il_reg_enums_t *enums;
+
+	enums = malloc(sizeof(*enums));
+	if (!enums) {
+		ilerr__set("Enumerations array allocation failed");
+		return NULL;
+	}
+
+	return enums;
+
+cleanup_enums:
+	free(enums);
+	return NULL;
+}
+
+
 /**
  * Parse register enumeration.
  *
@@ -529,10 +550,58 @@ static void parse_reg_range(xmlNodePtr node, il_reg_t *reg)
  */
 static void parse_reg_enums(xmlNodePtr node, il_reg_t *reg) 
 {
-	xmlChar *val;
-
-	xmlFree(val);
+	xmlNode *enumeration;
+	int index = 0;
+	for (enumeration = node->children; enumeration; enumeration = enumeration->next) {
+		xmlChar *value, *content;
+		content = xmlNodeGetContent(enumeration);
+		if (content) {
+			il_reg_enum_t new_enum;
+			value = xmlGetProp(enumeration, (const xmlChar *)"value");
+			if (value != NULL) {
+				new_enum.value = atoi(value);
+				new_enum.label = content;
+				printf("%d\n", new_enum.value);
+				printf(new_enum.label);
+				reg->enums->il_reg_enums[index] = new_enum;
+				index = index + 1;
+			}
+		}
+		xmlFree(value);
+		xmlFree(content);
+	}
 }
+
+// static int parse_labels(xmlNodePtr node, il_dict_labels_t *labels)
+// {
+// 	xmlNode *label;
+
+// 	for (label = node->children; label; label = label->next) {
+// 		xmlChar *lang, *content;
+
+// 		if (label->type != XML_ELEMENT_NODE)
+// 			continue;
+
+// 		lang = xmlGetProp(label, (const xmlChar *)"lang");
+// 		if (!lang) {
+// 			ilerr__set("Malformed label entry");
+// 			return IL_EFAIL;
+// 		}
+
+// 		content = xmlNodeGetContent(label);
+// 		if (content) {
+// 			il_dict_labels_set(labels,
+// 					   (const char *)lang,
+// 					   (const char *)content);
+// 			xmlFree(content);
+// 		}
+
+// 		xmlFree(lang);
+// 	}
+
+// 	return 0;
+// }
+
 
 /**
  * Parse register properties.
@@ -567,8 +636,14 @@ static int parse_reg_props(xmlNodePtr node, il_reg_t *reg)
 		if (xmlStrcmp(prop->name, (const xmlChar *)"Range") == 0)
 			parse_reg_range(prop, reg);
 
-		if (xmlStrcmp(prop->name, (const xmlChar *)"Enumerations") == 0)
+		if (xmlStrcmp(prop->name, (const xmlChar *)"Enumerations") == 0) {
+			reg->enums = il_dict_enums_create();
+			if (!reg->enums)
+				return IL_EFAIL;
+			
 			parse_reg_enums(prop, reg);
+		}
+			
 
 	}
 

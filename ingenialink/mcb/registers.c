@@ -11,7 +11,8 @@ const il_reg_t IL_REG_MCB_CTL_WORD = {
 		.min.u16 = 0,
 		.max.u16 = UINT16_MAX
 	},
-	.labels = NULL
+	.labels = NULL,
+	.enums = NULL
 };
 
 const il_reg_t IL_REG_MCB_STS_WORD = {
@@ -24,5 +25,6 @@ const il_reg_t IL_REG_MCB_STS_WORD = {
 		.min.u16 = 0,
 		.max.u16 = UINT16_MAX
 	},
-	.labels = NULL
+	.labels = NULL,
+	.enums = NULL
 };

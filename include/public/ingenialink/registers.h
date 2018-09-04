@@ -119,6 +119,18 @@ typedef struct {
 	il_reg_value_t max;
 } il_reg_range_t;
 
+/* Enumeration */
+typedef struct {
+	/** Value. */
+	int value;
+	/** Labels. */
+	const char *label;
+} il_reg_enum_t;
+
+typedef struct {
+	il_reg_enum_t il_reg_enums[]; 
+} il_reg_enums_t;
+
 /** Register. */
 typedef struct {
 	/** Identifier. */
@@ -143,6 +155,8 @@ typedef struct {
 	int storage_valid;
 	/** Labels dictionary. */
 	il_dict_labels_t *labels;
+	/** Enumerations array. */
+	il_reg_enums_t *enums;
 	/** Category ID. */
 	const char *cat_id;
 	/** Subcategory ID. */
