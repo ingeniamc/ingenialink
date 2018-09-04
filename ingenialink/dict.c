@@ -520,6 +520,21 @@ static void parse_reg_range(xmlNodePtr node, il_reg_t *reg)
 }
 
 /**
+ * Parse register enumeration.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] reg
+ *	Register.
+ */
+static void parse_reg_enums(xmlNodePtr node, il_reg_t *reg) 
+{
+	xmlChar *val;
+
+	xmlFree(val);
+}
+
+/**
  * Parse register properties.
  *
  * @param [in] node
@@ -551,6 +566,10 @@ static int parse_reg_props(xmlNodePtr node, il_reg_t *reg)
 
 		if (xmlStrcmp(prop->name, (const xmlChar *)"Range") == 0)
 			parse_reg_range(prop, reg);
+
+		if (xmlStrcmp(prop->name, (const xmlChar *)"Enumerations") == 0)
+			parse_reg_enums(prop, reg);
+
 	}
 
 	return 0;
