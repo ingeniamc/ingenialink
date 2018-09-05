@@ -522,22 +522,22 @@ static void parse_reg_range(xmlNodePtr node, il_reg_t *reg)
 }
 
 
-il_reg_enums_t *il_dict_enums_create()
-{
-	il_reg_enums_t *enums;
+// il_reg_enum_t *il_dict_enums_create()
+// {
+// 	il_reg_enum_t *enums;
 
-	enums = malloc(sizeof(*enums));
-	if (!enums) {
-		ilerr__set("Enumerations array allocation failed");
-		return NULL;
-	}
+// 	enums = malloc(sizeof(*enums));
+// 	if (!enums) {
+// 		ilerr__set("Enumerations array allocation failed");
+// 		return NULL;
+// 	}
 
-	return enums;
+// 	return enums;
 
-cleanup_enums:
-	free(enums);
-	return NULL;
-}
+// cleanup_enums:
+// 	free(enums);
+// 	return NULL;
+// }
 
 
 /**
@@ -559,16 +559,16 @@ static void parse_reg_enums(xmlNodePtr node, il_reg_t *reg)
 			il_reg_enum_t new_enum;
 			value = xmlGetProp(enumeration, (const xmlChar *)"value");
 			if (value != NULL) {
-				new_enum.value = atoi(value);
-				new_enum.label = content;
-				printf("%d\n", new_enum.value);
-				printf(new_enum.label);
-				reg->enums->il_reg_enums[index] = new_enum;
+				//new_enum.value = atoi(value);
+				//new_enum.label = content;
+				
+				reg->enums[index].value = atoi(value);
+				reg->enums[index].label = strdup(content);
+				printf("%d\n", reg->enums[index].value);
+				printf(reg->enums[index].label);
 				index = index + 1;
 			}
 		}
-		xmlFree(value);
-		xmlFree(content);
 	}
 }
 
@@ -637,9 +637,16 @@ static int parse_reg_props(xmlNodePtr node, il_reg_t *reg)
 			parse_reg_range(prop, reg);
 
 		if (xmlStrcmp(prop->name, (const xmlChar *)"Enumerations") == 0) {
-			reg->enums = il_dict_enums_create();
-			if (!reg->enums)
-				return IL_EFAIL;
+			// il_reg_enum_t enums[20];
+			// enums = malloc(sizeof(*enums));
+			// if (!enums) {
+			// 	ilerr__set("Enumerations array allocation failed");
+			// 	return NULL;
+			// }
+
+			// reg->enums = &enums;
+			// if (!reg->enums)
+			// 	return IL_EFAIL;
 			
 			parse_reg_enums(prop, reg);
 		}

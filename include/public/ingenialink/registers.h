@@ -127,10 +127,6 @@ typedef struct {
 	const char *label;
 } il_reg_enum_t;
 
-typedef struct {
-	il_reg_enum_t il_reg_enums[]; 
-} il_reg_enums_t;
-
 /** Register. */
 typedef struct {
 	/** Identifier. */
@@ -156,7 +152,7 @@ typedef struct {
 	/** Labels dictionary. */
 	il_dict_labels_t *labels;
 	/** Enumerations array. */
-	il_reg_enums_t *enums;
+	il_reg_enum_t enums[20];
 	/** Category ID. */
 	const char *cat_id;
 	/** Subcategory ID. */
