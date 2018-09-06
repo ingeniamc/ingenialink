@@ -56,10 +56,9 @@ il_servo_t *il_servo_create(il_net_t *net, uint16_t id, const char *dict)
 		return il_mcb_servo_ops.create(net, id, dict);
 #endif
 
-#ifdef IL_HAS_PROT_MCB
+#ifdef IL_HAS_PROT_ETH
 	case IL_NET_PROT_ETH:
-		return NULL;
-		// return il_eth_servo_ops.create(net, id, dict);
+		return il_eth_servo_ops.create(net, id, dict);
 #endif
 
 #ifdef IL_HAS_PROT_VIRTUAL
