@@ -29,8 +29,6 @@
 #include "ingenialink/err.h"
 #include "ingenialink/utils.h"
 
-#include <stdio.h>
-
 /*******************************************************************************
  * Private
  ******************************************************************************/
@@ -521,25 +519,6 @@ static void parse_reg_range(xmlNodePtr node, il_reg_t *reg)
 	}
 }
 
-
-// il_reg_enum_t *il_dict_enums_create()
-// {
-// 	il_reg_enum_t *enums;
-
-// 	enums = malloc(sizeof(*enums));
-// 	if (!enums) {
-// 		ilerr__set("Enumerations array allocation failed");
-// 		return NULL;
-// 	}
-
-// 	return enums;
-
-// cleanup_enums:
-// 	free(enums);
-// 	return NULL;
-// }
-
-
 /**
  * Parse register enumeration.
  *
@@ -558,49 +537,14 @@ static void parse_reg_enums(xmlNodePtr node, il_reg_t *reg)
 		if (content) {
 			il_reg_enum_t new_enum;
 			value = xmlGetProp(enumeration, (const xmlChar *)"value");
-			if (value != NULL) {
-				//new_enum.value = atoi(value);
-				//new_enum.label = content;
-				
+			if (value != NULL) {		
 				reg->enums[index].value = atoi(value);
 				reg->enums[index].label = strdup(content);
-				printf("%d\n", reg->enums[index].value);
-				printf(reg->enums[index].label);
 				index = index + 1;
 			}
 		}
 	}
 }
-
-// static int parse_labels(xmlNodePtr node, il_dict_labels_t *labels)
-// {
-// 	xmlNode *label;
-
-// 	for (label = node->children; label; label = label->next) {
-// 		xmlChar *lang, *content;
-
-// 		if (label->type != XML_ELEMENT_NODE)
-// 			continue;
-
-// 		lang = xmlGetProp(label, (const xmlChar *)"lang");
-// 		if (!lang) {
-// 			ilerr__set("Malformed label entry");
-// 			return IL_EFAIL;
-// 		}
-
-// 		content = xmlNodeGetContent(label);
-// 		if (content) {
-// 			il_dict_labels_set(labels,
-// 					   (const char *)lang,
-// 					   (const char *)content);
-// 			xmlFree(content);
-// 		}
-
-// 		xmlFree(lang);
-// 	}
-
-// 	return 0;
-// }
 
 
 /**
