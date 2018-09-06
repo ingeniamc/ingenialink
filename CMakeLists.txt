@@ -110,6 +110,7 @@ endif()
 
 if(WITH_PROT_ETH)
   list(APPEND ingenialink_srcs
+    ingenialink/eth/frame.c
     ingenialink/eth/servo.c
   )
 endif()
