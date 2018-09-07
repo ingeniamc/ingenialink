@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="servo__monitor_8c">
+    <title>servo_monitor.c File Reference</title>
+    <programlisting>#include &quot;utils.h&quot;</programlisting>
+    <programlisting>#include &lt;stdio.h&gt;</programlisting>
+<para>Include dependency diagram for servo_monitor.c</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="servo__monitor_8c__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Included by dependency diagram for servo_monitor.c</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="servo__monitor_8c__dep__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>void <link linkend="servo__monitor_8c_1a6b8c07d99346d231176e5b440ca116ae">on_found</link> (
+void * ctx, uint8_t id)</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>void <link linkend="servo__monitor_8c_1a9ad176afc58483b34080296942efa344">on_evt</link> (
+void * ctx, <link linkend="group__IL__NET_1ga6e78452befa7532716d8035eb293bc10">il_net_dev_evt_t</link> evt, const char * port)</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>int <link linkend="servo__monitor_8c_1ac0f2228420376f4db7e1274f2b41667c">main</link> (
+int argc, const char * argv)</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+        <title>Detailed Description</title>
+    <para>Definition in file /home/surajcha/codebase/ingenialink/examples/servo_monitor.c</para>
+    </simplesect>
+</section>

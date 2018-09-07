@@ -1,0 +1,302 @@
+\hypertarget{dict_8c-example}{}\section{dict.\+c}
+This example shows how to use a dictionary.
+
+
+\begin{DoxyCodeInclude}
+
+\textcolor{preprocessor}{#include <stdio.h>}
+\textcolor{preprocessor}{#include <inttypes.h>}
+\textcolor{preprocessor}{#include <\hyperlink{ingenialink_8h}{ingenialink/ingenialink.h}>}
+
+\textcolor{keyword}{static} \textcolor{keywordtype}{void} print\_scat(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *\textcolor{keywordtype}{id}, \hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\_dict\_labels\_t} *labels)
+\{
+    \textcolor{comment}{/* id */}
+    printf(\textcolor{stringliteral}{"\(\backslash\)tID: %s\(\backslash\)n"}, \textcolor{keywordtype}{id});
+
+    \textcolor{comment}{/* labels */}
+    printf(\textcolor{stringliteral}{"\(\backslash\)tLabels:\(\backslash\)n"});
+
+    \textcolor{keywordflow}{if} (labels && \hyperlink{group__IL__DICT__LABELS_gae088f90ebbe304009129f502da289122}{il\_dict\_labels\_nlabels\_get}(labels) > 0) \{
+        \textcolor{keywordtype}{size\_t} i;
+        \textcolor{keyword}{const} \textcolor{keywordtype}{char} **langs;
+
+        langs = \hyperlink{group__IL__DICT__LABELS_ga8fe3b029fc05420611468de19d2b6439}{il\_dict\_labels\_langs\_get}(labels);
+
+        \textcolor{keywordflow}{for} (i = 0; langs[i]; i++) \{
+            \textcolor{keyword}{const} \textcolor{keywordtype}{char} *label;
+
+            (void)\hyperlink{group__IL__DICT__LABELS_ga40033ee8b33c612a90feec8ecfeaec40}{il\_dict\_labels\_get}(labels, langs[i], &label);
+
+            printf(\textcolor{stringliteral}{"\(\backslash\)t\(\backslash\)t%s: %s\(\backslash\)n"}, langs[i], label);
+        \}
+
+        \hyperlink{group__IL__DICT__LABELS_ga522d5f9739e165588a79e085d9112f06}{il\_dict\_labels\_langs\_destroy}(langs);
+    \} \textcolor{keywordflow}{else} \{
+        printf(\textcolor{stringliteral}{"\(\backslash\)t\(\backslash\)tNone\(\backslash\)n"});
+    \}
+\}
+
+\textcolor{keyword}{static} \textcolor{keywordtype}{void} print\_cat(\hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\_dict\_t} *dict, \textcolor{keyword}{const} \textcolor{keywordtype}{char} *\textcolor{keywordtype}{id}, \hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\_dict\_labels\_t} *labels)
+\{
+    \textcolor{keywordtype}{size\_t} i;
+    \textcolor{keyword}{const} \textcolor{keywordtype}{char} **ids;
+
+    \textcolor{comment}{/* id */}
+    printf(\textcolor{stringliteral}{"ID: %s\(\backslash\)n"}, \textcolor{keywordtype}{id});
+
+    \textcolor{comment}{/* labels */}
+    printf(\textcolor{stringliteral}{"Labels:\(\backslash\)n"});
+
+    \textcolor{keywordflow}{if} (labels && \hyperlink{group__IL__DICT__LABELS_gae088f90ebbe304009129f502da289122}{il\_dict\_labels\_nlabels\_get}(labels) > 0) \{
+        \textcolor{keywordtype}{size\_t} i;
+        \textcolor{keyword}{const} \textcolor{keywordtype}{char} **langs;
+
+        langs = \hyperlink{group__IL__DICT__LABELS_ga8fe3b029fc05420611468de19d2b6439}{il\_dict\_labels\_langs\_get}(labels);
+
+        \textcolor{keywordflow}{for} (i = 0; langs[i]; i++) \{
+            \textcolor{keyword}{const} \textcolor{keywordtype}{char} *label;
+
+            (void)\hyperlink{group__IL__DICT__LABELS_ga40033ee8b33c612a90feec8ecfeaec40}{il\_dict\_labels\_get}(labels, langs[i], &label);
+
+            printf(\textcolor{stringliteral}{"\(\backslash\)t%s: %s\(\backslash\)n"}, langs[i], label);
+        \}
+
+        \hyperlink{group__IL__DICT__LABELS_ga522d5f9739e165588a79e085d9112f06}{il\_dict\_labels\_langs\_destroy}(langs);
+    \} \textcolor{keywordflow}{else} \{
+        printf(\textcolor{stringliteral}{"\(\backslash\)tNone\(\backslash\)n"});
+    \}
+
+    \textcolor{comment}{/* subcategories */}
+    printf(\textcolor{stringliteral}{"Sub-categories:\(\backslash\)n"});
+    ids = \hyperlink{group__IL__DICT_ga51782d1acdcfd574ab717c6c721cb560}{il\_dict\_scat\_ids\_get}(dict, \textcolor{keywordtype}{id});
+    \textcolor{keywordflow}{if} (!ids) \{
+        fprintf(stderr,
+            \textcolor{stringliteral}{"Could not obtain sub-categories: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{return};
+    \}
+
+    \textcolor{keywordflow}{for} (i = 0; ids[i]; i++) \{
+        \hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\_dict\_labels\_t} *labels;
+
+        (void)\hyperlink{group__IL__DICT_ga79fb4bf5b1fab3d67a201c6e5b11e5e7}{il\_dict\_scat\_get}(dict, \textcolor{keywordtype}{id}, ids[i], &labels);
+        print\_scat(ids[i], labels);
+    \}
+
+    \hyperlink{group__IL__DICT_gaa558e902f07600780b351f9e58f443df}{il\_dict\_scat\_ids\_destroy}(ids);
+
+    printf(\textcolor{stringliteral}{"==============================\(\backslash\)n"});
+\}
+
+\textcolor{keyword}{static} \textcolor{keywordtype}{void} print\_reg(\textcolor{keyword}{const} \hyperlink{structil__reg__t}{il\_reg\_t} *reg)
+\{
+    \textcolor{keyword}{const} \textcolor{keywordtype}{char} *name;
+    \textcolor{keyword}{const} \textcolor{keywordtype}{char} **langs;
+    \textcolor{keywordtype}{size\_t} i;
+
+    \textcolor{comment}{/* address */}
+    printf(\textcolor{stringliteral}{"Address: %08x\(\backslash\)n"}, reg->\hyperlink{structil__reg__t_ac0433a8ae86e0990fa59a074a5ad1bd1}{address});
+
+    \textcolor{comment}{/* data type */}
+    \textcolor{keywordflow}{switch} (reg->\hyperlink{structil__reg__t_a1780caa197277828816c7214aa7b5d2f}{dtype}) \{
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6afebd31a475c6cb6b6c9ac200fd90a09b}{IL\_REG\_DTYPE\_U8}:
+        name = \textcolor{stringliteral}{"8-bit unsigned integer"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a4d3f76f5e0e716d7b358d819691e834a}{IL\_REG\_DTYPE\_S8}:
+        name = \textcolor{stringliteral}{"8-bit integer"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a4776d418653151a6cadd41574d631bfa}{IL\_REG\_DTYPE\_U16}:
+        name = \textcolor{stringliteral}{"16-bit unsigned integer"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a3eb3b654856f84234168d58355e83a85}{IL\_REG\_DTYPE\_S16}:
+        name = \textcolor{stringliteral}{"16-bit integer"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a3d299c6c4bbda29b3286a3483271ee90}{IL\_REG\_DTYPE\_U32}:
+        name = \textcolor{stringliteral}{"32-bit unsigned integer"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48}{IL\_REG\_DTYPE\_S32}:
+        name = \textcolor{stringliteral}{"32-bit integer"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a5a0f02c573b8800ee8f113160ce93712}{IL\_REG\_DTYPE\_U64}:
+        name = \textcolor{stringliteral}{"64-bit unsigned integer"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a37398082dc9828038d3403ca24a28d5a}{IL\_REG\_DTYPE\_S64}:
+        name = \textcolor{stringliteral}{"64-bit integer"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{default}:
+        name = \textcolor{stringliteral}{"unknown"};
+    \}
+
+    printf(\textcolor{stringliteral}{"Data type: %s\(\backslash\)n"}, name);
+
+    \textcolor{comment}{/* access */}
+    \textcolor{keywordflow}{switch} (reg->\hyperlink{structil__reg__t_a8cd718765e48f0de2f978de386c61218}{access}) \{
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_gga4c623bd7d0d5f059dd91949c6948147ea12dabd43c525dfea5fb20914711168b8}{IL\_REG\_ACCESS\_RO}:
+        name = \textcolor{stringliteral}{"read-only"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_gga4c623bd7d0d5f059dd91949c6948147eadb0026436ae70de8a60920c1085561bb}{IL\_REG\_ACCESS\_WO}:
+        name = \textcolor{stringliteral}{"write-only"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_gga4c623bd7d0d5f059dd91949c6948147eafa388eb7ec6166ba6a59d0d665f3ac53}{IL\_REG\_ACCESS\_RW}:
+        name = \textcolor{stringliteral}{"read/write"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{default}:
+        name = \textcolor{stringliteral}{"unknown"};
+    \}
+
+    printf(\textcolor{stringliteral}{"Access: %s\(\backslash\)n"}, name);
+
+    \textcolor{comment}{/* physical units */}
+    \textcolor{keywordflow}{switch} (reg->\hyperlink{structil__reg__t_a799847eb04e4f29073e7c9939ae977df}{phy}) \{
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590a34d96ac8a7b9afc02256a03d5a464822}{IL\_REG\_PHY\_NONE}:
+        name = \textcolor{stringliteral}{"none"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590a799176bbdcea555949cd68969361bc8f}{IL\_REG\_PHY\_TORQUE}:
+        name = \textcolor{stringliteral}{"torque"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590ad7bdcaae981dfbbd28c46bed55f947ac}{IL\_REG\_PHY\_POS}:
+        name = \textcolor{stringliteral}{"position"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590aea1c9cf80466e862af6a3a6f687550ef}{IL\_REG\_PHY\_VEL}:
+        name = \textcolor{stringliteral}{"velocity"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590a3dc604058c640ad2997c5d4a1ad37b97}{IL\_REG\_PHY\_ACC}:
+        name = \textcolor{stringliteral}{"acceleration"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590a99385428e977da83262b2ad47bcfc8f0}{IL\_REG\_PHY\_VOLT\_REL}:
+        name = \textcolor{stringliteral}{"relative voltage"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590a0cad6fc9aa35ccf3b78d695f9a446e2e}{IL\_REG\_PHY\_RAD}:
+        name = \textcolor{stringliteral}{"radians"};
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{default}:
+        name = \textcolor{stringliteral}{"unknown"};
+    \}
+
+    \textcolor{comment}{/* physical units */}
+    printf(\textcolor{stringliteral}{"Physical units: %s\(\backslash\)n"}, name);
+
+    \textcolor{comment}{/* range */}
+    printf(\textcolor{stringliteral}{"Range: "});
+
+    \textcolor{keywordflow}{switch} (reg->\hyperlink{structil__reg__t_a1780caa197277828816c7214aa7b5d2f}{dtype}) \{
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6afebd31a475c6cb6b6c9ac200fd90a09b}{IL\_REG\_DTYPE\_U8}:
+        printf(\textcolor{stringliteral}{"(%"}PRIu8\textcolor{stringliteral}{", %"}PRIu8\textcolor{stringliteral}{")\(\backslash\)n"},
+               reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_a5f2d3034108ba4f003dea87baaccf19c}{min}.\hyperlink{unionil__reg__limit__t_aef9083c76539d64e3ca03239a7646f07}{u8}, reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_aea6987fad601c38802c00a67027de135}{max}.\hyperlink{unionil__reg__limit__t_aef9083c76539d64e3ca03239a7646f07}{u8});
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a4d3f76f5e0e716d7b358d819691e834a}{IL\_REG\_DTYPE\_S8}:
+        printf(\textcolor{stringliteral}{"(%"}PRId8\textcolor{stringliteral}{", %"}PRId8\textcolor{stringliteral}{")\(\backslash\)n"},
+               reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_a5f2d3034108ba4f003dea87baaccf19c}{min}.\hyperlink{unionil__reg__limit__t_a222839738af51772d82795ec5d625c9c}{s8}, reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_aea6987fad601c38802c00a67027de135}{max}.\hyperlink{unionil__reg__limit__t_a222839738af51772d82795ec5d625c9c}{s8});
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a4776d418653151a6cadd41574d631bfa}{IL\_REG\_DTYPE\_U16}:
+        printf(\textcolor{stringliteral}{"(%"}PRIu16\textcolor{stringliteral}{", %"}PRIu16\textcolor{stringliteral}{")\(\backslash\)n"},
+               reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_a5f2d3034108ba4f003dea87baaccf19c}{min}.\hyperlink{unionil__reg__limit__t_abdd4796158cab746b84f14e77192f2ec}{u16}, reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_aea6987fad601c38802c00a67027de135}{max}.\hyperlink{unionil__reg__limit__t_abdd4796158cab746b84f14e77192f2ec}{u16});
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a3eb3b654856f84234168d58355e83a85}{IL\_REG\_DTYPE\_S16}:
+        printf(\textcolor{stringliteral}{"(%"}PRId16\textcolor{stringliteral}{", %"}PRId16\textcolor{stringliteral}{")\(\backslash\)n"},
+               reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_a5f2d3034108ba4f003dea87baaccf19c}{min}.\hyperlink{unionil__reg__limit__t_a92311f25fb2daa832435239274c5cb2a}{s16}, reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_aea6987fad601c38802c00a67027de135}{max}.\hyperlink{unionil__reg__limit__t_a92311f25fb2daa832435239274c5cb2a}{s16});
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a3d299c6c4bbda29b3286a3483271ee90}{IL\_REG\_DTYPE\_U32}:
+        printf(\textcolor{stringliteral}{"(%"}PRIu32\textcolor{stringliteral}{", %"}PRIu32\textcolor{stringliteral}{")\(\backslash\)n"},
+               reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_a5f2d3034108ba4f003dea87baaccf19c}{min}.\hyperlink{unionil__reg__limit__t_a99cf1ff5d5bf0ce76943d15260270211}{u32}, reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_aea6987fad601c38802c00a67027de135}{max}.\hyperlink{unionil__reg__limit__t_a99cf1ff5d5bf0ce76943d15260270211}{u32});
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48}{IL\_REG\_DTYPE\_S32}:
+        printf(\textcolor{stringliteral}{"(%"}PRId32\textcolor{stringliteral}{", %"}PRId32\textcolor{stringliteral}{")\(\backslash\)n"},
+               reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_a5f2d3034108ba4f003dea87baaccf19c}{min}.\hyperlink{unionil__reg__limit__t_a272eb9cd6948fa6137fdef16e4dc9669}{s32}, reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_aea6987fad601c38802c00a67027de135}{max}.\hyperlink{unionil__reg__limit__t_a272eb9cd6948fa6137fdef16e4dc9669}{s32});
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a5a0f02c573b8800ee8f113160ce93712}{IL\_REG\_DTYPE\_U64}:
+        printf(\textcolor{stringliteral}{"(%"}PRIu64\textcolor{stringliteral}{", %"}PRIu64\textcolor{stringliteral}{")\(\backslash\)n"},
+               reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_a5f2d3034108ba4f003dea87baaccf19c}{min}.\hyperlink{unionil__reg__limit__t_aedc5d365162d7f0cf32035695ae0971b}{u64}, reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_aea6987fad601c38802c00a67027de135}{max}.\hyperlink{unionil__reg__limit__t_aedc5d365162d7f0cf32035695ae0971b}{u64});
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{case} \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a37398082dc9828038d3403ca24a28d5a}{IL\_REG\_DTYPE\_S64}:
+        printf(\textcolor{stringliteral}{"(%"}PRId64\textcolor{stringliteral}{", %"}PRId64\textcolor{stringliteral}{")\(\backslash\)n"},
+               reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_a5f2d3034108ba4f003dea87baaccf19c}{min}.\hyperlink{unionil__reg__limit__t_afb38fc9250bd41f7da4d61a118941d65}{s64}, reg->\hyperlink{structil__reg__t_acb9979e9f542ec4b683a6b2b603d4bea}{range}.\hyperlink{structil__reg__range__t_aea6987fad601c38802c00a67027de135}{max}.\hyperlink{unionil__reg__limit__t_afb38fc9250bd41f7da4d61a118941d65}{s64});
+        \textcolor{keywordflow}{break};
+    \textcolor{keywordflow}{default}:
+        printf(\textcolor{stringliteral}{"Undefined\(\backslash\)n"});
+    \}
+
+    \textcolor{comment}{/* labels */}
+    printf(\textcolor{stringliteral}{"Labels:\(\backslash\)n"});
+
+    \textcolor{keywordflow}{if} (reg->\hyperlink{structil__reg__t_a6d86137472a9c21c1c364f05c58b943b}{labels} && \hyperlink{group__IL__DICT__LABELS_gae088f90ebbe304009129f502da289122}{il\_dict\_labels\_nlabels\_get}(reg->
+      \hyperlink{structil__reg__t_a6d86137472a9c21c1c364f05c58b943b}{labels}) > 0) \{
+        langs = \hyperlink{group__IL__DICT__LABELS_ga8fe3b029fc05420611468de19d2b6439}{il\_dict\_labels\_langs\_get}(reg->\hyperlink{structil__reg__t_a6d86137472a9c21c1c364f05c58b943b}{labels});
+
+        \textcolor{keywordflow}{for} (i = 0; langs[i]; i++) \{
+            \textcolor{keyword}{const} \textcolor{keywordtype}{char} *label;
+
+            (void)\hyperlink{group__IL__DICT__LABELS_ga40033ee8b33c612a90feec8ecfeaec40}{il\_dict\_labels\_get}(reg->\hyperlink{structil__reg__t_a6d86137472a9c21c1c364f05c58b943b}{labels}, langs[i], &label);
+
+            printf(\textcolor{stringliteral}{"\(\backslash\)t%s: %s\(\backslash\)n"}, langs[i], label);
+        \}
+
+        \hyperlink{group__IL__DICT__LABELS_ga522d5f9739e165588a79e085d9112f06}{il\_dict\_labels\_langs\_destroy}(langs);
+    \} \textcolor{keywordflow}{else} \{
+        printf(\textcolor{stringliteral}{"\(\backslash\)tNone\(\backslash\)n"});
+    \}
+
+    \textcolor{comment}{/* category and subcategory */}
+    printf(\textcolor{stringliteral}{"Category ID: %s\(\backslash\)n"}, reg->\hyperlink{structil__reg__t_a9306d321ecedb9559d7dd339c6115b78}{cat\_id});
+    printf(\textcolor{stringliteral}{"Sub-category ID: %s\(\backslash\)n"}, reg->\hyperlink{structil__reg__t_a827bdfd4438dc720a322ec17c17afe2f}{scat\_id});
+
+    printf(\textcolor{stringliteral}{"==============================\(\backslash\)n"});
+\}
+
+\textcolor{keywordtype}{int} main(\textcolor{keywordtype}{int} argc, \textcolor{keyword}{const} \textcolor{keywordtype}{char} **argv)
+\{
+    \textcolor{keywordtype}{int} r = 0;
+    \hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\_dict\_t} *dict;
+    \textcolor{keyword}{const} \textcolor{keywordtype}{char} **ids;
+    \textcolor{keywordtype}{size\_t} i;
+    \textcolor{keyword}{const} \hyperlink{structil__reg__t}{il\_reg\_t} *reg;
+
+    \textcolor{keywordflow}{if} (argc < 2) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Usage: ./dict DICTIONARY.xml\(\backslash\)n"});
+        \textcolor{keywordflow}{return} -1;
+    \}
+
+    dict = \hyperlink{group__IL__DICT_gaf3d1da6ffb1d4efcf40946dc705230f2}{il\_dict\_create}(argv[1]);
+    \textcolor{keywordflow}{if} (!dict) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not create dictionary: %s\(\backslash\)n"},
+            \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{return} -1;
+    \}
+
+    \textcolor{comment}{/* show categories */}
+    ids = \hyperlink{group__IL__DICT_ga254bc46b2740b8291fd0061e47c28758}{il\_dict\_cat\_ids\_get}(dict);
+    \textcolor{keywordflow}{if} (!ids) \{
+        fprintf(stderr,
+            \textcolor{stringliteral}{"Could not obtain categories: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup;
+    \}
+
+    \textcolor{keywordflow}{for} (i = 0; ids[i]; i++) \{
+        \hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\_dict\_labels\_t} *labels;
+
+        (void)\hyperlink{group__IL__DICT_ga3ea660af3316835c1799ce8dca67b566}{il\_dict\_cat\_get}(dict, ids[i], &labels);
+        print\_cat(dict, ids[i], labels);
+    \}
+
+    \hyperlink{group__IL__DICT_ga27125d99f6aa90dc36c3de0736993265}{il\_dict\_cat\_ids\_destroy}(ids);
+
+    \textcolor{comment}{/* show registers */}
+    ids = \hyperlink{group__IL__DICT_gaaf93ee11fe3006f72c03f03174abdf33}{il\_dict\_reg\_ids\_get}(dict);
+    \textcolor{keywordflow}{if} (!ids) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not obtain IDs: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup;
+    \}
+
+    \textcolor{keywordflow}{for} (i = 0; ids[i]; i++) \{
+        (void)\hyperlink{group__IL__DICT_ga2c1e206d3c5d57a4a047855c2743fa5a}{il\_dict\_reg\_get}(dict, ids[i], &reg);
+        print\_reg(reg);
+    \}
+
+    \hyperlink{group__IL__DICT_gacd7922e14cb903f3342747ed21a00ec1}{il\_dict\_reg\_ids\_destroy}(ids);
+
+cleanup:
+    \hyperlink{group__IL__DICT_ga37cc4ceb38514581a5bbecb47f5cfa61}{il\_dict\_destroy}(dict);
+
+    \textcolor{keywordflow}{return} r;
+\}
+\end{DoxyCodeInclude}
+ 

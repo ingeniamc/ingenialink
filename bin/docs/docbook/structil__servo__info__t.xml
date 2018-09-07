@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="structil__servo__info__t">
+<title>il_servo_info_t struct Reference</title>
+<para>
+    <programlisting>#include <link linkend="servo_8h">&lt;servo.h&gt;</link></programlisting>
+</para>
+<para>Inheritance diagram for il_servo_info_t</para>
+<para>
+    <figure>
+        <title>Inheritance graph</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="structil__servo__info__t__inherit__graph.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Collaboration diagram for il_servo_info_t</para>
+<para>
+    <figure>
+        <title>Collaboration graph</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="structil__servo__info__t__coll__graph.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Data Fields</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>uint32_t serial<para><emphasis>Serial.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>char name[IL_SERVO_NAME_SZ]<para><emphasis>Name.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>char sw_version[IL_SERVO_SW_VERSION_SZ]<para><emphasis>Software version.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>char hw_variant[IL_SERVO_HW_VARIANT_SZ]<para><emphasis>Hardware variant.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>uint32_t prod_code<para><emphasis>Product code.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>uint32_t revision<para><emphasis>Revision number.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+
+<para>IngeniaLink servo information. </para>
+    </simplesect>
+        <simplesect>
+            <title>Detailed Description</title>
+                <para>Definition at line 57 of file servo.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>servo.h</para></listitem></itemizedlist></para>
+        </simplesect>
+        <section>
+            <title>Field Documentation</title>
+            <simplesect>
+                <title>uint32_t il_servo_info_t::serial</title>                
+                <para>Definition at line 59 of file servo.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>servo.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>char il_servo_info_t::name[IL_SERVO_NAME_SZ]</title>                
+                <para>Definition at line 61 of file servo.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>servo.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>char il_servo_info_t::sw_version[IL_SERVO_SW_VERSION_SZ]</title>                
+                <para>Definition at line 63 of file servo.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>servo.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>char il_servo_info_t::hw_variant[IL_SERVO_HW_VARIANT_SZ]</title>                
+                <para>Definition at line 65 of file servo.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>servo.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>uint32_t il_servo_info_t::prod_code</title>                
+                <para>Definition at line 67 of file servo.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>servo.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>uint32_t il_servo_info_t::revision</title>                
+                <para>Definition at line 69 of file servo.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>servo.h</para></listitem></itemizedlist></para>
+            </simplesect>
+        </section>
+</section>

@@ -1,0 +1,119 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="dict__labels_8h">
+    <title>dict_labels.h File Reference</title>
+    <programlisting>#include &quot;common.h&quot;</programlisting>
+<para>Include dependency diagram for dict_labels.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="dict__labels_8h__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Included by dependency diagram for dict_labels.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="dict__labels_8h__dep__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Typedefs</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef struct il_dict_labels  <link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link><para><emphasis>Labels dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * <link linkend="group__IL__DICT__LABELS_1ga3d1801f1328932552ae98c151079514b">il_dict_labels_create</link> (
+void )<para><emphasis>Create a labels dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT__LABELS_1ga5dbfa1bafc6fd6e5c1e3356579e6b03a">il_dict_labels_destroy</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels)<para><emphasis>Destroy a labels dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__DICT__LABELS_1ga40033ee8b33c612a90feec8ecfeaec40">il_dict_labels_get</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels, const char * lang, const char ** label)<para><emphasis>Obtain the label given a language.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT__LABELS_1ga31c468b558ffe84fbd413883ce80eb84">il_dict_labels_set</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels, const char * lang, const char * label)<para><emphasis>Set the label for a given language.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT__LABELS_1ga8910c8ced7a73f8971264ae83208c07e">il_dict_labels_del</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels, const char * lang)<para><emphasis>Remove the label of the given language.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> size_t <link linkend="group__IL__DICT__LABELS_1gae088f90ebbe304009129f502da289122">il_dict_labels_nlabels_get</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels)<para><emphasis>Obtain the number of labels.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> const char ** <link linkend="group__IL__DICT__LABELS_1ga8fe3b029fc05420611468de19d2b6439">il_dict_labels_langs_get</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels)<para><emphasis>Obtain the languages available in the labels dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT__LABELS_1ga522d5f9739e165588a79e085d9112f06">il_dict_labels_langs_destroy</link> (
+const char ** langs)<para><emphasis>Destroy a list of languages.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+        <title>Detailed Description</title>
+
+<para>Labels dictionary. </para>
+    <para>Definition in file /home/surajcha/codebase/ingenialink/include/public/ingenialink/dict_labels.h</para>
+    </simplesect>
+</section>

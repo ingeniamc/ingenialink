@@ -1,0 +1,391 @@
+\hypertarget{group__IL__DICT}{}\section{Dictionary}
+\label{group__IL__DICT}\index{Dictionary@{Dictionary}}
+Collaboration diagram for Dictionary\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=243pt]{group__IL__DICT}
+\end{center}
+\end{figure}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct il\+\_\+dict \hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Ingenia\+Link dictionary. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t} $\ast$ \hyperlink{group__IL__DICT_gaf3d1da6ffb1d4efcf40946dc705230f2}{il\+\_\+dict\+\_\+create} (const char $\ast$dict\+\_\+f)
+\begin{DoxyCompactList}\small\item\em Create a dictionary. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__DICT_ga37cc4ceb38514581a5bbecb47f5cfa61}{il\+\_\+dict\+\_\+destroy} (\hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t} $\ast$dict)
+\begin{DoxyCompactList}\small\item\em Destroy a dictionary. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__DICT_ga3ea660af3316835c1799ce8dca67b566}{il\+\_\+dict\+\_\+cat\+\_\+get} (\hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t} $\ast$dict, const char $\ast$cat\+\_\+id, \hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\+\_\+dict\+\_\+labels\+\_\+t} $\ast$$\ast$labels)
+\begin{DoxyCompactList}\small\item\em Obtain category labels from ID. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} size\+\_\+t \hyperlink{group__IL__DICT_gac982efe51c1ceca824b89b729397bf6f}{il\+\_\+dict\+\_\+cat\+\_\+cnt} (\hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t} $\ast$dict)
+\begin{DoxyCompactList}\small\item\em Obtain number of categories in the dictionary. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} const char $\ast$$\ast$ \hyperlink{group__IL__DICT_ga254bc46b2740b8291fd0061e47c28758}{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+get} (\hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t} $\ast$dict)
+\begin{DoxyCompactList}\small\item\em Obtain the list of category I\+Ds. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__DICT_ga27125d99f6aa90dc36c3de0736993265}{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+destroy} (const char $\ast$$\ast$cat\+\_\+ids)
+\begin{DoxyCompactList}\small\item\em Destroy the list of obtained category I\+Ds. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__DICT_ga79fb4bf5b1fab3d67a201c6e5b11e5e7}{il\+\_\+dict\+\_\+scat\+\_\+get} (\hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t} $\ast$dict, const char $\ast$cat\+\_\+id, const char $\ast$scat\+\_\+id, \hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\+\_\+dict\+\_\+labels\+\_\+t} $\ast$$\ast$labels)
+\begin{DoxyCompactList}\small\item\em Obtain sub-\/category labels from a category. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} size\+\_\+t \hyperlink{group__IL__DICT_gac34ec4d95d8526d1cf09641c843ce7aa}{il\+\_\+dict\+\_\+scat\+\_\+cnt} (\hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t} $\ast$dict, const char $\ast$cat\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Obtain number of sub-\/categories in a category. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} const char $\ast$$\ast$ \hyperlink{group__IL__DICT_ga51782d1acdcfd574ab717c6c721cb560}{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+get} (\hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t} $\ast$dict, const char $\ast$cat\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Obtain the list of category I\+Ds. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__DICT_gaa558e902f07600780b351f9e58f443df}{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+destroy} (const char $\ast$$\ast$scat\+\_\+ids)
+\begin{DoxyCompactList}\small\item\em Destroy the list of obtained sub-\/category I\+Ds. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__DICT_ga2c1e206d3c5d57a4a047855c2743fa5a}{il\+\_\+dict\+\_\+reg\+\_\+get} (\hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t} $\ast$dict, const char $\ast$id, const \hyperlink{structil__reg__t}{il\+\_\+reg\+\_\+t} $\ast$$\ast$reg)
+\begin{DoxyCompactList}\small\item\em Obtain register from ID. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} size\+\_\+t \hyperlink{group__IL__DICT_ga7d1b8cad25b75ec725c9dad237fe918a}{il\+\_\+dict\+\_\+reg\+\_\+cnt} (\hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t} $\ast$dict)
+\begin{DoxyCompactList}\small\item\em Obtain number of registers in the dictionary. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} const char $\ast$$\ast$ \hyperlink{group__IL__DICT_gaaf93ee11fe3006f72c03f03174abdf33}{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+get} (\hyperlink{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{il\+\_\+dict\+\_\+t} $\ast$dict)
+\begin{DoxyCompactList}\small\item\em Obtain the list of register I\+Ds. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__DICT_gacd7922e14cb903f3342747ed21a00ec1}{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+destroy} (const char $\ast$$\ast$regs)
+\begin{DoxyCompactList}\small\item\em Destroy the list of obtained register I\+Ds. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+
+
+\subsection{Typedef Documentation}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+t@{il\+\_\+dict\+\_\+t}}
+\index{il\+\_\+dict\+\_\+t@{il\+\_\+dict\+\_\+t}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+t}{il_dict_t}}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct il\+\_\+dict {\bf il\+\_\+dict\+\_\+t}}\hypertarget{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}{}\label{group__IL__DICT_gac2cb8ba7974d8506df3017879572fc84}
+
+
+Ingenia\+Link dictionary. 
+
+
+
+\subsection{Function Documentation}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+cat\+\_\+cnt@{il\+\_\+dict\+\_\+cat\+\_\+cnt}}
+\index{il\+\_\+dict\+\_\+cat\+\_\+cnt@{il\+\_\+dict\+\_\+cat\+\_\+cnt}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+cat\+\_\+cnt(il\+\_\+dict\+\_\+t $\ast$dict)}{il_dict_cat_cnt(il_dict_t *dict)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} size\+\_\+t il\+\_\+dict\+\_\+cat\+\_\+cnt (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+dict\+\_\+t} $\ast$}]{dict}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_gac982efe51c1ceca824b89b729397bf6f}{}\label{group__IL__DICT_gac982efe51c1ceca824b89b729397bf6f}
+
+
+Obtain number of categories in the dictionary. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dict} & Dictionary instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Number of categories in the dictionary. 
+\end{DoxyReturn}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+cat\+\_\+get@{il\+\_\+dict\+\_\+cat\+\_\+get}}
+\index{il\+\_\+dict\+\_\+cat\+\_\+get@{il\+\_\+dict\+\_\+cat\+\_\+get}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+cat\+\_\+get(il\+\_\+dict\+\_\+t $\ast$dict, const char $\ast$cat\+\_\+id, il\+\_\+dict\+\_\+labels\+\_\+t $\ast$$\ast$labels)}{il_dict_cat_get(il_dict_t *dict, const char *cat_id, il_dict_labels_t **labels)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+dict\+\_\+cat\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+dict\+\_\+t} $\ast$}]{dict, }
+\item[{const char $\ast$}]{cat\+\_\+id, }
+\item[{{\bf il\+\_\+dict\+\_\+labels\+\_\+t} $\ast$$\ast$}]{labels}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_ga3ea660af3316835c1799ce8dca67b566}{}\label{group__IL__DICT_ga3ea660af3316835c1799ce8dca67b566}
+
+
+Obtain category labels from ID. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dict} & Dictionary instance. \\
+\hline
+\mbox{\tt in}  & {\em cat\+\_\+id} & Category ID. \\
+\hline
+\mbox{\tt out}  & {\em labels} & Where labels for the given ID will be stored.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, I\+L\+\_\+\+E\+F\+A\+IL if the register does not exist. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{dict_8c-example}{dict.\+c}.\end{Desc}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+destroy@{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+destroy}}
+\index{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+destroy@{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+destroy}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+destroy(const char $\ast$$\ast$cat\+\_\+ids)}{il_dict_cat_ids_destroy(const char **cat_ids)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+destroy (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$$\ast$}]{cat\+\_\+ids}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_ga27125d99f6aa90dc36c3de0736993265}{}\label{group__IL__DICT_ga27125d99f6aa90dc36c3de0736993265}
+
+
+Destroy the list of obtained category I\+Ds. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em cat\+\_\+ids} & Categories I\+Ds.\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__IL__DICT_ga254bc46b2740b8291fd0061e47c28758}{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+get} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{dict_8c-example}{dict.\+c}.\end{Desc}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+get@{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+get}}
+\index{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+get@{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+get}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+get(il\+\_\+dict\+\_\+t $\ast$dict)}{il_dict_cat_ids_get(il_dict_t *dict)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} const char$\ast$$\ast$ il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+dict\+\_\+t} $\ast$}]{dict}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_ga254bc46b2740b8291fd0061e47c28758}{}\label{group__IL__DICT_ga254bc46b2740b8291fd0061e47c28758}
+
+
+Obtain the list of category I\+Ds. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dict} & Dictionary instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Category I\+Ds (N\+U\+LL if none or error).
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__IL__DICT_ga27125d99f6aa90dc36c3de0736993265}{il\+\_\+dict\+\_\+cat\+\_\+ids\+\_\+destroy} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{dict_8c-example}{dict.\+c}.\end{Desc}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+create@{il\+\_\+dict\+\_\+create}}
+\index{il\+\_\+dict\+\_\+create@{il\+\_\+dict\+\_\+create}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+create(const char $\ast$dict\+\_\+f)}{il_dict_create(const char *dict_f)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} {\bf il\+\_\+dict\+\_\+t}$\ast$ il\+\_\+dict\+\_\+create (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{dict\+\_\+f}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_gaf3d1da6ffb1d4efcf40946dc705230f2}{}\label{group__IL__DICT_gaf3d1da6ffb1d4efcf40946dc705230f2}
+
+
+Create a dictionary. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dict\+\_\+f} & Dictionary file.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Dictionary instance. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{dict_8c-example}{dict.\+c}.\end{Desc}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+destroy@{il\+\_\+dict\+\_\+destroy}}
+\index{il\+\_\+dict\+\_\+destroy@{il\+\_\+dict\+\_\+destroy}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+destroy(il\+\_\+dict\+\_\+t $\ast$dict)}{il_dict_destroy(il_dict_t *dict)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+dict\+\_\+destroy (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+dict\+\_\+t} $\ast$}]{dict}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_ga37cc4ceb38514581a5bbecb47f5cfa61}{}\label{group__IL__DICT_ga37cc4ceb38514581a5bbecb47f5cfa61}
+
+
+Destroy a dictionary. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em dict} & Dictionary instance. \\
+\hline
+\end{DoxyParams}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{dict_8c-example}{dict.\+c}.\end{Desc}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+reg\+\_\+cnt@{il\+\_\+dict\+\_\+reg\+\_\+cnt}}
+\index{il\+\_\+dict\+\_\+reg\+\_\+cnt@{il\+\_\+dict\+\_\+reg\+\_\+cnt}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+reg\+\_\+cnt(il\+\_\+dict\+\_\+t $\ast$dict)}{il_dict_reg_cnt(il_dict_t *dict)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} size\+\_\+t il\+\_\+dict\+\_\+reg\+\_\+cnt (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+dict\+\_\+t} $\ast$}]{dict}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_ga7d1b8cad25b75ec725c9dad237fe918a}{}\label{group__IL__DICT_ga7d1b8cad25b75ec725c9dad237fe918a}
+
+
+Obtain number of registers in the dictionary. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dict} & Dictionary instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Number of registers in the dictionary. 
+\end{DoxyReturn}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+reg\+\_\+get@{il\+\_\+dict\+\_\+reg\+\_\+get}}
+\index{il\+\_\+dict\+\_\+reg\+\_\+get@{il\+\_\+dict\+\_\+reg\+\_\+get}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+reg\+\_\+get(il\+\_\+dict\+\_\+t $\ast$dict, const char $\ast$id, const il\+\_\+reg\+\_\+t $\ast$$\ast$reg)}{il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+dict\+\_\+reg\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+dict\+\_\+t} $\ast$}]{dict, }
+\item[{const char $\ast$}]{id, }
+\item[{const {\bf il\+\_\+reg\+\_\+t} $\ast$$\ast$}]{reg}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_ga2c1e206d3c5d57a4a047855c2743fa5a}{}\label{group__IL__DICT_ga2c1e206d3c5d57a4a047855c2743fa5a}
+
+
+Obtain register from ID. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dict} & Dictionary instance. \\
+\hline
+\mbox{\tt in}  & {\em id} & Register ID. \\
+\hline
+\mbox{\tt out}  & {\em reg} & Where register with given ID will be stored.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, I\+L\+\_\+\+E\+F\+A\+IL if the register does not exist. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{dict_8c-example}{dict.\+c}.\end{Desc}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+destroy@{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+destroy}}
+\index{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+destroy@{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+destroy}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+destroy(const char $\ast$$\ast$regs)}{il_dict_reg_ids_destroy(const char **regs)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+destroy (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$$\ast$}]{regs}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_gacd7922e14cb903f3342747ed21a00ec1}{}\label{group__IL__DICT_gacd7922e14cb903f3342747ed21a00ec1}
+
+
+Destroy the list of obtained register I\+Ds. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em regs} & Register list.\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__IL__DICT_gaaf93ee11fe3006f72c03f03174abdf33}{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+get} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{dict_8c-example}{dict.\+c}.\end{Desc}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+get@{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+get}}
+\index{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+get@{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+get}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+get(il\+\_\+dict\+\_\+t $\ast$dict)}{il_dict_reg_ids_get(il_dict_t *dict)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} const char$\ast$$\ast$ il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+dict\+\_\+t} $\ast$}]{dict}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_gaaf93ee11fe3006f72c03f03174abdf33}{}\label{group__IL__DICT_gaaf93ee11fe3006f72c03f03174abdf33}
+
+
+Obtain the list of register I\+Ds. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dict} & Dictionary instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Dictionary I\+Ds (N\+U\+LL if none or error).
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__IL__DICT_gacd7922e14cb903f3342747ed21a00ec1}{il\+\_\+dict\+\_\+reg\+\_\+ids\+\_\+destroy} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{dict_8c-example}{dict.\+c}.\end{Desc}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+scat\+\_\+cnt@{il\+\_\+dict\+\_\+scat\+\_\+cnt}}
+\index{il\+\_\+dict\+\_\+scat\+\_\+cnt@{il\+\_\+dict\+\_\+scat\+\_\+cnt}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+scat\+\_\+cnt(il\+\_\+dict\+\_\+t $\ast$dict, const char $\ast$cat\+\_\+id)}{il_dict_scat_cnt(il_dict_t *dict, const char *cat_id)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} size\+\_\+t il\+\_\+dict\+\_\+scat\+\_\+cnt (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+dict\+\_\+t} $\ast$}]{dict, }
+\item[{const char $\ast$}]{cat\+\_\+id}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_gac34ec4d95d8526d1cf09641c843ce7aa}{}\label{group__IL__DICT_gac34ec4d95d8526d1cf09641c843ce7aa}
+
+
+Obtain number of sub-\/categories in a category. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dict} & Dictionary instance. \\
+\hline
+\mbox{\tt in}  & {\em cat\+\_\+id} & Category ID.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Number of categories in the dictionary. 
+\end{DoxyReturn}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+scat\+\_\+get@{il\+\_\+dict\+\_\+scat\+\_\+get}}
+\index{il\+\_\+dict\+\_\+scat\+\_\+get@{il\+\_\+dict\+\_\+scat\+\_\+get}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+scat\+\_\+get(il\+\_\+dict\+\_\+t $\ast$dict, const char $\ast$cat\+\_\+id, const char $\ast$scat\+\_\+id, il\+\_\+dict\+\_\+labels\+\_\+t $\ast$$\ast$labels)}{il_dict_scat_get(il_dict_t *dict, const char *cat_id, const char *scat_id, il_dict_labels_t **labels)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+dict\+\_\+scat\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+dict\+\_\+t} $\ast$}]{dict, }
+\item[{const char $\ast$}]{cat\+\_\+id, }
+\item[{const char $\ast$}]{scat\+\_\+id, }
+\item[{{\bf il\+\_\+dict\+\_\+labels\+\_\+t} $\ast$$\ast$}]{labels}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_ga79fb4bf5b1fab3d67a201c6e5b11e5e7}{}\label{group__IL__DICT_ga79fb4bf5b1fab3d67a201c6e5b11e5e7}
+
+
+Obtain sub-\/category labels from a category. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dict} & Dictionary instance. \\
+\hline
+\mbox{\tt in}  & {\em cat\+\_\+id} & Category ID. \\
+\hline
+\mbox{\tt in}  & {\em scat\+\_\+id} & Sub-\/category ID. \\
+\hline
+\mbox{\tt out}  & {\em labels} & Where labels for the given ID will be stored.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, I\+L\+\_\+\+E\+F\+A\+IL if the register does not exist. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{dict_8c-example}{dict.\+c}.\end{Desc}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+destroy@{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+destroy}}
+\index{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+destroy@{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+destroy}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+destroy(const char $\ast$$\ast$scat\+\_\+ids)}{il_dict_scat_ids_destroy(const char **scat_ids)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+destroy (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$$\ast$}]{scat\+\_\+ids}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_gaa558e902f07600780b351f9e58f443df}{}\label{group__IL__DICT_gaa558e902f07600780b351f9e58f443df}
+
+
+Destroy the list of obtained sub-\/category I\+Ds. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em scat\+\_\+ids} & Sub-\/category I\+Ds.\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__IL__DICT_ga51782d1acdcfd574ab717c6c721cb560}{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+get} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{dict_8c-example}{dict.\+c}.\end{Desc}
+\index{Dictionary@{Dictionary}!il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+get@{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+get}}
+\index{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+get@{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+get}!Dictionary@{Dictionary}}
+\subsubsection[{\texorpdfstring{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+get(il\+\_\+dict\+\_\+t $\ast$dict, const char $\ast$cat\+\_\+id)}{il_dict_scat_ids_get(il_dict_t *dict, const char *cat_id)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} const char$\ast$$\ast$ il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+dict\+\_\+t} $\ast$}]{dict, }
+\item[{const char $\ast$}]{cat\+\_\+id}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__DICT_ga51782d1acdcfd574ab717c6c721cb560}{}\label{group__IL__DICT_ga51782d1acdcfd574ab717c6c721cb560}
+
+
+Obtain the list of category I\+Ds. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em dict} & Dictionary instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Category I\+Ds (N\+U\+LL if none or error).
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__IL__DICT_gaa558e902f07600780b351f9e58f443df}{il\+\_\+dict\+\_\+scat\+\_\+ids\+\_\+destroy} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{dict_8c-example}{dict.\+c}.\end{Desc}

@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__VERSION">
+    <title>Version information</title>
+<para>Collaboration diagram for Version information</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__VERSION.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> const char * <link linkend="group__IL__VERSION_1ga17e1f8bff3f9ce8d9fa99aba399f2c7a">il_version</link> (
+void )<para><emphasis>Obtain library version.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Function Documentation</title>
+            <section xml:id="group__IL__VERSION_1ga17e1f8bff3f9ce8d9fa99aba399f2c7a">
+                <title>IL_EXPORT const char* il_version (void)</title> <emphasis>Obtain library version.</emphasis>
+                
+<para><formalpara><title>Returns: </title>
+
+<para>Library version (e.g. &quot;1.0.0&quot;) </para>
+</formalpara>
+</para>
+
+            </section>
+        </section>
+</section>

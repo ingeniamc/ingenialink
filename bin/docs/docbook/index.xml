@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<book xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <info>
+    <title>ingenialink</title>
+    </info>
+        <xi:include href="mainpage.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <chapter>
+        <title>Module Documentation</title>
+        <xi:include href="group__IL.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    </chapter>
+    <chapter>
+        <title>Data Structure Documentation</title>
+        <xi:include href="structil__monitor__acq__t.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="structil__net__dev__list.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="structil__net__opts__t.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="structil__net__servos__list.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="structil__poller__acq__t.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="unionil__reg__limit__t.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="structil__reg__range__t.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="structil__reg__t.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="structil__servo__info__t.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    </chapter>
+    <chapter>
+        <title>File Documentation</title>
+        <xi:include href="benchmark_8c.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="dict_8c.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="list_8c.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="monitor_8c.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="motion_8c.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="servo__monitor_8c.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="utils_8c.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="utils_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="common_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="const_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="dict_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="dict__labels_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="err_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="ingenialink_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="monitor_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="net_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="poller_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="registers_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="servo_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="version_8h.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="README_8md.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    </chapter>
+    <chapter>
+        <title>Directory Documentation</title>
+        <xi:include href="dir_9d5955e451596d89c476291678285125.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    </chapter>
+    <chapter>
+        <title>Example Documentation</title>
+        <xi:include href="benchmark_8c-example.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="dict_8c-example.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="list_8c-example.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="monitor_8c-example.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="motion_8c-example.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+        <xi:include href="servo_monitor_8c-example.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    </chapter>
+</book>

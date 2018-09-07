@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="structil__poller__acq__t">
+<title>il_poller_acq_t struct Reference</title>
+<para>
+    <programlisting>#include <link linkend="poller_8h">&lt;poller.h&gt;</link></programlisting>
+</para>
+<para>Inheritance diagram for il_poller_acq_t</para>
+<para>
+    <figure>
+        <title>Inheritance graph</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="structil__poller__acq__t__inherit__graph.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Collaboration diagram for il_poller_acq_t</para>
+<para>
+    <figure>
+        <title>Collaboration graph</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="structil__poller__acq__t__coll__graph.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Data Fields</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>double * t<para><emphasis>Time vector.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>double ** d<para><emphasis>Data vectors.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>size_t cnt<para><emphasis>Number of actual samples in the time and data vectors.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>int lost<para><emphasis>Data lost flag.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+
+<para>Poller acquisition results. </para>
+    </simplesect>
+        <simplesect>
+            <title>Detailed Description</title>
+                <para>Definition at line 44 of file poller.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>poller.h</para></listitem></itemizedlist></para>
+        </simplesect>
+        <section>
+            <title>Field Documentation</title>
+            <simplesect>
+                <title>double* il_poller_acq_t::t</title>                
+                <para>Definition at line 46 of file poller.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>poller.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>double** il_poller_acq_t::d</title>                
+                <para>Definition at line 48 of file poller.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>poller.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>size_t il_poller_acq_t::cnt</title>                
+                <para>Definition at line 50 of file poller.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>poller.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>int il_poller_acq_t::lost</title>                
+                <para>Definition at line 52 of file poller.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>poller.h</para></listitem></itemizedlist></para>
+            </simplesect>
+        </section>
+</section>

@@ -1,0 +1,187 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="monitor_8h">
+    <title>monitor.h File Reference</title>
+    <programlisting>#include &quot;servo.h&quot;</programlisting>
+<para>Include dependency diagram for monitor.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="monitor_8h__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Included by dependency diagram for monitor.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="monitor_8h__dep__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title> Data Structures </title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>struct <link linkend="structil__monitor__acq__t">il_monitor_acq_t</link></para>
+<para><emphasis>Monitor acquisition results.</emphasis></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__MONITOR_1ga05007f227fb5f253ed8ba714c0efb2cd">IL_MONITOR_CH_NUM</link> 4<para><emphasis>Number of channels.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Enumerations</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para><literallayout>enum <link linkend="group__IL__MONITOR_1ga713d0c15082ee67cb77d384d4537e107">il_monitor_trigger_t</link> {
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107a7a2adbfffa9d5301d44c58aee1524947">IL_MONITOR_TRIGGER_IMMEDIATE</link>= 0,
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107a3d9776dc06a1769bb3bac474d0d2f671">IL_MONITOR_TRIGGER_MOTION</link>= 1,
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107a3e127c86c21f607d0df72b64403adb42">IL_MONITOR_TRIGGER_POS</link>= 2,
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107afff4584d639834baa2242e2ab08aafd6">IL_MONITOR_TRIGGER_NEG</link>= 3,
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107af66901be0c630d815042a98f13b0781b">IL_MONITOR_TRIGGER_WINDOW</link>= 4,
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107aededed6d0aa1e43dd19b0019f857db06">IL_MONITOR_TRIGGER_DIN</link>= 5
+}</literallayout>
+<para><emphasis>Trigger modes.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Typedefs</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef struct il_monitor  <link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link><para><emphasis>IngeniaLink monitor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * <link linkend="group__IL__MONITOR_1gabab1b2d47a46eeabfcaa9ec5ce7c49a8">il_monitor_create</link> (
+<link linkend="group__IL__SERVO_1ga3369ddfcc33492fe3a28f96cf455b13e">il_servo_t</link> * servo)<para><emphasis>Create monitor instance.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__MONITOR_1ga3bc1e187d696eadd07a3f33b502c998a">il_monitor_destroy</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor)<para><emphasis>Destroy a monitor instance.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga41ec8c974f4322537d714844be7b8a2a">il_monitor_start</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor)<para><emphasis>Start monitor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__MONITOR_1ga2408490312f9562407f93111a4deece8">il_monitor_stop</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor)<para><emphasis>Stop monitor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga5a2bfd4b0f37f4abee986a77afae5b32">il_monitor_wait</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, int timeout)<para><emphasis>Wait until current acquisition is completed.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__MONITOR_1gad6231f5d154969361fdd05d3f84707bb">il_monitor_data_get</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, <link linkend="structil__monitor__acq__t">il_monitor_acq_t</link> ** acq)<para><emphasis>Obtain current available data.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga8fc675f7d849ebcf162e396a98b6c710">il_monitor_configure</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, unsigned int t_s, size_t delay_samples, size_t max_samples)<para><emphasis>Configure monitor parameters.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1gacda4fa0bc57e96988e62f895b256a62a">il_monitor_ch_configure</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, int ch, const <link linkend="structil__reg__t">il_reg_t</link> * reg, const char * id)<para><emphasis>Configure channel mapping.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga33dffe1563b9d4a53d7623a123d7710c">il_monitor_ch_disable</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, int ch)<para><emphasis>Disable one channel.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga19230bb2f539a808deb9e42afcb58678">il_monitor_ch_disable_all</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor)<para><emphasis>Disable all channels.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga98522072a54d7e70fe94409d666d58cd">il_monitor_trigger_configure</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, <link linkend="group__IL__MONITOR_1ga713d0c15082ee67cb77d384d4537e107">il_monitor_trigger_t</link> mode, size_t delay_samples, const <link linkend="structil__reg__t">il_reg_t</link> * source, const char * source_id, double th_pos, double th_neg, uint32_t din_msk)<para><emphasis>Trigger configuration.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+        <title>Detailed Description</title>
+
+<para>Monitor. </para>
+    <para>Definition in file /home/surajcha/codebase/ingenialink/include/public/ingenialink/monitor.h</para>
+    </simplesect>
+</section>

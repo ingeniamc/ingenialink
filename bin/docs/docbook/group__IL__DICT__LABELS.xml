@@ -1,0 +1,345 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__DICT__LABELS">
+    <title>Labels dictionary</title>
+<para>Collaboration diagram for Labels dictionary</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__DICT__LABELS.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Typedefs</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef struct il_dict_labels  <link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link><para><emphasis>Labels dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * <link linkend="group__IL__DICT__LABELS_1ga3d1801f1328932552ae98c151079514b">il_dict_labels_create</link> (
+void )<para><emphasis>Create a labels dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT__LABELS_1ga5dbfa1bafc6fd6e5c1e3356579e6b03a">il_dict_labels_destroy</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels)<para><emphasis>Destroy a labels dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__DICT__LABELS_1ga40033ee8b33c612a90feec8ecfeaec40">il_dict_labels_get</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels, const char * lang, const char ** label)<para><emphasis>Obtain the label given a language.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT__LABELS_1ga31c468b558ffe84fbd413883ce80eb84">il_dict_labels_set</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels, const char * lang, const char * label)<para><emphasis>Set the label for a given language.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT__LABELS_1ga8910c8ced7a73f8971264ae83208c07e">il_dict_labels_del</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels, const char * lang)<para><emphasis>Remove the label of the given language.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> size_t <link linkend="group__IL__DICT__LABELS_1gae088f90ebbe304009129f502da289122">il_dict_labels_nlabels_get</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels)<para><emphasis>Obtain the number of labels.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> const char ** <link linkend="group__IL__DICT__LABELS_1ga8fe3b029fc05420611468de19d2b6439">il_dict_labels_langs_get</link> (
+<link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels)<para><emphasis>Obtain the languages available in the labels dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT__LABELS_1ga522d5f9739e165588a79e085d9112f06">il_dict_labels_langs_destroy</link> (
+const char ** langs)<para><emphasis>Destroy a list of languages.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Typedef Documentation</title>
+            <section xml:id="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">
+                <title>typedef struct il_dict_labels il_dict_labels_t</title> <emphasis>Labels dictionary.</emphasis>
+                
+            </section>
+        </section>
+        <section>
+            <title>Function Documentation</title>
+            <section xml:id="group__IL__DICT__LABELS_1ga3d1801f1328932552ae98c151079514b">
+                <title>IL_EXPORT il_dict_labels_t* il_dict_labels_create (void)</title> <emphasis>Create a labels dictionary.</emphasis>
+                
+<para><formalpara><title>Returns: </title>
+
+<para>Labels dictionary instance (NULL if it could not be created). </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT__LABELS_1ga5dbfa1bafc6fd6e5c1e3356579e6b03a">
+                <title>IL_EXPORT void il_dict_labels_destroy (il_dict_labels_t *labels)</title> <emphasis>Destroy a labels dictionary.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>labels</entry>
+                                <entry>
+<para>Labels dictionary. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__DICT__LABELS_1ga40033ee8b33c612a90feec8ecfeaec40">
+                <title>IL_EXPORT int il_dict_labels_get (il_dict_labels_t *labels, const char *lang, const char **label)</title> <emphasis>Obtain the label given a language.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>labels</entry>
+                                <entry>
+<para>Labels dictionary. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>lang</entry>
+                                <entry>
+<para>Language (ISO code). </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>label</entry>
+                                <entry>
+<para>Label.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 if label exists for the given language, IL_EFAIL otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT__LABELS_1ga31c468b558ffe84fbd413883ce80eb84">
+                <title>IL_EXPORT void il_dict_labels_set (il_dict_labels_t *labels, const char *lang, const char *label)</title> <emphasis>Set the label for a given language.</emphasis>
+                
+<para><formalpara><title>Note: </title>
+
+<para>A copy of label is stored internally.</para>
+</formalpara>
+
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>labels</entry>
+                                <entry>
+<para>Labels dictionary. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>lang</entry>
+                                <entry>
+<para>Language (ISO code). </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>label</entry>
+                                <entry>
+<para>Label. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__DICT__LABELS_1ga8910c8ced7a73f8971264ae83208c07e">
+                <title>IL_EXPORT void il_dict_labels_del (il_dict_labels_t *labels, const char *lang)</title> <emphasis>Remove the label of the given language.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>labels</entry>
+                                <entry>
+<para>Labels dictionary. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>lang</entry>
+                                <entry>
+<para>Language (ISO code). </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__DICT__LABELS_1gae088f90ebbe304009129f502da289122">
+                <title>IL_EXPORT size_t il_dict_labels_nlabels_get (il_dict_labels_t *labels)</title> <emphasis>Obtain the number of labels.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>labels</entry>
+                                <entry>
+<para>Labels dictionary. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__DICT__LABELS_1ga8fe3b029fc05420611468de19d2b6439">
+                <title>IL_EXPORT const char** il_dict_labels_langs_get (il_dict_labels_t *labels)</title> <emphasis>Obtain the languages available in the labels dictionary.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>labels</entry>
+                                <entry>
+<para>Labels dictionary.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Null-terminated list of languages.</para>
+</formalpara>
+<formalpara><title>See also: </title>
+
+<para><link linkend="group__IL__DICT__LABELS_1ga522d5f9739e165588a79e085d9112f06">il_dict_labels_langs_destroy</link> </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT__LABELS_1ga522d5f9739e165588a79e085d9112f06">
+                <title>IL_EXPORT void il_dict_labels_langs_destroy (const char **langs)</title> <emphasis>Destroy a list of languages.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>langs</entry>
+                                <entry>
+<para>List of languages. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+        </section>
+</section>

@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST__SIGNATURES">
+    <title>Signatures</title>
+<para>Collaboration diagram for Signatures</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST__SIGNATURES.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SIGNATURES_1ga4c86aee7016ece956e15b5d1523fbc07">ILK_SIGNATURE_STORE</link> 0x65766173<para><emphasis>Store signature.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SIGNATURES_1gafec6f03943f9194696a21de117dedbfc">ILK_SIGNATURE_RESET</link> 0x64747372<para><emphasis>Reset signature.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__CONST__SIGNATURES_1ga4c86aee7016ece956e15b5d1523fbc07">
+                <title>#define ILK_SIGNATURE_STORE</title>                
+                <para>Definition at line 62 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__SIGNATURES_1gafec6f03943f9194696a21de117dedbfc">
+                <title>#define ILK_SIGNATURE_RESET</title>                
+                <para>Definition at line 64 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

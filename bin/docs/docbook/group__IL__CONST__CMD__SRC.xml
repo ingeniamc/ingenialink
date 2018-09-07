@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST__CMD__SRC">
+    <title>Command sources</title>
+<para>Collaboration diagram for Command sources</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST__CMD__SRC.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1ga88919277ef4cb64e612b18356061b87d">ILK_CMD_SRC_NETWORK</link> 0x00<para><emphasis>Network.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1gaef878333a1356fde2b0534a169b93978">ILK_CMD_SRC_AIN</link> 0x01<para><emphasis>Analog input.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1ga354c3281eb53b704f8fb7a6ec62a88c6">ILK_CMD_SRC_PWM</link> 0x02<para><emphasis>PWM or PWM &amp; direction.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1ga65139db060bb9ccf75324070aac63635">ILK_CMD_SRC_STEPDIR</link> 0x03<para><emphasis>Step &amp; direction.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1ga23b5f07af7a7285c8e7cf0d371586f1d">ILK_CMD_SRC_EGEARING</link> 0x05<para><emphasis>Electronic gearing.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1gaf24cb62945a45167b7edb440559baab4">ILK_CMD_SRC_INTEGRAL_GEN</link> 0x06<para><emphasis>Integral generator.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__CONST__CMD__SRC_1ga88919277ef4cb64e612b18356061b87d">
+                <title>#define ILK_CMD_SRC_NETWORK</title>                
+                <para>Definition at line 290 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__CMD__SRC_1gaef878333a1356fde2b0534a169b93978">
+                <title>#define ILK_CMD_SRC_AIN</title>                
+                <para>Definition at line 292 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__CMD__SRC_1ga354c3281eb53b704f8fb7a6ec62a88c6">
+                <title>#define ILK_CMD_SRC_PWM</title>                
+                <para>Definition at line 294 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__CMD__SRC_1ga65139db060bb9ccf75324070aac63635">
+                <title>#define ILK_CMD_SRC_STEPDIR</title>                
+                <para>Definition at line 296 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__CMD__SRC_1ga23b5f07af7a7285c8e7cf0d371586f1d">
+                <title>#define ILK_CMD_SRC_EGEARING</title>                
+                <para>Definition at line 298 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__CMD__SRC_1gaf24cb62945a45167b7edb440559baab4">
+                <title>#define ILK_CMD_SRC_INTEGRAL_GEN</title>                
+                <para>Definition at line 300 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

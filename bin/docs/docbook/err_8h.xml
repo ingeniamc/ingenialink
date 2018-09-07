@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="err_8h">
+    <title>err.h File Reference</title>
+    <programlisting>#include &quot;common.h&quot;</programlisting>
+<para>Include dependency diagram for err.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="err_8h__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Included by dependency diagram for err.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="err_8h__dep__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga19bb985b7d18cefc5aed42f9907fb2e0">IL_EFAIL</link> -1<para><emphasis>General failure.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga47cf82d575e6ab2f1af332b192f5a152">IL_EINVAL</link> -2<para><emphasis>Invalid values.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1gac51a50be89cb8812586de3d7c403a3d2">IL_ETIMEDOUT</link> -3<para><emphasis>Operation timed out.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1gaf70f61bc8e6136b385edb92f72b0e676">IL_ENOMEM</link> -4<para><emphasis>Not enough memory.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga6450573c3dc43ce215afa857082692eb">IL_EALREADY</link> -5<para><emphasis>Already initialized.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga09294945616872dde2c5ed98e257406d">IL_EDISCONN</link> -6<para><emphasis>Device disconnected.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1gaf8957a58cdc74c6cda94eb5bb990a26b">IL_EACCESS</link> -7<para><emphasis>Access error.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga85eb5ca72fd69575a0d927efcdd44188">IL_ESTATE</link> -8<para><emphasis>State error.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga150b9efcf3d35150433b151f1f134b98">IL_EIO</link> -9<para><emphasis>I/O error.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1gacafae18e9ab826ace3f9135d2ed7deeb">IL_ENOTSUP</link> -10<para><emphasis>Not supported.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> const char * <link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link> (
+void )<para><emphasis>Obtain library last error details.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+        <title>Detailed Description</title>
+
+<para>Error reporting. </para>
+    <para>Definition in file /home/surajcha/codebase/ingenialink/include/public/ingenialink/err.h</para>
+    </simplesect>
+</section>

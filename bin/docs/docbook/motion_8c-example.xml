@@ -1,0 +1,224 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="motion_8c-example">
+    <title>motion.c</title>
+
+<para>Simple motion example (Homing + PP). You can use the motion_plot.py script to plot the resulting CSV. <literallayout><computeroutput>
+<emphasis class="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+<emphasis class="preprocessor">#include&#32;&lt;<link linkend="ingenialink_8h">ingenialink/ingenialink.h</link>&gt;</emphasis>
+
+<emphasis class="preprocessor">#define&#32;ENABLE_TIMEOUT&#32;&#32;2000</emphasis>
+
+<emphasis class="preprocessor">#define&#32;HOMING_TIMEOUT&#32;&#32;15000</emphasis>
+
+<emphasis class="preprocessor">#define&#32;POS_TIMEOUT&#32;5000</emphasis>
+
+<emphasis class="preprocessor">#define&#32;T_S&#32;&#32;&#32;&#32;&#32;5</emphasis>
+
+<emphasis class="preprocessor">#define&#32;POLLER_SZ&#32;&#32;&#32;2000</emphasis>
+
+<emphasis class="keywordtype">void</emphasis>&#32;on_emcy(<emphasis class="keywordtype">void</emphasis>&#32;*ctx,&#32;uint32_t&#32;code)
+{
+&#32;&#32;&#32;&#32;(void)ctx;
+
+&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;Emergency&#32;occurred&#32;(0x%04x)\n&quot;</emphasis>,&#32;code);
+}
+
+<emphasis class="keyword">static</emphasis>&#32;<emphasis class="keywordtype">int</emphasis>&#32;run(<emphasis class="keyword">const</emphasis>&#32;<emphasis class="keywordtype">char</emphasis>&#32;*log_fname)
+{
+&#32;&#32;&#32;&#32;<emphasis class="keywordtype">int</emphasis>&#32;r&#32;=&#32;0;
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordtype">size_t</emphasis>&#32;i;
+
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link>&#32;*net;
+&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1ga3369ddfcc33492fe3a28f96cf455b13e">il_servo_t</link>&#32;*servo;
+
+&#32;&#32;&#32;&#32;<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link>&#32;*poller;
+&#32;&#32;&#32;&#32;<link linkend="structil__poller__acq__t">il_poller_acq_t</link>&#32;*acq;
+&#32;&#32;&#32;&#32;FILE&#32;*log_f;
+
+&#32;&#32;&#32;&#32;<emphasis class="keyword">const</emphasis>&#32;<link linkend="structil__reg__t">il_reg_t</link>&#32;IL_REG_POS_ACT&#32;=&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.<link linkend="structil__reg__t_1ac0433a8ae86e0990fa59a074a5ad1bd1">address</link>&#32;=&#32;0x006064,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.dtype&#32;=&#32;<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48">IL_REG_DTYPE_S32</link>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.access&#32;=&#32;<link linkend="group__IL__REGS_1gga4c623bd7d0d5f059dd91949c6948147eafa388eb7ec6166ba6a59d0d665f3ac53">IL_REG_ACCESS_RW</link>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.phy&#32;=&#32;<link linkend="group__IL__REGS_1gga37538453e5c3d84733c628987a579590aea1c9cf80466e862af6a3a6f687550ef">IL_REG_PHY_VEL</link>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.range&#32;=&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.min.s32&#32;=&#32;INT32_MIN,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.max.s32&#32;=&#32;INT32_MAX
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;},
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.labels&#32;=&#32;NULL
+&#32;&#32;&#32;&#32;};
+
+&#32;&#32;&#32;&#32;<emphasis class="keyword">const</emphasis>&#32;<link linkend="structil__reg__t">il_reg_t</link>&#32;IL_REG_VEL_ACT&#32;=&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.<link linkend="structil__reg__t_1ac0433a8ae86e0990fa59a074a5ad1bd1">address</link>&#32;=&#32;0x00606c,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.dtype&#32;=&#32;<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48">IL_REG_DTYPE_S32</link>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.access&#32;=&#32;<link linkend="group__IL__REGS_1gga4c623bd7d0d5f059dd91949c6948147eafa388eb7ec6166ba6a59d0d665f3ac53">IL_REG_ACCESS_RW</link>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.phy&#32;=&#32;<link linkend="group__IL__REGS_1gga37538453e5c3d84733c628987a579590aea1c9cf80466e862af6a3a6f687550ef">IL_REG_PHY_VEL</link>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.range&#32;=&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.min.s32&#32;=&#32;INT32_MIN,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.max.s32&#32;=&#32;INT32_MAX
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;},
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.labels&#32;=&#32;NULL
+&#32;&#32;&#32;&#32;};
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1gab5a21816ac7d663f8148feb12dd32f9a">il_servo_lucky</link>(<link linkend="group__IL__NET_1gga9629f7451843e493e7665754b5c2fecaafb048fa22f8e422dd8af49370e5f24a5">IL_NET_PROT_EUSB</link>,&#32;&amp;net,&#32;&amp;servo,&#32;NULL);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;r;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1gad64153fedf0e2c82b88b545de2a1e134">il_servo_emcy_subscribe</link>(servo,&#32;on_emcy,&#32;NULL);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;subscribe&#32;to&#32;emergencies:&#32;%s\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_net_servo;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1ga1a64e31ed42e99bff4a577fc8b2ad076">il_servo_units_pos_set</link>(servo,&#32;<link linkend="group__IL__SERVO_1ggaefeeab7931ae00097627941a79950799ad5a21928f5565c58ec6631ef735a73d4">IL_UNITS_POS_DEG</link>);
+&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1gacd15dfc7141865bcb63912888aad71ba">il_servo_units_vel_set</link>(servo,&#32;<link linkend="group__IL__SERVO_1gga548eebb728eb841e157b57f2063203eeaefca3b85d079add8af939073f1c4a2ba">IL_UNITS_VEL_DEG_S</link>);
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;create&#32;poller&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;poller&#32;=&#32;<link linkend="group__IL__POLLER_1gaf1a6d95123039ac685439062c34e7e54">il_poller_create</link>(servo,&#32;2);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!poller)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;create&#32;poller:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;r&#32;=&#32;1;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_net_servo;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__POLLER_1ga90aa41e8a0ff21af9d077e522cefb205">il_poller_configure</link>(poller,&#32;T_S,&#32;POLLER_SZ);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;configure&#32;poller:&#32;%s\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__POLLER_1ga615595277add47dd6966112e48e66988">il_poller_ch_configure</link>(poller,&#32;0,&#32;&amp;IL_REG_POS_ACT,&#32;NULL);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;configure&#32;poller&#32;channel:&#32;%s\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__POLLER_1ga615595277add47dd6966112e48e66988">il_poller_ch_configure</link>(poller,&#32;1,&#32;&amp;IL_REG_VEL_ACT,&#32;NULL);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;configure&#32;poller&#32;channel:&#32;%s\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;disable&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1ga8b5938454ac8183a514d11203f2e6197">il_servo_disable</link>(servo);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;disable&#32;servo:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;perform&#32;homing&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1ga9ef9a84e8b6aa1ee23d301dbd93b8b2f">il_servo_mode_set</link>(servo,&#32;<link linkend="group__IL__SERVO_1gga6b3323798a8f235c225cc1d0cd27840aaf9aac6909e0810beac63271839113826">IL_SERVO_MODE_HOMING</link>);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;set&#32;mode:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1gaee57b72c5f6d4756a6a914edbf0db0d9">il_servo_enable</link>(servo,&#32;ENABLE_TIMEOUT);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;enable&#32;servo:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1gaf7cf26ed91ae60e5f049b056009783e0">il_servo_homing_start</link>(servo);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;start&#32;homing:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1gad55d208e57e674e0c1a31b995563e96d">il_servo_homing_wait</link>(servo,&#32;HOMING_TIMEOUT);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Homing&#32;did&#32;not&#32;succeed:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;perform&#32;PP&#32;movements&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1ga8b5938454ac8183a514d11203f2e6197">il_servo_disable</link>(servo);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;disable&#32;servo:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1ga9ef9a84e8b6aa1ee23d301dbd93b8b2f">il_servo_mode_set</link>(servo,&#32;<link linkend="group__IL__SERVO_1gga6b3323798a8f235c225cc1d0cd27840aa84502500bb9e2800c8c3bad60f30afd0">IL_SERVO_MODE_PP</link>);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;set&#32;mode:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1gaee57b72c5f6d4756a6a914edbf0db0d9">il_servo_enable</link>(servo,&#32;ENABLE_TIMEOUT);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;enable&#32;servo:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__POLLER_1ga018f08358312c8610819a47fd9d2509f">il_poller_start</link>(poller);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;start&#32;poller:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">for</emphasis>&#32;(i&#32;=&#32;1;&#32;i&#32;&lt;&#32;5;&#32;i++)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1ga24af5dbdebb7a56f73070781d53e2d76">il_servo_position_set</link>(servo,&#32;90&#32;*&#32;i,&#32;0,&#32;0,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1ga6c36d0853cb9bd4c71cee037421ec09a">IL_SERVO_SP_TIMEOUT_DEF</link>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;set&#32;position:&#32;%s\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1gaa18949ceef486037483614569e22197f">il_servo_wait_reached</link>(servo,&#32;POS_TIMEOUT);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;reach&#32;target:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;(void)<link linkend="group__IL__SERVO_1ga8b5938454ac8183a514d11203f2e6197">il_servo_disable</link>(servo);
+&#32;&#32;&#32;&#32;(void)<link linkend="group__IL__POLLER_1ga1055384cca31fe730d07d488017c559f">il_poller_stop</link>(poller);
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;obtain&#32;poller&#32;results&#32;and&#32;log&#32;to&#32;CSV&#32;file.&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;<link linkend="group__IL__POLLER_1ga67ccc0e92b0bb83756462d3c407d4d87">il_poller_data_get</link>(poller,&#32;&amp;acq);
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(acq-&gt;<link linkend="structil__poller__acq__t_1a41b46fb77cf99d8d2d307e5ec37f707a">lost</link>)
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Warning:&#32;poller&#32;data&#32;was&#32;lost\n&quot;</emphasis>);
+
+&#32;&#32;&#32;&#32;log_f&#32;=&#32;fopen(log_fname,&#32;<emphasis class="stringliteral">&quot;w&quot;</emphasis>);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!log_f)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;open&#32;log&#32;file\n&quot;</emphasis>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_poller;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;acq-&gt;<link linkend="structil__poller__acq__t_1aaf726970c22e29aafbbe83d2b24b2eaa">cnt</link>;&#32;i++)
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(log_f,&#32;<emphasis class="stringliteral">&quot;%f,&#32;%f,&#32;%f\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;acq-&gt;<link linkend="structil__poller__acq__t_1aae27ff232752eb21937cefd31c5adcb4">t</link>[i],&#32;acq-&gt;<link linkend="structil__poller__acq__t_1aa0c86de89229342ec18f4cf7effdc089">d</link>[0][i],&#32;acq-&gt;<link linkend="structil__poller__acq__t_1aa0c86de89229342ec18f4cf7effdc089">d</link>[1][i]);
+
+&#32;&#32;&#32;&#32;fclose(log_f);
+
+cleanup_poller:
+&#32;&#32;&#32;&#32;<link linkend="group__IL__POLLER_1gada8133cbba4d0212e6d5c84dab03d407">il_poller_destroy</link>(poller);
+
+cleanup_net_servo:
+&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1gade6d6e8ae2488af2a6ae6a6c484eaf32">il_servo_destroy</link>(servo);
+
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga4b9335320c644d86491b3bc20e055f5f">il_net_destroy</link>(net);
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;r;
+}
+
+<emphasis class="keywordtype">int</emphasis>&#32;main(<emphasis class="keywordtype">int</emphasis>&#32;argc,&#32;<emphasis class="keywordtype">char</emphasis>&#32;**argv)
+{
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(argc&#32;&lt;&#32;2)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="stringliteral">&quot;Usage:&#32;motion&#32;LOG_FILE\n&quot;</emphasis>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;1;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;run(argv[1]);
+}
+</computeroutput></literallayout> </para>
+
+</section>

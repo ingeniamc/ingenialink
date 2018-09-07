@@ -1,0 +1,164 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST__FB">
+    <title>Feedbacks</title>
+<para>Collaboration diagram for Feedbacks</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST__FB.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1gae3ff92eb789c2fec9b7a629b20418af1">ILK_FB_DIGITAL_ENCODER</link> 0x00<para><emphasis>Digital encoder.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga624f38df3393c8c74ca8f350f1acfb7b">ILK_FB_DIGITAL_HALLS</link> 0x01<para><emphasis>Digital halls.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1gada00d2cfc8c349a4976600232b399a2c">ILK_FB_ANALOG_HALLS</link> 0x02<para><emphasis>Analog halls.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga03d870b0c6512ec965806036c6878ebb">ILK_FB_ANALOG_INPUT</link> 0x04<para><emphasis>Analog input.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga9874ed60d637b9bf51850678add98685">ILK_FB_SSI</link> 0x05<para><emphasis>SSI.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga06e050308174827bf2f5de8c1fb18340">ILK_FB_SINCOS</link> 0x06<para><emphasis>SinCos.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga43f62e2c2cc014a82a93c76a11ad8106">ILK_FB_PWM</link> 0x07<para><emphasis>PWM.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga50a41df2322b1b41b9ec93ec2fbe4811">ILK_FB_RESOLVER</link> 0x08<para><emphasis>Resolver.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga4caccef6137e2cce88d4c230fe9be977">ILK_FB_NONE</link> 0x09<para><emphasis>None.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1gaa3a26923923455feb238d74ec5d64a3c">ILK_FB_SIMULATED</link> 0x0B<para><emphasis>Simulated.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__CONST__FB_1gae3ff92eb789c2fec9b7a629b20418af1">
+                <title>#define ILK_FB_DIGITAL_ENCODER</title>                
+                <para>Definition at line 132 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__FB_1ga624f38df3393c8c74ca8f350f1acfb7b">
+                <title>#define ILK_FB_DIGITAL_HALLS</title>                
+                <para>Definition at line 134 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__FB_1gada00d2cfc8c349a4976600232b399a2c">
+                <title>#define ILK_FB_ANALOG_HALLS</title>                
+                <para>Definition at line 136 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__FB_1ga03d870b0c6512ec965806036c6878ebb">
+                <title>#define ILK_FB_ANALOG_INPUT</title>                
+                <para>Definition at line 138 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__FB_1ga9874ed60d637b9bf51850678add98685">
+                <title>#define ILK_FB_SSI</title>                
+                <para>Definition at line 140 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__FB_1ga06e050308174827bf2f5de8c1fb18340">
+                <title>#define ILK_FB_SINCOS</title>                
+                <para>Definition at line 142 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__FB_1ga43f62e2c2cc014a82a93c76a11ad8106">
+                <title>#define ILK_FB_PWM</title>                
+                <para>Definition at line 144 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__FB_1ga50a41df2322b1b41b9ec93ec2fbe4811">
+                <title>#define ILK_FB_RESOLVER</title>                
+                <para>Definition at line 146 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__FB_1ga4caccef6137e2cce88d4c230fe9be977">
+                <title>#define ILK_FB_NONE</title>                
+                <para>Definition at line 148 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__FB_1gaa3a26923923455feb238d74ec5d64a3c">
+                <title>#define ILK_FB_SIMULATED</title>                
+                <para>Definition at line 150 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

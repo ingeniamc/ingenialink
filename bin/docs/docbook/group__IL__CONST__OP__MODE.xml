@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST__OP__MODE">
+    <title>Operation modes</title>
+<para>Collaboration diagram for Operation modes</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST__OP__MODE.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga1f22e168e8a3092acf6982d6374ef829">ILK_OP_MODE_OLV</link> -2<para><emphasis>Open loop (vector mode).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga0a7de45bb24cb05b8bae5a4399baef6e">ILK_OP_MODE_OLS</link> -1<para><emphasis>Open loop (scalar mode).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga52b02647597ea4e09718a62b2ee8d994">ILK_OP_MODE_PP</link> 1<para><emphasis>Profile position.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga2e2b186a23f0b7d57a0f9faa590cea05">ILK_OP_MODE_VEL</link> 2<para><emphasis>Velocity.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga835525c916eb87bd07495702423f5571">ILK_OP_MODE_PV</link> 3<para><emphasis>Profile velocity.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga620365ff1869f00172b03ed1f8ea3b2f">ILK_OP_MODE_PT</link> 4<para><emphasis>Profile torque.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga9f1663d81dc7e4cb79afa5cdfceded54">ILK_OP_MODE_HOMING</link> 6<para><emphasis>Homing.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga35cf56e35484129095342ad889db552c">ILK_OP_MODE_IP</link> 7<para><emphasis>Interpolated position mode.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga95c806de859172e9f09af0d620f15ec5">ILK_OP_MODE_CSP</link> 8<para><emphasis>Cyclic sync position mode.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1gaaf121cd4e10a148b001f0a4d7cafae96">ILK_OP_MODE_CSV</link> 9<para><emphasis>Cyclic sync velocity mode.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga336b0e7a48565b41d3b67cc4527b6298">ILK_OP_MODE_CST</link> 10<para><emphasis>Cyclic sync torque mode.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__CONST__OP__MODE_1ga1f22e168e8a3092acf6982d6374ef829">
+                <title>#define ILK_OP_MODE_OLV</title>                
+                <para>Definition at line 74 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__OP__MODE_1ga0a7de45bb24cb05b8bae5a4399baef6e">
+                <title>#define ILK_OP_MODE_OLS</title>                
+                <para>Definition at line 76 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__OP__MODE_1ga52b02647597ea4e09718a62b2ee8d994">
+                <title>#define ILK_OP_MODE_PP</title>                
+                <para>Definition at line 78 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__OP__MODE_1ga2e2b186a23f0b7d57a0f9faa590cea05">
+                <title>#define ILK_OP_MODE_VEL</title>                
+                <para>Definition at line 80 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__OP__MODE_1ga835525c916eb87bd07495702423f5571">
+                <title>#define ILK_OP_MODE_PV</title>                
+                <para>Definition at line 82 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__OP__MODE_1ga620365ff1869f00172b03ed1f8ea3b2f">
+                <title>#define ILK_OP_MODE_PT</title>                
+                <para>Definition at line 84 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__OP__MODE_1ga9f1663d81dc7e4cb79afa5cdfceded54">
+                <title>#define ILK_OP_MODE_HOMING</title>                
+                <para>Definition at line 86 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__OP__MODE_1ga35cf56e35484129095342ad889db552c">
+                <title>#define ILK_OP_MODE_IP</title>                
+                <para>Definition at line 88 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__OP__MODE_1ga95c806de859172e9f09af0d620f15ec5">
+                <title>#define ILK_OP_MODE_CSP</title>                
+                <para>Definition at line 90 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__OP__MODE_1gaaf121cd4e10a148b001f0a4d7cafae96">
+                <title>#define ILK_OP_MODE_CSV</title>                
+                <para>Definition at line 92 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__OP__MODE_1ga336b0e7a48565b41d3b67cc4527b6298">
+                <title>#define ILK_OP_MODE_CST</title>                
+                <para>Definition at line 94 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

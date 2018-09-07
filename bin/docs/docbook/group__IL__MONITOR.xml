@@ -1,0 +1,668 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__MONITOR">
+    <title>Monitor</title>
+<para>Collaboration diagram for Monitor</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__MONITOR.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title> Data Structures </title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>struct <link linkend="structil__monitor__acq__t">il_monitor_acq_t</link></para>
+<para><emphasis>Monitor acquisition results.</emphasis></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Enumerations</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para><literallayout>enum <link linkend="group__IL__MONITOR_1ga713d0c15082ee67cb77d384d4537e107">il_monitor_trigger_t</link> {
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107a7a2adbfffa9d5301d44c58aee1524947">IL_MONITOR_TRIGGER_IMMEDIATE</link>= 0,
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107a3d9776dc06a1769bb3bac474d0d2f671">IL_MONITOR_TRIGGER_MOTION</link>= 1,
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107a3e127c86c21f607d0df72b64403adb42">IL_MONITOR_TRIGGER_POS</link>= 2,
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107afff4584d639834baa2242e2ab08aafd6">IL_MONITOR_TRIGGER_NEG</link>= 3,
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107af66901be0c630d815042a98f13b0781b">IL_MONITOR_TRIGGER_WINDOW</link>= 4,
+<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107aededed6d0aa1e43dd19b0019f857db06">IL_MONITOR_TRIGGER_DIN</link>= 5
+}</literallayout>
+<para><emphasis>Trigger modes.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Typedefs</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef struct il_monitor  <link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link><para><emphasis>IngeniaLink monitor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * <link linkend="group__IL__MONITOR_1gabab1b2d47a46eeabfcaa9ec5ce7c49a8">il_monitor_create</link> (
+<link linkend="group__IL__SERVO_1ga3369ddfcc33492fe3a28f96cf455b13e">il_servo_t</link> * servo)<para><emphasis>Create monitor instance.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__MONITOR_1ga3bc1e187d696eadd07a3f33b502c998a">il_monitor_destroy</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor)<para><emphasis>Destroy a monitor instance.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga41ec8c974f4322537d714844be7b8a2a">il_monitor_start</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor)<para><emphasis>Start monitor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__MONITOR_1ga2408490312f9562407f93111a4deece8">il_monitor_stop</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor)<para><emphasis>Stop monitor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga5a2bfd4b0f37f4abee986a77afae5b32">il_monitor_wait</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, int timeout)<para><emphasis>Wait until current acquisition is completed.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__MONITOR_1gad6231f5d154969361fdd05d3f84707bb">il_monitor_data_get</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, <link linkend="structil__monitor__acq__t">il_monitor_acq_t</link> ** acq)<para><emphasis>Obtain current available data.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga8fc675f7d849ebcf162e396a98b6c710">il_monitor_configure</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, unsigned int t_s, size_t delay_samples, size_t max_samples)<para><emphasis>Configure monitor parameters.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1gacda4fa0bc57e96988e62f895b256a62a">il_monitor_ch_configure</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, int ch, const <link linkend="structil__reg__t">il_reg_t</link> * reg, const char * id)<para><emphasis>Configure channel mapping.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga33dffe1563b9d4a53d7623a123d7710c">il_monitor_ch_disable</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, int ch)<para><emphasis>Disable one channel.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga19230bb2f539a808deb9e42afcb58678">il_monitor_ch_disable_all</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor)<para><emphasis>Disable all channels.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__MONITOR_1ga98522072a54d7e70fe94409d666d58cd">il_monitor_trigger_configure</link> (
+<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link> * monitor, <link linkend="group__IL__MONITOR_1ga713d0c15082ee67cb77d384d4537e107">il_monitor_trigger_t</link> mode, size_t delay_samples, const <link linkend="structil__reg__t">il_reg_t</link> * source, const char * source_id, double th_pos, double th_neg, uint32_t din_msk)<para><emphasis>Trigger configuration.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__MONITOR_1ga05007f227fb5f253ed8ba714c0efb2cd">IL_MONITOR_CH_NUM</link> 4<para><emphasis>Number of channels.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Enumeration Type Documentation</title>
+            <section xml:id="group__IL__MONITOR_1ga713d0c15082ee67cb77d384d4537e107">
+               <title>enum il_monitor_trigger_t </title>
+               
+               <formalpara>
+                    <title>Enumerator:</title>
+                    <variablelist>
+                        <varlistentry xml:id="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107a7a2adbfffa9d5301d44c58aee1524947">
+                            <term>IL_MONITOR_TRIGGER_IMMEDIATE</term>
+                            <listitem>
+                                <para>Immediate.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107a3d9776dc06a1769bb3bac474d0d2f671">
+                            <term>IL_MONITOR_TRIGGER_MOTION</term>
+                            <listitem>
+                                <para>Motion start.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107a3e127c86c21f607d0df72b64403adb42">
+                            <term>IL_MONITOR_TRIGGER_POS</term>
+                            <listitem>
+                                <para>Positive slope.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107afff4584d639834baa2242e2ab08aafd6">
+                            <term>IL_MONITOR_TRIGGER_NEG</term>
+                            <listitem>
+                                <para>Negative slope.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107af66901be0c630d815042a98f13b0781b">
+                            <term>IL_MONITOR_TRIGGER_WINDOW</term>
+                            <listitem>
+                                <para>Exit window.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107aededed6d0aa1e43dd19b0019f857db06">
+                            <term>IL_MONITOR_TRIGGER_DIN</term>
+                            <listitem>
+                                <para>Digital input activation.</para>
+                            </listitem>
+                        </varlistentry>
+                     </variablelist>
+                </formalpara>
+                <para>Definition at line 52 of file monitor.h
+                    <computeroutput><literallayout>
+{
+IL_MONITOR_TRIGGER_IMMEDIATE= 0, 
+IL_MONITOR_TRIGGER_MOTION= 1, 
+IL_MONITOR_TRIGGER_POS= 2, 
+IL_MONITOR_TRIGGER_NEG= 3, 
+IL_MONITOR_TRIGGER_WINDOW= 4, 
+IL_MONITOR_TRIGGER_DIN= 5, 
+}il_monitor_trigger_t;
+                    </literallayout></computeroutput>
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>Typedef Documentation</title>
+            <section xml:id="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">
+                <title>typedef struct il_monitor il_monitor_t</title> <emphasis>IngeniaLink monitor.</emphasis>
+                
+            </section>
+        </section>
+        <section>
+            <title>Function Documentation</title>
+            <section xml:id="group__IL__MONITOR_1gabab1b2d47a46eeabfcaa9ec5ce7c49a8">
+                <title>IL_EXPORT il_monitor_t* il_monitor_create (il_servo_t *servo)</title> <emphasis>Create monitor instance.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>servo</entry>
+                                <entry>
+<para>Associated servo.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Monitor instance (NULL if it could not be created). </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__MONITOR_1ga3bc1e187d696eadd07a3f33b502c998a">
+                <title>IL_EXPORT void il_monitor_destroy (il_monitor_t *monitor)</title> <emphasis>Destroy a monitor instance.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>monitor</entry>
+                                <entry>
+<para>Monitor instance. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__MONITOR_1ga41ec8c974f4322537d714844be7b8a2a">
+                <title>IL_EXPORT int il_monitor_start (il_monitor_t *monitor)</title> <emphasis>Start monitor.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>monitor</entry>
+                                <entry>
+<para>Monitor instance.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__MONITOR_1ga2408490312f9562407f93111a4deece8">
+                <title>IL_EXPORT void il_monitor_stop (il_monitor_t *monitor)</title> <emphasis>Stop monitor.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>monitor</entry>
+                                <entry>
+<para>Monitor instance. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__MONITOR_1ga5a2bfd4b0f37f4abee986a77afae5b32">
+                <title>IL_EXPORT int il_monitor_wait (il_monitor_t *monitor, int timeout)</title> <emphasis>Wait until current acquisition is completed.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>monitor</entry>
+                                <entry>
+<para>Monitor instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>timeout</entry>
+                                <entry>
+<para>Timeout (ms).</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__MONITOR_1gad6231f5d154969361fdd05d3f84707bb">
+                <title>IL_EXPORT void il_monitor_data_get (il_monitor_t *monitor, il_monitor_acq_t **acq)</title> <emphasis>Obtain current available data.</emphasis>
+                
+<para><formalpara><title>Note: </title>
+
+<para>The obtained acquisition data can be used until the next call to this function.</para>
+</formalpara>
+
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>monitor</entry>
+                                <entry>
+<para>Monitor instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>acq</entry>
+                                <entry>
+<para>Where the acquisition results will be left. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__MONITOR_1ga8fc675f7d849ebcf162e396a98b6c710">
+                <title>IL_EXPORT int il_monitor_configure (il_monitor_t *monitor, unsigned int t_s, size_t delay_samples, size_t max_samples)</title> <emphasis>Configure monitor parameters.</emphasis>
+                
+<para><formalpara><title>Note: </title>
+
+<para><itemizedlist>
+<listitem>
+<para>The monitor maximum resolution is 100 us.</para>
+</listitem><listitem>
+<para>The monitor maximum number of samples depends on the configured mappings.</para>
+</listitem></itemizedlist>
+</para>
+</formalpara>
+
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>monitor</entry>
+                                <entry>
+<para>Monitor instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>t_s</entry>
+                                <entry>
+<para>Sampling period (us). </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>delay_samples</entry>
+                                <entry>
+<para>Delay samples. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>max_samples</entry>
+                                <entry>
+<para>Maximum number of samples to acquire (use 0 to use the maximum).</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__MONITOR_1gacda4fa0bc57e96988e62f895b256a62a">
+                <title>IL_EXPORT int il_monitor_ch_configure (il_monitor_t *monitor, int ch, const il_reg_t *reg, const char *id)</title> <emphasis>Configure channel mapping.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>monitor</entry>
+                                <entry>
+<para>Monitor instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>ch</entry>
+                                <entry>
+<para>Channel to be configured (0-3). </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>reg</entry>
+                                <entry>
+<para>Register (pre-defined) to be mapped on the channel. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>id</entry>
+                                <entry>
+<para>Register ID to be mapped on the channel.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__MONITOR_1ga33dffe1563b9d4a53d7623a123d7710c">
+                <title>IL_EXPORT int il_monitor_ch_disable (il_monitor_t *monitor, int ch)</title> <emphasis>Disable one channel.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>monitor</entry>
+                                <entry>
+<para>Monitor instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>ch</entry>
+                                <entry>
+<para>Channel to be disabled (0-3).</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__MONITOR_1ga19230bb2f539a808deb9e42afcb58678">
+                <title>IL_EXPORT int il_monitor_ch_disable_all (il_monitor_t *monitor)</title> <emphasis>Disable all channels.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>monitor</entry>
+                                <entry>
+<para>Monitor instance.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__MONITOR_1ga98522072a54d7e70fe94409d666d58cd">
+                <title>IL_EXPORT int il_monitor_trigger_configure (il_monitor_t *monitor, il_monitor_trigger_t mode, size_t delay_samples, const il_reg_t *source, const char *source_id, double th_pos, double th_neg, uint32_t din_msk)</title> <emphasis>Trigger configuration.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>monitor</entry>
+                                <entry>
+<para>Monitor instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>mode</entry>
+                                <entry>
+<para>Trigger mode. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>delay_samples</entry>
+                                <entry>
+<para>Trigger delay in samples. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>source</entry>
+                                <entry>
+<para>Trigger source (only required if mode is IL_MONITOR_TRIGGER_POS, IL_MONITOR_TRIGGER_NEG or IL_MONITOR_TRIGGER_WINDOW). </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>source_id</entry>
+                                <entry>
+<para>Trigger source (ID). </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>th_pos</entry>
+                                <entry>
+<para>Positive threshold (only required if mode is IL_MONITOR_TRIGGER_POS or IL_MONITOR_TRIGGER_WINDOW). </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>th_neg</entry>
+                                <entry>
+<para>Negative threshold (only required if mode is IL_MONITOR_TRIGGER_NEG or IL_MONITOR_TRIGGER_WINDOW). </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>din_msk</entry>
+                                <entry>
+<para>Digital inputs mask (only required if mode is DIN).</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__MONITOR_1ga05007f227fb5f253ed8ba714c0efb2cd">
+                <title>#define IL_MONITOR_CH_NUM</title>                
+                <para>Definition at line 49 of file monitor.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>monitor.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

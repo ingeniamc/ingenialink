@@ -1,0 +1,127 @@
+\hypertarget{benchmark_8c-example}{}\section{benchmark.\+c}
+This example performs a transfer benchmark.
+
+
+\begin{DoxyCodeInclude}
+
+\textcolor{preprocessor}{#include "utils.h"}
+
+\textcolor{preprocessor}{#include <stdio.h>}
+
+\textcolor{preprocessor}{#define ADDRESS 0x6040}
+
+\textcolor{preprocessor}{#ifdef \_WIN32}
+\textcolor{preprocessor}{#include <Windows.h>}
+
+\textcolor{preprocessor}{#define benchmark\_init(loops) \(\backslash\)}
+\textcolor{preprocessor}{    LARGE\_INTEGER frequency; \(\backslash\)}
+\textcolor{preprocessor}{    LARGE\_INTEGER start, end; \(\backslash\)}
+\textcolor{preprocessor}{    QueryPerformanceCounter(&start); \(\backslash\)}
+\textcolor{preprocessor}{    for (int i = 0; i < (loops); i++) \(\backslash\)}
+\textcolor{preprocessor}{}
+\textcolor{preprocessor}{#define benchmark\_end(elapsed) \(\backslash\)}
+\textcolor{preprocessor}{    QueryPerformanceCounter(&end); \(\backslash\)}
+\textcolor{preprocessor}{    QueryPerformanceFrequency(&frequency); \(\backslash\)}
+\textcolor{preprocessor}{    elapsed = (end.QuadPart - start.QuadPart) * 1000.0 / frequency.QuadPart;}
+\textcolor{preprocessor}{#else}
+\textcolor{preprocessor}{#include <sys/time.h>}
+
+\textcolor{preprocessor}{#define benchmark\_init(loops) \(\backslash\)}
+\textcolor{preprocessor}{    struct timeval start, end; \(\backslash\)}
+\textcolor{preprocessor}{    gettimeofday(&start, NULL); \(\backslash\)}
+\textcolor{preprocessor}{    for (int i = 0; i < (loops); i++)}
+
+\textcolor{preprocessor}{#define benchmark\_end(elapsed) \(\backslash\)}
+\textcolor{preprocessor}{    gettimeofday(&end, NULL); \(\backslash\)}
+\textcolor{preprocessor}{    elapsed = (end.tv\_sec - start.tv\_sec) * 1000.0; \(\backslash\)}
+\textcolor{preprocessor}{    elapsed += (end.tv\_usec - start.tv\_usec) / 1000.0}
+\textcolor{preprocessor}{#endif}
+
+\textcolor{keyword}{static} \textcolor{keywordtype}{int} run(\textcolor{keywordtype}{int} loops, \hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\_net\_prot\_t} prot, \textcolor{keyword}{const} \textcolor{keywordtype}{char} *port, uint8\_t \textcolor{keywordtype}{id})
+\{
+    int32\_t r = 0;
+
+    \hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\_net\_t} *net;
+    \hyperlink{structil__net__opts__t}{il\_net\_opts\_t} opts;
+    \hyperlink{group__IL__SERVO_ga3369ddfcc33492fe3a28f96cf455b13e}{il\_servo\_t} *servo;
+    \hyperlink{structil__reg__t}{il\_reg\_t} reg;
+
+    \textcolor{keywordtype}{double} elapsed;
+
+    \textcolor{comment}{/* create network */}
+    opts.\hyperlink{structil__net__opts__t_a8b65ee2151ffc84031d96eec857a0189}{port} = port;
+    opts.\hyperlink{structil__net__opts__t_a1fe07477ccaae61b81dd71b2cf4bde08}{timeout\_rd} = \hyperlink{group__IL__NET_ga7fb88a9dcbf2c6ae143dc9d16c70ad4f}{IL\_NET\_TIMEOUT\_RD\_DEF};
+    opts.\hyperlink{structil__net__opts__t_a63e3d6b10ac90e08d629ac4458505d1a}{timeout\_wr} = \hyperlink{group__IL__NET_gaf43b0714cfed3be5907c593e18d4481d}{IL\_NET\_TIMEOUT\_WR\_DEF};
+
+    \textcolor{comment}{/*net = il\_net\_eusb\_create(&opts);*/}
+    net = \hyperlink{group__IL__NET_gaed82d6f49871934f3b6fdf3a9a022cc6}{il\_net\_create}(prot, &opts);
+    \textcolor{keywordflow}{if} (!net) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not create network: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        r = 1;
+        \textcolor{keywordflow}{goto} out;
+    \}
+
+    \textcolor{comment}{/* create servo */}
+    servo = \hyperlink{group__IL__SERVO_gaa3728b10386d3b9f67258a95cb3c2913}{il\_servo\_create}(net, \textcolor{keywordtype}{id}, NULL);
+    \textcolor{keywordflow}{if} (!servo) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not create servo: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_net;
+    \}
+
+    \textcolor{comment}{/* run benchmark */}
+    reg.\hyperlink{structil__reg__t_ac0433a8ae86e0990fa59a074a5ad1bd1}{address} = ADDRESS;
+    reg.\hyperlink{structil__reg__t_a1780caa197277828816c7214aa7b5d2f}{dtype} = \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48}{IL\_REG\_DTYPE\_S32};
+    reg.\hyperlink{structil__reg__t_a8cd718765e48f0de2f978de386c61218}{access} = \hyperlink{group__IL__REGS_gga4c623bd7d0d5f059dd91949c6948147ea12dabd43c525dfea5fb20914711168b8}{IL\_REG\_ACCESS\_RO};
+    reg.\hyperlink{structil__reg__t_a799847eb04e4f29073e7c9939ae977df}{phy} = \hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590a34d96ac8a7b9afc02256a03d5a464822}{IL\_REG\_PHY\_NONE};
+
+    benchmark\_init(loops)
+    \{
+        int32\_t buf;
+        \textcolor{comment}{/*double buf;*/}
+
+        r = \hyperlink{group__IL__SERVO_gab0c5bbb4fcd2784f10fab3648dc405c4}{il\_servo\_raw\_read\_s32}(servo, &reg, NULL, &buf);
+        \textcolor{comment}{/*r = il\_servo\_read(servo, &reg, NULL, &buf);*/}
+        \textcolor{keywordflow}{if} (r < 0) \{
+            fprintf(stderr, \textcolor{stringliteral}{"Error while reading: %s\(\backslash\)n"},
+                \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+            \textcolor{keywordflow}{break};
+        \}
+    \}
+    benchmark\_end(elapsed);
+
+    \textcolor{keywordflow}{if} (r == 0) \{
+        printf(\textcolor{stringliteral}{"%d messages read in %.2f ms (%.2f msgs/s).\(\backslash\)n"}, loops,
+               elapsed, ((\textcolor{keywordtype}{double})loops / elapsed) * 1000.0);
+    \}
+
+    \hyperlink{group__IL__SERVO_gade6d6e8ae2488af2a6ae6a6c484eaf32}{il\_servo\_destroy}(servo);
+
+cleanup\_net:
+    \hyperlink{group__IL__NET_ga4b9335320c644d86491b3bc20e055f5f}{il\_net\_destroy}(net);
+
+out:
+    \textcolor{keywordflow}{return} (\textcolor{keywordtype}{int})r;
+\}
+
+\textcolor{keywordtype}{int} main(\textcolor{keywordtype}{int} argc, \textcolor{keywordtype}{char} **argv)
+\{
+    \textcolor{keywordtype}{int} loops;
+    \hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\_net\_prot\_t} prot;
+    \textcolor{keyword}{const} \textcolor{keywordtype}{char} *port;
+    uint8\_t id;
+
+    \textcolor{keywordflow}{if} (argc < 5) \{
+        fprintf(stderr,
+            \textcolor{stringliteral}{"Usage: benchmark LOOPS PROT PORT SERVO\_ID\(\backslash\)n"});
+        \textcolor{keywordflow}{return} 1;
+    \}
+
+    loops = (int)strtoul(argv[1], NULL, 0);
+    prot = str2prot(argv[2]);
+    port = argv[3];
+    \textcolor{keywordtype}{id} = (uint8\_t)strtoul(argv[4], NULL, 0);
+
+    \textcolor{keywordflow}{return} run(loops, prot, port, \textcolor{keywordtype}{id});
+\}
+\end{DoxyCodeInclude}
+ 

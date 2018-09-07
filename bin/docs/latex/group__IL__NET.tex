@@ -1,0 +1,585 @@
+\hypertarget{group__IL__NET}{}\section{Network}
+\label{group__IL__NET}\index{Network@{Network}}
+Collaboration diagram for Network\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=235pt]{group__IL__NET}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structil__net__opts__t}{il\+\_\+net\+\_\+opts\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Network initialization options. \end{DoxyCompactList}\item 
+struct \hyperlink{structil__net__dev__list}{il\+\_\+net\+\_\+dev\+\_\+list}
+\begin{DoxyCompactList}\small\item\em network devices list. \end{DoxyCompactList}\item 
+struct \hyperlink{structil__net__servos__list}{il\+\_\+net\+\_\+servos\+\_\+list}
+\begin{DoxyCompactList}\small\item\em Network servos list. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{group__IL__NET_ga7fb88a9dcbf2c6ae143dc9d16c70ad4f}{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+R\+D\+\_\+\+D\+EF}~500
+\begin{DoxyCompactList}\small\item\em Default read timeout (ms). \end{DoxyCompactList}\item 
+\#define \hyperlink{group__IL__NET_gaf43b0714cfed3be5907c593e18d4481d}{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+W\+R\+\_\+\+D\+EF}~500
+\begin{DoxyCompactList}\small\item\em Default write timeout (ms). \end{DoxyCompactList}\item 
+\#define \hyperlink{group__IL__NET_ga9c33d1c3bf660e4cb980a9e7a676cb88}{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+O\+R\+T\+\_\+\+SZ}~128U
+\begin{DoxyCompactList}\small\item\em Port maximum size. \end{DoxyCompactList}\item 
+\#define \hyperlink{group__IL__NET_ga70cbad080864d1cc39dd701f9a27d9b6}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+foreach}(item,  lst)~for ((item) = (lst); (item); (item) = (item)-\/$>$next)
+\begin{DoxyCompactList}\small\item\em Utility macro to iterate over a list of network servos list. \end{DoxyCompactList}\item 
+\#define \hyperlink{group__IL__NET_gae80aefde62011dd14dbf60840669cc54}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+foreach}(item,  lst)~for ((item) = (lst); (item); (item) = (item)-\/$>$next)
+\begin{DoxyCompactList}\small\item\em Utility macro to iterate over a list of network devices. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct il\+\_\+net \hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Network. \end{DoxyCompactList}\item 
+typedef struct \hyperlink{structil__net__dev__list}{il\+\_\+net\+\_\+dev\+\_\+list} \hyperlink{group__IL__NET_ga9c0173ee0e17218e9f6dcc5ae0a6f74d}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t}
+\begin{DoxyCompactList}\small\item\em network devices list. \end{DoxyCompactList}\item 
+typedef struct \hyperlink{structil__net__servos__list}{il\+\_\+net\+\_\+servos\+\_\+list} \hyperlink{group__IL__NET_ga81660630b147245b0a160f13ef465811}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Network servos list. \end{DoxyCompactList}\item 
+typedef void($\ast$ \hyperlink{group__IL__NET_ga4ba09545bd04fa6df4f0a26f14df84f7}{il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t}) (void $\ast$ctx, uint8\+\_\+t id)
+\begin{DoxyCompactList}\small\item\em Node found callback. \end{DoxyCompactList}\item 
+typedef struct il\+\_\+net\+\_\+dev\+\_\+mon \hyperlink{group__IL__NET_ga732e586d3465268782c0c227056736e5}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t}\hypertarget{group__IL__NET_ga732e586d3465268782c0c227056736e5}{}\label{group__IL__NET_ga732e586d3465268782c0c227056736e5}
+
+\begin{DoxyCompactList}\small\item\em Network device monitor. \end{DoxyCompactList}\item 
+typedef void($\ast$ \hyperlink{group__IL__NET_ga86bfa409239ad771481bd4dd1a451367}{il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t}) (void $\ast$ctx, \hyperlink{group__IL__NET_ga6e78452befa7532716d8035eb293bc10}{il\+\_\+net\+\_\+dev\+\_\+evt\+\_\+t} evt, const char $\ast$port)
+\begin{DoxyCompactList}\small\item\em Network device event callback. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\+\_\+net\+\_\+prot\+\_\+t} \{ \hyperlink{group__IL__NET_gga9629f7451843e493e7665754b5c2fecaafb048fa22f8e422dd8af49370e5f24a5}{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+E\+U\+SB}, 
+\hyperlink{group__IL__NET_gga9629f7451843e493e7665754b5c2fecaacdfe55790a47d94d5e6a633598f4eb5c}{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+M\+CB}
+ \}\begin{DoxyCompactList}\small\item\em Network protocols. \end{DoxyCompactList}
+\item 
+enum \hyperlink{group__IL__NET_ga0391fec0328dc9cfd7b91990998930a7}{il\+\_\+net\+\_\+state\+\_\+t} \{ \hyperlink{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7a2e3dc49a7ff84f0bae3fc4a237d63fc5}{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+C\+O\+N\+N\+E\+C\+T\+ED}, 
+\hyperlink{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7abf97cabc9736acafc52a079fe3a98a6f}{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+I\+S\+C\+O\+N\+N\+E\+C\+T\+ED}, 
+\hyperlink{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7ad761916bd5ecfefe4578e53c39bf8ade}{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+F\+A\+U\+L\+TY}
+ \}\begin{DoxyCompactList}\small\item\em Network state. \end{DoxyCompactList}
+\item 
+enum \hyperlink{group__IL__NET_ga6e78452befa7532716d8035eb293bc10}{il\+\_\+net\+\_\+dev\+\_\+evt\+\_\+t} \{ \hyperlink{group__IL__NET_gga6e78452befa7532716d8035eb293bc10a643a98c3c2f49473604cdda65b612103}{I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+A\+D\+D\+ED}, 
+\hyperlink{group__IL__NET_gga6e78452befa7532716d8035eb293bc10a49f0b316d9ca1d19fa3b31cba22e8581}{I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+R\+E\+M\+O\+V\+ED}
+ \}\begin{DoxyCompactList}\small\item\em Device monitor event types. \end{DoxyCompactList}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$ \hyperlink{group__IL__NET_gaed82d6f49871934f3b6fdf3a9a022cc6}{il\+\_\+net\+\_\+create} (\hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\+\_\+net\+\_\+prot\+\_\+t} prot, const \hyperlink{structil__net__opts__t}{il\+\_\+net\+\_\+opts\+\_\+t} $\ast$opts)
+\begin{DoxyCompactList}\small\item\em Create a network. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_ga4b9335320c644d86491b3bc20e055f5f}{il\+\_\+net\+\_\+destroy} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Destroy a network. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__NET_gae7992a1213d501e4df7ef3ae64e0c835}{il\+\_\+net\+\_\+connect} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Connect network. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_gaaacc31d9cbf294a17dae29eacfb7e735}{il\+\_\+net\+\_\+disconnect} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Disconnect network. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\+\_\+net\+\_\+prot\+\_\+t} \hyperlink{group__IL__NET_gaa72feed444ad53acc497505239b950f9}{il\+\_\+net\+\_\+prot\+\_\+get} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Obtain network protocol. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga0391fec0328dc9cfd7b91990998930a7}{il\+\_\+net\+\_\+state\+\_\+t} \hyperlink{group__IL__NET_ga83bb157bace16b18f1ebba59a6c6fe59}{il\+\_\+net\+\_\+state\+\_\+get} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Obtain network state. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} const char $\ast$ \hyperlink{group__IL__NET_ga307f630cca0e1d5e1ff44ce04abc9389}{il\+\_\+net\+\_\+port\+\_\+get} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Obtain network port. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga81660630b147245b0a160f13ef465811}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t} $\ast$ \hyperlink{group__IL__NET_ga6167fb50406d818120a069b681d377df}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+get} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net, \hyperlink{group__IL__NET_ga4ba09545bd04fa6df4f0a26f14df84f7}{il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t} on\+\_\+found, void $\ast$ctx)
+\begin{DoxyCompactList}\small\item\em Obtain network servos list. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_ga7bb08347585c3760ba2f0c471c478d12}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+destroy} (\hyperlink{group__IL__NET_ga81660630b147245b0a160f13ef465811}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t} $\ast$lst)
+\begin{DoxyCompactList}\small\item\em Destroy network servos list. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga732e586d3465268782c0c227056736e5}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t} $\ast$ \hyperlink{group__IL__NET_ga78022aea4dc9147a87544533f2999bd9}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+create} (\hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\+\_\+net\+\_\+prot\+\_\+t} prot)
+\begin{DoxyCompactList}\small\item\em Create a network device monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__NET_gac0ed4c0656f51a2e691907ccd8ac94ce}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+start} (\hyperlink{group__IL__NET_ga732e586d3465268782c0c227056736e5}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t} $\ast$mon, \hyperlink{group__IL__NET_ga86bfa409239ad771481bd4dd1a451367}{il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t} on\+\_\+evt, void $\ast$ctx)
+\begin{DoxyCompactList}\small\item\em Start the network device monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_ga88fb38bdcb516562c504588b37ab934a}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+stop} (\hyperlink{group__IL__NET_ga732e586d3465268782c0c227056736e5}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t} $\ast$mon)
+\begin{DoxyCompactList}\small\item\em Stop the network device monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_ga71f76ab3a41bde25b3b77a661ff767d8}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+destroy} (\hyperlink{group__IL__NET_ga732e586d3465268782c0c227056736e5}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t} $\ast$mon)
+\begin{DoxyCompactList}\small\item\em Destroy the network device monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga9c0173ee0e17218e9f6dcc5ae0a6f74d}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t} $\ast$ \hyperlink{group__IL__NET_gaa59e20a4749f276763c45e5d278934d3}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+get} (\hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\+\_\+net\+\_\+prot\+\_\+t} prot)
+\begin{DoxyCompactList}\small\item\em Obtain network devices list. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_ga86d432b3a9ef2fdc6719e19a59dcbf65}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+destroy} (\hyperlink{group__IL__NET_ga9c0173ee0e17218e9f6dcc5ae0a6f74d}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t} $\ast$lst)
+\begin{DoxyCompactList}\small\item\em Destroy Network device list. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+
+
+\subsection{Macro Definition Documentation}
+\index{Network@{Network}!il\+\_\+net\+\_\+dev\+\_\+list\+\_\+foreach@{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+foreach}}
+\index{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+foreach@{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+foreach}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+foreach}{il_net_dev_list_foreach}}]{\setlength{\rightskip}{0pt plus 5cm}\#define il\+\_\+net\+\_\+dev\+\_\+list\+\_\+foreach(
+\begin{DoxyParamCaption}
+\item[{}]{item, }
+\item[{}]{lst}
+\end{DoxyParamCaption}
+)~for ((item) = (lst); (item); (item) = (item)-\/$>$next)}\hypertarget{group__IL__NET_gae80aefde62011dd14dbf60840669cc54}{}\label{group__IL__NET_gae80aefde62011dd14dbf60840669cc54}
+
+
+Utility macro to iterate over a list of network devices. 
+
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{list_8c-example}{list.\+c}.\end{Desc}
+\index{Network@{Network}!I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+O\+R\+T\+\_\+\+SZ@{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+O\+R\+T\+\_\+\+SZ}}
+\index{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+O\+R\+T\+\_\+\+SZ@{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+O\+R\+T\+\_\+\+SZ}!Network@{Network}}
+\subsubsection[{\texorpdfstring{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+O\+R\+T\+\_\+\+SZ}{IL_NET_PORT_SZ}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+O\+R\+T\+\_\+\+SZ~128U}\hypertarget{group__IL__NET_ga9c33d1c3bf660e4cb980a9e7a676cb88}{}\label{group__IL__NET_ga9c33d1c3bf660e4cb980a9e7a676cb88}
+
+
+Port maximum size. 
+
+\index{Network@{Network}!il\+\_\+net\+\_\+servos\+\_\+list\+\_\+foreach@{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+foreach}}
+\index{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+foreach@{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+foreach}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+foreach}{il_net_servos_list_foreach}}]{\setlength{\rightskip}{0pt plus 5cm}\#define il\+\_\+net\+\_\+servos\+\_\+list\+\_\+foreach(
+\begin{DoxyParamCaption}
+\item[{}]{item, }
+\item[{}]{lst}
+\end{DoxyParamCaption}
+)~for ((item) = (lst); (item); (item) = (item)-\/$>$next)}\hypertarget{group__IL__NET_ga70cbad080864d1cc39dd701f9a27d9b6}{}\label{group__IL__NET_ga70cbad080864d1cc39dd701f9a27d9b6}
+
+
+Utility macro to iterate over a list of network servos list. 
+
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{list_8c-example}{list.\+c}.\end{Desc}
+\index{Network@{Network}!I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+R\+D\+\_\+\+D\+EF@{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+R\+D\+\_\+\+D\+EF}}
+\index{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+R\+D\+\_\+\+D\+EF@{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+R\+D\+\_\+\+D\+EF}!Network@{Network}}
+\subsubsection[{\texorpdfstring{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+R\+D\+\_\+\+D\+EF}{IL_NET_TIMEOUT_RD_DEF}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+R\+D\+\_\+\+D\+EF~500}\hypertarget{group__IL__NET_ga7fb88a9dcbf2c6ae143dc9d16c70ad4f}{}\label{group__IL__NET_ga7fb88a9dcbf2c6ae143dc9d16c70ad4f}
+
+
+Default read timeout (ms). 
+
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{benchmark_8c-example}{benchmark.\+c}, \hyperlink{list_8c-example}{list.\+c}, \hyperlink{monitor_8c-example}{monitor.\+c}, and \hyperlink{servo_monitor_8c-example}{servo\+\_\+monitor.\+c}.\end{Desc}
+\index{Network@{Network}!I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+W\+R\+\_\+\+D\+EF@{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+W\+R\+\_\+\+D\+EF}}
+\index{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+W\+R\+\_\+\+D\+EF@{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+W\+R\+\_\+\+D\+EF}!Network@{Network}}
+\subsubsection[{\texorpdfstring{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+W\+R\+\_\+\+D\+EF}{IL_NET_TIMEOUT_WR_DEF}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+W\+R\+\_\+\+D\+EF~500}\hypertarget{group__IL__NET_gaf43b0714cfed3be5907c593e18d4481d}{}\label{group__IL__NET_gaf43b0714cfed3be5907c593e18d4481d}
+
+
+Default write timeout (ms). 
+
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{benchmark_8c-example}{benchmark.\+c}, \hyperlink{list_8c-example}{list.\+c}, \hyperlink{monitor_8c-example}{monitor.\+c}, and \hyperlink{servo_monitor_8c-example}{servo\+\_\+monitor.\+c}.\end{Desc}
+
+
+\subsection{Typedef Documentation}
+\index{Network@{Network}!il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t@{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t}}
+\index{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t@{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t}{il_net_dev_list_t}}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf il\+\_\+net\+\_\+dev\+\_\+list}  {\bf il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t}}\hypertarget{group__IL__NET_ga9c0173ee0e17218e9f6dcc5ae0a6f74d}{}\label{group__IL__NET_ga9c0173ee0e17218e9f6dcc5ae0a6f74d}
+
+
+network devices list. 
+
+\index{Network@{Network}!il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t@{il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t}}
+\index{il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t@{il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t}{il_net_dev_on_evt_t}}]{\setlength{\rightskip}{0pt plus 5cm}typedef void($\ast$ il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t) (void $\ast$ctx, {\bf il\+\_\+net\+\_\+dev\+\_\+evt\+\_\+t} evt, const char $\ast$port)}\hypertarget{group__IL__NET_ga86bfa409239ad771481bd4dd1a451367}{}\label{group__IL__NET_ga86bfa409239ad771481bd4dd1a451367}
+
+
+Network device event callback. 
+
+\index{Network@{Network}!il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t@{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t}}
+\index{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t@{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t}{il_net_servos_list_t}}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf il\+\_\+net\+\_\+servos\+\_\+list}  {\bf il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t}}\hypertarget{group__IL__NET_ga81660630b147245b0a160f13ef465811}{}\label{group__IL__NET_ga81660630b147245b0a160f13ef465811}
+
+
+Network servos list. 
+
+\index{Network@{Network}!il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t@{il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t}}
+\index{il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t@{il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t}{il_net_servos_on_found_t}}]{\setlength{\rightskip}{0pt plus 5cm}typedef void($\ast$ il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t) (void $\ast$ctx, uint8\+\_\+t id)}\hypertarget{group__IL__NET_ga4ba09545bd04fa6df4f0a26f14df84f7}{}\label{group__IL__NET_ga4ba09545bd04fa6df4f0a26f14df84f7}
+
+
+Node found callback. 
+
+\index{Network@{Network}!il\+\_\+net\+\_\+t@{il\+\_\+net\+\_\+t}}
+\index{il\+\_\+net\+\_\+t@{il\+\_\+net\+\_\+t}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+t}{il_net_t}}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct il\+\_\+net {\bf il\+\_\+net\+\_\+t}}\hypertarget{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{}\label{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}
+
+
+Network. 
+
+
+
+\subsection{Enumeration Type Documentation}
+\index{Network@{Network}!il\+\_\+net\+\_\+dev\+\_\+evt\+\_\+t@{il\+\_\+net\+\_\+dev\+\_\+evt\+\_\+t}}
+\index{il\+\_\+net\+\_\+dev\+\_\+evt\+\_\+t@{il\+\_\+net\+\_\+dev\+\_\+evt\+\_\+t}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+dev\+\_\+evt\+\_\+t}{il_net_dev_evt_t}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf il\+\_\+net\+\_\+dev\+\_\+evt\+\_\+t}}\hypertarget{group__IL__NET_ga6e78452befa7532716d8035eb293bc10}{}\label{group__IL__NET_ga6e78452befa7532716d8035eb293bc10}
+
+
+Device monitor event types. 
+
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+A\+D\+D\+ED@{I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+A\+D\+D\+ED}!Network@{Network}}\index{Network@{Network}!I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+A\+D\+D\+ED@{I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+A\+D\+D\+ED}}\item[{\em 
+I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+A\+D\+D\+ED\hypertarget{group__IL__NET_gga6e78452befa7532716d8035eb293bc10a643a98c3c2f49473604cdda65b612103}{}\label{group__IL__NET_gga6e78452befa7532716d8035eb293bc10a643a98c3c2f49473604cdda65b612103}
+}]Device added. \index{I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+R\+E\+M\+O\+V\+ED@{I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+R\+E\+M\+O\+V\+ED}!Network@{Network}}\index{Network@{Network}!I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+R\+E\+M\+O\+V\+ED@{I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+R\+E\+M\+O\+V\+ED}}\item[{\em 
+I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+R\+E\+M\+O\+V\+ED\hypertarget{group__IL__NET_gga6e78452befa7532716d8035eb293bc10a49f0b316d9ca1d19fa3b31cba22e8581}{}\label{group__IL__NET_gga6e78452befa7532716d8035eb293bc10a49f0b316d9ca1d19fa3b31cba22e8581}
+}]Device removed. \end{description}
+\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+prot\+\_\+t@{il\+\_\+net\+\_\+prot\+\_\+t}}
+\index{il\+\_\+net\+\_\+prot\+\_\+t@{il\+\_\+net\+\_\+prot\+\_\+t}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+prot\+\_\+t}{il_net_prot_t}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf il\+\_\+net\+\_\+prot\+\_\+t}}\hypertarget{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{}\label{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}
+
+
+Network protocols. 
+
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+E\+U\+SB@{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+E\+U\+SB}!Network@{Network}}\index{Network@{Network}!I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+E\+U\+SB@{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+E\+U\+SB}}\item[{\em 
+I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+E\+U\+SB\hypertarget{group__IL__NET_gga9629f7451843e493e7665754b5c2fecaafb048fa22f8e422dd8af49370e5f24a5}{}\label{group__IL__NET_gga9629f7451843e493e7665754b5c2fecaafb048fa22f8e422dd8af49370e5f24a5}
+}]E-\/\+U\+SB. \index{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+M\+CB@{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+M\+CB}!Network@{Network}}\index{Network@{Network}!I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+M\+CB@{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+M\+CB}}\item[{\em 
+I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+M\+CB\hypertarget{group__IL__NET_gga9629f7451843e493e7665754b5c2fecaacdfe55790a47d94d5e6a633598f4eb5c}{}\label{group__IL__NET_gga9629f7451843e493e7665754b5c2fecaacdfe55790a47d94d5e6a633598f4eb5c}
+}]M\+CB. \end{description}
+\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+state\+\_\+t@{il\+\_\+net\+\_\+state\+\_\+t}}
+\index{il\+\_\+net\+\_\+state\+\_\+t@{il\+\_\+net\+\_\+state\+\_\+t}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+state\+\_\+t}{il_net_state_t}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf il\+\_\+net\+\_\+state\+\_\+t}}\hypertarget{group__IL__NET_ga0391fec0328dc9cfd7b91990998930a7}{}\label{group__IL__NET_ga0391fec0328dc9cfd7b91990998930a7}
+
+
+Network state. 
+
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+C\+O\+N\+N\+E\+C\+T\+ED@{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+C\+O\+N\+N\+E\+C\+T\+ED}!Network@{Network}}\index{Network@{Network}!I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+C\+O\+N\+N\+E\+C\+T\+ED@{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+C\+O\+N\+N\+E\+C\+T\+ED}}\item[{\em 
+I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+C\+O\+N\+N\+E\+C\+T\+ED\hypertarget{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7a2e3dc49a7ff84f0bae3fc4a237d63fc5}{}\label{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7a2e3dc49a7ff84f0bae3fc4a237d63fc5}
+}]Connected. \index{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+I\+S\+C\+O\+N\+N\+E\+C\+T\+ED@{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+I\+S\+C\+O\+N\+N\+E\+C\+T\+ED}!Network@{Network}}\index{Network@{Network}!I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+I\+S\+C\+O\+N\+N\+E\+C\+T\+ED@{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+I\+S\+C\+O\+N\+N\+E\+C\+T\+ED}}\item[{\em 
+I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+I\+S\+C\+O\+N\+N\+E\+C\+T\+ED\hypertarget{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7abf97cabc9736acafc52a079fe3a98a6f}{}\label{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7abf97cabc9736acafc52a079fe3a98a6f}
+}]Disconnected. \index{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+F\+A\+U\+L\+TY@{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+F\+A\+U\+L\+TY}!Network@{Network}}\index{Network@{Network}!I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+F\+A\+U\+L\+TY@{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+F\+A\+U\+L\+TY}}\item[{\em 
+I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+F\+A\+U\+L\+TY\hypertarget{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7ad761916bd5ecfefe4578e53c39bf8ade}{}\label{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7ad761916bd5ecfefe4578e53c39bf8ade}
+}]Faulty (e.\+g. device was physically disconnected). \end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\index{Network@{Network}!il\+\_\+net\+\_\+connect@{il\+\_\+net\+\_\+connect}}
+\index{il\+\_\+net\+\_\+connect@{il\+\_\+net\+\_\+connect}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+connect(il\+\_\+net\+\_\+t $\ast$net)}{il_net_connect(il_net_t *net)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+net\+\_\+connect (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+t} $\ast$}]{net}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_gae7992a1213d501e4df7ef3ae64e0c835}{}\label{group__IL__NET_gae7992a1213d501e4df7ef3ae64e0c835}
+
+
+Connect network. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em net} & Network.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\index{Network@{Network}!il\+\_\+net\+\_\+create@{il\+\_\+net\+\_\+create}}
+\index{il\+\_\+net\+\_\+create@{il\+\_\+net\+\_\+create}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+create(il\+\_\+net\+\_\+prot\+\_\+t prot, const il\+\_\+net\+\_\+opts\+\_\+t $\ast$opts)}{il_net_create(il_net_prot_t prot, const il_net_opts_t *opts)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} {\bf il\+\_\+net\+\_\+t}$\ast$ il\+\_\+net\+\_\+create (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+prot\+\_\+t}}]{prot, }
+\item[{const {\bf il\+\_\+net\+\_\+opts\+\_\+t} $\ast$}]{opts}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_gaed82d6f49871934f3b6fdf3a9a022cc6}{}\label{group__IL__NET_gaed82d6f49871934f3b6fdf3a9a022cc6}
+
+
+Create a network. 
+
+Network is connected when created.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em prot} & Protocol. \\
+\hline
+\mbox{\tt in}  & {\em opts} & Initialization options.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Network (N\+U\+LL if it could not be created). 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{benchmark_8c-example}{benchmark.\+c}, \hyperlink{list_8c-example}{list.\+c}, \hyperlink{monitor_8c-example}{monitor.\+c}, and \hyperlink{servo_monitor_8c-example}{servo\+\_\+monitor.\+c}.\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+destroy@{il\+\_\+net\+\_\+destroy}}
+\index{il\+\_\+net\+\_\+destroy@{il\+\_\+net\+\_\+destroy}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+destroy(il\+\_\+net\+\_\+t $\ast$net)}{il_net_destroy(il_net_t *net)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+net\+\_\+destroy (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+t} $\ast$}]{net}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_ga4b9335320c644d86491b3bc20e055f5f}{}\label{group__IL__NET_ga4b9335320c644d86491b3bc20e055f5f}
+
+
+Destroy a network. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em net} & Network. \\
+\hline
+\end{DoxyParams}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{benchmark_8c-example}{benchmark.\+c}, \hyperlink{list_8c-example}{list.\+c}, \hyperlink{monitor_8c-example}{monitor.\+c}, \hyperlink{motion_8c-example}{motion.\+c}, and \hyperlink{servo_monitor_8c-example}{servo\+\_\+monitor.\+c}.\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+dev\+\_\+list\+\_\+destroy@{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+destroy}}
+\index{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+destroy@{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+destroy}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+destroy(il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t $\ast$lst)}{il_net_dev_list_destroy(il_net_dev_list_t *lst)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+net\+\_\+dev\+\_\+list\+\_\+destroy (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t} $\ast$}]{lst}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_ga86d432b3a9ef2fdc6719e19a59dcbf65}{}\label{group__IL__NET_ga86d432b3a9ef2fdc6719e19a59dcbf65}
+
+
+Destroy Network device list. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em lst} & Network device list.\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__IL__NET_gaa59e20a4749f276763c45e5d278934d3}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+get} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{list_8c-example}{list.\+c}.\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+dev\+\_\+list\+\_\+get@{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+get}}
+\index{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+get@{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+get}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+get(il\+\_\+net\+\_\+prot\+\_\+t prot)}{il_net_dev_list_get(il_net_prot_t prot)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} {\bf il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t}$\ast$ il\+\_\+net\+\_\+dev\+\_\+list\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+prot\+\_\+t}}]{prot}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_gaa59e20a4749f276763c45e5d278934d3}{}\label{group__IL__NET_gaa59e20a4749f276763c45e5d278934d3}
+
+
+Obtain network devices list. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em prot} & Protocol.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Network devices list (N\+U\+LL if none are found or any error occurs).
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__IL__NET_ga86d432b3a9ef2fdc6719e19a59dcbf65}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+destroy} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{list_8c-example}{list.\+c}.\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+create@{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+create}}
+\index{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+create@{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+create}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+create(il\+\_\+net\+\_\+prot\+\_\+t prot)}{il_net_dev_mon_create(il_net_prot_t prot)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} {\bf il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t}$\ast$ il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+create (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+prot\+\_\+t}}]{prot}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_ga78022aea4dc9147a87544533f2999bd9}{}\label{group__IL__NET_ga78022aea4dc9147a87544533f2999bd9}
+
+
+Create a network device monitor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em prot} & Protocol.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+An of a device monitor (N\+U\+LL if it could not be created). 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{servo_monitor_8c-example}{servo\+\_\+monitor.\+c}.\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+destroy@{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+destroy}}
+\index{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+destroy@{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+destroy}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+destroy(il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t $\ast$mon)}{il_net_dev_mon_destroy(il_net_dev_mon_t *mon)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+destroy (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t} $\ast$}]{mon}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_ga71f76ab3a41bde25b3b77a661ff767d8}{}\label{group__IL__NET_ga71f76ab3a41bde25b3b77a661ff767d8}
+
+
+Destroy the network device monitor. 
+
+\begin{DoxyNote}{Note}
+If the monitor is running, it will be stopped.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em mon} & Monitor. \\
+\hline
+\end{DoxyParams}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{servo_monitor_8c-example}{servo\+\_\+monitor.\+c}.\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+start@{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+start}}
+\index{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+start@{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+start}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+start(il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t $\ast$mon, il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t on\+\_\+evt, void $\ast$ctx)}{il_net_dev_mon_start(il_net_dev_mon_t *mon, il_net_dev_on_evt_t on_evt, void *ctx)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+start (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t} $\ast$}]{mon, }
+\item[{{\bf il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t}}]{on\+\_\+evt, }
+\item[{void $\ast$}]{ctx}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_gac0ed4c0656f51a2e691907ccd8ac94ce}{}\label{group__IL__NET_gac0ed4c0656f51a2e691907ccd8ac94ce}
+
+
+Start the network device monitor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em mon} & Monitor. \\
+\hline
+\mbox{\tt in}  & {\em on\+\_\+evt} & Callback function that will be called when a new device is added or removed. \\
+\hline
+\mbox{\tt in}  & {\em ctx} & Callback context (optional).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{servo_monitor_8c-example}{servo\+\_\+monitor.\+c}.\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+stop@{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+stop}}
+\index{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+stop@{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+stop}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+stop(il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t $\ast$mon)}{il_net_dev_mon_stop(il_net_dev_mon_t *mon)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+stop (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t} $\ast$}]{mon}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_ga88fb38bdcb516562c504588b37ab934a}{}\label{group__IL__NET_ga88fb38bdcb516562c504588b37ab934a}
+
+
+Stop the network device monitor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em mon} & Monitor. \\
+\hline
+\end{DoxyParams}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{servo_monitor_8c-example}{servo\+\_\+monitor.\+c}.\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+disconnect@{il\+\_\+net\+\_\+disconnect}}
+\index{il\+\_\+net\+\_\+disconnect@{il\+\_\+net\+\_\+disconnect}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+disconnect(il\+\_\+net\+\_\+t $\ast$net)}{il_net_disconnect(il_net_t *net)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+net\+\_\+disconnect (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+t} $\ast$}]{net}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_gaaacc31d9cbf294a17dae29eacfb7e735}{}\label{group__IL__NET_gaaacc31d9cbf294a17dae29eacfb7e735}
+
+
+Disconnect network. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em net} & Network. \\
+\hline
+\end{DoxyParams}
+\index{Network@{Network}!il\+\_\+net\+\_\+port\+\_\+get@{il\+\_\+net\+\_\+port\+\_\+get}}
+\index{il\+\_\+net\+\_\+port\+\_\+get@{il\+\_\+net\+\_\+port\+\_\+get}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+port\+\_\+get(il\+\_\+net\+\_\+t $\ast$net)}{il_net_port_get(il_net_t *net)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} const char$\ast$ il\+\_\+net\+\_\+port\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+t} $\ast$}]{net}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_ga307f630cca0e1d5e1ff44ce04abc9389}{}\label{group__IL__NET_ga307f630cca0e1d5e1ff44ce04abc9389}
+
+
+Obtain network port. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em net} & Network.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Network port. 
+\end{DoxyReturn}
+\index{Network@{Network}!il\+\_\+net\+\_\+prot\+\_\+get@{il\+\_\+net\+\_\+prot\+\_\+get}}
+\index{il\+\_\+net\+\_\+prot\+\_\+get@{il\+\_\+net\+\_\+prot\+\_\+get}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+prot\+\_\+get(il\+\_\+net\+\_\+t $\ast$net)}{il_net_prot_get(il_net_t *net)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} {\bf il\+\_\+net\+\_\+prot\+\_\+t} il\+\_\+net\+\_\+prot\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+t} $\ast$}]{net}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_gaa72feed444ad53acc497505239b950f9}{}\label{group__IL__NET_gaa72feed444ad53acc497505239b950f9}
+
+
+Obtain network protocol. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em net} & Network.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Network protocol. 
+\end{DoxyReturn}
+\index{Network@{Network}!il\+\_\+net\+\_\+servos\+\_\+list\+\_\+destroy@{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+destroy}}
+\index{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+destroy@{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+destroy}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+destroy(il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t $\ast$lst)}{il_net_servos_list_destroy(il_net_servos_list_t *lst)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+net\+\_\+servos\+\_\+list\+\_\+destroy (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t} $\ast$}]{lst}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_ga7bb08347585c3760ba2f0c471c478d12}{}\label{group__IL__NET_ga7bb08347585c3760ba2f0c471c478d12}
+
+
+Destroy network servos list. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in,out}  & {\em lst} & Network servos list.\\
+\hline
+\end{DoxyParams}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__IL__NET_ga6167fb50406d818120a069b681d377df}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+get} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{list_8c-example}{list.\+c}, and \hyperlink{servo_monitor_8c-example}{servo\+\_\+monitor.\+c}.\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+servos\+\_\+list\+\_\+get@{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+get}}
+\index{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+get@{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+get}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+get(il\+\_\+net\+\_\+t $\ast$net, il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t on\+\_\+found, void $\ast$ctx)}{il_net_servos_list_get(il_net_t *net, il_net_servos_on_found_t on_found, void *ctx)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} {\bf il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t}$\ast$ il\+\_\+net\+\_\+servos\+\_\+list\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+t} $\ast$}]{net, }
+\item[{{\bf il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t}}]{on\+\_\+found, }
+\item[{void $\ast$}]{ctx}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_ga6167fb50406d818120a069b681d377df}{}\label{group__IL__NET_ga6167fb50406d818120a069b681d377df}
+
+
+Obtain network servos list. 
+
+\begin{DoxyNote}{Note}
+A callback can be given to obtain {\itshape real-\/time} servos information. This may be useful for G\+U\+Is.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em net} & network. \\
+\hline
+\mbox{\tt in}  & {\em on\+\_\+found} & Callback that will be called every time a node is found (optional). \\
+\hline
+\mbox{\tt in}  & {\em ctx} & Callback context (optional).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Network servos list (N\+U\+LL if none are found or any error occurs).
+\end{DoxyReturn}
+\begin{DoxySeeAlso}{See also}
+\hyperlink{group__IL__NET_ga7bb08347585c3760ba2f0c471c478d12}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+destroy} 
+\end{DoxySeeAlso}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{list_8c-example}{list.\+c}, and \hyperlink{servo_monitor_8c-example}{servo\+\_\+monitor.\+c}.\end{Desc}
+\index{Network@{Network}!il\+\_\+net\+\_\+state\+\_\+get@{il\+\_\+net\+\_\+state\+\_\+get}}
+\index{il\+\_\+net\+\_\+state\+\_\+get@{il\+\_\+net\+\_\+state\+\_\+get}!Network@{Network}}
+\subsubsection[{\texorpdfstring{il\+\_\+net\+\_\+state\+\_\+get(il\+\_\+net\+\_\+t $\ast$net)}{il_net_state_get(il_net_t *net)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} {\bf il\+\_\+net\+\_\+state\+\_\+t} il\+\_\+net\+\_\+state\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+net\+\_\+t} $\ast$}]{net}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__NET_ga83bb157bace16b18f1ebba59a6c6fe59}{}\label{group__IL__NET_ga83bb157bace16b18f1ebba59a6c6fe59}
+
+
+Obtain network state. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em net} & Network.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Network state. 
+\end{DoxyReturn}

@@ -1,0 +1,87 @@
+\hypertarget{servo_monitor_8c-example}{}\section{servo\+\_\+monitor.\+c}
+This example monitors the connection of devices/servos.
+
+
+\begin{DoxyCodeInclude}
+
+\textcolor{preprocessor}{#include "utils.h"}
+
+\textcolor{preprocessor}{#include <stdio.h>}
+
+\textcolor{keywordtype}{void} on\_found(\textcolor{keywordtype}{void} *ctx, uint8\_t \textcolor{keywordtype}{id})
+\{
+    (void)ctx;
+
+    printf(\textcolor{stringliteral}{"Found servo with id 0x%02x\(\backslash\)n"}, \textcolor{keywordtype}{id});
+\}
+
+\textcolor{keywordtype}{void} on\_evt(\textcolor{keywordtype}{void} *ctx, \hyperlink{group__IL__NET_ga6e78452befa7532716d8035eb293bc10}{il\_net\_dev\_evt\_t} evt, \textcolor{keyword}{const} \textcolor{keywordtype}{char} *port)
+\{
+    \hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\_net\_prot\_t} *prot = ctx;
+
+    \textcolor{keywordflow}{if} (evt == \hyperlink{group__IL__NET_gga6e78452befa7532716d8035eb293bc10a643a98c3c2f49473604cdda65b612103}{IL\_NET\_DEV\_EVT\_ADDED}) \{
+        \hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\_net\_t} *net;
+        \hyperlink{structil__net__opts__t}{il\_net\_opts\_t} opts;
+        \hyperlink{structil__net__servos__list}{il\_net\_servos\_list\_t} *servos;
+
+        printf(\textcolor{stringliteral}{"Plugged device %s\(\backslash\)n"}, port);
+
+        \textcolor{comment}{/* create network */}
+        opts.\hyperlink{structil__net__opts__t_a8b65ee2151ffc84031d96eec857a0189}{port} = port;
+        opts.\hyperlink{structil__net__opts__t_a1fe07477ccaae61b81dd71b2cf4bde08}{timeout\_rd} = \hyperlink{group__IL__NET_ga7fb88a9dcbf2c6ae143dc9d16c70ad4f}{IL\_NET\_TIMEOUT\_RD\_DEF};
+        opts.\hyperlink{structil__net__opts__t_a63e3d6b10ac90e08d629ac4458505d1a}{timeout\_wr} = \hyperlink{group__IL__NET_gaf43b0714cfed3be5907c593e18d4481d}{IL\_NET\_TIMEOUT\_WR\_DEF};
+
+        net = \hyperlink{group__IL__NET_gaed82d6f49871934f3b6fdf3a9a022cc6}{il\_net\_create}(*prot, &opts);
+        \textcolor{keywordflow}{if} (!net)
+            \textcolor{keywordflow}{return};
+
+        \textcolor{comment}{/* scan */}
+        printf(\textcolor{stringliteral}{"Scanning...\(\backslash\)n"});
+        servos = \hyperlink{group__IL__NET_ga6167fb50406d818120a069b681d377df}{il\_net\_servos\_list\_get}(net, on\_found, NULL);
+        printf(\textcolor{stringliteral}{"Scanning finished\(\backslash\)n"});
+
+        \textcolor{comment}{/* free resources */}
+        \hyperlink{group__IL__NET_ga7bb08347585c3760ba2f0c471c478d12}{il\_net\_servos\_list\_destroy}(servos);
+        \hyperlink{group__IL__NET_ga4b9335320c644d86491b3bc20e055f5f}{il\_net\_destroy}(net);
+    \} \textcolor{keywordflow}{else} \{
+        printf(\textcolor{stringliteral}{"Unplugged device %s\(\backslash\)n"}, port);
+    \}
+\}
+
+\textcolor{keywordtype}{int} main(\textcolor{keywordtype}{int} argc, \textcolor{keyword}{const} \textcolor{keywordtype}{char} *argv[])
+\{
+    \textcolor{keywordtype}{int} r;
+    \hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\_net\_prot\_t} prot;
+    \hyperlink{group__IL__NET_ga732e586d3465268782c0c227056736e5}{il\_net\_dev\_mon\_t} *mon;
+
+    \textcolor{keywordflow}{if} (argc < 2) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Usage: ./servo\_monitor PROT\(\backslash\)n"});
+        \textcolor{keywordflow}{return} -1;
+    \}
+
+    prot = str2prot(argv[1]);
+
+    mon = \hyperlink{group__IL__NET_ga78022aea4dc9147a87544533f2999bd9}{il\_net\_dev\_mon\_create}(prot);
+    \textcolor{keywordflow}{if} (!mon) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not create monitor: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{return} 1;
+    \}
+
+    r = \hyperlink{group__IL__NET_gac0ed4c0656f51a2e691907ccd8ac94ce}{il\_net\_dev\_mon\_start}(mon, on\_evt, &prot);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        \textcolor{keywordflow}{goto} cleanup;
+    \}
+
+    printf(\textcolor{stringliteral}{"Press ENTER to stop monitoring\(\backslash\)n"});
+    getchar();
+    printf(\textcolor{stringliteral}{"Stopping...\(\backslash\)n"});
+
+    \hyperlink{group__IL__NET_ga88fb38bdcb516562c504588b37ab934a}{il\_net\_dev\_mon\_stop}(mon);
+
+cleanup:
+    \hyperlink{group__IL__NET_ga71f76ab3a41bde25b3b77a661ff767d8}{il\_net\_dev\_mon\_destroy}(mon);
+
+    \textcolor{keywordflow}{return} r;
+\}
+\end{DoxyCodeInclude}
+ 

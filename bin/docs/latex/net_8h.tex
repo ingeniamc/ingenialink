@@ -1,0 +1,113 @@
+\hypertarget{net_8h}{}\section{ingenialink/net.h File Reference}
+\label{net_8h}\index{ingenialink/net.\+h@{ingenialink/net.\+h}}
+
+
+Network.  
+
+
+{\ttfamily \#include \char`\"{}common.\+h\char`\"{}}\\*
+Include dependency graph for net.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=265pt]{net_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=301pt]{net_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structil__net__opts__t}{il\+\_\+net\+\_\+opts\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Network initialization options. \end{DoxyCompactList}\item 
+struct \hyperlink{structil__net__dev__list}{il\+\_\+net\+\_\+dev\+\_\+list}
+\begin{DoxyCompactList}\small\item\em network devices list. \end{DoxyCompactList}\item 
+struct \hyperlink{structil__net__servos__list}{il\+\_\+net\+\_\+servos\+\_\+list}
+\begin{DoxyCompactList}\small\item\em Network servos list. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{group__IL__NET_ga7fb88a9dcbf2c6ae143dc9d16c70ad4f}{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+R\+D\+\_\+\+D\+EF}~500
+\begin{DoxyCompactList}\small\item\em Default read timeout (ms). \end{DoxyCompactList}\item 
+\#define \hyperlink{group__IL__NET_gaf43b0714cfed3be5907c593e18d4481d}{I\+L\+\_\+\+N\+E\+T\+\_\+\+T\+I\+M\+E\+O\+U\+T\+\_\+\+W\+R\+\_\+\+D\+EF}~500
+\begin{DoxyCompactList}\small\item\em Default write timeout (ms). \end{DoxyCompactList}\item 
+\#define \hyperlink{group__IL__NET_ga9c33d1c3bf660e4cb980a9e7a676cb88}{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+O\+R\+T\+\_\+\+SZ}~128U
+\begin{DoxyCompactList}\small\item\em Port maximum size. \end{DoxyCompactList}\item 
+\#define \hyperlink{group__IL__NET_ga70cbad080864d1cc39dd701f9a27d9b6}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+foreach}(item,  lst)~for ((item) = (lst); (item); (item) = (item)-\/$>$next)
+\begin{DoxyCompactList}\small\item\em Utility macro to iterate over a list of network servos list. \end{DoxyCompactList}\item 
+\#define \hyperlink{group__IL__NET_gae80aefde62011dd14dbf60840669cc54}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+foreach}(item,  lst)~for ((item) = (lst); (item); (item) = (item)-\/$>$next)
+\begin{DoxyCompactList}\small\item\em Utility macro to iterate over a list of network devices. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct il\+\_\+net \hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Network. \end{DoxyCompactList}\item 
+typedef struct \hyperlink{structil__net__dev__list}{il\+\_\+net\+\_\+dev\+\_\+list} \hyperlink{group__IL__NET_ga9c0173ee0e17218e9f6dcc5ae0a6f74d}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t}
+\begin{DoxyCompactList}\small\item\em network devices list. \end{DoxyCompactList}\item 
+typedef struct \hyperlink{structil__net__servos__list}{il\+\_\+net\+\_\+servos\+\_\+list} \hyperlink{group__IL__NET_ga81660630b147245b0a160f13ef465811}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Network servos list. \end{DoxyCompactList}\item 
+typedef void($\ast$ \hyperlink{group__IL__NET_ga4ba09545bd04fa6df4f0a26f14df84f7}{il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t}) (void $\ast$ctx, uint8\+\_\+t id)
+\begin{DoxyCompactList}\small\item\em Node found callback. \end{DoxyCompactList}\item 
+typedef struct il\+\_\+net\+\_\+dev\+\_\+mon \hyperlink{group__IL__NET_ga732e586d3465268782c0c227056736e5}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Network device monitor. \end{DoxyCompactList}\item 
+typedef void($\ast$ \hyperlink{group__IL__NET_ga86bfa409239ad771481bd4dd1a451367}{il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t}) (void $\ast$ctx, \hyperlink{group__IL__NET_ga6e78452befa7532716d8035eb293bc10}{il\+\_\+net\+\_\+dev\+\_\+evt\+\_\+t} evt, const char $\ast$port)
+\begin{DoxyCompactList}\small\item\em Network device event callback. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\+\_\+net\+\_\+prot\+\_\+t} \{ \hyperlink{group__IL__NET_gga9629f7451843e493e7665754b5c2fecaafb048fa22f8e422dd8af49370e5f24a5}{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+E\+U\+SB}, 
+\hyperlink{group__IL__NET_gga9629f7451843e493e7665754b5c2fecaacdfe55790a47d94d5e6a633598f4eb5c}{I\+L\+\_\+\+N\+E\+T\+\_\+\+P\+R\+O\+T\+\_\+\+M\+CB}
+ \}\begin{DoxyCompactList}\small\item\em Network protocols. \end{DoxyCompactList}
+\item 
+enum \hyperlink{group__IL__NET_ga0391fec0328dc9cfd7b91990998930a7}{il\+\_\+net\+\_\+state\+\_\+t} \{ \hyperlink{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7a2e3dc49a7ff84f0bae3fc4a237d63fc5}{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+C\+O\+N\+N\+E\+C\+T\+ED}, 
+\hyperlink{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7abf97cabc9736acafc52a079fe3a98a6f}{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+D\+I\+S\+C\+O\+N\+N\+E\+C\+T\+ED}, 
+\hyperlink{group__IL__NET_gga0391fec0328dc9cfd7b91990998930a7ad761916bd5ecfefe4578e53c39bf8ade}{I\+L\+\_\+\+N\+E\+T\+\_\+\+S\+T\+A\+T\+E\+\_\+\+F\+A\+U\+L\+TY}
+ \}\begin{DoxyCompactList}\small\item\em Network state. \end{DoxyCompactList}
+\item 
+enum \hyperlink{group__IL__NET_ga6e78452befa7532716d8035eb293bc10}{il\+\_\+net\+\_\+dev\+\_\+evt\+\_\+t} \{ \hyperlink{group__IL__NET_gga6e78452befa7532716d8035eb293bc10a643a98c3c2f49473604cdda65b612103}{I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+A\+D\+D\+ED}, 
+\hyperlink{group__IL__NET_gga6e78452befa7532716d8035eb293bc10a49f0b316d9ca1d19fa3b31cba22e8581}{I\+L\+\_\+\+N\+E\+T\+\_\+\+D\+E\+V\+\_\+\+E\+V\+T\+\_\+\+R\+E\+M\+O\+V\+ED}
+ \}\begin{DoxyCompactList}\small\item\em Device monitor event types. \end{DoxyCompactList}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$ \hyperlink{group__IL__NET_gaed82d6f49871934f3b6fdf3a9a022cc6}{il\+\_\+net\+\_\+create} (\hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\+\_\+net\+\_\+prot\+\_\+t} prot, const \hyperlink{structil__net__opts__t}{il\+\_\+net\+\_\+opts\+\_\+t} $\ast$opts)
+\begin{DoxyCompactList}\small\item\em Create a network. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_ga4b9335320c644d86491b3bc20e055f5f}{il\+\_\+net\+\_\+destroy} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Destroy a network. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__NET_gae7992a1213d501e4df7ef3ae64e0c835}{il\+\_\+net\+\_\+connect} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Connect network. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_gaaacc31d9cbf294a17dae29eacfb7e735}{il\+\_\+net\+\_\+disconnect} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Disconnect network. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\+\_\+net\+\_\+prot\+\_\+t} \hyperlink{group__IL__NET_gaa72feed444ad53acc497505239b950f9}{il\+\_\+net\+\_\+prot\+\_\+get} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Obtain network protocol. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga0391fec0328dc9cfd7b91990998930a7}{il\+\_\+net\+\_\+state\+\_\+t} \hyperlink{group__IL__NET_ga83bb157bace16b18f1ebba59a6c6fe59}{il\+\_\+net\+\_\+state\+\_\+get} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Obtain network state. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} const char $\ast$ \hyperlink{group__IL__NET_ga307f630cca0e1d5e1ff44ce04abc9389}{il\+\_\+net\+\_\+port\+\_\+get} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net)
+\begin{DoxyCompactList}\small\item\em Obtain network port. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga81660630b147245b0a160f13ef465811}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t} $\ast$ \hyperlink{group__IL__NET_ga6167fb50406d818120a069b681d377df}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+get} (\hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\+\_\+net\+\_\+t} $\ast$net, \hyperlink{group__IL__NET_ga4ba09545bd04fa6df4f0a26f14df84f7}{il\+\_\+net\+\_\+servos\+\_\+on\+\_\+found\+\_\+t} on\+\_\+found, void $\ast$ctx)
+\begin{DoxyCompactList}\small\item\em Obtain network servos list. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_ga7bb08347585c3760ba2f0c471c478d12}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+destroy} (\hyperlink{group__IL__NET_ga81660630b147245b0a160f13ef465811}{il\+\_\+net\+\_\+servos\+\_\+list\+\_\+t} $\ast$lst)
+\begin{DoxyCompactList}\small\item\em Destroy network servos list. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga732e586d3465268782c0c227056736e5}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t} $\ast$ \hyperlink{group__IL__NET_ga78022aea4dc9147a87544533f2999bd9}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+create} (\hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\+\_\+net\+\_\+prot\+\_\+t} prot)
+\begin{DoxyCompactList}\small\item\em Create a network device monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__NET_gac0ed4c0656f51a2e691907ccd8ac94ce}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+start} (\hyperlink{group__IL__NET_ga732e586d3465268782c0c227056736e5}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t} $\ast$mon, \hyperlink{group__IL__NET_ga86bfa409239ad771481bd4dd1a451367}{il\+\_\+net\+\_\+dev\+\_\+on\+\_\+evt\+\_\+t} on\+\_\+evt, void $\ast$ctx)
+\begin{DoxyCompactList}\small\item\em Start the network device monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_ga88fb38bdcb516562c504588b37ab934a}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+stop} (\hyperlink{group__IL__NET_ga732e586d3465268782c0c227056736e5}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t} $\ast$mon)
+\begin{DoxyCompactList}\small\item\em Stop the network device monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_ga71f76ab3a41bde25b3b77a661ff767d8}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+destroy} (\hyperlink{group__IL__NET_ga732e586d3465268782c0c227056736e5}{il\+\_\+net\+\_\+dev\+\_\+mon\+\_\+t} $\ast$mon)
+\begin{DoxyCompactList}\small\item\em Destroy the network device monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__NET_ga9c0173ee0e17218e9f6dcc5ae0a6f74d}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t} $\ast$ \hyperlink{group__IL__NET_gaa59e20a4749f276763c45e5d278934d3}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+get} (\hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\+\_\+net\+\_\+prot\+\_\+t} prot)
+\begin{DoxyCompactList}\small\item\em Obtain network devices list. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__NET_ga86d432b3a9ef2fdc6719e19a59dcbf65}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+destroy} (\hyperlink{group__IL__NET_ga9c0173ee0e17218e9f6dcc5ae0a6f74d}{il\+\_\+net\+\_\+dev\+\_\+list\+\_\+t} $\ast$lst)
+\begin{DoxyCompactList}\small\item\em Destroy Network device list. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Network. 
+

@@ -1,0 +1,397 @@
+\hypertarget{group__IL__MONITOR}{}\section{Monitor}
+\label{group__IL__MONITOR}\index{Monitor@{Monitor}}
+Collaboration diagram for Monitor\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=231pt]{group__IL__MONITOR}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structil__monitor__acq__t}{il\+\_\+monitor\+\_\+acq\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Monitor acquisition results. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{group__IL__MONITOR_ga05007f227fb5f253ed8ba714c0efb2cd}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+C\+H\+\_\+\+N\+UM}~4
+\begin{DoxyCompactList}\small\item\em Number of channels. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct il\+\_\+monitor \hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Ingenia\+Link monitor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{group__IL__MONITOR_ga713d0c15082ee67cb77d384d4537e107}{il\+\_\+monitor\+\_\+trigger\+\_\+t} \{ \\*
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a7a2adbfffa9d5301d44c58aee1524947}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+I\+M\+M\+E\+D\+I\+A\+TE} = 0, 
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a3d9776dc06a1769bb3bac474d0d2f671}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+M\+O\+T\+I\+ON} = 1, 
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a3e127c86c21f607d0df72b64403adb42}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+P\+OS} = 2, 
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107afff4584d639834baa2242e2ab08aafd6}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+N\+EG} = 3, 
+\\*
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107af66901be0c630d815042a98f13b0781b}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+W\+I\+N\+D\+OW} = 4, 
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107aededed6d0aa1e43dd19b0019f857db06}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+D\+IN} = 5
+ \}\begin{DoxyCompactList}\small\item\em Trigger modes. \end{DoxyCompactList}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$ \hyperlink{group__IL__MONITOR_gabab1b2d47a46eeabfcaa9ec5ce7c49a8}{il\+\_\+monitor\+\_\+create} (\hyperlink{group__IL__SERVO_ga3369ddfcc33492fe3a28f96cf455b13e}{il\+\_\+servo\+\_\+t} $\ast$servo)
+\begin{DoxyCompactList}\small\item\em Create monitor instance. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__MONITOR_ga3bc1e187d696eadd07a3f33b502c998a}{il\+\_\+monitor\+\_\+destroy} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor)
+\begin{DoxyCompactList}\small\item\em Destroy a monitor instance. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga41ec8c974f4322537d714844be7b8a2a}{il\+\_\+monitor\+\_\+start} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor)
+\begin{DoxyCompactList}\small\item\em Start monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__MONITOR_ga2408490312f9562407f93111a4deece8}{il\+\_\+monitor\+\_\+stop} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor)
+\begin{DoxyCompactList}\small\item\em Stop monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga5a2bfd4b0f37f4abee986a77afae5b32}{il\+\_\+monitor\+\_\+wait} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, int timeout)
+\begin{DoxyCompactList}\small\item\em Wait until current acquisition is completed. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__MONITOR_gad6231f5d154969361fdd05d3f84707bb}{il\+\_\+monitor\+\_\+data\+\_\+get} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, \hyperlink{structil__monitor__acq__t}{il\+\_\+monitor\+\_\+acq\+\_\+t} $\ast$$\ast$acq)
+\begin{DoxyCompactList}\small\item\em Obtain current available data. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga8fc675f7d849ebcf162e396a98b6c710}{il\+\_\+monitor\+\_\+configure} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, unsigned int t\+\_\+s, size\+\_\+t delay\+\_\+samples, size\+\_\+t max\+\_\+samples)
+\begin{DoxyCompactList}\small\item\em Configure monitor parameters. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_gacda4fa0bc57e96988e62f895b256a62a}{il\+\_\+monitor\+\_\+ch\+\_\+configure} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, int ch, const \hyperlink{structil__reg__t}{il\+\_\+reg\+\_\+t} $\ast$reg, const char $\ast$id)
+\begin{DoxyCompactList}\small\item\em Configure channel mapping. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga33dffe1563b9d4a53d7623a123d7710c}{il\+\_\+monitor\+\_\+ch\+\_\+disable} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, int ch)
+\begin{DoxyCompactList}\small\item\em Disable one channel. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga19230bb2f539a808deb9e42afcb58678}{il\+\_\+monitor\+\_\+ch\+\_\+disable\+\_\+all} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor)
+\begin{DoxyCompactList}\small\item\em Disable all channels. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga98522072a54d7e70fe94409d666d58cd}{il\+\_\+monitor\+\_\+trigger\+\_\+configure} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, \hyperlink{group__IL__MONITOR_ga713d0c15082ee67cb77d384d4537e107}{il\+\_\+monitor\+\_\+trigger\+\_\+t} mode, size\+\_\+t delay\+\_\+samples, const \hyperlink{structil__reg__t}{il\+\_\+reg\+\_\+t} $\ast$source, const char $\ast$source\+\_\+id, double th\+\_\+pos, double th\+\_\+neg, uint32\+\_\+t din\+\_\+msk)
+\begin{DoxyCompactList}\small\item\em Trigger configuration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+
+
+\subsection{Macro Definition Documentation}
+\index{Monitor@{Monitor}!I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+C\+H\+\_\+\+N\+UM@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+C\+H\+\_\+\+N\+UM}}
+\index{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+C\+H\+\_\+\+N\+UM@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+C\+H\+\_\+\+N\+UM}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+C\+H\+\_\+\+N\+UM}{IL_MONITOR_CH_NUM}}]{\setlength{\rightskip}{0pt plus 5cm}\#define I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+C\+H\+\_\+\+N\+UM~4}\hypertarget{group__IL__MONITOR_ga05007f227fb5f253ed8ba714c0efb2cd}{}\label{group__IL__MONITOR_ga05007f227fb5f253ed8ba714c0efb2cd}
+
+
+Number of channels. 
+
+
+
+\subsection{Typedef Documentation}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+t@{il\+\_\+monitor\+\_\+t}}
+\index{il\+\_\+monitor\+\_\+t@{il\+\_\+monitor\+\_\+t}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+t}{il_monitor_t}}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct il\+\_\+monitor {\bf il\+\_\+monitor\+\_\+t}}\hypertarget{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{}\label{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}
+
+
+Ingenia\+Link monitor. 
+
+
+
+\subsection{Enumeration Type Documentation}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+trigger\+\_\+t@{il\+\_\+monitor\+\_\+trigger\+\_\+t}}
+\index{il\+\_\+monitor\+\_\+trigger\+\_\+t@{il\+\_\+monitor\+\_\+trigger\+\_\+t}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+trigger\+\_\+t}{il_monitor_trigger_t}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf il\+\_\+monitor\+\_\+trigger\+\_\+t}}\hypertarget{group__IL__MONITOR_ga713d0c15082ee67cb77d384d4537e107}{}\label{group__IL__MONITOR_ga713d0c15082ee67cb77d384d4537e107}
+
+
+Trigger modes. 
+
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+I\+M\+M\+E\+D\+I\+A\+TE@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+I\+M\+M\+E\+D\+I\+A\+TE}!Monitor@{Monitor}}\index{Monitor@{Monitor}!I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+I\+M\+M\+E\+D\+I\+A\+TE@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+I\+M\+M\+E\+D\+I\+A\+TE}}\item[{\em 
+I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+I\+M\+M\+E\+D\+I\+A\+TE\hypertarget{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a7a2adbfffa9d5301d44c58aee1524947}{}\label{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a7a2adbfffa9d5301d44c58aee1524947}
+}]Immediate. \index{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+M\+O\+T\+I\+ON@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+M\+O\+T\+I\+ON}!Monitor@{Monitor}}\index{Monitor@{Monitor}!I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+M\+O\+T\+I\+ON@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+M\+O\+T\+I\+ON}}\item[{\em 
+I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+M\+O\+T\+I\+ON\hypertarget{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a3d9776dc06a1769bb3bac474d0d2f671}{}\label{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a3d9776dc06a1769bb3bac474d0d2f671}
+}]Motion start. \index{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+P\+OS@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+P\+OS}!Monitor@{Monitor}}\index{Monitor@{Monitor}!I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+P\+OS@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+P\+OS}}\item[{\em 
+I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+P\+OS\hypertarget{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a3e127c86c21f607d0df72b64403adb42}{}\label{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a3e127c86c21f607d0df72b64403adb42}
+}]Positive slope. \index{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+N\+EG@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+N\+EG}!Monitor@{Monitor}}\index{Monitor@{Monitor}!I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+N\+EG@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+N\+EG}}\item[{\em 
+I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+N\+EG\hypertarget{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107afff4584d639834baa2242e2ab08aafd6}{}\label{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107afff4584d639834baa2242e2ab08aafd6}
+}]Negative slope. \index{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+W\+I\+N\+D\+OW@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+W\+I\+N\+D\+OW}!Monitor@{Monitor}}\index{Monitor@{Monitor}!I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+W\+I\+N\+D\+OW@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+W\+I\+N\+D\+OW}}\item[{\em 
+I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+W\+I\+N\+D\+OW\hypertarget{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107af66901be0c630d815042a98f13b0781b}{}\label{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107af66901be0c630d815042a98f13b0781b}
+}]Exit window. \index{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+D\+IN@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+D\+IN}!Monitor@{Monitor}}\index{Monitor@{Monitor}!I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+D\+IN@{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+D\+IN}}\item[{\em 
+I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+D\+IN\hypertarget{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107aededed6d0aa1e43dd19b0019f857db06}{}\label{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107aededed6d0aa1e43dd19b0019f857db06}
+}]Digital input activation. \end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+ch\+\_\+configure@{il\+\_\+monitor\+\_\+ch\+\_\+configure}}
+\index{il\+\_\+monitor\+\_\+ch\+\_\+configure@{il\+\_\+monitor\+\_\+ch\+\_\+configure}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+ch\+\_\+configure(il\+\_\+monitor\+\_\+t $\ast$monitor, int ch, const il\+\_\+reg\+\_\+t $\ast$reg, const char $\ast$id)}{il_monitor_ch_configure(il_monitor_t *monitor, int ch, const il_reg_t *reg, const char *id)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+monitor\+\_\+ch\+\_\+configure (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+monitor\+\_\+t} $\ast$}]{monitor, }
+\item[{int}]{ch, }
+\item[{const {\bf il\+\_\+reg\+\_\+t} $\ast$}]{reg, }
+\item[{const char $\ast$}]{id}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__MONITOR_gacda4fa0bc57e96988e62f895b256a62a}{}\label{group__IL__MONITOR_gacda4fa0bc57e96988e62f895b256a62a}
+
+
+Configure channel mapping. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em monitor} & Monitor instance. \\
+\hline
+\mbox{\tt in}  & {\em ch} & Channel to be configured (0-\/3). \\
+\hline
+\mbox{\tt in}  & {\em reg} & Register (pre-\/defined) to be mapped on the channel. \\
+\hline
+\mbox{\tt in}  & {\em id} & Register ID to be mapped on the channel.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+ch\+\_\+disable@{il\+\_\+monitor\+\_\+ch\+\_\+disable}}
+\index{il\+\_\+monitor\+\_\+ch\+\_\+disable@{il\+\_\+monitor\+\_\+ch\+\_\+disable}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+ch\+\_\+disable(il\+\_\+monitor\+\_\+t $\ast$monitor, int ch)}{il_monitor_ch_disable(il_monitor_t *monitor, int ch)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+monitor\+\_\+ch\+\_\+disable (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+monitor\+\_\+t} $\ast$}]{monitor, }
+\item[{int}]{ch}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__MONITOR_ga33dffe1563b9d4a53d7623a123d7710c}{}\label{group__IL__MONITOR_ga33dffe1563b9d4a53d7623a123d7710c}
+
+
+Disable one channel. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em monitor} & Monitor instance. \\
+\hline
+\mbox{\tt in}  & {\em ch} & Channel to be disabled (0-\/3).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+ch\+\_\+disable\+\_\+all@{il\+\_\+monitor\+\_\+ch\+\_\+disable\+\_\+all}}
+\index{il\+\_\+monitor\+\_\+ch\+\_\+disable\+\_\+all@{il\+\_\+monitor\+\_\+ch\+\_\+disable\+\_\+all}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+ch\+\_\+disable\+\_\+all(il\+\_\+monitor\+\_\+t $\ast$monitor)}{il_monitor_ch_disable_all(il_monitor_t *monitor)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+monitor\+\_\+ch\+\_\+disable\+\_\+all (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+monitor\+\_\+t} $\ast$}]{monitor}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__MONITOR_ga19230bb2f539a808deb9e42afcb58678}{}\label{group__IL__MONITOR_ga19230bb2f539a808deb9e42afcb58678}
+
+
+Disable all channels. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em monitor} & Monitor instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+configure@{il\+\_\+monitor\+\_\+configure}}
+\index{il\+\_\+monitor\+\_\+configure@{il\+\_\+monitor\+\_\+configure}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+configure(il\+\_\+monitor\+\_\+t $\ast$monitor, unsigned int t\+\_\+s, size\+\_\+t delay\+\_\+samples, size\+\_\+t max\+\_\+samples)}{il_monitor_configure(il_monitor_t *monitor, unsigned int t_s, size_t delay_samples, size_t max_samples)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+monitor\+\_\+configure (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+monitor\+\_\+t} $\ast$}]{monitor, }
+\item[{unsigned int}]{t\+\_\+s, }
+\item[{size\+\_\+t}]{delay\+\_\+samples, }
+\item[{size\+\_\+t}]{max\+\_\+samples}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__MONITOR_ga8fc675f7d849ebcf162e396a98b6c710}{}\label{group__IL__MONITOR_ga8fc675f7d849ebcf162e396a98b6c710}
+
+
+Configure monitor parameters. 
+
+\begin{DoxyNote}{Note}
+
+\begin{DoxyItemize}
+\item The monitor maximum resolution is 100 us.
+\item The monitor maximum number of samples depends on the configured mappings.
+\end{DoxyItemize}
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em monitor} & Monitor instance. \\
+\hline
+\mbox{\tt in}  & {\em t\+\_\+s} & Sampling period (us). \\
+\hline
+\mbox{\tt in}  & {\em delay\+\_\+samples} & Delay samples. \\
+\hline
+\mbox{\tt in}  & {\em max\+\_\+samples} & Maximum number of samples to acquire (use 0 to use the maximum).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+create@{il\+\_\+monitor\+\_\+create}}
+\index{il\+\_\+monitor\+\_\+create@{il\+\_\+monitor\+\_\+create}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+create(il\+\_\+servo\+\_\+t $\ast$servo)}{il_monitor_create(il_servo_t *servo)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} {\bf il\+\_\+monitor\+\_\+t}$\ast$ il\+\_\+monitor\+\_\+create (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+servo\+\_\+t} $\ast$}]{servo}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__MONITOR_gabab1b2d47a46eeabfcaa9ec5ce7c49a8}{}\label{group__IL__MONITOR_gabab1b2d47a46eeabfcaa9ec5ce7c49a8}
+
+
+Create monitor instance. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em servo} & Associated servo.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Monitor instance (N\+U\+LL if it could not be created). 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+data\+\_\+get@{il\+\_\+monitor\+\_\+data\+\_\+get}}
+\index{il\+\_\+monitor\+\_\+data\+\_\+get@{il\+\_\+monitor\+\_\+data\+\_\+get}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+data\+\_\+get(il\+\_\+monitor\+\_\+t $\ast$monitor, il\+\_\+monitor\+\_\+acq\+\_\+t $\ast$$\ast$acq)}{il_monitor_data_get(il_monitor_t *monitor, il_monitor_acq_t **acq)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+monitor\+\_\+data\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+monitor\+\_\+t} $\ast$}]{monitor, }
+\item[{{\bf il\+\_\+monitor\+\_\+acq\+\_\+t} $\ast$$\ast$}]{acq}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__MONITOR_gad6231f5d154969361fdd05d3f84707bb}{}\label{group__IL__MONITOR_gad6231f5d154969361fdd05d3f84707bb}
+
+
+Obtain current available data. 
+
+\begin{DoxyNote}{Note}
+The obtained acquisition data can be used until the next call to this function.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em monitor} & Monitor instance. \\
+\hline
+\mbox{\tt out}  & {\em acq} & Where the acquisition results will be left. \\
+\hline
+\end{DoxyParams}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+destroy@{il\+\_\+monitor\+\_\+destroy}}
+\index{il\+\_\+monitor\+\_\+destroy@{il\+\_\+monitor\+\_\+destroy}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+destroy(il\+\_\+monitor\+\_\+t $\ast$monitor)}{il_monitor_destroy(il_monitor_t *monitor)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+monitor\+\_\+destroy (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+monitor\+\_\+t} $\ast$}]{monitor}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__MONITOR_ga3bc1e187d696eadd07a3f33b502c998a}{}\label{group__IL__MONITOR_ga3bc1e187d696eadd07a3f33b502c998a}
+
+
+Destroy a monitor instance. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em monitor} & Monitor instance. \\
+\hline
+\end{DoxyParams}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+start@{il\+\_\+monitor\+\_\+start}}
+\index{il\+\_\+monitor\+\_\+start@{il\+\_\+monitor\+\_\+start}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+start(il\+\_\+monitor\+\_\+t $\ast$monitor)}{il_monitor_start(il_monitor_t *monitor)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+monitor\+\_\+start (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+monitor\+\_\+t} $\ast$}]{monitor}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__MONITOR_ga41ec8c974f4322537d714844be7b8a2a}{}\label{group__IL__MONITOR_ga41ec8c974f4322537d714844be7b8a2a}
+
+
+Start monitor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em monitor} & Monitor instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+stop@{il\+\_\+monitor\+\_\+stop}}
+\index{il\+\_\+monitor\+\_\+stop@{il\+\_\+monitor\+\_\+stop}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+stop(il\+\_\+monitor\+\_\+t $\ast$monitor)}{il_monitor_stop(il_monitor_t *monitor)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+monitor\+\_\+stop (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+monitor\+\_\+t} $\ast$}]{monitor}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__MONITOR_ga2408490312f9562407f93111a4deece8}{}\label{group__IL__MONITOR_ga2408490312f9562407f93111a4deece8}
+
+
+Stop monitor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em monitor} & Monitor instance. \\
+\hline
+\end{DoxyParams}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+trigger\+\_\+configure@{il\+\_\+monitor\+\_\+trigger\+\_\+configure}}
+\index{il\+\_\+monitor\+\_\+trigger\+\_\+configure@{il\+\_\+monitor\+\_\+trigger\+\_\+configure}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+trigger\+\_\+configure(il\+\_\+monitor\+\_\+t $\ast$monitor, il\+\_\+monitor\+\_\+trigger\+\_\+t mode, size\+\_\+t delay\+\_\+samples, const il\+\_\+reg\+\_\+t $\ast$source, const char $\ast$source\+\_\+id, double th\+\_\+pos, double th\+\_\+neg, uint32\+\_\+t din\+\_\+msk)}{il_monitor_trigger_configure(il_monitor_t *monitor, il_monitor_trigger_t mode, size_t delay_samples, const il_reg_t *source, const char *source_id, double th_pos, double th_neg, uint32_t din_msk)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+monitor\+\_\+trigger\+\_\+configure (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+monitor\+\_\+t} $\ast$}]{monitor, }
+\item[{{\bf il\+\_\+monitor\+\_\+trigger\+\_\+t}}]{mode, }
+\item[{size\+\_\+t}]{delay\+\_\+samples, }
+\item[{const {\bf il\+\_\+reg\+\_\+t} $\ast$}]{source, }
+\item[{const char $\ast$}]{source\+\_\+id, }
+\item[{double}]{th\+\_\+pos, }
+\item[{double}]{th\+\_\+neg, }
+\item[{uint32\+\_\+t}]{din\+\_\+msk}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__MONITOR_ga98522072a54d7e70fe94409d666d58cd}{}\label{group__IL__MONITOR_ga98522072a54d7e70fe94409d666d58cd}
+
+
+Trigger configuration. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em monitor} & Monitor instance. \\
+\hline
+\mbox{\tt in}  & {\em mode} & Trigger mode. \\
+\hline
+\mbox{\tt in}  & {\em delay\+\_\+samples} & Trigger delay in samples. \\
+\hline
+\mbox{\tt in}  & {\em source} & Trigger source (only required if mode is I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+P\+OS, I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+N\+EG or I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+W\+I\+N\+D\+OW). \\
+\hline
+\mbox{\tt in}  & {\em source\+\_\+id} & Trigger source (ID). \\
+\hline
+\mbox{\tt in}  & {\em th\+\_\+pos} & Positive threshold (only required if mode is I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+P\+OS or I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+W\+I\+N\+D\+OW). \\
+\hline
+\mbox{\tt in}  & {\em th\+\_\+neg} & Negative threshold (only required if mode is I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+N\+EG or I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+W\+I\+N\+D\+OW). \\
+\hline
+\mbox{\tt in}  & {\em din\+\_\+msk} & Digital inputs mask (only required if mode is D\+IN).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+\index{Monitor@{Monitor}!il\+\_\+monitor\+\_\+wait@{il\+\_\+monitor\+\_\+wait}}
+\index{il\+\_\+monitor\+\_\+wait@{il\+\_\+monitor\+\_\+wait}!Monitor@{Monitor}}
+\subsubsection[{\texorpdfstring{il\+\_\+monitor\+\_\+wait(il\+\_\+monitor\+\_\+t $\ast$monitor, int timeout)}{il_monitor_wait(il_monitor_t *monitor, int timeout)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+monitor\+\_\+wait (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+monitor\+\_\+t} $\ast$}]{monitor, }
+\item[{int}]{timeout}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__MONITOR_ga5a2bfd4b0f37f4abee986a77afae5b32}{}\label{group__IL__MONITOR_ga5a2bfd4b0f37f4abee986a77afae5b32}
+
+
+Wait until current acquisition is completed. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em monitor} & Monitor instance. \\
+\hline
+\mbox{\tt in}  & {\em timeout} & Timeout (ms).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}

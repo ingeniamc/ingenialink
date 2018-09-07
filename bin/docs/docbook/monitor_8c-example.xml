@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="monitor_8c-example">
+    <title>monitor.c</title>
+
+<para>Simple monitor example which uses the monitor to capture the velocity curve when the motion is started. <literallayout><computeroutput>
+<emphasis class="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+<emphasis class="preprocessor">#include&#32;&lt;<link linkend="ingenialink_8h">ingenialink/ingenialink.h</link>&gt;</emphasis>
+
+<emphasis class="preprocessor">#define&#32;ENABLE_TIMEOUT&#32;&#32;2000</emphasis>
+
+<emphasis class="preprocessor">#define&#32;T_S&#32;&#32;&#32;&#32;&#32;1000</emphasis>
+
+<emphasis class="preprocessor">#define&#32;MAX_SAMPLES&#32;200</emphasis>
+
+<emphasis class="preprocessor">#define&#32;TARGET_VEL&#32;&#32;20</emphasis>
+
+<emphasis class="preprocessor">#define&#32;MONITOR_TIMEOUT&#32;10000</emphasis>
+
+<emphasis class="keyword">static</emphasis>&#32;<emphasis class="keywordtype">int</emphasis>&#32;run(<emphasis class="keyword">const</emphasis>&#32;<emphasis class="keywordtype">char</emphasis>&#32;*port,&#32;uint8_t&#32;<emphasis class="keywordtype">id</emphasis>,&#32;<emphasis class="keyword">const</emphasis>&#32;<emphasis class="keywordtype">char</emphasis>&#32;*log_fname)
+{
+&#32;&#32;&#32;&#32;<emphasis class="keywordtype">int</emphasis>&#32;r&#32;=&#32;0;
+
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link>&#32;*net;
+&#32;&#32;&#32;&#32;<link linkend="structil__net__opts__t">il_net_opts_t</link>&#32;opts;
+&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1ga3369ddfcc33492fe3a28f96cf455b13e">il_servo_t</link>&#32;*servo;
+&#32;&#32;&#32;&#32;<link linkend="group__IL__MONITOR_1ga40e12e851c8c83202f0bccbaaafbc1f3">il_monitor_t</link>&#32;*monitor;
+
+&#32;&#32;&#32;&#32;<link linkend="structil__monitor__acq__t">il_monitor_acq_t</link>&#32;*acq;
+&#32;&#32;&#32;&#32;<emphasis class="keywordtype">size_t</emphasis>&#32;i;
+&#32;&#32;&#32;&#32;FILE&#32;*log_f;
+
+&#32;&#32;&#32;&#32;<emphasis class="keyword">const</emphasis>&#32;<link linkend="structil__reg__t">il_reg_t</link>&#32;IL_REG_VEL_ACT&#32;=&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.<link linkend="structil__reg__t_1ac0433a8ae86e0990fa59a074a5ad1bd1">address</link>&#32;=&#32;0x00606C,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.dtype&#32;=&#32;<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48">IL_REG_DTYPE_S32</link>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.access&#32;=&#32;<link linkend="group__IL__REGS_1gga4c623bd7d0d5f059dd91949c6948147eafa388eb7ec6166ba6a59d0d665f3ac53">IL_REG_ACCESS_RW</link>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.phy&#32;=&#32;<link linkend="group__IL__REGS_1gga37538453e5c3d84733c628987a579590aea1c9cf80466e862af6a3a6f687550ef">IL_REG_PHY_VEL</link>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.range&#32;=&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.min.s32&#32;=&#32;INT32_MIN,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.max.s32&#32;=&#32;INT32_MAX
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;},
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;.labels&#32;=&#32;NULL
+&#32;&#32;&#32;&#32;};
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;create&#32;network&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a8b65ee2151ffc84031d96eec857a0189">port</link>&#32;=&#32;port;
+&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a1fe07477ccaae61b81dd71b2cf4bde08">timeout_rd</link>&#32;=&#32;<link linkend="group__IL__NET_1ga7fb88a9dcbf2c6ae143dc9d16c70ad4f">IL_NET_TIMEOUT_RD_DEF</link>;
+&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a63e3d6b10ac90e08d629ac4458505d1a">timeout_wr</link>&#32;=&#32;<link linkend="group__IL__NET_1gaf43b0714cfed3be5907c593e18d4481d">IL_NET_TIMEOUT_WR_DEF</link>;
+
+&#32;&#32;&#32;&#32;net&#32;=&#32;<link linkend="group__IL__NET_1gaed82d6f49871934f3b6fdf3a9a022cc6">il_net_create</link>(<link linkend="group__IL__NET_1gga9629f7451843e493e7665754b5c2fecaafb048fa22f8e422dd8af49370e5f24a5">IL_NET_PROT_EUSB</link>,&#32;&amp;opts);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!net)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;create&#32;network:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;r&#32;=&#32;1;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;out;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;create&#32;servo&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;servo&#32;=&#32;<link linkend="group__IL__SERVO_1gaa3728b10386d3b9f67258a95cb3c2913">il_servo_create</link>(net,&#32;<emphasis class="keywordtype">id</emphasis>,&#32;NULL);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!servo)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;create&#32;servo:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;r&#32;=&#32;1;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_net;
+&#32;&#32;&#32;&#32;}
+
+
+&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1gacd15dfc7141865bcb63912888aad71ba">il_servo_units_vel_set</link>(servo,&#32;<link linkend="group__IL__SERVO_1gga548eebb728eb841e157b57f2063203eea7ddfb276f1013c053617d2c5693af2a6">IL_UNITS_VEL_RPS</link>);
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;create&#32;monitor,&#32;configure&#32;to&#32;sample&#32;velocity&#32;@1ms&#32;after&#32;reaching&#32;a</emphasis>
+<emphasis class="comment">&#32;&#32;&#32;&#32;&#32;*&#32;90&#32;%&#32;of&#32;the&#32;target&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;monitor&#32;=&#32;<link linkend="group__IL__MONITOR_1gabab1b2d47a46eeabfcaa9ec5ce7c49a8">il_monitor_create</link>(servo);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!monitor)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;create&#32;monitor:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;r&#32;=&#32;1;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_servo;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__MONITOR_1ga8fc675f7d849ebcf162e396a98b6c710">il_monitor_configure</link>(monitor,&#32;T_S,&#32;0,&#32;MAX_SAMPLES);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;configure&#32;monitor:&#32;%s\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_monitor;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__MONITOR_1gacda4fa0bc57e96988e62f895b256a62a">il_monitor_ch_configure</link>(monitor,&#32;0,&#32;&amp;IL_REG_VEL_ACT,&#32;NULL);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;configure&#32;channel:&#32;%s\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_monitor;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__MONITOR_1ga98522072a54d7e70fe94409d666d58cd">il_monitor_trigger_configure</link>(monitor,&#32;<link linkend="group__IL__MONITOR_1gga713d0c15082ee67cb77d384d4537e107a3e127c86c21f607d0df72b64403adb42">IL_MONITOR_TRIGGER_POS</link>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;0,&#32;&amp;IL_REG_VEL_ACT,&#32;NULL,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;TARGET_VEL&#32;*&#32;0.9,&#32;0,&#32;0);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;configure&#32;trigger:&#32;%s\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_monitor;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;enable&#32;servo&#32;in&#32;PV&#32;mode&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1ga8b5938454ac8183a514d11203f2e6197">il_servo_disable</link>(servo);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;disable&#32;servo:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_monitor;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1ga9ef9a84e8b6aa1ee23d301dbd93b8b2f">il_servo_mode_set</link>(servo,&#32;<link linkend="group__IL__SERVO_1gga6b3323798a8f235c225cc1d0cd27840aa06f037b862ba17dfaac425ab706acf95">IL_SERVO_MODE_PV</link>);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;set&#32;mode:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_monitor;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1gaee57b72c5f6d4756a6a914edbf0db0d9">il_servo_enable</link>(servo,&#32;ENABLE_TIMEOUT);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;enable&#32;servo:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_monitor;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;enable&#32;monitor,&#32;set&#32;velocity&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__MONITOR_1ga41ec8c974f4322537d714844be7b8a2a">il_monitor_start</link>(monitor);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;start&#32;monitor:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;servo_disable;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1ga8831402af125c7706353d0dc9bf1364c">il_servo_velocity_set</link>(servo,&#32;TARGET_VEL);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;set&#32;velocity:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;servo_disable;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;wait&#32;for&#32;monitor&#32;to&#32;capture&#32;all&#32;samples,&#32;then&#32;store&#32;results&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;Waiting&#32;for&#32;monitor&#32;to&#32;complete...\n&quot;</emphasis>);
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__MONITOR_1ga5a2bfd4b0f37f4abee986a77afae5b32">il_monitor_wait</link>(monitor,&#32;MONITOR_TIMEOUT);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Monitor&#32;acquisition&#32;failed:&#32;%s\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;servo_disable;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<link linkend="group__IL__MONITOR_1gad6231f5d154969361fdd05d3f84707bb">il_monitor_data_get</link>(monitor,&#32;&amp;acq);
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(acq-&gt;<link linkend="structil__monitor__acq__t_1a1abcafb439ed9802b75afe08b5d48cea">sz</link>&#32;!=&#32;acq-&gt;<link linkend="structil__monitor__acq__t_1a82be21ff5f08413736841b02666823ad">cnt</link>)
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;WARNING:&#32;Acquisition&#32;did&#32;not&#32;complete!\n&quot;</emphasis>);
+
+&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;Writing&#32;samples&#32;(%zu)&#32;to&#32;file...\n&quot;</emphasis>,&#32;acq-&gt;<link linkend="structil__monitor__acq__t_1a82be21ff5f08413736841b02666823ad">cnt</link>);
+&#32;&#32;&#32;&#32;log_f&#32;=&#32;fopen(log_fname,&#32;<emphasis class="stringliteral">&quot;w&quot;</emphasis>);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!log_f)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;open&#32;log&#32;file&quot;</emphasis>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;servo_disable;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">for</emphasis>&#32;(i&#32;=&#32;0;&#32;i&#32;&lt;&#32;acq-&gt;<link linkend="structil__monitor__acq__t_1a82be21ff5f08413736841b02666823ad">cnt</link>;&#32;i++)
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(log_f,&#32;<emphasis class="stringliteral">&quot;%f,&#32;%f\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;acq-&gt;<link linkend="structil__monitor__acq__t_1a80f1fa100ff681ce19657ec1d91e0423">t</link>[i],&#32;acq-&gt;<link linkend="structil__monitor__acq__t_1adbc831472b0744d1a14b52f34388314f">d</link>[0][i]);
+
+&#32;&#32;&#32;&#32;fclose(log_f);
+
+servo_disable:
+&#32;&#32;&#32;&#32;(void)<link linkend="group__IL__SERVO_1ga8b5938454ac8183a514d11203f2e6197">il_servo_disable</link>(servo);
+
+cleanup_monitor:
+&#32;&#32;&#32;&#32;<link linkend="group__IL__MONITOR_1ga3bc1e187d696eadd07a3f33b502c998a">il_monitor_destroy</link>(monitor);
+
+cleanup_servo:
+&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1gade6d6e8ae2488af2a6ae6a6c484eaf32">il_servo_destroy</link>(servo);
+
+cleanup_net:
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga4b9335320c644d86491b3bc20e055f5f">il_net_destroy</link>(net);
+
+out:
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;r;
+}
+
+<emphasis class="keywordtype">int</emphasis>&#32;main(<emphasis class="keywordtype">int</emphasis>&#32;argc,&#32;<emphasis class="keywordtype">char</emphasis>&#32;**argv)
+{
+&#32;&#32;&#32;&#32;<emphasis class="keyword">const</emphasis>&#32;<emphasis class="keywordtype">char</emphasis>&#32;*port,&#32;*log_fname;
+&#32;&#32;&#32;&#32;uint8_t&#32;id;
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(argc&#32;&lt;&#32;4)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="stringliteral">&quot;Usage:&#32;monitor&#32;PORT&#32;SERVO_ID&#32;LOG_FILE\n&quot;</emphasis>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;1;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;port&#32;=&#32;argv[1];
+&#32;&#32;&#32;&#32;<emphasis class="keywordtype">id</emphasis>&#32;=&#32;(uint8_t)strtoul(argv[2],&#32;NULL,&#32;0);
+&#32;&#32;&#32;&#32;log_fname&#32;=&#32;argv[3];
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;run(port,&#32;<emphasis class="keywordtype">id</emphasis>,&#32;log_fname);
+}
+</computeroutput></literallayout> </para>
+
+</section>

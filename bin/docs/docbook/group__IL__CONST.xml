@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST">
+    <title>Constants</title>
+<para>Collaboration diagram for Constants</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+    <simplesect>
+        <title>Modules</title>
+    </simplesect>
+    <para>
+        <itemizedlist>
+            <listitem><para><link linkend="group__IL__CONST__SYS">System</link></para></listitem>
+            <listitem><para><link linkend="group__IL__CONST__SIGNATURES">Signatures</link></para></listitem>
+            <listitem><para><link linkend="group__IL__CONST__OP__MODE">Operation modes</link></para></listitem>
+            <listitem><para><link linkend="group__IL__CONST__MOTOR">Motor types</link></para></listitem>
+            <listitem><para><link linkend="group__IL__CONST__FB">Feedbacks</link></para></listitem>
+            <listitem><para><link linkend="group__IL__CONST__VEL__SENSOR">Velocity sensors</link></para></listitem>
+            <listitem><para><link linkend="group__IL__CONST__POS__SENSOR">Position sensors</link></para></listitem>
+            <listitem><para><link linkend="group__IL__CONST__IANGLE__METHOD">Initial angle determination methods</link></para></listitem>
+            <listitem><para><link linkend="group__IL__CONST__DENC__SINCOS__PARAM">Digital encoder / SinCos parameters</link></para></listitem>
+            <listitem><para><link linkend="group__IL__CONST__DSIG__INJ">Disturbance signal injection points</link></para></listitem>
+            <listitem><para><link linkend="group__IL__CONST__CMD__SRC">Command sources</link></para></listitem>
+        </itemizedlist>
+    </para>
+<xi:include href="group__IL__CONST__SYS.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__CONST__SIGNATURES.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__CONST__OP__MODE.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__CONST__MOTOR.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__CONST__FB.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__CONST__VEL__SENSOR.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__CONST__POS__SENSOR.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__CONST__IANGLE__METHOD.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__CONST__DENC__SINCOS__PARAM.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__CONST__DSIG__INJ.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__CONST__CMD__SRC.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+</section>

@@ -1,0 +1,224 @@
+\hypertarget{motion_8c-example}{}\section{motion.\+c}
+Simple motion example (Homing + PP). You can use the motion\+\_\+plot.\+py script to plot the resulting C\+SV.
+
+
+\begin{DoxyCodeInclude}
+
+\textcolor{preprocessor}{#include <stdio.h>}
+\textcolor{preprocessor}{#include <\hyperlink{ingenialink_8h}{ingenialink/ingenialink.h}>}
+
+\textcolor{preprocessor}{#define ENABLE\_TIMEOUT  2000}
+
+\textcolor{preprocessor}{#define HOMING\_TIMEOUT  15000}
+
+\textcolor{preprocessor}{#define POS\_TIMEOUT 5000}
+
+\textcolor{preprocessor}{#define T\_S     5}
+
+\textcolor{preprocessor}{#define POLLER\_SZ   2000}
+
+\textcolor{keywordtype}{void} on\_emcy(\textcolor{keywordtype}{void} *ctx, uint32\_t code)
+\{
+    (void)ctx;
+
+    printf(\textcolor{stringliteral}{"Emergency occurred (0x%04x)\(\backslash\)n"}, code);
+\}
+
+\textcolor{keyword}{static} \textcolor{keywordtype}{int} run(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *log\_fname)
+\{
+    \textcolor{keywordtype}{int} r = 0;
+
+    \textcolor{keywordtype}{size\_t} i;
+
+    \hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\_net\_t} *net;
+    \hyperlink{group__IL__SERVO_ga3369ddfcc33492fe3a28f96cf455b13e}{il\_servo\_t} *servo;
+
+    \hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\_poller\_t} *poller;
+    \hyperlink{structil__poller__acq__t}{il\_poller\_acq\_t} *acq;
+    FILE *log\_f;
+
+    \textcolor{keyword}{const} \hyperlink{structil__reg__t}{il\_reg\_t} IL\_REG\_POS\_ACT = \{
+        .\hyperlink{structil__reg__t_ac0433a8ae86e0990fa59a074a5ad1bd1}{address} = 0x006064,
+        .dtype = \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48}{IL\_REG\_DTYPE\_S32},
+        .access = \hyperlink{group__IL__REGS_gga4c623bd7d0d5f059dd91949c6948147eafa388eb7ec6166ba6a59d0d665f3ac53}{IL\_REG\_ACCESS\_RW},
+        .phy = \hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590aea1c9cf80466e862af6a3a6f687550ef}{IL\_REG\_PHY\_VEL},
+        .range = \{
+            .min.s32 = INT32\_MIN,
+            .max.s32 = INT32\_MAX
+        \},
+        .labels = NULL
+    \};
+
+    \textcolor{keyword}{const} \hyperlink{structil__reg__t}{il\_reg\_t} IL\_REG\_VEL\_ACT = \{
+        .\hyperlink{structil__reg__t_ac0433a8ae86e0990fa59a074a5ad1bd1}{address} = 0x00606c,
+        .dtype = \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48}{IL\_REG\_DTYPE\_S32},
+        .access = \hyperlink{group__IL__REGS_gga4c623bd7d0d5f059dd91949c6948147eafa388eb7ec6166ba6a59d0d665f3ac53}{IL\_REG\_ACCESS\_RW},
+        .phy = \hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590aea1c9cf80466e862af6a3a6f687550ef}{IL\_REG\_PHY\_VEL},
+        .range = \{
+            .min.s32 = INT32\_MIN,
+            .max.s32 = INT32\_MAX
+        \},
+        .labels = NULL
+    \};
+
+    r = \hyperlink{group__IL__SERVO_gab5a21816ac7d663f8148feb12dd32f9a}{il\_servo\_lucky}(\hyperlink{group__IL__NET_gga9629f7451843e493e7665754b5c2fecaafb048fa22f8e422dd8af49370e5f24a5}{IL\_NET\_PROT\_EUSB}, &net, &servo, NULL);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"%s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{return} r;
+    \}
+
+    r = \hyperlink{group__IL__SERVO_gad64153fedf0e2c82b88b545de2a1e134}{il\_servo\_emcy\_subscribe}(servo, on\_emcy, NULL);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not subscribe to emergencies: %s\(\backslash\)n"},
+            \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_net\_servo;
+    \}
+
+    \hyperlink{group__IL__SERVO_ga1a64e31ed42e99bff4a577fc8b2ad076}{il\_servo\_units\_pos\_set}(servo, \hyperlink{group__IL__SERVO_ggaefeeab7931ae00097627941a79950799ad5a21928f5565c58ec6631ef735a73d4}{IL\_UNITS\_POS\_DEG});
+    \hyperlink{group__IL__SERVO_gacd15dfc7141865bcb63912888aad71ba}{il\_servo\_units\_vel\_set}(servo, \hyperlink{group__IL__SERVO_gga548eebb728eb841e157b57f2063203eeaefca3b85d079add8af939073f1c4a2ba}{IL\_UNITS\_VEL\_DEG\_S});
+
+    \textcolor{comment}{/* create poller */}
+    poller = \hyperlink{group__IL__POLLER_gaf1a6d95123039ac685439062c34e7e54}{il\_poller\_create}(servo, 2);
+    \textcolor{keywordflow}{if} (!poller) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not create poller: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        r = 1;
+        \textcolor{keywordflow}{goto} cleanup\_net\_servo;
+    \}
+
+    r = \hyperlink{group__IL__POLLER_ga90aa41e8a0ff21af9d077e522cefb205}{il\_poller\_configure}(poller, T\_S, POLLER\_SZ);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not configure poller: %s\(\backslash\)n"},
+            \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    r = \hyperlink{group__IL__POLLER_ga615595277add47dd6966112e48e66988}{il\_poller\_ch\_configure}(poller, 0, &IL\_REG\_POS\_ACT, NULL);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not configure poller channel: %s\(\backslash\)n"},
+            \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    r = \hyperlink{group__IL__POLLER_ga615595277add47dd6966112e48e66988}{il\_poller\_ch\_configure}(poller, 1, &IL\_REG\_VEL\_ACT, NULL);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not configure poller channel: %s\(\backslash\)n"},
+            \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    \textcolor{comment}{/* disable */}
+    r = \hyperlink{group__IL__SERVO_ga8b5938454ac8183a514d11203f2e6197}{il\_servo\_disable}(servo);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not disable servo: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    \textcolor{comment}{/* perform homing */}
+    r = \hyperlink{group__IL__SERVO_ga9ef9a84e8b6aa1ee23d301dbd93b8b2f}{il\_servo\_mode\_set}(servo, \hyperlink{group__IL__SERVO_gga6b3323798a8f235c225cc1d0cd27840aaf9aac6909e0810beac63271839113826}{IL\_SERVO\_MODE\_HOMING});
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not set mode: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    r = \hyperlink{group__IL__SERVO_gaee57b72c5f6d4756a6a914edbf0db0d9}{il\_servo\_enable}(servo, ENABLE\_TIMEOUT);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not enable servo: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    r = \hyperlink{group__IL__SERVO_gaf7cf26ed91ae60e5f049b056009783e0}{il\_servo\_homing\_start}(servo);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not start homing: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    r = \hyperlink{group__IL__SERVO_gad55d208e57e674e0c1a31b995563e96d}{il\_servo\_homing\_wait}(servo, HOMING\_TIMEOUT);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Homing did not succeed: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    \textcolor{comment}{/* perform PP movements */}
+    r = \hyperlink{group__IL__SERVO_ga8b5938454ac8183a514d11203f2e6197}{il\_servo\_disable}(servo);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not disable servo: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    r = \hyperlink{group__IL__SERVO_ga9ef9a84e8b6aa1ee23d301dbd93b8b2f}{il\_servo\_mode\_set}(servo, \hyperlink{group__IL__SERVO_gga6b3323798a8f235c225cc1d0cd27840aa84502500bb9e2800c8c3bad60f30afd0}{IL\_SERVO\_MODE\_PP});
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not set mode: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    r = \hyperlink{group__IL__SERVO_gaee57b72c5f6d4756a6a914edbf0db0d9}{il\_servo\_enable}(servo, ENABLE\_TIMEOUT);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not enable servo: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    r = \hyperlink{group__IL__POLLER_ga018f08358312c8610819a47fd9d2509f}{il\_poller\_start}(poller);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not start poller: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    \textcolor{keywordflow}{for} (i = 1; i < 5; i++) \{
+        r = \hyperlink{group__IL__SERVO_ga24af5dbdebb7a56f73070781d53e2d76}{il\_servo\_position\_set}(servo, 90 * i, 0, 0,
+                      \hyperlink{group__IL__SERVO_ga6c36d0853cb9bd4c71cee037421ec09a}{IL\_SERVO\_SP\_TIMEOUT\_DEF});
+        \textcolor{keywordflow}{if} (r < 0) \{
+            fprintf(stderr, \textcolor{stringliteral}{"Could not set position: %s\(\backslash\)n"},
+                \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+            \textcolor{keywordflow}{goto} cleanup\_poller;
+        \}
+    \}
+
+    r = \hyperlink{group__IL__SERVO_gaa18949ceef486037483614569e22197f}{il\_servo\_wait\_reached}(servo, POS\_TIMEOUT);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not reach target: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+    \}
+
+    (void)\hyperlink{group__IL__SERVO_ga8b5938454ac8183a514d11203f2e6197}{il\_servo\_disable}(servo);
+    (void)\hyperlink{group__IL__POLLER_ga1055384cca31fe730d07d488017c559f}{il\_poller\_stop}(poller);
+
+    \textcolor{comment}{/* obtain poller results and log to CSV file. */}
+    \hyperlink{group__IL__POLLER_ga67ccc0e92b0bb83756462d3c407d4d87}{il\_poller\_data\_get}(poller, &acq);
+
+    \textcolor{keywordflow}{if} (acq->\hyperlink{structil__poller__acq__t_a41b46fb77cf99d8d2d307e5ec37f707a}{lost})
+        fprintf(stderr, \textcolor{stringliteral}{"Warning: poller data was lost\(\backslash\)n"});
+
+    log\_f = fopen(log\_fname, \textcolor{stringliteral}{"w"});
+    \textcolor{keywordflow}{if} (!log\_f) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not open log file\(\backslash\)n"});
+        \textcolor{keywordflow}{goto} cleanup\_poller;
+    \}
+
+    \textcolor{keywordflow}{for} (i = 0; i < acq->\hyperlink{structil__poller__acq__t_aaf726970c22e29aafbbe83d2b24b2eaa}{cnt}; i++)
+        fprintf(log\_f, \textcolor{stringliteral}{"%f, %f, %f\(\backslash\)n"},
+            acq->\hyperlink{structil__poller__acq__t_aae27ff232752eb21937cefd31c5adcb4}{t}[i], acq->\hyperlink{structil__poller__acq__t_aa0c86de89229342ec18f4cf7effdc089}{d}[0][i], acq->\hyperlink{structil__poller__acq__t_aa0c86de89229342ec18f4cf7effdc089}{d}[1][i]);
+
+    fclose(log\_f);
+
+cleanup\_poller:
+    \hyperlink{group__IL__POLLER_gada8133cbba4d0212e6d5c84dab03d407}{il\_poller\_destroy}(poller);
+
+cleanup\_net\_servo:
+    \hyperlink{group__IL__SERVO_gade6d6e8ae2488af2a6ae6a6c484eaf32}{il\_servo\_destroy}(servo);
+
+    \hyperlink{group__IL__NET_ga4b9335320c644d86491b3bc20e055f5f}{il\_net\_destroy}(net);
+
+    \textcolor{keywordflow}{return} r;
+\}
+
+\textcolor{keywordtype}{int} main(\textcolor{keywordtype}{int} argc, \textcolor{keywordtype}{char} **argv)
+\{
+    \textcolor{keywordflow}{if} (argc < 2) \{
+        fprintf(stderr,
+            \textcolor{stringliteral}{"Usage: motion LOG\_FILE\(\backslash\)n"});
+        \textcolor{keywordflow}{return} 1;
+    \}
+
+    \textcolor{keywordflow}{return} run(argv[1]);
+\}
+\end{DoxyCodeInclude}
+ 
