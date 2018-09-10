@@ -153,6 +153,8 @@ typedef struct {
 	il_dict_labels_t *labels;
 	/** Enumerations array. */
 	il_reg_enum_t enums[20];
+	/** Enumerations count. */
+	int enums_count;
 	/** Category ID. */
 	const char *cat_id;
 	/** Subcategory ID. */
