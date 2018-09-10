@@ -533,6 +533,10 @@ static void parse_reg_enums(xmlNodePtr node, il_reg_t *reg)
 	int index = 0;
 	for (enumeration = node->children; enumeration; enumeration = enumeration->next) {
 		xmlChar *value, *content;
+		
+		if (enumeration->type != XML_ELEMENT_NODE)
+			continue;
+			
 		content = xmlNodeGetContent(enumeration);
 		if (content) {
 			il_reg_enum_t new_enum;
@@ -591,12 +595,6 @@ static int parse_reg_props(xmlNodePtr node, il_reg_t *reg)
 			// reg->enums = &enums;
 			// if (!reg->enums)
 			// 	return IL_EFAIL;
-			
-			int i;
-			for(i = 0; i < 20; i = i + 1){
-				reg->enums[i].value = NULL;
-				reg->enums[i].label = NULL;
-			}
 			parse_reg_enums(prop, reg);
 		}
 			
