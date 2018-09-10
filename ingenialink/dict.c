@@ -592,6 +592,11 @@ static int parse_reg_props(xmlNodePtr node, il_reg_t *reg)
 			// if (!reg->enums)
 			// 	return IL_EFAIL;
 			
+			int i;
+			for(i = 0; i < 20; i = i + 1){
+				reg->enums[i].value = NULL;
+				reg->enums[i].label = NULL;
+			}
 			parse_reg_enums(prop, reg);
 		}
 			
