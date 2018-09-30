@@ -50,7 +50,8 @@ option(WITH_EXAMPLES     "Build library usage example apps"                   OF
 option(WITH_DOCS         "Build library public API documentation"             OFF)
 option(WITH_PIC          "Generate position independent code"                 OFF)
 option(WITH_PROT_EUSB    "Build with EUSB protocol support"                    ON)
-option(WITH_PROT_MCB     "Build with MCB protocol support (EXPERIMENTAL)"     OFF)
+option(WITH_PROT_MCB     "Build with MCB protocol support (EXPERIMENTAL)"     ON)
+option(WITH_PROT_ETH     "Build with ETH protocol support (EXPERIMENTAL)"     ON)
 option(WITH_PROT_VIRTUAL "Build with Virtual protocol support (EXPERIMENTAL)" OFF)
 
 # Build a shared library by default
@@ -104,6 +105,14 @@ if(WITH_PROT_MCB)
     ingenialink/mcb/net.c
     ingenialink/mcb/servo.c
     ingenialink/mcb/registers.c
+  )
+endif()
+
+if(WITH_PROT_ETH)
+  list(APPEND ingenialink_srcs
+    ingenialink/eth/frame.c
+    ingenialink/eth/net.c
+    ingenialink/eth/servo.c
   )
 endif()
 
@@ -162,6 +171,10 @@ endif()
 
 if(WITH_PROT_MCB)
   target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_MCB)
+endif()
+
+if(WITH_PROT_ETH)
+  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_ETH)
 endif()
 
 if(WITH_PROT_VIRTUAL)
