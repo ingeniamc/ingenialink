@@ -227,6 +227,61 @@ typedef struct {
 		il_net_t *net, il_net_servos_on_found_t on_found, void *ctx);
 } il_net_ops_t;
 
+
+/** Ethernet network operations. */
+typedef struct {
+	/** Retain. */
+	void (*_retain)(
+		il_net_t *net);
+	/** Release. */
+	void (*_release)(
+		il_net_t *net);
+
+	/** Set state. */
+	void (*_state_set)(
+		il_net_t *net, il_net_state_t state);
+	/** Read. */
+	int (*_read)(
+		il_net_t *net, uint16_t id, uint32_t address, void *buf,
+		size_t sz);
+	/** Write. */
+	int (*_write)(
+		il_net_t *net, uint16_t id, uint32_t address, const void *buf,
+		size_t sz, int confirmed);
+	/** Subscribe to state updates. */
+	int (*_sw_subscribe)(
+		il_net_t *net, uint16_t id, il_net_sw_subscriber_cb_t cb,
+		void *ctx);
+	/** Unsubscribe from state updares. */
+	void (*_sw_unsubscribe)(
+		il_net_t *net, int slot);
+	/** Subscribe to emergencies. */
+	int (*_emcy_subscribe)(
+		il_net_t *net, uint16_t id, il_net_emcy_subscriber_cb_t cb,
+		void *ctx);
+	/** Unsubscribe to emergencies. */
+	void (*_emcy_unsubscribe)(
+		il_net_t *net, int slot);
+	/** Create network. */
+	il_net_t *(*create)(
+		const il_net_opts_t *opts);
+	/** Destroy network. */
+	void (*destroy)(
+		il_net_t *net);
+	/** Connect network. */
+	int (*connect)(
+		il_net_t *net);
+	/** Disconnect network. */
+	void (*disconnect)(
+		il_net_t *net);
+	/** Obtain network state. */
+	il_net_state_t (*state_get)(
+		il_net_t *net);
+	/** Obtain list of connected servos. */
+	il_eth_net_servos_list_t *(*servos_list_get)(
+		il_net_t *net, il_net_servos_on_found_t on_found, void *ctx);
+} il_eth_net_ops_t;
+
 /** Network device monitor operations. */
 typedef struct {
 	/** Create. */

@@ -62,6 +62,17 @@ typedef struct {
 	int timeout_wr;
 } il_net_opts_t;
 
+
+/** Ethernet network initialization options. */
+typedef struct {
+	/** Port. */
+	const char *address_ip;
+	/** Read timeout (ms). */
+	int timeout_rd;
+	/** Write timeout (ms). */
+	int timeout_wr;
+} il_eth_net_opts_t;
+
 /** Default read timeout (ms). */
 #define IL_NET_TIMEOUT_RD_DEF	500
 
@@ -82,6 +93,15 @@ typedef enum {
 #define IL_NET_PORT_SZ 128U
 
 /** network devices list. */
+typedef struct il_eth_net_dev_list {
+	/** Port. */
+	const char *address_ip;
+	/** Next device */
+	struct il_eth_net_dev_list *next;
+} il_eth_net_dev_list_t;
+
+
+/** network devices list. */
 typedef struct il_net_dev_list {
 	/** Port. */
 	char port[IL_NET_PORT_SZ];
@@ -96,6 +116,13 @@ typedef struct il_net_servos_list {
 	/** Next node. */
 	struct il_net_servos_list *next;
 } il_net_servos_list_t;
+
+typedef struct il_eth_net_servos_list {
+	/** Node id. */
+	uint8_t id;
+	/** Next node. */
+	struct il_net_servos_list *next;
+} il_eth_net_servos_list_t;
 
 /** Node found callback. */
 typedef void (*il_net_servos_on_found_t)(void *ctx, uint8_t id);

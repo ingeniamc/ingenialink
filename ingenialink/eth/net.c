@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
+#include <winsock2.h>
 #include "net.h"
 #include "frame.h"
 
@@ -32,6 +32,10 @@
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
+
+WSADATA WSAData;
+SOCKET server;
+SOCKADDR_IN addr;
 
 /*******************************************************************************
  * Private
@@ -105,7 +109,7 @@ static uint16_t crc_calc_eth(const uint16_t *buf, uint16_t u16Sz)
  * @param [in] frame
  *	IngeniaLink frame.
  */
-static void process_statusword(il_mcb_net_t *this, uint8_t subnode, uint16_t data)
+static void process_statusword(il_eth_net_t *this, uint8_t subnode, uint16_t data)
 {
 
 }
@@ -114,9 +118,308 @@ static void process_statusword(il_mcb_net_t *this, uint8_t subnode, uint16_t dat
  * Listener thread.
  *
  * @param [in] args
- *	MCB Network (il_mcb_net_t *).
+ *	MCB Network (il_eth_net_t *).
  */
-int listener_mcb(void *args)
+int listener_eth(void *args)
 {
 	return not_supported();
 }
+
+static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
+{
+	il_eth_net_t *this;
+ 	int r;
+
+ 	this = calloc(1, sizeof(*this));
+ 	if (!this) {
+ 		ilerr__set("Network allocation failed");
+ 		return NULL;
+ 	}
+
+ 	/* initialize parent */
+ 	r = il_net_base__init(&this->net, opts);
+ 	if (r < 0)
+ 		goto cleanup_this;
+
+ 	this->net.ops = &il_eth_net_ops;
+ 	this->net.prot = IL_NET_PROT_ETH;
+	this->ip_address = this->net.port;
+ 	
+	 /* setup refcnt */
+ 	// this->refcnt = il_utils__refcnt_create(mcb_net_destroy, this);
+ 	// if (!this->refcnt)
+ 	// 	goto cleanup_net;
+
+ 	r = il_net_connect(&this->net);
+ 	if (r < 0)
+ 		goto cleanup_this;
+
+	return &this->net;
+
+// cleanup_refcnt:
+// 	il_utils__refcnt_destroy(this->refcnt);
+
+// cleanup_net:
+// 	il_net_base__deinit(&this->net);
+
+cleanup_this:
+	free(this);
+
+	return NULL;
+}
+
+static int il_eth_net_connect(il_net_t *net)
+{
+	il_eth_net_t *this = to_eth_net(net);
+
+    int r = 0;
+
+    if ((r = WSAStartup(0x202, &WSAData)) != 0)
+    {
+        fprintf(stderr,"Server: WSAStartup() failed with error %d\n", r);
+        WSACleanup();
+        return -1;
+    }
+    else printf("Server: WSAStartup() is OK.\n");
+
+    server = socket(AF_INET, SOCK_STREAM, 0);
+
+    addr.sin_addr.s_addr = inet_addr("192.168.150.2");
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(23);
+
+	r = connect(server, (SOCKADDR *)&addr, sizeof(addr));
+    if (r < 0) {
+        int last_error = WSAGetLastError();
+        printf("Fail connecting to server\n");
+        return 0;
+    }
+	printf("Connected to the Server!");
+
+	return 0;
+}
+
+il_eth_net_dev_list_t *il_eth_net_dev_list_get()
+{
+	// TODO: Get slaves scanned
+	il_eth_net_dev_list_t *lst = NULL;
+	il_eth_net_dev_list_t *prev;
+
+
+	prev = NULL;
+	lst = malloc(sizeof(*lst));
+	char *address_ip = "150.1.1.1";
+	lst->address_ip = (char *)address_ip;
+
+	return lst;
+
+
+}
+
+static il_net_servos_list_t *il_eth_net_servos_list_get(
+	il_net_t *net, il_net_servos_on_found_t on_found, void *ctx)
+{
+	int r;
+	uint64_t vid;
+	il_net_servos_list_t *lst;
+
+	/* try to read the vendor id register to see if a servo is alive */
+	r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
+	if (r < 0)
+		return NULL;
+
+	/* create list with one element (id=1) */
+	lst = malloc(sizeof(*lst));
+	if (!lst)
+		return NULL;
+
+	lst->next = NULL;
+	lst->id = 1;
+
+	if (on_found)
+		on_found(ctx, 1);
+
+	return lst;
+}
+
+static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
+			    void *buf, size_t sz)
+{
+	il_eth_net_t *this = to_eth_net(net);
+
+	int r;
+
+	(void)id;
+
+	osal_mutex_lock(this->net.lock);
+	
+	r = net_send(this, subnode, (uint16_t)address, NULL, 0);
+	if (r < 0)
+		goto unlock;
+
+	r = net_recv(this, subnode, (uint16_t)address, buf, sz);
+
+
+unlock:
+	osal_mutex_unlock(this->net.lock);
+
+	return r;
+}
+
+static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
+			     const void *buf, size_t sz, int confirmed)
+{
+	il_eth_net_t *this = to_eth_net(net);
+
+	int r;
+
+	(void)id;
+	(void)confirmed;
+
+	osal_mutex_lock(this->net.lock);
+
+	r = net_send(this, subnode, (uint16_t)address, buf, sz);
+	if (r < 0)
+		goto unlock;
+
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0);
+
+unlock:
+	osal_mutex_unlock(this->net.lock);
+
+	return r;
+}
+
+typedef union
+{
+	uint64_t u64;
+	uint16_t u16[4];
+} UINT_UNION_T;
+
+static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const void *data,
+		    size_t sz)
+{	
+	int finished = 0;
+	uint8_t cmd;
+	size_t pending_sz = sz;
+
+	cmd = sz ? ETH_MCB_CMD_WRITE : ETH_MCB_CMD_READ;
+
+	// (void)ser_flush(this->ser, SER_QUEUE_ALL);
+
+	while (!finished) {
+		int r;
+		uint16_t frame[ETH_MCB_FRAME_SZ], pending;
+		uint16_t hdr_h, hdr_l, crc;
+		size_t chunk_sz;
+
+		/* header */
+		// pending = (pending_sz > MCB_CFG_DATA_SZ) ? 1 : 0; // Not used right now
+		pending = 0;
+
+		// hdr_h = (MCB_SUBNODE_MOCO << 12) | (MCB_NODE_DFLT);
+		hdr_h = (ETH_MCB_NODE_DFLT << 4) | (subnode);
+		*(uint16_t *)&frame[ETH_MCB_HDR_H_POS] = hdr_h;
+		hdr_l = (address << 4) | (cmd << 1) | (pending);
+		*(uint16_t *)&frame[ETH_MCB_HDR_L_POS] = hdr_l;
+
+		/* cfg_data */
+		uint64_t d = 0;
+		if (sz > 0) {
+			memcpy(&d, data, sz);
+		}
+		UINT_UNION_T u = { .u64 = d };
+		memcpy(&frame[ETH_MCB_DATA_POS], &u.u16[0], 8);
+		
+		/* crc */
+		crc = crc_calc_eth(frame, ETH_MCB_CRC_POS);
+		frame[ETH_MCB_CRC_POS] = crc;
+
+		/* send frame */
+		r = send(server, (const char*)&frame[0], sizeof(frame), 0);
+		// r = ser_write(this->ser, frame, sizeof(frame), NULL);
+		if (r < 0)
+			return ilerr__ser(r);
+		finished = 1;
+	}
+
+	return 0;
+}
+
+static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
+		    size_t sz)
+{
+	int finished = 0;
+	size_t pending_sz = sz;
+
+	/*while (!finished) {*/
+	uint16_t frame[7];
+	size_t block_sz = 0;
+	uint16_t crc, hdr_l;
+	uint8_t *pBuf = (uint8_t*) &frame;
+
+	Sleep(5);
+	/* read next frame */
+	while (block_sz < 14) {
+		int r;
+		size_t chunk_sz;
+		r = recv(server, (char*)&pBuf[0], sizeof(frame)-block_sz, 0);
+		// r = ser_read(this->ser, pBuf,
+		// 			sizeof(frame) - block_sz, &chunk_sz);
+		if (r == SER_EEMPTY) {
+			// r = ser_read_wait(this->ser);
+			if (r < 0)
+				return ilerr__ser(r);
+		} else if (r < 0) {
+			return ilerr__ser(r);
+		} else {
+			block_sz += chunk_sz;
+			pBuf += block_sz;
+		}
+	}
+
+	/* process frame: validate CRC, address, ACK */
+	crc = *(uint16_t *)&frame[6];
+	uint16_t crc_res = crc_calc_eth((uint16_t *)frame, 6);
+	if (crc_res != crc) {
+		ilerr__set("Communications error (CRC mismatch)");
+		return IL_EIO;
+	}
+
+	/* TODO: Check subnode */
+
+	/* Check ACK */
+	hdr_l = *(uint16_t *)&frame[ETH_MCB_HDR_L_POS];
+	int cmd = (hdr_l & ETH_MCB_CMD_MSK) >> ETH_MCB_CMD_POS;
+	if (cmd != ETH_MCB_CMD_ACK) {
+		uint32_t err;
+
+		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
+
+		ilerr__set("Communications error (NACK -> %08x)", err);
+		return IL_EIO;
+	}
+	if (!pending_sz) {
+		finished = 1;
+	}
+	else {
+		size_t data_sz;
+		data_sz = 8;	// bytes
+		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), data_sz);
+	}
+
+	return 0;
+}
+
+
+/** MCB network operations. */
+const il_eth_net_ops_t il_eth_net_ops = {
+	/* internal */
+	._read = il_eth_net__read,
+	._write = il_eth_net__write,
+	/* public */
+	.create = il_eth_net_create,
+	.connect = il_eth_net_connect,
+	// .devs_list_get = il_eth_net_dev_list_get,
+	.servos_list_get = il_eth_net_servos_list_get,
+};

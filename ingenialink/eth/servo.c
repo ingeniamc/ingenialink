@@ -235,6 +235,40 @@ void il_eth_servo__state_decode(uint16_t sw, il_servo_state_t *state,
 static il_servo_t *il_eth_servo_create(il_net_t *net, uint16_t id,
 				       const char *dict)
 {
+	int r;
+
+	il_eth_servo_t *this;
+	uint16_t sw;
+
+	/* allocate servo */
+	this = malloc(sizeof(*this));
+	if (!this) {
+		ilerr__set("Servo allocation failed");
+		return NULL;
+	}
+
+	r = il_servo_base__init(&this->servo, net, id, dict);
+	if (r < 0)
+		goto cleanup_servo;
+
+	this->servo.ops = &il_eth_servo_ops;
+
+	/* initialize, setup refcnt */
+	this->refcnt = il_utils__refcnt_create(servo_destroy, this);
+	if (!this->refcnt)
+		goto cleanup_base;
+
+	/* trigger status update (with manual read) */
+	(void)il_servo_raw_read_u16(&this->servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
+
+	return &this->servo;
+
+cleanup_base:
+	il_servo_base__deinit(&this->servo);
+
+cleanup_servo:
+	free(this);
+
 	return NULL;
 }
 

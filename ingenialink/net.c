@@ -95,6 +95,8 @@ il_net_t *il_net_create(il_net_prot_t prot, const il_net_opts_t *opts)
 #ifdef IL_HAS_PROT_MCB
 	case IL_NET_PROT_MCB:
 		return il_mcb_net_ops.create(opts);
+	case IL_NET_PROT_ETH:
+		return il_eth_net_ops.create(opts);
 #endif
 #ifdef IL_HAS_PROT_VIRTUAL
 	case IL_NET_PROT_VIRTUAL:
@@ -181,6 +183,8 @@ il_net_dev_mon_t *il_net_dev_mon_create(il_net_prot_t prot)
 #ifdef IL_HAS_PROT_MCB
 	case IL_NET_PROT_MCB:
 		return il_mcb_net_dev_mon_ops.create();
+	// case IL_NET_PROT_ETH:
+	// 	return il_eth_net_dev_mon_ops.create(opts);
 #endif
 	default:
 		ilerr__set("Unsupported network protocol");
@@ -214,6 +218,8 @@ il_net_dev_list_t *il_net_dev_list_get(il_net_prot_t prot)
 #ifdef IL_HAS_PROT_MCB
 	case IL_NET_PROT_MCB:
 		return il_mcb_net_dev_list_get();
+	case IL_NET_PROT_ETH:
+	 	return il_eth_net_dev_list_get();
 #endif
 	default:
 		ilerr__set("Unsupported network protocol");

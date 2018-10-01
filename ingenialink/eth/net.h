@@ -58,7 +58,7 @@ typedef struct il_eth_net {
 	osal_thread_t *listener;
 	/** Listener stop flag. */
 	int stop;
-} il_mcb_net_t;
+} il_eth_net_t;
 
 /** Obtain ETH Network from parent. */
 #define to_eth_net(ptr) container_of(ptr, struct il_eth_net, net)

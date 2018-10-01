@@ -1260,6 +1260,9 @@ IL_EXPORT int il_servo_wait_reached(il_servo_t *servo, int timeout);
 IL_EXPORT int il_servo_lucky(il_net_prot_t prot, il_net_t **net,
 			     il_servo_t **servo, const char *dict);
 
+IL_EXPORT int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net,
+			     il_servo_t **servo, const char *dict);
+
 /** @} */
 
 IL_END_DECL
