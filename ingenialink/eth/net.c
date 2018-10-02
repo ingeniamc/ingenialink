@@ -226,21 +226,25 @@ static il_net_servos_list_t *il_eth_net_servos_list_get(
 	il_net_servos_list_t *lst;
 
 	/* try to read the vendor id register to see if a servo is alive */
+	printf("get1\n");
 	r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 	if (r < 0)
 		return NULL;
-
+	printf("get2\n");
 	/* create list with one element (id=1) */
 	lst = malloc(sizeof(*lst));
+	printf("get3\n");
 	if (!lst)
 		return NULL;
-
+	printf("get4\n");
 	lst->next = NULL;
+	printf("get5\n");
 	lst->id = 1;
+	printf("get6\n");
 
 	if (on_found)
 		on_found(ctx, 1);
-
+	printf("get7\n");
 	return lst;
 }
 
