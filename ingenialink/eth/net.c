@@ -360,23 +360,8 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 
 	Sleep(5);
 	/* read next frame */
-	while (block_sz < 14) {
-		int r;
-		size_t chunk_sz;
-		r = recv(server, (char*)&pBuf[0], sizeof(frame)-block_sz, 0);
-		// r = ser_read(this->ser, pBuf,
-		// 			sizeof(frame) - block_sz, &chunk_sz);
-		if (r == SER_EEMPTY) {
-			// r = ser_read_wait(this->ser);
-			if (r < 0)
-				return ilerr__ser(r);
-		} else if (r < 0) {
-			return ilerr__ser(r);
-		} else {
-			block_sz += chunk_sz;
-			pBuf += block_sz;
-		}
-	}
+	int r = 0;
+	r = recv(server, (char*)&pBuf[0], sizeof(frame), 0);
 
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
