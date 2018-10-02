@@ -44,6 +44,7 @@ cmake --build _build --target install
 ```
 
 Note that a `INSTALL` is the installation folder.
+  - You can replace `$INSTALL` with the full directory of the build location.
 
 [sercomm]: https://github.com/ingeniamc/sercomm
 [libxml2]: https://xmlsoft.org
