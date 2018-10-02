@@ -239,27 +239,30 @@ static il_servo_t *il_eth_servo_create(il_net_t *net, uint16_t id,
 
 	il_eth_servo_t *this;
 	uint16_t sw;
-
+	printf("create1\n");
 	/* allocate servo */
 	this = malloc(sizeof(*this));
 	if (!this) {
 		ilerr__set("Servo allocation failed");
 		return NULL;
 	}
-
+	printf("create2\n");
 	r = il_servo_base__init(&this->servo, net, id, dict);
+	printf("create3\n");
 	if (r < 0)
 		goto cleanup_servo;
-
+	printf("create4\n");
 	this->servo.ops = &il_eth_servo_ops;
-
+	printf("create5\n");
 	/* initialize, setup refcnt */
 	this->refcnt = il_utils__refcnt_create(servo_destroy, this);
+	printf("create6\n");
 	if (!this->refcnt)
 		goto cleanup_base;
-
+	printf("create7\n");
 	/* trigger status update (with manual read) */
 	(void)il_servo_raw_read_u16(&this->servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
+	printf("create8\n");
 
 	return &this->servo;
 
