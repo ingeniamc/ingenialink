@@ -154,6 +154,8 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
  	if (r < 0)
  		goto cleanup_this;
 
+	printf("connected bro");
+
 	return &this->net;
 
 // cleanup_refcnt:
