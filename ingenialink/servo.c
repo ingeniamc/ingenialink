@@ -627,7 +627,7 @@ int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 }
 
 int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
-		   const char *dict)
+		   const char *dict, const char *address_ip)
 {	
 	il_eth_net_dev_list_t *devs, *dev;
 	il_net_servos_list_t *servo_ids, *servo_id;
@@ -637,15 +637,16 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 	//il_net_dev_list_foreach(dev, devs) {
 	il_eth_net_opts_t opts;
 
-	opts.address_ip = dev->address_ip;
+	opts.address_ip = address_ip;
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
 
 	printf("before connect");
 	*net = il_net_create(prot, &opts);
-	if (!*net)
+	if (!*net) {
 		printf("FAIL");
-		// continue;
+		return IL_EFAIL;
+	}
 	printf("lucky 1\n");
 	/* try to connect to any available servo */
 	servo_ids = il_net_servos_list_get(*net, NULL, NULL);

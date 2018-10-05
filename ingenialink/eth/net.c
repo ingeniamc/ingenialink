@@ -143,13 +143,14 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 
  	this->net.ops = &il_eth_net_ops;
  	this->net.prot = IL_NET_PROT_ETH;
-	this->ip_address = this->net.port;
+	this->ip_address = opts->port;
+	this->port = "23";
  	
 	 /* setup refcnt */
  	// this->refcnt = il_utils__refcnt_create(mcb_net_destroy, this);
  	// if (!this->refcnt)
  	// 	goto cleanup_net;
-
+	
  	r = il_net_connect(&this->net);
  	if (r < 0)
  		goto cleanup_this;
@@ -170,7 +171,7 @@ cleanup_this:
 	return NULL;
 }
 
-static int il_eth_net_connect(il_net_t *net)
+static int il_eth_net_connect(il_net_t *net, const char *ip)
 {
 	il_eth_net_t *this = to_eth_net(net);
 
@@ -186,7 +187,8 @@ static int il_eth_net_connect(il_net_t *net)
 
     server = socket(AF_INET, SOCK_STREAM, 0);
 
-    addr.sin_addr.s_addr = inet_addr("192.168.150.2");
+    // addr.sin_addr.s_addr = inet_addr("192.168.150.2");
+	addr.sin_addr.s_addr = inet_addr(this->ip_address);
     addr.sin_family = AF_INET;
     addr.sin_port = htons(23);
 
@@ -194,7 +196,7 @@ static int il_eth_net_connect(il_net_t *net)
     if (r < 0) {
         int last_error = WSAGetLastError();
         printf("Fail connecting to server\n");
-        return 0;
+        return -1;
     }
 	printf("Connected to the Server!");
 
