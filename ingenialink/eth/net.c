@@ -36,7 +36,7 @@
 WSADATA WSAData;
 SOCKET server;
 SOCKADDR_IN addr;
-char *ip = "";
+char *ip;
 
 /*******************************************************************************
  * Private
