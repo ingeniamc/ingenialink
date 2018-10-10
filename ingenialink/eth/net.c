@@ -36,6 +36,7 @@
 WSADATA WSAData;
 SOCKET server;
 SOCKADDR_IN addr;
+char *ip;
 
 /*******************************************************************************
  * Private
@@ -171,7 +172,7 @@ cleanup_this:
 	return NULL;
 }
 
-static int il_eth_net_connect(il_net_t *net, const char *ip)
+static int il_eth_net_connect(il_net_t *net, const char *_ip)
 {
 	il_eth_net_t *this = to_eth_net(net);
 
@@ -186,7 +187,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
     else printf("Server: WSAStartup() is OK.\n");
 
     server = socket(AF_INET, SOCK_STREAM, 0);
-
+	ip = this->ip_address;
     // addr.sin_addr.s_addr = inet_addr("192.168.150.2");
 	addr.sin_addr.s_addr = inet_addr(this->ip_address);
     addr.sin_family = AF_INET;
@@ -228,25 +229,18 @@ static il_net_servos_list_t *il_eth_net_servos_list_get(
 	il_net_servos_list_t *lst;
 
 	/* try to read the vendor id register to see if a servo is alive */
-	printf("get1\n");
 	r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 	if (r < 0)
 		return NULL;
-	printf("get2\n");
 	/* create list with one element (id=1) */
 	lst = malloc(sizeof(*lst));
-	printf("get3\n");
 	if (!lst)
 		return NULL;
-	printf("get4\n");
 	lst->next = NULL;
-	printf("get5\n");
 	lst->id = 1;
-	printf("get6\n");
 
 	if (on_found)
 		on_found(ctx, 1);
-	printf("get7\n");
 	return lst;
 }
 
@@ -259,15 +253,15 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 
 	(void)id;
 
+	printf("Read: ");
+	printf(ip);
+	printf("\n");
+
 	osal_mutex_lock(this->net.lock);
-	printf("read enter\n");
 	r = net_send(this, subnode, (uint16_t)address, NULL, 0);
 	if (r < 0)
 		goto unlock;
-	printf("read recv\n");
 	r = net_recv(this, subnode, (uint16_t)address, buf, sz);
-	printf("read recv end\n");
-
 unlock:
 	osal_mutex_unlock(this->net.lock);
 
@@ -284,8 +278,11 @@ static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 	(void)id;
 	(void)confirmed;
 
-	osal_mutex_lock(this->net.lock);
+	printf("Write: ");
+	printf(ip);
+	printf("\n");
 
+	osal_mutex_lock(this->net.lock);
 	r = net_send(this, subnode, (uint16_t)address, buf, sz);
 	if (r < 0)
 		goto unlock;
