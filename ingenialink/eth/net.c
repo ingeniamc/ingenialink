@@ -337,10 +337,9 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 		/* crc */
 		crc = crc_calc_eth(frame, ETH_MCB_CRC_POS);
 		frame[ETH_MCB_CRC_POS] = crc;
-		printf("hola");
+
 		/* send frame */
 		r = send(server, (const char*)&frame[0], sizeof(frame), 0);
-		printf("hola2");
 		// r = ser_write(this->ser, frame, sizeof(frame), NULL);
 		if (r < 0)
 			return ilerr__ser(r);
