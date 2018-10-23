@@ -33,7 +33,8 @@ static uint16_t sw_get(il_servo_t *servo)
 	uint16_t sw;
 
 	osal_mutex_lock(servo->sw.lock);
-	sw = servo->sw.value;
+	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
+	servo->sw.value = sw;
 	osal_mutex_unlock(servo->sw.lock);
 
 	return sw;
