@@ -439,11 +439,11 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 	servo->sw.value = 0;
 	
 	//if (servo->net->prot != IL_NET_PROT_ETH) {
-	r = il_net__sw_subscribe(servo->net, servo->id, sw_update, servo);
+	/*r = il_net__sw_subscribe(servo->net, servo->id, sw_update, servo);
 	if (r < 0)
 		goto cleanup_sw_changed;
 
-	servo->sw.slot = r;
+	servo->sw.slot = r;*/
 
 	/* configute external state subscriptors */
 	//servo->state_subs.subs = calloc(STATE_SUBS_SZ_DEF,
