@@ -390,7 +390,7 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 			const char *dict)
 {
 	int r;
-
+	printf("holi1");
 	/* initialize */
 	servo->net = net;
 	servo->id = id;
@@ -407,7 +407,7 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 	} else {
 		servo->dict = NULL;
 	}
-
+	printf("holi2");
 	/* configure units */
 	servo->units.lock = osal_mutex_create();
 	if (!servo->units.lock) {
@@ -415,12 +415,12 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 		r = IL_EFAIL;
 		goto cleanup_dict;
 	}
-
+	printf("holi3");
 	servo->units.torque = IL_UNITS_TORQUE_NATIVE;
 	servo->units.pos = IL_UNITS_POS_NATIVE;
 	servo->units.vel = IL_UNITS_VEL_NATIVE;
 	servo->units.acc = IL_UNITS_ACC_NATIVE;
-
+	printf("holi4");
 	/* configure statusword subscription */
 	servo->sw.lock = osal_mutex_create();
 	if (!servo->sw.lock) {
@@ -428,15 +428,16 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 		r = IL_EFAIL;
 		goto cleanup_units_lock;
 	}
-
+	printf("holi5");
 	servo->sw.changed = osal_cond_create();
 	if (!servo->sw.changed) {
 		ilerr__set("Statusword subscriber condition allocation failed");
 		r = IL_EFAIL;
 		goto cleanup_sw_lock;
 	}
-
+	printf("holi6");
 	servo->sw.value = 0;
+	printf("holi7");
 	
 	//if (servo->net->prot != IL_NET_PROT_ETH) {
 	/*r = il_net__sw_subscribe(servo->net, servo->id, sw_update, servo);
