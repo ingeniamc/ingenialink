@@ -111,7 +111,30 @@ static uint16_t crc_calc_eth(const uint16_t *buf, uint16_t u16Sz)
  */
 static void process_statusword(il_eth_net_t *this, uint8_t subnode, uint16_t data)
 {
+	il_net_sw_subscriber_lst_t *subs;
+	int i;
+	uint8_t id;
+	uint16_t sw;
 
+	subs = &this->net.sw_subs;
+
+	id = subnode;
+	sw = data;
+
+	osal_mutex_lock(subs->lock);
+
+	for (i = 0; i < subs->sz; i++) {
+		if (subs->subs[i].id == id && subs->subs[i].cb) {
+			void *ctx;
+
+			ctx = subs->subs[i].ctx;
+			subs->subs[i].cb(ctx, sw);
+
+			break;
+		}
+	}
+
+	osal_mutex_unlock(subs->lock);
 }
 
 /**
@@ -410,6 +433,10 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	/* internal */
 	._read = il_eth_net__read,
 	._write = il_eth_net__write,
+	._sw_subscribe = il_net_base__sw_subscribe,
+	._sw_unsubscribe = il_net_base__sw_unsubscribe,
+	._emcy_subscribe = il_net_base__emcy_subscribe,
+	._emcy_unsubscribe = il_net_base__emcy_unsubscribe,
 	/* public */
 	.create = il_eth_net_create,
 	.connect = il_eth_net_connect,

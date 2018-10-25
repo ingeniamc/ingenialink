@@ -439,92 +439,90 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 	servo->sw.value = 0;
 	
 	//if (servo->net->prot != IL_NET_PROT_ETH) {
-	//	r = il_net__sw_subscribe(servo->net, servo->id, sw_update, servo);
-	//	if (r < 0)
-	//		goto cleanup_sw_changed;
+	r = il_net__sw_subscribe(servo->net, servo->id, sw_update, servo);
+	if (r < 0)
+		goto cleanup_sw_changed;
 
-	//	servo->sw.slot = r;
+	servo->sw.slot = r;
 
-	//	/* configute external state subscriptors */
-	//	servo->state_subs.subs = calloc(STATE_SUBS_SZ_DEF,
-	//		sizeof(*servo->state_subs.subs));
-	//	if (!servo->state_subs.subs) {
-	//		ilerr__set("State subscribers allocation failed");
-	//		r = IL_EFAIL;
-	//		goto cleanup_sw_subscribe;
-	//	}
+	/* configute external state subscriptors */
+	servo->state_subs.subs = calloc(STATE_SUBS_SZ_DEF,
+		sizeof(*servo->state_subs.subs));
+	if (!servo->state_subs.subs) {
+		ilerr__set("State subscribers allocation failed");
+		r = IL_EFAIL;
+		goto cleanup_sw_subscribe;
+	}
 
-	//	servo->state_subs.sz = STATE_SUBS_SZ_DEF;
+	servo->state_subs.sz = STATE_SUBS_SZ_DEF;
 
-	//	servo->state_subs.lock = osal_mutex_create();
-	//	if (!servo->state_subs.lock) {
-	//		ilerr__set("State subscription lock allocation failed");
-	//		r = IL_EFAIL;
-	//		goto cleanup_state_subs_subs;
-	//	}
+	servo->state_subs.lock = osal_mutex_create();
+	if (!servo->state_subs.lock) {
+		ilerr__set("State subscription lock allocation failed");
+		r = IL_EFAIL;
+		goto cleanup_state_subs_subs;
+	}
 
-	//	servo->state_subs.stop = 0;
+	servo->state_subs.stop = 0;
 
-	//	servo->state_subs.monitor = osal_thread_create(state_subs_monitor,
-	//		servo);
-	//	if (!servo->state_subs.monitor) {
-	//		ilerr__set("State change monitor could not be created");
-	//		r = IL_EFAIL;
-	//		goto cleanup_state_subs_lock;
-	//	}
+	servo->state_subs.monitor = osal_thread_create(state_subs_monitor,
+		servo);
+	if (!servo->state_subs.monitor) {
+		ilerr__set("State change monitor could not be created");
+		r = IL_EFAIL;
+		goto cleanup_state_subs_lock;
+	}
 
-	//	/* configure emergency subscription */
-	//	servo->emcy.lock = osal_mutex_create();
-	//	if (!servo->emcy.lock) {
-	//		ilerr__set("Emergency subscriber lock allocation failed");
-	//		r = IL_EFAIL;
-	//		goto cleanup_state_subs_monitor;
-	//	}
+	/* configure emergency subscription */
+	servo->emcy.lock = osal_mutex_create();
+	if (!servo->emcy.lock) {
+		ilerr__set("Emergency subscriber lock allocation failed");
+		r = IL_EFAIL;
+		goto cleanup_state_subs_monitor;
+	}
 
-	//	servo->emcy.not_empty = osal_cond_create();
-	//	if (!servo->emcy.not_empty) {
-	//		ilerr__set("Emergency subscriber condition allocation failed");
-	//		r = IL_EFAIL;
-	//		goto cleanup_emcy_lock;
-	//	}
+	servo->emcy.not_empty = osal_cond_create();
+	if (!servo->emcy.not_empty) {
+		ilerr__set("Emergency subscriber condition allocation failed");
+		r = IL_EFAIL;
+		goto cleanup_emcy_lock;
+	}
 
-	//	servo->emcy.head = 0;
-	//	servo->emcy.tail = 0;
-	//	servo->emcy.sz = EMCY_QUEUE_SZ;
+	servo->emcy.head = 0;
+	servo->emcy.tail = 0;
+	servo->emcy.sz = EMCY_QUEUE_SZ;
 
-	//	r = il_net__emcy_subscribe(servo->net, servo->id, on_emcy, servo);
-	//	if (r < 0)
-	//		goto cleanup_emcy_not_empty;
+	r = il_net__emcy_subscribe(servo->net, servo->id, on_emcy, servo);
+	if (r < 0)
+		goto cleanup_emcy_not_empty;
 
-	//	servo->emcy.slot = r;
+	servo->emcy.slot = r;
 
-	//	/* configure external emergency subscriptors */
-	//	servo->emcy_subs.subs = calloc(EMCY_SUBS_SZ_DEF,
-	//		sizeof(*servo->emcy_subs.subs));
-	//	if (!servo->emcy_subs.subs) {
-	//		ilerr__set("Emergency subscribers allocation failed");
-	//		r = IL_EFAIL;
-	//		goto cleanup_emcy_subscribe;
-	//	}
+	/* configure external emergency subscriptors */
+	servo->emcy_subs.subs = calloc(EMCY_SUBS_SZ_DEF,
+		sizeof(*servo->emcy_subs.subs));
+	if (!servo->emcy_subs.subs) {
+		ilerr__set("Emergency subscribers allocation failed");
+		r = IL_EFAIL;
+		goto cleanup_emcy_subscribe;
+	}
 
-	//	servo->emcy_subs.sz = EMCY_SUBS_SZ_DEF;
+	servo->emcy_subs.sz = EMCY_SUBS_SZ_DEF;
 
-	//	servo->emcy_subs.lock = osal_mutex_create();
-	//	if (!servo->emcy_subs.lock) {
-	//		ilerr__set("Emergency subscription lock allocation failed");
-	//		r = IL_EFAIL;
-	//		goto cleanup_emcy_subs_subs;
-	//	}
+	servo->emcy_subs.lock = osal_mutex_create();
+	if (!servo->emcy_subs.lock) {
+		ilerr__set("Emergency subscription lock allocation failed");
+		r = IL_EFAIL;
+		goto cleanup_emcy_subs_subs;
+	}
 
-	//	servo->emcy_subs.stop = 0;
-	//	servo->emcy_subs.monitor = osal_thread_create(emcy_subs_monitor, servo);
-	//	if (!servo->emcy_subs.monitor) {
-	//		ilerr__set("Emergency monitor could not be created");
-	//		r = IL_EFAIL;
-	//		goto cleanup_emcy_subs_lock;
-	//	}
-	//}
-	
+	servo->emcy_subs.stop = 0;
+	servo->emcy_subs.monitor = osal_thread_create(emcy_subs_monitor, servo);
+	if (!servo->emcy_subs.monitor) {
+		ilerr__set("Emergency monitor could not be created");
+		r = IL_EFAIL;
+		goto cleanup_emcy_subs_lock;
+	}
 
 	return 0;
 

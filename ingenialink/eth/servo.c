@@ -34,7 +34,10 @@ static uint16_t sw_get(il_servo_t *servo)
 
 	osal_mutex_lock(servo->sw.lock);
 	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
-	servo->sw.value = sw;
+	if (servo->sw.value != sw) {
+		servo->sw.value = sw;
+		osal_cond_broadcast(servo->sw.changed);
+	}
 	osal_mutex_unlock(servo->sw.lock);
 
 	return sw;
@@ -56,59 +59,23 @@ static uint16_t sw_get(il_servo_t *servo)
 static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
 {
 	int r = 0;
-	osal_timespec_t start = { 0, 0 }, end, diff;
-
-	/* obtain start time */
-	if (*timeout > 0) {
-		if (osal_clock_gettime(&start) < 0) {
-			ilerr__set("Could not obtain system time");
-			return IL_EFAIL;
-		}
-	}
-/* wait for change */
-	osal_mutex_lock(servo->sw.lock);
-
-	if (servo->sw.value == *sw) {
-		r = osal_cond_wait(servo->sw.changed, servo->sw.lock, *timeout);
-		if (r == OSAL_ETIMEDOUT) {
+	uint16_t buff;
+	time_t start = time();
+	double time_s = 0;
+	time_s = (double) *timeout / 1000;
+	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &buff);
+	while (buff == sw) {
+		if (time() > start + time_s) {
 			ilerr__set("Operation timed out");
-			r = IL_ETIMEDOUT;
-			goto out;
-		} else if (r < 0) {
-			ilerr__set("Statusword wait change failed");
-			r = IL_EFAIL;
-			goto out;
+ 			r = IL_ETIMEDOUT;
+ 			goto out;
 		}
 	}
 
+	servo->sw.value = buff;
 	*sw = servo->sw.value;
 
-out:
-	/* update timeout */
-	if ((*timeout > 0) && (r == 0)) {
-		/* obtain end time */
-		if (osal_clock_gettime(&end) < 0) {
-			ilerr__set("Could not obtain system time");
-			r = IL_EFAIL;
-			goto unlock;
-		}
-
-		/* compute difference */
-		if ((end.ns - start.ns) < 0) {
-			diff.s = end.s - start.s - 1;
-			diff.ns = end.ns - start.ns + OSAL_CLOCK_NANOSPERSEC;
-		} else {
-			diff.s = end.s - start.s;
-			diff.ns = end.ns - start.ns;
-		}
-
-		/* update timeout */
-		*timeout -= diff.s * 1000 + diff.ns / OSAL_CLOCK_NANOSPERMSEC;
-		if (*timeout <= 0) {
-			ilerr__set("Operation timed out");
-			r = IL_ETIMEDOUT;
-		}
-	}
+out:	
 
 unlock:
 	osal_mutex_unlock(servo->sw.lock);
