@@ -4,6 +4,10 @@
 
 #include <string.h>
 
+#include <stdio.h>
+#include <stdbool.h>
+#include <windows.h>
+
 #include "ingenialink/err.h"
 #include "ingenialink/base/servo.h"
 #include "ingenialink/registers.h"
@@ -30,10 +34,10 @@ static int not_supported(void)
  */
 static uint16_t sw_get(il_servo_t *servo)
 {
-	uint16_t sw;
+	double sw;
 
 	osal_mutex_lock(servo->sw.lock);
-	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
+	(void)il_servo_read(servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
 	if (servo->sw.value != sw) {
 		servo->sw.value = sw;
 		osal_cond_broadcast(servo->sw.changed);
@@ -58,8 +62,10 @@ static uint16_t sw_get(il_servo_t *servo)
  */
 static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
 {
+	Sleep(200);
 	int r = 0;
-	uint16_t buff;
+	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
+	/*uint16_t buff;
 	time_t start = time();
 	double time_s = 0;
 	time_s = (double) *timeout / 1000;
@@ -68,12 +74,13 @@ static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
 		if (time() > start + time_s) {
 			ilerr__set("Operation timed out");
  			r = IL_ETIMEDOUT;
- 			goto out;
+ 			goto unlock;
 		}
+		(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &buff);
 	}
 
 	servo->sw.value = buff;
-	*sw = servo->sw.value;
+	*sw = servo->sw.value;*/
 
 out:	
 
@@ -206,7 +213,7 @@ static il_servo_t *il_eth_servo_create(il_net_t *net, uint16_t id,
 	int r;
 
 	il_eth_servo_t *this;
-	uint16_t sw;
+	double sw;
 	printf("create1\n");
 	/* allocate servo */
 	this = malloc(sizeof(*this));
@@ -229,7 +236,7 @@ static il_servo_t *il_eth_servo_create(il_net_t *net, uint16_t id,
 		goto cleanup_base;
 	printf("create7\n");
 	/* trigger status update (with manual read) */
-	(void)il_servo_raw_read_u16(&this->servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
+	(void)il_servo_read(&this->servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
 	printf("create8\n");
 
 	return &this->servo;
