@@ -288,9 +288,7 @@ static int net_recv(il_mcb_net_t *this, uint8_t subnode, uint16_t address, uint8
 		finished = 1;
 	}
 	else {
-		size_t data_sz;
-		data_sz = 8;	// bytes
-		memcpy(buf, &(frame[MCB_DATA_POS]), data_sz);
+		memcpy(buf, &(frame[MCB_DATA_POS]), sz);
 	}
 
 	return 0;

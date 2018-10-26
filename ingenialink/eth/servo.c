@@ -62,10 +62,8 @@ static uint16_t sw_get(il_servo_t *servo)
  */
 static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
 {
-	Sleep(200);
 	int r = 0;
-	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
-	/*uint16_t buff;
+	uint16_t buff;
 	time_t start = time();
 	double time_s = 0;
 	time_s = (double) *timeout / 1000;
@@ -80,7 +78,7 @@ static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
 	}
 
 	servo->sw.value = buff;
-	*sw = servo->sw.value;*/
+	*sw = servo->sw.value;
 
 out:	
 
