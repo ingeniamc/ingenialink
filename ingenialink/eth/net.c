@@ -388,6 +388,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	size_t block_sz = 0;
 	uint16_t crc, hdr_l;
 	uint8_t *pBuf = (uint8_t*) &frame;
+	uint8_t extended_bit = 0;
 
 	Sleep(5);
 	/* read next frame */
@@ -415,13 +416,17 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		ilerr__set("Communications error (NACK -> %08x)", err);
 		return IL_EIO;
 	}
-	if (!pending_sz) {
-		finished = 1;
+	extended_bit = (hdr_l & ETH_MCB_PENDING_MSK) >> ETH_MCB_PENDING_POS;
+	if (extended_bit == 1) {
+		/* Read size of  */
+		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
+		printf(*buf);
 	}
 	else {
 		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
+		//printf(*buf);
 	}
-
+	
 	return 0;
 }
 
