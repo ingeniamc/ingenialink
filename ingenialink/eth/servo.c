@@ -64,12 +64,21 @@ static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
 {
 	int r = 0;
 	uint16_t buff;
-	time_t start = time();
+	osal_timespec_t start = { 0, 0 }, end, diff;
+
+	/* obtain start time */
+	if (*timeout > 0) {
+		if (osal_clock_gettime(&start) < 0) {
+			ilerr__set("Could not obtain system time");
+			return IL_EFAIL;
+		}
+	}
 	double time_s = 0;
 	time_s = (double) *timeout / 1000;
 	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &buff);
 	while (buff == sw) {
-		if (time() > start + time_s) {
+		osal_clock_gettime(&diff);
+		if (diff.s > start.s + time_s) {
 			ilerr__set("Operation timed out");
  			r = IL_ETIMEDOUT;
  			goto unlock;
