@@ -60,8 +60,24 @@ typedef struct il_eth_net {
 	int stop;
 } il_eth_net_t;
 
+/** ETH network device monitor */
+typedef struct il_eth_net_dev_mon {
+	/** Network monitor (parent). */
+	il_net_dev_mon_t mon;
+	/** Serial port monitor. */
+	ser_dev_mon_t *smon;
+	/** Running flag. */
+	int running;
+	/** Callback */
+	il_net_dev_on_evt_t on_evt;
+	/** Context */
+	void *ctx;
+} il_eth_net_dev_mon_t;
+
 /** Obtain ETH Network from parent. */
 #define to_eth_net(ptr) container_of(ptr, struct il_eth_net, net)
 
+/** Obtain ETH Network device monitor from parent. */
+#define to_eth_mon(ptr) container_of(ptr, struct il_eth_net_dev_mon, mon)
 
 #endif

@@ -105,7 +105,7 @@ static uint16_t crc_calc_eth(const uint16_t *buf, uint16_t u16Sz)
  * Process asynchronous statusword messages.
  *
  * @param [in] this
- *	MCB Network.
+ *	ETH Network.
  * @param [in] frame
  *	IngeniaLink frame.
  */
@@ -145,8 +145,39 @@ static void process_statusword(il_eth_net_t *this, uint8_t subnode, uint16_t dat
  */
 int listener_eth(void *args)
 {
+	int r;
+	uint16_t buf;
+
+	il_eth_net_t *this = to_eth_net(args);
+	while(1) {
+		osal_mutex_lock(this->net.lock);
+		r = net_send(this, 1, 0x0011, NULL, 0);
+		if (r < 0)
+			goto unlock;
+		r = net_recv(this, 1, 0x0011, &buf, 4);
+		unlock:
+			osal_mutex_unlock(this->net.lock);
+			r = buf;
+			process_statusword(this, 1, buf);
+			// printf("%d\n", buf);
+			Sleep(200);
+	}
+	return 0;
+ err:
+ 	il_net__state_set(&this->net, IL_NET_STATE_FAULTY);
+
+ 	return IL_EFAIL;
 	return not_supported();
 }
+
+/*******************************************************************************
+ * Implementation: Internal
+ ******************************************************************************/
+
+
+/*******************************************************************************
+ * Implementation: Public
+ ******************************************************************************/
 
 static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 {
@@ -168,25 +199,12 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
  	this->net.prot = IL_NET_PROT_ETH;
 	this->ip_address = opts->port;
 	this->port = "23";
- 	
-	 /* setup refcnt */
- 	// this->refcnt = il_utils__refcnt_create(mcb_net_destroy, this);
- 	// if (!this->refcnt)
- 	// 	goto cleanup_net;
 	
  	r = il_net_connect(&this->net);
  	if (r < 0)
  		goto cleanup_this;
 
-	printf("connected bro");
-
 	return &this->net;
-
-// cleanup_refcnt:
-// 	il_utils__refcnt_destroy(this->refcnt);
-
-// cleanup_net:
-// 	il_net_base__deinit(&this->net);
 
 cleanup_this:
 	free(this);
@@ -222,6 +240,16 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
         return -1;
     }
 	printf("Connected to the Server!");
+	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+
+	/* start listener thread */
+	this->stop = 0;
+
+	this->listener = osal_thread_create(listener_eth, this);
+	if (!this->listener) {
+		ilerr__set("Listener thread creation failed");
+		// goto close_ser;
+	}
 
 	return 0;
 }
@@ -271,6 +299,82 @@ static il_net_servos_list_t *il_eth_net_servos_list_get(
 		on_found(ctx, 1);
 	printf("get7\n");
 	return lst;
+}
+
+// Monitoring ETH
+
+/**
+ * Monitor event callback.
+ */
+static void on_ser_evt(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
+{
+	il_eth_net_dev_mon_t *this = ctx;
+
+	if (evt == SER_DEV_EVT_ADDED)
+		this->on_evt(this->ctx, IL_NET_DEV_EVT_ADDED, dev->path);
+	else
+		this->on_evt(this->ctx, IL_NET_DEV_EVT_REMOVED, dev->path);
+}
+
+static il_net_dev_mon_t *il_eth_net_dev_mon_create(void)
+{
+	il_eth_net_dev_mon_t *this;
+
+	this = malloc(sizeof(*this));
+	if (!this) {
+		ilerr__set("Monitor allocation failed");
+		return NULL;
+	}
+
+	this->mon.ops = &il_eth_net_dev_mon_ops;
+	this->running = 0;
+
+	return &this->mon;
+}
+
+static void il_eth_net_dev_mon_destroy(il_net_dev_mon_t *mon)
+{
+	il_eth_net_dev_mon_t *this = to_eth_mon(mon);
+
+	il_net_dev_mon_stop(mon);
+
+	free(this);
+}
+
+static int il_eth_net_dev_mon_start(il_net_dev_mon_t *mon,
+				    il_net_dev_on_evt_t on_evt,
+				    void *ctx)
+{
+	il_eth_net_dev_mon_t *this = to_eth_mon(mon);
+
+	if (this->running) {
+		ilerr__set("Monitor already running");
+		return IL_EALREADY;
+	}
+
+	/* store context and bring up monitor */
+	this->ctx = ctx;
+	this->on_evt = on_evt;
+	this->smon = ser_dev_monitor_init(on_ser_evt, this);
+	if (!this->smon) {
+		ilerr__set("Network device monitor allocation failed (%s)",
+			   sererr_last());
+		return IL_EFAIL;
+	}
+
+	this->running = 1;
+
+	return 0;
+}
+
+static void il_eth_net_dev_mon_stop(il_net_dev_mon_t *mon)
+{
+	il_eth_net_dev_mon_t *this = to_eth_mon(mon);
+
+	if (this->running) {
+		ser_dev_monitor_stop(this->smon);
+		this->running = 0;
+	}
 }
 
 static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
@@ -440,4 +544,12 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	.connect = il_eth_net_connect,
 	// .devs_list_get = il_eth_net_dev_list_get,
 	.servos_list_get = il_eth_net_servos_list_get,
+};
+
+/** MCB network device monitor operations. */
+const il_net_dev_mon_ops_t il_eth_net_dev_mon_ops = {
+	.create = il_eth_net_dev_mon_create,
+	.destroy = il_eth_net_dev_mon_destroy,
+	.start = il_eth_net_dev_mon_start,
+	.stop = il_eth_net_dev_mon_stop
 };
