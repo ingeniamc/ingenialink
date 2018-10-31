@@ -209,6 +209,17 @@ IL_EXPORT il_net_prot_t il_net_prot_get(il_net_t *net);
 IL_EXPORT il_net_state_t il_net_state_get(il_net_t *net);
 
 /**
+ * Obtain network status.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Network is status.
+ */
+IL_EXPORT il_net_prot_t il_net_status_get(il_net_t *net);
+
+/**
  * Obtain network port.
  *
  * @param [in] net

@@ -128,6 +128,11 @@ il_net_prot_t il_net_prot_get(il_net_t *net)
 	return net->prot;
 }
 
+int il_net_status_get(il_net_t *net)
+{
+	return net->ops->status_get(net);
+}
+
 il_net_state_t il_net_state_get(il_net_t *net)
 {
 	return net->ops->state_get(net);

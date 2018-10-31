@@ -617,6 +617,12 @@ static void il_eusb_net_disconnect(il_net_t *net)
 	}
 }
 
+static int il_eusb_status_get(il_net_t *net)
+{
+	il_eusb_net_t *this = to_eusb_net(net);
+	return this->stop;
+}
+
 static il_net_servos_list_t *il_eusb_net_servos_list_get(
 	il_net_t *net, il_net_servos_on_found_t on_found, void *ctx)
 {
@@ -826,6 +832,7 @@ const il_net_ops_t il_eusb_net_ops = {
 	.disconnect = il_eusb_net_disconnect,
 	.state_get = il_net_base__state_get,
 	.servos_list_get = il_eusb_net_servos_list_get,
+	.status_get = il_eusb_status_get,
 };
 
 /** E-USB network device monitor operations. */

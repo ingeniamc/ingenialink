@@ -216,6 +216,7 @@ cleanup_this:
 static int il_net_reconnect(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
+	this->stop = 1;
 	int r = -1;
 	while (r < 0)
 	{
@@ -228,6 +229,7 @@ static int il_net_reconnect(il_net_t *net)
 		}
 		else {
 			printf("Connected to the Server!\n");
+			this->stop = 0;
 		}
 		Sleep(2000);
 	}
@@ -291,6 +293,12 @@ il_eth_net_dev_list_t *il_eth_net_dev_list_get()
 	return lst;
 
 
+}
+
+static int il_eth_status_get(il_net_t *net)
+{
+	il_eth_net_t *this = to_eth_net(net);
+	return this->stop;
 }
 
 static il_net_servos_list_t *il_eth_net_servos_list_get(
@@ -566,6 +574,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	.connect = il_eth_net_connect,
 	// .devs_list_get = il_eth_net_dev_list_get,
 	.servos_list_get = il_eth_net_servos_list_get,
+	.status_get = il_eth_status_get,
 };
 
 /** MCB network device monitor operations. */

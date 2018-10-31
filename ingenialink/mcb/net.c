@@ -531,6 +531,12 @@ static il_net_servos_list_t *il_mcb_net_servos_list_get(
 	return lst;
 }
 
+static int il_mcb_status_get(il_net_t *net)
+{
+	il_mcb_net_t *this = to_mcb_net(net);
+	return this->stop;
+}
+
 static il_net_dev_mon_t *il_mcb_net_dev_mon_create(void)
 {
 	il_mcb_net_dev_mon_t *this;
@@ -645,6 +651,7 @@ const il_net_ops_t il_mcb_net_ops = {
 	.disconnect = il_mcb_net_disconnect,
 	.state_get = il_net_base__state_get,
 	.servos_list_get = il_mcb_net_servos_list_get,
+	.status_get = il_mcb_status_get,
 };
 
 /** MCB network device monitor operations. */
