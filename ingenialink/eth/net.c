@@ -109,7 +109,7 @@ static uint16_t crc_calc_eth(const uint16_t *buf, uint16_t u16Sz)
  * @param [in] frame
  *	IngeniaLink frame.
  */
-static void process_statusword(il_eth_net_t *this, uint8_t subnode, uint16_t data)
+static void process_statusword(il_eth_net_t *this, uint8_t subnode, uint16_t *data)
 {
 	il_net_sw_subscriber_lst_t *subs;
 	int i;
@@ -147,37 +147,38 @@ int listener_eth(void *args)
 {
 	int r;
 	uint16_t buf;
-
+restart:
+	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
-	while(1) {
+	while(error_count < 10) {
 		osal_mutex_lock(this->net.lock);
 		r = net_send(this, 1, 0x0011, NULL, 0);
-		if (r < 0)
+		if (r < 0) {
+			error_count = error_count + 1;
 			goto unlock;
-		r = net_recv(this, 1, 0x0011, &buf, 4);
+		}
+		r = net_recv(this, 1, 0x0011, &buf, 2);
+		if (r < 0) {
+			error_count = error_count + 1;
+		}
+		else {
+			error_count = 0;
+		}
 		unlock:
 			osal_mutex_unlock(this->net.lock);
 			r = buf;
-			process_statusword(this, 1, buf);
-			// printf("%d\n", buf);
+			process_statusword(this, 1, &buf);
 			Sleep(200);
 	}
+	if(error_count == 10) {
+		goto err;
+	}
 	return 0;
- err:
- 	il_net__state_set(&this->net, IL_NET_STATE_FAULTY);
-
- 	return IL_EFAIL;
-	return not_supported();
+err:
+	ilerr__set("Device at %s disconnected\n", this->ip_address); 
+	il_net_reconnect(this);
+	goto restart;
 }
-
-/*******************************************************************************
- * Implementation: Internal
- ******************************************************************************/
-
-
-/*******************************************************************************
- * Implementation: Public
- ******************************************************************************/
 
 static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 {
@@ -212,6 +213,27 @@ cleanup_this:
 	return NULL;
 }
 
+static int il_net_reconnect(il_net_t *net)
+{
+	il_eth_net_t *this = to_eth_net(net);
+	int r = -1;
+	while (r < 0)
+	{
+		printf("Reconnecting...\n");
+		server = socket(AF_INET, SOCK_STREAM, 0);
+		r = connect(server, (SOCKADDR *)&addr, sizeof(addr));
+		if (r < 0) {
+			int last_error = WSAGetLastError();
+			printf("Fail connecting to server\n");
+		}
+		else {
+			printf("Connected to the Server!\n");
+		}
+		Sleep(2000);
+	}
+	return r;
+}
+
 static int il_eth_net_connect(il_net_t *net, const char *ip)
 {
 	il_eth_net_t *this = to_eth_net(net);
@@ -240,7 +262,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
         return -1;
     }
 	printf("Connected to the Server!");
-	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+	// il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 
 	/* start listener thread */
 	this->stop = 0;
