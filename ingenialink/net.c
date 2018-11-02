@@ -133,6 +133,11 @@ int il_net_status_get(il_net_t *net)
 	return net->ops->status_get(net);
 }
 
+int il_net_mon_stop(il_net_t *net)
+{
+	return net->ops->mon_stop(net);
+}
+
 il_net_state_t il_net_state_get(il_net_t *net)
 {
 	return net->ops->state_get(net);

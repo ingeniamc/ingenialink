@@ -54,6 +54,8 @@ typedef struct il_eth_net {
     const char *ip_address;
     /** Port */
     int port;
+    /** Stop reconnect */
+    int stop_reconnect;
 	/** Listener thread. */
 	osal_thread_t *listener;
 	/** Listener stop flag. */

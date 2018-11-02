@@ -220,6 +220,17 @@ IL_EXPORT il_net_state_t il_net_state_get(il_net_t *net);
 IL_EXPORT il_net_prot_t il_net_status_get(il_net_t *net);
 
 /**
+ * Stop network monitor.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_net_mon_stop(il_net_t *net);
+
+/**
  * Obtain network port.
  *
  * @param [in] net

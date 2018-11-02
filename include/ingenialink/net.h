@@ -225,6 +225,9 @@ typedef struct {
 	/** Obtain network status. */
 	il_net_state_t (*status_get)(
 		il_net_t *net);
+	/** Stop monitor. */
+	int (*mon_stop)(
+		il_net_t *net);
 	/** Obtain list of connected servos. */
 	il_net_servos_list_t *(*servos_list_get)(
 		il_net_t *net, il_net_servos_on_found_t on_found, void *ctx);
@@ -282,6 +285,9 @@ typedef struct {
 		il_net_t *net);
 	/** Obtain network status. */
 	il_net_state_t (*status_get)(
+		il_net_t *net);
+	/** Stop monitor. */
+	int (*mon_stop)(
 		il_net_t *net);
 	/** Obtain list of connected servos. */
 	il_eth_net_servos_list_t *(*servos_list_get)(

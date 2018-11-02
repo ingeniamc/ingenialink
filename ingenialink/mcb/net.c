@@ -537,6 +537,12 @@ static int il_mcb_status_get(il_net_t *net)
 	return this->stop;
 }
 
+static int il_mcb_mon_stop(il_net_t *net)
+{
+	ilerr__set("Functionality not supported");
+	return IL_ENOTSUP;
+}
+
 static il_net_dev_mon_t *il_mcb_net_dev_mon_create(void)
 {
 	il_mcb_net_dev_mon_t *this;
@@ -652,6 +658,7 @@ const il_net_ops_t il_mcb_net_ops = {
 	.state_get = il_net_base__state_get,
 	.servos_list_get = il_mcb_net_servos_list_get,
 	.status_get = il_mcb_status_get,
+	.mon_stop = il_mcb_mon_stop,
 };
 
 /** MCB network device monitor operations. */

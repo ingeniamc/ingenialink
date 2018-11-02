@@ -175,9 +175,16 @@ restart:
 	}
 	return 0;
 err:
-	ilerr__set("Device at %s disconnected\n", this->ip_address); 
-	il_net_reconnect(this);
-	goto restart;
+	ilerr__set("Device at %s disconnected\n", this->ip_address);
+	if(this->stop_reconnect == 0)
+	{
+		il_net_reconnect(this);
+		goto restart;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
@@ -218,7 +225,7 @@ static int il_net_reconnect(il_net_t *net)
 	il_eth_net_t *this = to_eth_net(net);
 	this->stop = 1;
 	int r = -1;
-	while (r < 0)
+	while (r < 0 && this->stop_reconnect == 0)
 	{
 		printf("Reconnecting...\n");
 		server = socket(AF_INET, SOCK_STREAM, 0);
@@ -268,6 +275,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 
 	/* start listener thread */
 	this->stop = 0;
+	this->stop_reconnect = 0;
 
 	this->listener = osal_thread_create(listener_eth, this);
 	if (!this->listener) {
@@ -299,6 +307,12 @@ static int il_eth_status_get(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
 	return this->stop;
+}
+
+static int il_eth_mon_stop(il_net_t *net)
+{
+	il_eth_net_t *this = to_eth_net(net);
+	this->stop_reconnect = 1;
 }
 
 static il_net_servos_list_t *il_eth_net_servos_list_get(
@@ -575,6 +589,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	// .devs_list_get = il_eth_net_dev_list_get,
 	.servos_list_get = il_eth_net_servos_list_get,
 	.status_get = il_eth_status_get,
+	.mon_stop = il_eth_mon_stop,
 };
 
 /** MCB network device monitor operations. */

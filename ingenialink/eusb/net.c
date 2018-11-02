@@ -623,6 +623,12 @@ static int il_eusb_status_get(il_net_t *net)
 	return this->stop;
 }
 
+static int il_eusb_mon_stop(il_net_t *net)
+{
+	ilerr__set("Functionality not supported");
+	return IL_ENOTSUP;
+}
+
 static il_net_servos_list_t *il_eusb_net_servos_list_get(
 	il_net_t *net, il_net_servos_on_found_t on_found, void *ctx)
 {
@@ -833,6 +839,7 @@ const il_net_ops_t il_eusb_net_ops = {
 	.state_get = il_net_base__state_get,
 	.servos_list_get = il_eusb_net_servos_list_get,
 	.status_get = il_eusb_status_get,
+	.mon_stop = il_eusb_mon_stop,
 };
 
 /** E-USB network device monitor operations. */
