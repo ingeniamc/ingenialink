@@ -40,6 +40,22 @@ SOCKADDR_IN addr;
 /*******************************************************************************
  * Private
  ******************************************************************************/
+
+/**
+ * Destroy VIRTUAL network.
+ *
+ * @param [in] ctx
+ *	Context (il_net_t *).
+ */
+static void eth_net_destroy(void *ctx)
+{
+	il_eth_net_t *this = ctx;
+
+	il_net_base__deinit(&this->net);
+
+	free(this);
+}
+
 static int not_supported(void)
 {
 	ilerr__set("Functionality not supported");
@@ -150,7 +166,7 @@ int listener_eth(void *args)
 restart:
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
-	while(error_count < 10) {
+	while(error_count < 10 && this->stop_reconnect == 0) {
 		osal_mutex_lock(this->net.lock);
 		r = net_send(this, 1, 0x0011, NULL, 0);
 		if (r < 0) {
@@ -170,7 +186,7 @@ restart:
 			process_statusword(this, 1, &buf);
 			Sleep(200);
 	}
-	if(error_count == 10) {
+	if(error_count == 10 && this->stop_reconnect == 0) {
 		goto err;
 	}
 	return 0;
@@ -201,6 +217,11 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
  	this->net.prot = IL_NET_PROT_ETH;
 	this->ip_address = opts->port;
 	this->port = "23";
+
+	/* setup refcnt */
+	this->refcnt = il_utils__refcnt_create(eth_net_destroy, this);
+	if (!this->refcnt)
+		goto cleanup_refcnt;
 	
  	r = il_net_connect(&this->net);
  	if (r < 0)
@@ -208,10 +229,22 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 
 	return &this->net;
 
+cleanup_refcnt:
+	il_utils__refcnt_destroy(this->refcnt);
+
 cleanup_this:
 	free(this);
 
 	return NULL;
+}
+
+static void il_eth_net_destroy(il_net_t *net)
+{
+	il_eth_net_t *this = to_eth_net(net);
+	il_eth_mon_stop(this);
+	osal_thread_join(this->listener, NULL);
+	il_utils__refcnt_release(this->refcnt);
+	printf("Net destroyed\n");
 }
 
 static int il_net_reconnect(il_net_t *net)
@@ -580,6 +613,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	._emcy_unsubscribe = il_net_base__emcy_unsubscribe,
 	/* public */
 	.create = il_eth_net_create,
+	.destroy = il_eth_net_destroy,
 	.connect = il_eth_net_connect,
 	// .devs_list_get = il_eth_net_dev_list_get,
 	.servos_list_get = il_eth_net_servos_list_get,
