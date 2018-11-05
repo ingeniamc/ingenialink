@@ -287,9 +287,8 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	r = net_send(this, subnode, (uint16_t)address, NULL, 0);
 	if (r < 0)
 		goto unlock;
-	uint16_t monitoringData[2048];
 	printf("read recv\n");
-	r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoringData);
+	r = net_recv(this, subnode, (uint16_t)address, buf, sz, &net->monitoring_data);
 	printf("read recv end\n");
 
 unlock:
@@ -379,7 +378,7 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 }
 
 static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
-		    size_t sz, uint16_t monitoringArray[] )
+		    size_t sz, uint16_t monitoringArray[])
 {
 	int finished = 0;
 	size_t pending_sz = sz;

@@ -108,6 +108,8 @@ struct il_net {
 	il_net_sw_subscriber_lst_t sw_subs;
 	/** Emergency subcribers. */
 	il_net_emcy_subscriber_lst_t emcy_subs;
+	/** Monitoring Data. */
+	uint16_t monitoring_data[2048];
 	/** Operations. */
 	const il_net_ops_t *ops;
 };
