@@ -179,12 +179,9 @@ err:
 	if(this->stop_reconnect == 0)
 	{
 		il_net_reconnect(this);
-		goto restart;
+		if(r == 0) goto restart; 
 	}
-	else
-	{
-		return 0;
-	}
+	return 0;
 }
 
 static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
@@ -238,8 +235,9 @@ static int il_net_reconnect(il_net_t *net)
 			printf("Connected to the Server!\n");
 			this->stop = 0;
 		}
-		Sleep(2000);
+		Sleep(1000);
 	}
+	r = this->stop_reconnect;
 	return r;
 }
 
