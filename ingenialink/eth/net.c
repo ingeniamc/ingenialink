@@ -176,11 +176,8 @@ restart:
 	return 0;
 err:
 	ilerr__set("Device at %s disconnected\n", this->ip_address);
-	if(this->stop_reconnect == 0)
-	{
-		il_net_reconnect(this);
-		if(r == 0) goto restart; 
-	}
+	r = il_net_reconnect(this);
+	if(r == 0) goto restart;
 	return 0;
 }
 
