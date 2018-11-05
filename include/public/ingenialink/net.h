@@ -220,6 +220,17 @@ IL_EXPORT il_net_state_t il_net_state_get(il_net_t *net);
 IL_EXPORT const char *il_net_port_get(il_net_t *net);
 
 /**
+ * Obtain network monitoring data.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Network monitoring data.
+ */
+IL_EXPORT uint16_t *il_net_monitornig_data_get(il_net_t *net);
+
+/**
  * Obtain network servos list.
  *
  * @note

@@ -138,6 +138,11 @@ const char *il_net_port_get(il_net_t *net)
 	return (const char *)net->port;
 }
 
+uint16_t *il_net_monitornig_data_get(il_net_t *net) 
+{
+	return net->monitoring_data;
+}
+
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)
