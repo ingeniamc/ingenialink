@@ -444,8 +444,9 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		//r = recv(server, (char*)&pBuf[0], sizeof(frame), 0);
 
 		//uint16_t monitoringArray[200];
+		uint16_t size = *(uint16_t*)buf;
 		uint8_t *pBufMonitoring = (uint8_t*)monitoringArray;
-		r = recv(server, (uint8_t*)monitoringArray, 200, 0);
+		r = recv(server, (uint8_t*)monitoringArray, size, 0);
 		printf("holi");
 		//r = recv(server, (char*)monitoringData, 200, 0);
 		/*monitoringArray = (uint16_t*)&pBufMonitoring;*/
