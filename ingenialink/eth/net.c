@@ -219,7 +219,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
         printf("Fail connecting to server\n");
         return -1;
     }
-	printf("Connected to the Server!");
+	printf("Connected to the Server!\n");
 
 	return 0;
 }
@@ -249,11 +249,10 @@ static il_net_servos_list_t *il_eth_net_servos_list_get(
 	il_net_servos_list_t *lst;
 
 	/* try to read the vendor id register to see if a servo is alive */
-	printf("get1\n");
 	r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
-	if (r < 0)
+	if (r < 0) {
 		return NULL;
-	printf("get2\n");
+	}
 	/* create list with one element (id=1) */
 	lst = malloc(sizeof(*lst));
 	if (!lst) {
