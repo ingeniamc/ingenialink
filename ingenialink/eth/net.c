@@ -273,19 +273,15 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 			    void *buf, size_t sz)
 {
 	il_eth_net_t *this = to_eth_net(net);
-
 	int r;
-
 	(void)id;
 
 	osal_mutex_lock(this->net.lock);
-	printf("read enter\n");
 	r = net_send(this, subnode, (uint16_t)address, NULL, 0);
-	if (r < 0)
+	if (r < 0) {
 		goto unlock;
-	printf("read recv\n");
+	}	
 	r = net_recv(this, subnode, (uint16_t)address, buf, sz, &net->monitoring_data);
-	printf("read recv end\n");
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
