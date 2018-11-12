@@ -107,7 +107,7 @@ static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
 		ilerr__set("Register is write-only");
 		return IL_EACCESS;
 	}
-	printf("pre read\n");
+	Sleep(2);
 	return il_net__read(servo->net, servo->id, reg->subnode, reg->address, buf, sz);
 }
 
