@@ -647,32 +647,22 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		printf("FAIL");
 		return IL_EFAIL;
 	}
-	printf("lucky 1\n");
 	/* try to connect to any available servo */
 	servo_ids = il_net_servos_list_get(*net, NULL, NULL);
-	printf("lucky 2\n");
 	il_net_servos_list_foreach(servo_id, servo_ids) {
-		printf("lucky 3\n");
 		*servo = il_servo_create(*net, servo_id->id, dict);
-		printf("lucky 4\n");
 		/* found */
 		if (*servo) {
-			printf("lucky 5\n");
 			il_net_servos_list_destroy(servo_ids);
-			printf("lucky 6\n");
 			//il_net_dev_list_destroy(devs);
 
 			return 0;
 		}
 	}
-	printf("lucky 7\n");
 	il_net_servos_list_destroy(servo_ids);
-	printf("lucky 8\n");
 	il_net_destroy(*net);
-	//}
-	printf("lucky 9\n");
 	il_net_dev_list_destroy(devs);
-	printf("lucky 10\n");
+	
 	ilerr__set("No connected servos found");
 	return IL_EFAIL;
 }
