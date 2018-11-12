@@ -155,7 +155,6 @@ int listener_mcb(void *args)
 
 			r = buf;
 			process_statusword(this, 1, buf);
-			// printf("%d\n", buf);
 			Sleep(200);
 	}
 	

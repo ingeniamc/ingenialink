@@ -168,25 +168,12 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
  	this->net.prot = IL_NET_PROT_ETH;
 	this->ip_address = opts->port;
 	this->port = "23";
- 	
-	 /* setup refcnt */
- 	// this->refcnt = il_utils__refcnt_create(mcb_net_destroy, this);
- 	// if (!this->refcnt)
- 	// 	goto cleanup_net;
 	
  	r = il_net_connect(&this->net);
  	if (r < 0)
  		goto cleanup_this;
 
-	printf("connected bro");
-
 	return &this->net;
-
-// cleanup_refcnt:
-// 	il_utils__refcnt_destroy(this->refcnt);
-
-// cleanup_net:
-// 	il_net_base__deinit(&this->net);
 
 cleanup_this:
 	free(this);
@@ -251,25 +238,18 @@ static il_net_servos_list_t *il_eth_net_servos_list_get(
 	il_net_servos_list_t *lst;
 
 	/* try to read the vendor id register to see if a servo is alive */
-	printf("get1\n");
 	r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 	if (r < 0)
 		return NULL;
-	printf("get2\n");
 	/* create list with one element (id=1) */
 	lst = malloc(sizeof(*lst));
-	printf("get3\n");
 	if (!lst)
 		return NULL;
-	printf("get4\n");
 	lst->next = NULL;
-	printf("get5\n");
 	lst->id = 1;
-	printf("get6\n");
 
 	if (on_found)
 		on_found(ctx, 1);
-	printf("get7\n");
 	return lst;
 }
 
@@ -283,13 +263,10 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	(void)id;
 
 	osal_mutex_lock(this->net.lock);
-	printf("read enter\n");
 	r = net_send(this, subnode, (uint16_t)address, NULL, 0);
 	if (r < 0)
 		goto unlock;
-	printf("read recv\n");
 	r = net_recv(this, subnode, (uint16_t)address, buf, sz, &net->monitoring_data);
-	printf("read recv end\n");
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -348,7 +325,6 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 		// pending = (pending_sz > MCB_CFG_DATA_SZ) ? 1 : 0; // Not used right now
 		pending = 0;
 
-		// hdr_h = (MCB_SUBNODE_MOCO << 12) | (MCB_NODE_DFLT);
 		hdr_h = (ETH_MCB_NODE_DFLT << 4) | (subnode);
 		*(uint16_t *)&frame[ETH_MCB_HDR_H_POS] = hdr_h;
 		hdr_l = (address << 4) | (cmd << 1) | (pending);
@@ -368,7 +344,6 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 
 		/* send frame */
 		r = send(server, (const char*)&frame[0], sizeof(frame), 0);
-		// r = ser_write(this->ser, frame, sizeof(frame), NULL);
 		if (r < 0)
 			return ilerr__ser(r);
 		finished = 1;
@@ -383,7 +358,6 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	int finished = 0;
 	size_t pending_sz = sz;
 
-	/*while (!finished) {*/
 	uint16_t frame[7];
 	size_t block_sz = 0;
 	uint16_t crc, hdr_l;
@@ -391,15 +365,12 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	uint8_t extended_bit = 0;
 
 	Sleep(5);
+
 	/* read next frame */
 	int r = 0;
-	/*if (address == 0xF9) {
-		r = recv(server, (char*)monitoringData, 214, 0);
-	}
-	else {*/
-	r = recv(server, (char*)&pBuf[0], sizeof(frame), 0);
-	//}
 	
+	r = recv(server, (char*)&pBuf[0], sizeof(frame), 0);
+
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
 	uint16_t crc_res = crc_calc_eth((uint16_t *)frame, 6);
@@ -425,35 +396,13 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	if (extended_bit == 1) {
 		/* Read size of data */
 		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
-		//uint8_t *pBufMonitoring = (uint8_t*)&monitoringFrame;
-
-
-		//uint16_t frame[7];
-		//size_t block_sz = 0;
-		//uint16_t crc, hdr_l;
-		//uint8_t *pBuf = (uint8_t*)&frame;
-		//uint8_t extended_bit = 0;
-
-		//Sleep(5);
-		///* read next frame */
-		//int r = 0;
-		///*if (address == 0xF9) {
-		//r = recv(server, (char*)monitoringData, 214, 0);
-		//}
-		//else {*/
-		//r = recv(server, (char*)&pBuf[0], sizeof(frame), 0);
-
-		//uint16_t monitoringArray[200];
+		
 		uint16_t size = *(uint16_t*)buf;
 		uint8_t *pBufMonitoring = (uint8_t*)monitoringArray;
 		r = recv(server, (uint8_t*)monitoringArray, size, 0);
-		printf("holi");
-		//r = recv(server, (char*)monitoringData, 200, 0);
-		/*monitoringArray = (uint16_t*)&pBufMonitoring;*/
 	}
 	else {
 		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
-		// printf(*buf);
 	}
 	
 	return 0;
