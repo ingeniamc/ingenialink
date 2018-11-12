@@ -248,6 +248,7 @@ static il_net_servos_list_t *il_eth_net_servos_list_get(
 	uint64_t vid;
 	il_net_servos_list_t *lst;
 
+	Sleep(2);
 	/* try to read the vendor id register to see if a servo is alive */
 	r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 	if (r < 0) {
