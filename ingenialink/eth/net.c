@@ -281,7 +281,7 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	if (r < 0) {
 		goto unlock;
 	}	
-	r = net_recv(this, subnode, (uint16_t)address, buf, sz, &net->monitoring_data);
+	r = net_recv(this, subnode, (uint16_t)address, buf, sz, &net->monitoring_data, &net->monitoring_data_size);
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -305,7 +305,7 @@ static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 	if (r < 0)
 		goto unlock;
 
-	r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL);
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -370,7 +370,7 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 }
 
 static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
-		    size_t sz, uint16_t monitoringArray[])
+		    size_t sz, uint16_t monitoringArray[], uint16_t monitoringDataSize)
 {
 	int finished = 0;
 	size_t pending_sz = sz;
@@ -417,35 +417,13 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	if (extended_bit == 1) {
 		/* Read size of data */
 		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
-		//uint8_t *pBufMonitoring = (uint8_t*)&monitoringFrame;
-
-
-		//uint16_t frame[7];
-		//size_t block_sz = 0;
-		//uint16_t crc, hdr_l;
-		//uint8_t *pBuf = (uint8_t*)&frame;
-		//uint8_t extended_bit = 0;
-
-		//Sleep(5);
-		///* read next frame */
-		//int r = 0;
-		///*if (address == 0xF9) {
-		//r = recv(server, (char*)monitoringData, 214, 0);
-		//}
-		//else {*/
-		//r = recv(server, (char*)&pBuf[0], sizeof(frame), 0);
-
-		//uint16_t monitoringArray[200];
-		uint16_t size = *(uint16_t*)buf;
+		
+		monitoringDataSize = *(uint16_t*)buf;
 		uint8_t *pBufMonitoring = (uint8_t*)monitoringArray;
-		r = recv(server, (uint8_t*)monitoringArray, size, 0);
-		printf("holi");
-		//r = recv(server, (char*)monitoringData, 200, 0);
-		/*monitoringArray = (uint16_t*)&pBufMonitoring;*/
+		r = recv(server, (uint8_t*)monitoringArray, monitoringDataSize, 0);
 	}
 	else {
 		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
-		// printf(*buf);
 	}
 	
 	return 0;

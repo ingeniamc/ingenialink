@@ -231,6 +231,17 @@ IL_EXPORT const char *il_net_port_get(il_net_t *net);
 IL_EXPORT uint16_t *il_net_monitornig_data_get(il_net_t *net);
 
 /**
+ * Obtain network monitoring data size.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Network monitoring datasize.
+ */
+IL_EXPORT uint16_t il_net_monitornig_data_size_get(il_net_t *net);
+
+/**
  * Obtain network servos list.
  *
  * @note

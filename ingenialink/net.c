@@ -143,6 +143,12 @@ uint16_t *il_net_monitornig_data_get(il_net_t *net)
 	return net->monitoring_data;
 }
 
+uint16_t il_net_monitornig_data_size_get(il_net_t *net) 
+{
+	return net->monitoring_data_size;
+}
+
+
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)
