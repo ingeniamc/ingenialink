@@ -256,18 +256,16 @@ static il_net_servos_list_t *il_eth_net_servos_list_get(
 	printf("get2\n");
 	/* create list with one element (id=1) */
 	lst = malloc(sizeof(*lst));
-	printf("get3\n");
-	if (!lst)
+	if (!lst) {
 		return NULL;
-	printf("get4\n");
+	}	
 	lst->next = NULL;
-	printf("get5\n");
 	lst->id = 1;
-	printf("get6\n");
 
-	if (on_found)
+	if (on_found) {
 		on_found(ctx, 1);
-	printf("get7\n");
+	}
+		
 	return lst;
 }
 
