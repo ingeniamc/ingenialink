@@ -280,8 +280,8 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	r = net_send(this, subnode, (uint16_t)address, NULL, 0);
 	if (r < 0) {
 		goto unlock;
-	}	
-	r = net_recv(this, subnode, (uint16_t)address, buf, sz, &net->monitoring_data, &net->monitoring_data_size);
+	}
+	r = net_recv(this, subnode, (uint16_t)address, buf, sz, &net->monitoring_data, net);
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -370,7 +370,7 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 }
 
 static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
-		    size_t sz, uint16_t monitoringArray[], uint16_t monitoringDataSize)
+		    size_t sz, uint16_t monitoringArray[], il_net_t *net)
 {
 	int finished = 0;
 	size_t pending_sz = sz;
@@ -417,10 +417,9 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	if (extended_bit == 1) {
 		/* Read size of data */
 		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
-		
-		monitoringDataSize = *(uint16_t*)buf;
+		net->monitoring_data_size = *(uint16_t*)buf;
 		uint8_t *pBufMonitoring = (uint8_t*)monitoringArray;
-		r = recv(server, (uint8_t*)monitoringArray, monitoringDataSize, 0);
+		r = recv(server, (uint8_t*)monitoringArray, net->monitoring_data_size, 0);
 	}
 	else {
 		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
