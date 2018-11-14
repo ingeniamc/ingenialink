@@ -277,7 +277,7 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	(void)id;
 
 	osal_mutex_lock(this->net.lock);
-	r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0);
+	r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
 	if (r < 0) {
 		goto unlock;
 	}
@@ -290,7 +290,7 @@ unlock:
 }
 
 static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
-			     const void *buf, size_t sz, int confirmed)
+			     const void *buf, size_t sz, int confirmed, uint16_t extended)
 {
 	il_eth_net_t *this = to_eth_net(net);
 
@@ -301,7 +301,8 @@ static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 
 	osal_mutex_lock(this->net.lock);
 
-	r = net_send(this, subnode, (uint16_t)address, buf, sz, 0);
+
+	r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
 	if (r < 0)
 		goto unlock;
 
@@ -320,11 +321,10 @@ typedef union
 } UINT_UNION_T;
 
 static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const void *data,
-		    size_t sz, uint8_t extended)
+		    size_t sz, uint16_t extended, il_net_t *net)
 {	
 	int finished = 0;
 	uint8_t cmd;
-	size_t pending_sz = sz;
 
 	cmd = sz ? ETH_MCB_CMD_WRITE : ETH_MCB_CMD_READ;
 
@@ -332,38 +332,56 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 
 	while (!finished) {
 		int r;
-		uint16_t frame[ETH_MCB_FRAME_SZ], pending;
+		uint16_t frame[ETH_MCB_FRAME_SZ];
 		uint16_t hdr_h, hdr_l, crc;
 		size_t chunk_sz;
 
 		/* header */
-		// pending = (pending_sz > MCB_CFG_DATA_SZ) ? 1 : 0; // Not used right now
-		pending = 0;
-
 		// hdr_h = (MCB_SUBNODE_MOCO << 12) | (MCB_NODE_DFLT);
 		hdr_h = (ETH_MCB_NODE_DFLT << 4) | (subnode);
 		*(uint16_t *)&frame[ETH_MCB_HDR_H_POS] = hdr_h;
-		hdr_l = (address << 4) | (cmd << 1) | (pending);
+		hdr_l = (address << 4) | (cmd << 1) | (extended);
 		*(uint16_t *)&frame[ETH_MCB_HDR_L_POS] = hdr_l;
-
+		net->disturbance_data_size = 0x200;
 		/* cfg_data */
 		uint64_t d = 0;
-		if (sz > 0) {
-			memcpy(&d, data, sz);
+		/* Check if frame is extended */
+		if (extended == 1) {
+			d = net->disturbance_data_size;
+		}
+		else {
+			if (sz > 0) {
+				memcpy(&d, data, sz);
+			}
 		}
 		UINT_UNION_T u = { .u64 = d };
 		memcpy(&frame[ETH_MCB_DATA_POS], &u.u16[0], 8);
-		
+
 		/* crc */
 		crc = crc_calc_eth(frame, ETH_MCB_CRC_POS);
 		frame[ETH_MCB_CRC_POS] = crc;
 
 		/* send frame */
-		r = send(server, (const char*)&frame[0], sizeof(frame), 0);
-		// r = ser_write(this->ser, frame, sizeof(frame), NULL);
-		if (r < 0)
-			return ilerr__ser(r);
+		if (extended == 1) {
+			uint16_t frame_size = sizeof(uint16_t) * ETH_MCB_FRAME_SZ;
+			uint16_t extended_frame[(sizeof(uint16_t) * ETH_MCB_FRAME_SZ) + 2048];
+			memcpy(&extended_frame[0], frame, frame_size);
+			memcpy(&extended_frame[ETH_MCB_FRAME_SZ], net->disturbance_data, 2048);
+			r = send(server, (const char*)&extended_frame[0], net->disturbance_data_size + frame_size, 0);
+			if (r < 0)
+				return ilerr__ser(r);
+		}
+		else {
+			r = send(server, (const char*)&frame[0], sizeof(frame), 0);
+			if (r < 0)
+				return ilerr__ser(r);		
+		}
 		finished = 1;
+		/*if (extended == 1) {
+			r = send(server, (const char*)&net->disturbance_data[0], net->disturbance_data_size, 0);
+			if (r < 0)
+				return ilerr__ser(r);
+		}*/
 	}
 
 	return 0;

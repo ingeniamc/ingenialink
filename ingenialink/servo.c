@@ -227,39 +227,39 @@ int il_servo_dict_storage_write(il_servo_t *servo)
 		switch (reg->dtype) {
 		case IL_REG_DTYPE_U8:
 			r = il_servo_raw_write_u8(servo, NULL, ids[i],
-						  reg->storage.u8, 1);
+						  reg->storage.u8, 1, 0);
 			break;
 		case IL_REG_DTYPE_S8:
 			r = il_servo_raw_write_s8(servo, NULL, ids[i],
-						  reg->storage.s8, 1);
+						  reg->storage.s8, 1, 0);
 			break;
 		case IL_REG_DTYPE_U16:
 			r = il_servo_raw_write_u16(servo, NULL, ids[i],
-						   reg->storage.u16, 1);
+						   reg->storage.u16, 1, 0);
 			break;
 		case IL_REG_DTYPE_S16:
 			r = il_servo_raw_write_s16(servo, NULL, ids[i],
-						   reg->storage.s16, 1);
+						   reg->storage.s16, 1, 0);
 			break;
 		case IL_REG_DTYPE_U32:
 			r = il_servo_raw_write_u32(servo, NULL, ids[i],
-						   reg->storage.u32, 1);
+						   reg->storage.u32, 1, 0);
 			break;
 		case IL_REG_DTYPE_S32:
 			r = il_servo_raw_write_s32(servo, NULL, ids[i],
-						   reg->storage.s32, 1);
+						   reg->storage.s32, 1, 0);
 			break;
 		case IL_REG_DTYPE_U64:
 			r = il_servo_raw_write_u64(servo, NULL, ids[i],
-						   reg->storage.u64, 1);
+						   reg->storage.u64, 1, 0);
 			break;
 		case IL_REG_DTYPE_S64:
 			r = il_servo_raw_write_s64(servo, NULL, ids[i],
-						   reg->storage.s64, 1);
+						   reg->storage.s64, 1, 0);
 			break;
 		case IL_REG_DTYPE_FLOAT:
 			r = il_servo_raw_write_float(servo, NULL, ids[i],
-						     reg->storage.flt, 1);
+						     reg->storage.flt, 1, 0);
 			break;
 		default:
 			continue;
@@ -416,63 +416,63 @@ int il_servo_read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 }
 
 int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, uint8_t val, int confirm)
+			  const char *id, uint8_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_u8(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_u8(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, int8_t val, int confirm)
+			  const char *id, int8_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_s8(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_s8(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, uint16_t val, int confirm)
+			   const char *id, uint16_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_u16(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_u16(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, int16_t val, int confirm)
+			   const char *id, int16_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_s16(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_s16(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, uint32_t val, int confirm)
+			   const char *id, uint32_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_u32(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_u32(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, int32_t val, int confirm)
+			   const char *id, int32_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_s32(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_s32(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, uint64_t val, int confirm)
+			   const char *id, uint64_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_u64(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_u64(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, int64_t val, int confirm)
+			   const char *id, int64_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_s64(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_s64(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_float(il_servo_t *servo, const il_reg_t *reg,
-			     const char *id, float val, int confirm)
+			     const char *id, float val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_float(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_float(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_write(il_servo_t *servo, const il_reg_t *reg, const char *id,
-		   double val, int confirm)
+		   double val, int confirm, uint16_t extended)
 {
-	return servo->ops->write(servo, reg, id, val, confirm);
+	return servo->ops->write(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_disable(il_servo_t *servo)

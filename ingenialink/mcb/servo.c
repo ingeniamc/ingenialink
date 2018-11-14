@@ -367,7 +367,7 @@ static int il_mcb_servo_disable(il_servo_t *servo)
 		/* check state and command action to reach disabled */
 		} else if (state != IL_SERVO_STATE_DISABLED) {
 			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
-						   NULL, IL_MC_PDS_CMD_DV, 1);
+						   NULL, IL_MC_PDS_CMD_DV, 1, 0);
 			if (r < 0)
 				return r;
 
@@ -415,7 +415,7 @@ static int il_mcb_servo_switch_on(il_servo_t *servo, int timeout)
 				cmd = IL_MC_PDS_CMD_DV;
 
 			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
-						   NULL, cmd, 1);
+						   NULL, cmd, 1, 0);
 			if (r < 0)
 				return r;
 
@@ -462,7 +462,7 @@ static int il_mcb_servo_enable(il_servo_t *servo, int timeout)
 				cmd = IL_MC_PDS_CMD_EO;
 
 			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
-						   NULL, cmd, 1);
+						   NULL, cmd, 1, 0);
 			if (r < 0)
 				return r;
 
@@ -492,12 +492,12 @@ static int il_mcb_servo_fault_reset(il_servo_t *servo)
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
 			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
-						   NULL, 0, 1);
+						   NULL, 0, 1, 0);
 			if (r < 0)
 				return r;
 
 			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
-						   NULL, IL_MC_PDS_CMD_FR, 1);
+						   NULL, IL_MC_PDS_CMD_FR, 1, 0);
 			if (r < 0)
 				return r;
 
