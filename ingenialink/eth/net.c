@@ -277,7 +277,7 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	(void)id;
 
 	osal_mutex_lock(this->net.lock);
-	r = net_send(this, subnode, (uint16_t)address, NULL, 0);
+	r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0);
 	if (r < 0) {
 		goto unlock;
 	}
@@ -301,7 +301,7 @@ static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 
 	osal_mutex_lock(this->net.lock);
 
-	r = net_send(this, subnode, (uint16_t)address, buf, sz);
+	r = net_send(this, subnode, (uint16_t)address, buf, sz, 0);
 	if (r < 0)
 		goto unlock;
 
@@ -320,7 +320,7 @@ typedef union
 } UINT_UNION_T;
 
 static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const void *data,
-		    size_t sz)
+		    size_t sz, uint8_t extended)
 {	
 	int finished = 0;
 	uint8_t cmd;
@@ -385,12 +385,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	Sleep(5);
 	/* read next frame */
 	int r = 0;
-	/*if (address == 0xF9) {
-		r = recv(server, (char*)monitoringData, 214, 0);
-	}
-	else {*/
 	r = recv(server, (char*)&pBuf[0], sizeof(frame), 0);
-	//}
 	
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];

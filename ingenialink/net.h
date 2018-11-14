@@ -112,6 +112,11 @@ struct il_net {
 	uint16_t monitoring_data[2048];
 	/** Monitoring Data size. */
 	uint16_t monitoring_data_size;
+	/** Disturbance Data. */
+	uint16_t disturbance_data[2048];
+	/** Disturbance Data size. */
+	uint16_t disturbance_data_size;
+
 	/** Operations. */
 	const il_net_ops_t *ops;
 };
