@@ -897,7 +897,7 @@ static int il_eusb_servo_ol_voltage_get(il_servo_t *servo, double *voltage)
 
 static int il_eusb_servo_ol_voltage_set(il_servo_t *servo, double voltage)
 {
-	return il_servo_write(servo, &IL_REG_OL_VOLTAGE, NULL, voltage, 1);
+	return il_servo_write(servo, &IL_REG_OL_VOLTAGE, NULL, voltage, 1, 0);
 }
 
 static int il_eusb_servo_ol_frequency_get(il_servo_t *servo, double *freq)
@@ -907,7 +907,7 @@ static int il_eusb_servo_ol_frequency_get(il_servo_t *servo, double *freq)
 
 static int il_eusb_servo_ol_frequency_set(il_servo_t *servo, double freq)
 {
-	return il_servo_write(servo, &IL_REG_OL_FREQUENCY, NULL, freq, 1);
+	return il_servo_write(servo, &IL_REG_OL_FREQUENCY, NULL, freq, 1, 0);
 }
 
 static int il_eusb_servo_homing_start(il_servo_t *servo)
@@ -958,7 +958,7 @@ static int il_eusb_servo_torque_get(il_servo_t *servo, double *torque)
 
 static int il_eusb_servo_torque_set(il_servo_t *servo, double torque)
 {
-	return il_servo_write(servo, &IL_REG_TORQUE_TGT, NULL, torque, 1);
+	return il_servo_write(servo, &IL_REG_TORQUE_TGT, NULL, torque, 1, 0);
 }
 
 static int il_eusb_servo_position_get(il_servo_t *servo, double *pos)
@@ -976,7 +976,7 @@ static int il_eusb_servo_position_set(il_servo_t *servo, double pos,
 	int flags;
 
 	/* send position */
-	r = il_servo_write(servo, &IL_REG_POS_TGT, NULL, pos, 1);
+	r = il_servo_write(servo, &IL_REG_POS_TGT, NULL, pos, 1, 0);
 	if (r < 0)
 		return r;
 
@@ -1129,7 +1129,7 @@ static int il_eusb_servo_velocity_get(il_servo_t *servo, double *vel)
 
 static int il_eusb_servo_velocity_set(il_servo_t *servo, double vel)
 {
-	return il_servo_write(servo, &IL_REG_VEL_TGT, NULL, vel, 1);
+	return il_servo_write(servo, &IL_REG_VEL_TGT, NULL, vel, 1, 0);
 }
 
 static int il_eusb_servo_velocity_res_get(il_servo_t *servo, uint32_t *res)

@@ -790,7 +790,7 @@ IL_EXPORT int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
-				    const char *id, int8_t val, int confirm);
+				    const char *id, int8_t val, int confirm, uint16_t extended);
 
 /**
  * Write unsigned 16-bit integer to a register.
@@ -830,7 +830,7 @@ IL_EXPORT int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
-				     const char *id, int16_t val, int confirm);
+				     const char *id, int16_t val, int confirm, uint16_t extended);
 
 /**
  * Write unsigned 32-bit integer to a register.
@@ -870,7 +870,7 @@ IL_EXPORT int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
-				     const char *id, int32_t val, int confirm);
+				     const char *id, int32_t val, int confirm, uint16_t extended);
 
 /**
  * Write unsigned 64-bit integer to a register.
@@ -910,7 +910,7 @@ IL_EXPORT int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
-				     const char *id, int64_t val, int confirm);
+				     const char *id, int64_t val, int confirm, uint16_t extended);
 
 /**
  * Write float to a register.
@@ -953,7 +953,7 @@ IL_EXPORT int il_servo_raw_write_float(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_write(il_servo_t *servo, const il_reg_t *reg,
-			     const char *id, double val, int confirm);
+			     const char *id, double val, int confirm, uint16_t extended);
 
 /**
  * Disable servo PDS.
