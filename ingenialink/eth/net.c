@@ -342,7 +342,7 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 		*(uint16_t *)&frame[ETH_MCB_HDR_H_POS] = hdr_h;
 		hdr_l = (address << 4) | (cmd << 1) | (extended);
 		*(uint16_t *)&frame[ETH_MCB_HDR_L_POS] = hdr_l;
-		net->disturbance_data_size = 0x200;
+
 		/* cfg_data */
 		uint64_t d = 0;
 		/* Check if frame is extended */
