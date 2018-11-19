@@ -183,7 +183,6 @@ restart:
 		unlock:
 			osal_mutex_unlock(this->net.lock);
 			r = buf;
-			process_statusword(this, 1, &buf);
 			Sleep(200);
 	}
 	if(error_count == 10 && this->stop_reconnect == 0) {
