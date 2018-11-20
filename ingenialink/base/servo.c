@@ -25,6 +25,7 @@
 #include "../servo.h"
 
 #include "ingenialink/err.h"
+#include <windows.h>
 
 /*******************************************************************************
  * Private
@@ -107,7 +108,7 @@ static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
 		ilerr__set("Register is write-only");
 		return IL_EACCESS;
 	}
-	printf("pre read\n");
+	Sleep(2);
 	return il_net__read(servo->net, servo->id, reg->subnode, reg->address, buf, sz);
 }
 
@@ -132,7 +133,7 @@ static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
  */
 static int raw_write(il_servo_t *servo, const il_reg_t *reg,
 		     il_reg_dtype_t dtype, const void *data, size_t sz,
-		     int confirmed)
+		     int confirmed, uint16_t extended)
 {
 	int confirmed_;
 
@@ -151,7 +152,7 @@ static int raw_write(il_servo_t *servo, const il_reg_t *reg,
 	confirmed_ = (reg->access == IL_REG_ACCESS_WO) ? 0 : confirmed;
 
 	return il_net__write(servo->net, servo->id, reg->subnode, reg->address, data, sz,
-			     confirmed_);
+			     confirmed_, extended);
 }
 
 /**
@@ -834,12 +835,12 @@ int il_servo_base__raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
 				const char *id, uint16_t *buf)
 {
 	int r;
-	printf("before read \n");
+	// printf("before read \n");
 	r = raw_read(servo, reg, id, IL_REG_DTYPE_U16, buf, sizeof(*buf));
 	if (r == 0)
 		*buf = __swap_be_16(*buf);
 
-	printf("after read \n");
+	// printf("after read \n");
 
 	return r;
 }
@@ -994,7 +995,7 @@ int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 }
 
 int il_servo_base__raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
-				const char *id, uint8_t val, int confirm)
+				const char *id, uint8_t val, int confirm, uint16_t extended)
 {
 	int r;
 	const il_reg_t *reg_;
@@ -1011,11 +1012,11 @@ int il_servo_base__raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
 	}
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U8, &val, sizeof(val),
-			 confirm);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
-				const char *id, int8_t val, int confirm)
+				const char *id, int8_t val, int confirm, uint16_t extended)
 {
 	int r;
 	const il_reg_t *reg_;
@@ -1032,11 +1033,11 @@ int il_servo_base__raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
 	}
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S8, &val, sizeof(val),
-			 confirm);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, uint16_t val, int confirm)
+				 const char *id, uint16_t val, int confirm, uint16_t extended)
 {
 	int r;
 	uint16_t val_;
@@ -1057,11 +1058,11 @@ int il_servo_base__raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_16(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U16, &val_, sizeof(val_),
-			 confirm);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, int16_t val, int confirm)
+				 const char *id, int16_t val, int confirm, uint16_t extended)
 {
 	int r;
 	int16_t val_;
@@ -1081,11 +1082,11 @@ int il_servo_base__raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
 	val_ = (int16_t)__swap_be_16(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S16, &val_, sizeof(val_),
-			 confirm);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, uint32_t val, int confirm)
+				 const char *id, uint32_t val, int confirm, uint16_t extended)
 {
 	int r;
 	uint32_t val_;
@@ -1105,11 +1106,11 @@ int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_32(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U32, &val_, sizeof(val_),
-			 confirm);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, int32_t val, int confirm)
+				 const char *id, int32_t val, int confirm, uint16_t extended)
 {
 	int r;
 	int32_t val_;
@@ -1129,11 +1130,11 @@ int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
 	val_ = (int32_t)__swap_be_32(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S32, &val_, sizeof(val_),
-			 confirm);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, uint64_t val, int confirm)
+				 const char *id, uint64_t val, int confirm, uint16_t extended)
 {
 	int r;
 	uint64_t val_;
@@ -1153,11 +1154,11 @@ int il_servo_base__raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_64(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U64, &val_, sizeof(val_),
-			 confirm);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, int64_t val, int confirm)
+				 const char *id, int64_t val, int confirm, uint16_t extended)
 {
 	int r;
 	int64_t val_;
@@ -1177,11 +1178,11 @@ int il_servo_base__raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
 	val_ = (int64_t)__swap_be_64(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S64, &val_, sizeof(val_),
-			 confirm);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_float(il_servo_t *servo, const il_reg_t *reg,
-				   const char *id, float val, int confirm)
+				   const char *id, float val, int confirm, uint16_t extended)
 {
 	int r;
 	float val_;
@@ -1194,11 +1195,11 @@ int il_servo_base__raw_write_float(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_float(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_FLOAT, &val_,
-			 sizeof(val_), confirm);
+			 sizeof(val_), confirm, extended);
 }
 
 int il_servo_base__write(il_servo_t *servo, const il_reg_t *reg, const char *id,
-			 double val, int confirm)
+			 double val, int confirm, uint16_t extended)
 {
 	int r;
 
@@ -1218,31 +1219,31 @@ int il_servo_base__write(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	switch (reg_->dtype) {
 	case IL_REG_DTYPE_U8:
 		return il_servo_raw_write_u8(servo, reg_, NULL, (uint8_t)val_,
-					     confirm);
+					     confirm, extended);
 	case IL_REG_DTYPE_S8:
 		return il_servo_raw_write_s8(servo, reg_, NULL, (int8_t)val_,
-					     confirm);
+					     confirm, extended);
 	case IL_REG_DTYPE_U16:
 		return il_servo_raw_write_u16(servo, reg_, NULL, (uint16_t)val_,
-					      confirm);
+					      confirm, extended);
 	case IL_REG_DTYPE_S16:
 		return il_servo_raw_write_s16(servo, reg_, NULL, (int16_t)val_,
-					      confirm);
+					      confirm, extended);
 	case IL_REG_DTYPE_U32:
 		return il_servo_raw_write_u32(servo, reg_, NULL, (uint32_t)val_,
-					      confirm);
+					      confirm, extended);
 	case IL_REG_DTYPE_S32:
 		return il_servo_raw_write_s32(servo, reg_, NULL, (int32_t)val_,
-					      confirm);
+					      confirm, extended);
 	case IL_REG_DTYPE_U64:
 		return il_servo_raw_write_u64(servo, reg_, NULL, (uint64_t)val_,
-					      confirm);
+					      confirm, extended);
 	case IL_REG_DTYPE_S64:
 		return il_servo_raw_write_s64(servo, reg_, NULL, (int64_t)val_,
-					      confirm);
+					      confirm, extended);
 	case IL_REG_DTYPE_FLOAT:
 		return il_servo_raw_write_float(servo, reg_, NULL, (float)val_,
-						confirm);
+						confirm, extended);
 	default:
 		ilerr__set("Unsupported register data type");
 		return IL_EINVAL;

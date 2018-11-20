@@ -242,6 +242,69 @@ IL_EXPORT int il_net_mon_stop(il_net_t *net);
 IL_EXPORT const char *il_net_port_get(il_net_t *net);
 
 /**
+ * Obtain network monitoring data.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Network monitoring data.
+ */
+IL_EXPORT uint16_t *il_net_monitornig_data_get(il_net_t *net);
+
+/**
+ * Obtain network monitoring data size.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Network monitoring datasize.
+ */
+IL_EXPORT uint16_t il_net_monitornig_data_size_get(il_net_t *net);
+
+
+/**
+ * Obtain network disturbance data.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Network disturbance data.
+ */
+IL_EXPORT uint16_t *il_net_disturbance_data_get(il_net_t *net);
+
+/**
+ * Obtain network disturbance data size.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Network disturbance datasize.
+ */
+IL_EXPORT uint16_t il_net_disturbance_data_size_get(il_net_t *net);
+
+/**
+ * Set network disturbance data.
+ *
+ * @param [in] net
+ *	  Network.
+ *	
+ */
+IL_EXPORT void il_net_disturbance_data_set(il_net_t *net, uint16_t disturbance_data[2048]);
+
+/**
+ * Set network disturbance data size.
+ *
+ * @param [in] net
+ *	  Network.
+ *	
+ */
+IL_EXPORT void il_net_disturbance_data_size_set(il_net_t *net, uint16_t disturbance_data_size);
+
+/**
  * Obtain network servos list.
  *
  * @note

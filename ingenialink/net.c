@@ -48,9 +48,9 @@ void il_net__state_set(il_net_t *net, il_net_state_t state)
 }
 
 int il_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, const void *buf,
-		  size_t sz, int confirmed)
+		  size_t sz, int confirmed, uint16_t extended)
 {
-	return net->ops->_write(net, id, subnode, address, buf, sz, confirmed);
+	return net->ops->_write(net, id, subnode, address, buf, sz, confirmed, extended);
 }
 
 int il_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, void *buf,
@@ -147,6 +147,37 @@ const char *il_net_port_get(il_net_t *net)
 {
 	return (const char *)net->port;
 }
+
+uint16_t *il_net_monitornig_data_get(il_net_t *net) 
+{
+	return net->monitoring_data;
+}
+
+uint16_t il_net_monitornig_data_size_get(il_net_t *net) 
+{
+	return net->monitoring_data_size;
+}
+
+uint16_t *il_net_disturbance_data_get(il_net_t *net) 
+{
+	return net->disturbance_data;
+}
+
+uint16_t il_net_disturbance_data_size_get(il_net_t *net) 
+{
+	return net->disturbance_data_size;
+}
+
+void il_net_disturbance_data_set(il_net_t *net, uint16_t disturbance_data[2048]) 
+{
+	for (int i = 0; i < 2048; net->disturbance_data[i] = disturbance_data[i], i++);
+}
+
+void il_net_disturbance_data_size_set(il_net_t *net, uint16_t disturbance_data_size) 
+{
+	net->disturbance_data_size = disturbance_data_size;
+}
+
 
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
