@@ -161,25 +161,30 @@ static void process_statusword(il_eth_net_t *this, uint8_t subnode, uint16_t *da
  */
 int listener_eth(void *args)
 {
+	
 	int r;
 	uint16_t buf;
 restart:
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
 	while(error_count < 10 && this->stop_reconnect == 0) {
+		printf("%i\n", error_count);
 		osal_mutex_lock(this->net.lock);
-		r = net_send(this, 1, 0x0011, NULL, 0);
+		Sleep(5);
+		r = net_send(this, 1, 0x0011, NULL, 0, NULL);
 		if (r < 0) {
 			error_count = error_count + 1;
 			goto unlock;
 		}
-		r = net_recv(this, 1, 0x0011, &buf, 2);
+		Sleep(5);
+		r = net_recv(this, 1, 0x0011, &buf, 2, NULL, NULL);
 		if (r < 0) {
 			error_count = error_count + 1;
 		}
 		else {
 			error_count = 0;
 		}
+		osal_mutex_unlock(this->net.lock);
 		unlock:
 			osal_mutex_unlock(this->net.lock);
 			r = buf;
