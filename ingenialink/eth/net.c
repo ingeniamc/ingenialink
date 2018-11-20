@@ -161,39 +161,35 @@ static void process_statusword(il_eth_net_t *this, uint8_t subnode, uint16_t *da
  */
 int listener_eth(void *args)
 {
-	
 	int r;
-	uint16_t buf;
+	uint64_t buf;
+
 restart:
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
 	while(error_count < 10 && this->stop_reconnect == 0) {
 		printf("%i\n", error_count);
-		osal_mutex_lock(this->net.lock);
-		Sleep(5);
-		r = net_send(this, 1, 0x0011, NULL, 0, NULL);
+		uint64_t vid;
+
+		Sleep(2);
+		/* try to read the vendor id register to see if a servo is alive */
+		r = il_net__read(&this->net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 		if (r < 0) {
 			error_count = error_count + 1;
 			goto unlock;
 		}
-		Sleep(5);
-		r = net_recv(this, 1, 0x0011, &buf, 2, NULL, NULL);
-		if (r < 0) {
-			error_count = error_count + 1;
-		}
 		else {
 			error_count = 0;
 		}
-		osal_mutex_unlock(this->net.lock);
+		
 		unlock:
-			osal_mutex_unlock(this->net.lock);
-			r = buf;
 			Sleep(200);
 	}
 	if(error_count == 10 && this->stop_reconnect == 0) {
 		goto err;
 	}
 	return 0;
+
 err:
 	ilerr__set("Device at %s disconnected\n", this->ip_address);
 	r = il_net_reconnect(this);
@@ -271,6 +267,8 @@ static int il_net_reconnect(il_net_t *net)
 		}
 
 		r = connect(server, (SOCKADDR *)&addr, sizeof(addr));
+
+		
 		if (r == SOCKET_ERROR) {
 			
 			r = WSAGetLastError();
@@ -318,6 +316,12 @@ static int il_net_reconnect(il_net_t *net)
 		else {
 			printf("Connected to the Server\n");
 			this->stop = 0;
+		}
+		iMode = 0;
+		r = ioctlsocket(server, FIONBIO, &iMode);
+		if (r != NO_ERROR)
+		{
+			printf("ioctlsocket failed with error: %ld\n", r);
 		}
 		Sleep(1000);
 	}
