@@ -150,7 +150,7 @@ const char *il_net_port_get(il_net_t *net)
 
 uint16_t *il_net_monitornig_data_get(il_net_t *net) 
 {
-	return net->monitoring_data;
+	return net->monitoring_raw_data;
 }
 
 uint16_t il_net_monitornig_data_size_get(il_net_t *net) 
@@ -173,11 +173,25 @@ void il_net_disturbance_data_set(il_net_t *net, uint16_t disturbance_data[2048])
 	for (int i = 0; i < 2048; net->disturbance_data[i] = disturbance_data[i], i++);
 }
 
-void il_net_disturbance_data_size_set(il_net_t *net, uint16_t disturbance_data_size) 
+void il_net_disturbance_data_size_set(il_net_t *net, uint16_t disturbance_data_size)
 {
 	net->disturbance_data_size = disturbance_data_size;
 }
 
+int *il_net_remove_all_mapped_registers(il_net_t *net) 
+{
+	return il_eth_net_ops.remove_all_mapped_registers(net);
+}
+
+int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
+{
+	return il_eth_net_ops.set_mapped_register(net, channel, address, dtype);
+}
+
+int *il_net_enable_monitoring(il_net_t *net)
+{
+	return il_eth_net_ops.enable_monitoring(net);
+}
 
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,

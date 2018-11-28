@@ -26,6 +26,7 @@
 #define PUBLIC_INGENIALINK_NET_H_
 
 #include "common.h"
+#include "registers.h"
 
 IL_BEGIN_DECL
 
@@ -303,6 +304,42 @@ IL_EXPORT void il_net_disturbance_data_set(il_net_t *net, uint16_t disturbance_d
  *	
  */
 IL_EXPORT void il_net_disturbance_data_size_set(il_net_t *net, uint16_t disturbance_data_size);
+
+/**
+ * Remove all Mapped registers.
+ *
+ * @param [in] net
+ *	  Network.
+ *	
+ */
+IL_EXPORT int *il_net_remove_all_mapped_registers(il_net_t *net);
+
+/**
+ * Set Mapped register.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @param [in] channel
+ *	  Channel.
+ *	
+ * @param [in] address
+ *	  Address.
+ *
+ *  @param [in] dtype
+ *	  Data Type.
+ * 
+ */
+IL_EXPORT int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype);
+
+/**
+ * Enable monitoring.
+ *
+ * @param [in] net
+ *	  Network.
+ * 
+ */ 
+IL_EXPORT int *il_net_enable_monitoring(il_net_t *net);
 
 /**
  * Obtain network servos list.

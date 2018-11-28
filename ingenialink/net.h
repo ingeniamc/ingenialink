@@ -88,6 +88,22 @@ typedef struct {
 	osal_mutex_t *lock;
 } il_net_emcy_subscriber_lst_t;
 
+struct monitoring_data_t {
+	il_reg_dtype_t type;
+	union {
+		uint8_t monitoring_data_u8[2048];
+		int8_t monitoring_data_s8[2048];
+		uint16_t monitoring_data_u16[2048];
+		int16_t monitoring_data_s16[2048];
+		uint32_t monitoring_data_u32[2048];
+		int32_t monitoring_data_s32[2048];
+		uint64_t monitoring_data_u64[2048];
+		int64_t monitoring_data_s64[2048];
+		float monitoring_data_flt[2048];
+	} value;
+};
+
+
 /** Network. */
 struct il_net {
 	/** Protocol */
@@ -108,8 +124,10 @@ struct il_net {
 	il_net_sw_subscriber_lst_t sw_subs;
 	/** Emergency subcribers. */
 	il_net_emcy_subscriber_lst_t emcy_subs;
+	/** Monitoring Raw Data. */
+	uint16_t monitoring_raw_data[2048];
 	/** Monitoring Data. */
-	uint16_t monitoring_data[2048];
+	struct monitoring_data_t monitoring_data_channels[15];
 	/** Monitoring Data size. */
 	uint16_t monitoring_data_size;
 	/** Disturbance Data. */
