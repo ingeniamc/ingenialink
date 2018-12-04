@@ -243,6 +243,18 @@ IL_EXPORT int il_net_mon_stop(il_net_t *net);
 IL_EXPORT const char *il_net_port_get(il_net_t *net);
 
 /**
+ * Obtain network extended data.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Network extended data.
+ */
+IL_EXPORT char *il_net_extended_buffer_get(il_net_t *net);
+
+
+/**
  * Obtain network monitoring data.
  *
  * @param [in] net
@@ -340,6 +352,15 @@ IL_EXPORT int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t a
  * 
  */ 
 IL_EXPORT int *il_net_enable_monitoring(il_net_t *net);
+
+/**
+ * Read monitoring data.
+ *
+ * @param [in] net
+ *	  Network.
+ * 
+ */ 
+IL_EXPORT int *il_net_read_monitoring_data(il_net_t *net);
 
 /**
  * Obtain network servos list.

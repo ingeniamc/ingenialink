@@ -444,6 +444,8 @@ static int *il_eth_net_remove_all_mapped_registers(il_net_t *net)
 	if (r < 0) {
 
 	}
+
+	net->monitoring_number_mapped_registers = 0;
 	return r;
 }
 
@@ -457,39 +459,21 @@ static int *il_eth_net_set_mapped_register(il_net_t *net, int channel, uint32_t 
 
 	net->monitoring_data_channels[channel].type = dtype;
 
-	//size_t size = 0;
-	//switch (dtype) {
-	//	case IL_REG_DTYPE_U8:
-	//		size = 1;
-	//		break;
-	//	case IL_REG_DTYPE_S8:
-	//		size = 1;
-	//		break;
-	//	case IL_REG_DTYPE_U16:
-	//		size = 2;
-	//		break;
-	//	case IL_REG_DTYPE_S16:
-	//		size = 2;
-	//		break;
-	//	case IL_REG_DTYPE_U32:
-	//		size = 4;
-	//		break;
-	//	case IL_REG_DTYPE_S32:
-	//		size = 4;
-	//		break;
-	//	case IL_REG_DTYPE_FLOAT:
-	//		size = 4;
-	//		break;
-	//}
-	
 	// Map address
 	r = il_net__write(&this->net, 1, 0, 0x00E0, &address, 2, 1, 0);
 	if (r < 0) {
 	
 	}
+	// Update number of mapped registers & monitoring bytes per block
+	net->monitoring_number_mapped_registers = net->monitoring_number_mapped_registers + 1;
+	r = il_net__read(&this->net, 1, 0, 0x00E4, &net->monitoring_bytes_per_block, sizeof(net->monitoring_bytes_per_block));
+	if (r < 0) {
+	
+	}
+
+
 	return r;
 }
-
 
 /**
 * Monitoring enable
@@ -512,6 +496,19 @@ static int *il_eth_net_enable_monitoring(il_net_t *net)
 	return r;
 }
 
+static int *il_eth_net_read_monitoring_data(il_net_t *net) 
+{
+	int r = 0;
+	il_eth_net_t *this = to_eth_net(net);
+
+	uint64_t vid;
+	
+	r = il_net__read(&this->net, 1, 0, 0x00F4, &vid, sizeof(vid));
+	if (r < 0) {
+	
+	}
+
+}
 
 
 /**
@@ -600,7 +597,7 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	if (r < 0) {
 		goto unlock;
 	}
-	void *monitoring_raw_data = NULL;
+	uint32_t *monitoring_raw_data = NULL;
 	r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
 
 unlock:
@@ -748,14 +745,33 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	}
 	extended_bit = (hdr_l & ETH_MCB_PENDING_MSK) >> ETH_MCB_PENDING_POS;
 	if (extended_bit == 1) {
-		/* Read size of data */
-		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
-		net->monitoring_data_size = *(uint16_t*)buf;
-		uint8_t *pBufMonitoring = (uint8_t*)monitoring_raw_data;
-		r = recv(server, (uint8_t*)monitoring_raw_data, net->monitoring_data_size, 0);
+		/* SEEEEET ARRAY DEPENDING ON TYPE */
+		/* Check if we are reading monitoring data */
+		if (address == 0x00F4) {
+			/* Monitoring */
 
-
-
+			/* Read size of data */
+			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
+			uint16_t size = *(uint16_t*)buf;
+			/*uint8_t *pBufMonitoring = (uint8_t*)net->monitoring_raw_data;*/
+			r = recv(server, (uint8_t*)net->monitoring_raw_data, size, 0);
+			int num_mapped = net->monitoring_number_mapped_registers;
+			for (int i = 0; i < num_mapped; ++i)
+			{
+				il_reg_dtype_t type = net->monitoring_data_channels[i].type;
+				switch (type) {
+					case IL_REG_DTYPE_S32:
+						for (int j = i; j < sizeof(net->monitoring_raw_data); j = j + num_mapped) {
+							net->monitoring_data_channels[i].value.monitoring_data_s32[(j / num_mapped)] = net->monitoring_raw_data[j];
+						}
+						break;
+				}
+			}	
+		} else {
+			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
+			uint16_t size = *(uint16_t*)buf;
+			r = recv(server, net->extended_buff, size, 0);
+		}
 	}
 	else {
 		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
@@ -786,6 +802,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	.remove_all_mapped_registers = il_eth_net_remove_all_mapped_registers,
 	.set_mapped_register = il_eth_net_set_mapped_register,
 	.enable_monitoring = il_eth_net_enable_monitoring,
+	.read_monitoring_data = il_eth_net_read_monitoring_data
 
 };
 

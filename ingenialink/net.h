@@ -91,15 +91,15 @@ typedef struct {
 struct monitoring_data_t {
 	il_reg_dtype_t type;
 	union {
-		uint8_t monitoring_data_u8[2048];
-		int8_t monitoring_data_s8[2048];
-		uint16_t monitoring_data_u16[2048];
-		int16_t monitoring_data_s16[2048];
-		uint32_t monitoring_data_u32[2048];
-		int32_t monitoring_data_s32[2048];
-		uint64_t monitoring_data_u64[2048];
-		int64_t monitoring_data_s64[2048];
-		float monitoring_data_flt[2048];
+		uint8_t monitoring_data_u8[1024];
+		int8_t monitoring_data_s8[1024];
+		uint16_t monitoring_data_u16[512];
+		int16_t monitoring_data_s16[512];
+		uint32_t monitoring_data_u32[256];
+		int32_t monitoring_data_s32[256];
+		uint64_t monitoring_data_u64[128];
+		int64_t monitoring_data_s64[128];
+		float monitoring_data_flt[256];
 	} value;
 };
 
@@ -125,9 +125,15 @@ struct il_net {
 	/** Emergency subcribers. */
 	il_net_emcy_subscriber_lst_t emcy_subs;
 	/** Monitoring Raw Data. */
-	uint16_t monitoring_raw_data[2048];
+	uint32_t monitoring_raw_data[2048];
+	/** Extended buffer **/
+	char extended_buff[128];
 	/** Monitoring Data. */
 	struct monitoring_data_t monitoring_data_channels[15];
+	/** Monitoring number of mapped registers */
+	uint16_t monitoring_number_mapped_registers;
+	/** Monitoring bytes per block */
+	uint16_t monitoring_bytes_per_block;
 	/** Monitoring Data size. */
 	uint16_t monitoring_data_size;
 	/** Disturbance Data. */

@@ -296,6 +296,7 @@ typedef struct {
 	int (*remove_all_mapped_registers)();
 	int (*set_mapped_register)();
 	int (*enable_monitoring)();
+	int (*read_monitoring_data)();
 } il_eth_net_ops_t;
 
 /** Network device monitor operations. */

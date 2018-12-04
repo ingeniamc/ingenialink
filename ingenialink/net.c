@@ -148,6 +148,11 @@ const char *il_net_port_get(il_net_t *net)
 	return (const char *)net->port;
 }
 
+char *il_net_extended_buffer_get(il_net_t *net) 
+{
+	return net->extended_buff;
+}
+
 uint16_t *il_net_monitornig_data_get(il_net_t *net) 
 {
 	return net->monitoring_raw_data;
@@ -191,6 +196,11 @@ int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il
 int *il_net_enable_monitoring(il_net_t *net)
 {
 	return il_eth_net_ops.enable_monitoring(net);
+}
+
+int *il_net_read_monitoring_data(il_net_t *net) 
+{
+	return il_eth_net_ops.read_monitoring_data(net);
 }
 
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
