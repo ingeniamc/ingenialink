@@ -660,6 +660,24 @@ IL_EXPORT int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
 				    const char *id, uint32_t *buf);
 
 /**
+ * Read string value from a register.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [in] reg
+ *	Register.
+ * @param [in] id
+ *	Register id.
+ * @param [out] buf
+ *	Buffer where to store received data.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_raw_read_str(il_servo_t *servo, const il_reg_t *reg,
+				    const char *id, uint32_t *buf);
+
+/**
  * Read signed 32-bit value from a register.
  *
  * @param [in] servo
