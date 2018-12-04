@@ -686,6 +686,7 @@ const il_servo_ops_t il_eth_servo_ops = {
 	.raw_read_u16 = il_servo_base__raw_read_u16,
 	.raw_read_s16 = il_servo_base__raw_read_s16,
 	.raw_read_u32 = il_servo_base__raw_read_u32,
+	.raw_read_str = il_servo_base__raw_read_str,
 	.raw_read_s32 = il_servo_base__raw_read_s32,
 	.raw_read_u64 = il_servo_base__raw_read_u64,
 	.raw_read_s64 = il_servo_base__raw_read_s64,

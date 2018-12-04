@@ -869,6 +869,18 @@ int il_servo_base__raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
 	return r;
 }
 
+int il_servo_base__raw_read_str(il_servo_t *servo, const il_reg_t *reg,
+				const char *id, uint32_t *buf)
+{
+	int r;
+
+	r = raw_read(servo, reg, id, IL_REG_DTYPE_STR, buf, sizeof(*buf));
+	if (r == 0)
+		*buf = __swap_be_32(*buf);
+
+	return r;
+}
+
 int il_servo_base__raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
 				const char *id, int32_t *buf)
 {
@@ -927,6 +939,7 @@ int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	uint8_t u8_v;
 	uint16_t u16_v;
 	uint32_t u32_v;
+	uint32_t u32_str_v;
 	uint64_t u64_v;
 	int8_t s8_v;
 	int16_t s16_v;
@@ -978,6 +991,10 @@ int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	case IL_REG_DTYPE_FLOAT:
 		r = il_servo_raw_read_float(servo, reg_, NULL, &float_v);
 		buf_ = (double)float_v;
+		break;
+	case IL_REG_DTYPE_STR:
+		r = il_servo_raw_read_str(servo, reg_, NULL, &u32_str_v);
+		buf_ = (float)u32_str_v;
 		break;
 	default:
 		ilerr__set("Unsupported register data type");

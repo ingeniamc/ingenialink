@@ -170,6 +170,10 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 			r = il_servo_raw_read_u32(servo, NULL, ids[i],
 						  &storage.u32);
 			break;
+		case IL_REG_DTYPE_STR:
+			r = il_servo_raw_read_str(servo, NULL, ids[i],
+						  &storage.u32);
+			break;
 		case IL_REG_DTYPE_S32:
 			r = il_servo_raw_read_s32(servo, NULL, ids[i],
 						  &storage.s32);
@@ -383,6 +387,12 @@ int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
 			  const char *id, uint32_t *buf)
 {
 	return servo->ops->raw_read_u32(servo, reg, id, buf);
+}
+
+int il_servo_raw_read_str(il_servo_t *servo, const il_reg_t *reg,
+			  const char *id, uint32_t *buf)
+{
+	return servo->ops->raw_read_str(servo, reg, id, buf);
 }
 
 int il_servo_raw_read_s32(il_servo_t *servo, const il_reg_t *reg,

@@ -107,6 +107,9 @@ typedef struct {
 	int (*raw_read_u32)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
 		uint32_t *buf);
+	int (*raw_read_str)(
+		il_servo_t *servo, const il_reg_t *reg, const char *id,
+		uint32_t *buf);
 	int (*raw_read_s32)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
 		int32_t *buf);
