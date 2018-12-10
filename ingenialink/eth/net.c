@@ -507,7 +507,6 @@ static int *il_eth_net_read_monitoring_data(il_net_t *net)
 	if (r < 0) {
 	
 	}
-
 }
 
 
@@ -745,7 +744,6 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	}
 	extended_bit = (hdr_l & ETH_MCB_PENDING_MSK) >> ETH_MCB_PENDING_POS;
 	if (extended_bit == 1) {
-		/* SEEEEET ARRAY DEPENDING ON TYPE */
 		/* Check if we are reading monitoring data */
 		if (address == 0x00F4) {
 			/* Monitoring */
@@ -760,10 +758,31 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 			{
 				il_reg_dtype_t type = net->monitoring_data_channels[i].type;
 				switch (type) {
-					case IL_REG_DTYPE_S32:
-						for (int j = i; j < sizeof(net->monitoring_raw_data); j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_s32[(j / num_mapped)] = net->monitoring_raw_data[j];
+					case IL_REG_DTYPE_U16:
+						for (int j = i; j < size / 2; j = j + num_mapped) {
+							net->monitoring_data_channels[i].value.monitoring_data_u16[(j / num_mapped)] = (uint16_t)net->monitoring_raw_data[j];
 						}
+						break;
+					case IL_REG_DTYPE_S16:
+						for (int j = i; j < size / 2; j = j + num_mapped) {
+							net->monitoring_data_channels[i].value.monitoring_data_s16[(j / num_mapped)] = (int16_t)net->monitoring_raw_data[j];
+						}
+						break;
+					case IL_REG_DTYPE_U32:
+						for (int j = i; j < size / 2; j = j + num_mapped) {
+							net->monitoring_data_channels[i].value.monitoring_data_u32[(j / num_mapped)] = (uint32_t)net->monitoring_raw_data[j];
+						}
+						break;
+					case IL_REG_DTYPE_S32:
+						for (int j = i; j < size / 2; j = j + num_mapped) {
+							net->monitoring_data_channels[i].value.monitoring_data_s32[(j / num_mapped)] = (int32_t)net->monitoring_raw_data[j];
+						}
+						break;
+					case IL_REG_DTYPE_FLOAT:
+						for (int j = i; j < size / 2; j = j + num_mapped) {
+							net->monitoring_data_channels[i].value.monitoring_data_flt[(j / num_mapped)] = (float)net->monitoring_raw_data[j];
+						}
+						printf("holi");
 						break;
 				}
 			}	
@@ -803,7 +822,6 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	.set_mapped_register = il_eth_net_set_mapped_register,
 	.enable_monitoring = il_eth_net_enable_monitoring,
 	.read_monitoring_data = il_eth_net_read_monitoring_data
-
 };
 
 /** MCB network device monitor operations. */

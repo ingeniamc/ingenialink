@@ -363,6 +363,77 @@ IL_EXPORT int *il_net_enable_monitoring(il_net_t *net);
 IL_EXPORT int *il_net_read_monitoring_data(il_net_t *net);
 
 /**
+ * Obtain network monitoring channel data.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @param [in] channel
+ *	  Channel.
+ *
+ * @returns
+ *	Network monitoring channel data.
+ */
+IL_EXPORT uint16_t *il_net_monitoring_channel_u16(il_net_t *net, int channel);
+
+/**
+ * Obtain network monitoring channel data.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @param [in] channel
+ *	  Channel.
+ *
+ * @returns
+ *	Network monitoring channel data.
+ */
+IL_EXPORT int16_t *il_net_monitoring_channel_s16(il_net_t *net, int channel);
+
+
+/**
+ * Obtain network monitoring channel data.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @param [in] channel
+ *	  Channel.
+ *
+ * @returns
+ *	Network monitoring channel data.
+ */
+IL_EXPORT uint32_t *il_net_monitoring_channel_u32(il_net_t *net, int channel);
+
+/**
+ * Obtain network monitoring channel data.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @param [in] channel
+ *	  Channel.
+ *
+ * @returns
+ *	Network monitoring channel data.
+ */
+IL_EXPORT int32_t *il_net_monitoring_channel_s32(il_net_t *net, int channel);
+
+/**
+ * Obtain network monitoring channel data.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @param [in] channel
+ *	  Channel.
+ *
+ * @returns
+ *	Network monitoring channel data.
+ */
+IL_EXPORT float *il_net_monitoring_channel_flt(il_net_t *net, int channel);
+
+/**
  * Obtain network servos list.
  *
  * @note

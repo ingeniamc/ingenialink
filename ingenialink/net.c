@@ -203,6 +203,31 @@ int *il_net_read_monitoring_data(il_net_t *net)
 	return il_eth_net_ops.read_monitoring_data(net);
 }
 
+uint16_t *il_net_monitoring_channel_u16(il_net_t *net, int channel) 
+{
+	return net->monitoring_data_channels[channel].value.monitoring_data_u16;
+}
+
+int16_t *il_net_monitoring_channel_s16(il_net_t *net, int channel) 
+{
+	return net->monitoring_data_channels[channel].value.monitoring_data_s16;
+}
+
+uint32_t *il_net_monitoring_channel_u32(il_net_t *net, int channel) 
+{
+	return net->monitoring_data_channels[channel].value.monitoring_data_u32;
+}
+
+int32_t *il_net_monitoring_channel_s32(il_net_t *net, int channel)
+{
+	return net->monitoring_data_channels[channel].value.monitoring_data_s32;
+}
+
+float *il_net_monitoring_channel_flt(il_net_t *net, int channel) 
+{
+	return net->monitoring_data_channels[channel].value.monitoring_data_flt;
+}
+
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)
