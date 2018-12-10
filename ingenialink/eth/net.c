@@ -496,6 +496,19 @@ static int *il_eth_net_enable_monitoring(il_net_t *net)
 	return r;
 }
 
+static int *il_eth_net_disable_monitoring(il_net_t *net) 
+{
+	int r = 0;
+	il_eth_net_t *this = to_eth_net(net);
+
+	uint16_t disable_monitoring_val = 0;
+	r = il_net__write(&this->net, 1, 0, 0x00F1, &disable_monitoring_val, 2, 1, 0);
+	if (r < 0) {
+
+	}
+	return r;
+}
+
 static int *il_eth_net_read_monitoring_data(il_net_t *net) 
 {
 	int r = 0;
@@ -821,6 +834,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	.remove_all_mapped_registers = il_eth_net_remove_all_mapped_registers,
 	.set_mapped_register = il_eth_net_set_mapped_register,
 	.enable_monitoring = il_eth_net_enable_monitoring,
+	.disable_monitoring = il_eth_net_disable_monitoring,
 	.read_monitoring_data = il_eth_net_read_monitoring_data
 };
 

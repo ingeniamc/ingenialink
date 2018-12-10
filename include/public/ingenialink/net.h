@@ -354,6 +354,15 @@ IL_EXPORT int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t a
 IL_EXPORT int *il_net_enable_monitoring(il_net_t *net);
 
 /**
+ * Disable monitoring.
+ *
+ * @param [in] net
+ *	  Network.
+ * 
+ */ 
+IL_EXPORT int *il_net_disable_monitoring(il_net_t *net);
+
+/**
  * Read monitoring data.
  *
  * @param [in] net

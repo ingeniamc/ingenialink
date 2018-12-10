@@ -198,6 +198,11 @@ int *il_net_enable_monitoring(il_net_t *net)
 	return il_eth_net_ops.enable_monitoring(net);
 }
 
+int *il_net_disable_monitoring(il_net_t *net) 
+{
+	return il_eth_net_ops.disable_monitoring(net);
+}
+
 int *il_net_read_monitoring_data(il_net_t *net) 
 {
 	return il_eth_net_ops.read_monitoring_data(net);
