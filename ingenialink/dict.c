@@ -653,6 +653,12 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 		reg->subnode = 1;
 	}
 
+	/* parse: cyclic */
+	xmlChar *cyclic;
+	cyclic = xmlGetProp(node, (const xmlChar *)"cyclic");
+	if (!cyclic) reg->cyclic = "";
+	else reg->cyclic = (char *)cyclic;
+	
 	reg->subnode = strtoul((char *)param, NULL, 4);
 
 	/* parse: address */

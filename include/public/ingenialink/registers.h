@@ -135,6 +135,8 @@ typedef struct {
 	const char *units;
 	/** Subnode. */
 	uint8_t subnode;
+	/** Cyclic. */
+	const char *cyclic;
 	/** Address. */
 	uint32_t address;
 	/** Data type. */
