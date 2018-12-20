@@ -696,9 +696,6 @@ int il_servo_is_connected(il_net_t **net, const char *address_ip)
 	}
 	int r = 0;
 	r = il_net_is_slave_connected(*net, address_ip);
-	printf("%s\n", opts.address_ip);
-	printf("%d\n", r);
-	while (1) {
-		
-	}
+	
+	return r;
 }
