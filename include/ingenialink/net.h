@@ -298,6 +298,8 @@ typedef struct {
 	int (*enable_monitoring)();
 	int (*disable_monitoring)();
 	int (*read_monitoring_data)();
+	/** Is Slave Connected. */
+	int (*is_slave_connected)();
 } il_eth_net_ops_t;
 
 /** Network device monitor operations. */

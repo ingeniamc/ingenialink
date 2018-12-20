@@ -222,11 +222,12 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 	this->refcnt = il_utils__refcnt_create(eth_net_destroy, this);
 	if (!this->refcnt)
 		goto cleanup_refcnt;
-	
- 	r = il_net_connect(&this->net);
- 	if (r < 0)
- 		goto cleanup_this;
-
+	if (opts->connect_slave != 0) {
+		r = il_net_connect(&this->net);
+		if (r < 0)
+			goto cleanup_this;
+	}
+ 	
 	return &this->net;
 
 cleanup_refcnt:
@@ -245,6 +246,94 @@ static void il_eth_net_destroy(il_net_t *net)
 	osal_thread_join(this->listener, NULL);
 	il_utils__refcnt_release(this->refcnt);
 	printf("Net destroyed\n");
+}
+
+static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
+
+	il_eth_net_t *this = to_eth_net(net);
+	int r = 0;
+	int result = 0;
+
+	if ((r = WSAStartup(0x202, &WSAData)) != 0)
+	{
+		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
+		WSACleanup();
+		return -1;
+	}
+	else printf("Server: WSAStartup() is OK.\n");
+
+	server = socket(AF_INET, SOCK_STREAM, 0);
+
+	// addr.sin_addr.s_addr = inet_addr("192.168.150.2");
+	addr.sin_addr.s_addr = inet_addr(this->ip_address);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(23);
+
+	unsigned long iMode = 1;
+	r = ioctlsocket(server, FIONBIO, &iMode);
+	if (r != NO_ERROR)
+	{
+		printf("ioctlsocket failed with error: %ld\n", r);
+	}
+	r = connect(server, (SOCKADDR *)&addr, sizeof(addr));
+	if (r == SOCKET_ERROR) {
+
+		r = WSAGetLastError();
+
+		// check if error was WSAEWOULDBLOCK, where we'll wait
+		if (r == WSAEWOULDBLOCK) {
+			printf("Attempting to connect.\n");
+			fd_set Write, Err;
+			TIMEVAL Timeout;
+			Timeout.tv_sec = 0;
+			Timeout.tv_usec = 100000;
+
+			FD_ZERO(&Write);
+			FD_ZERO(&Err);
+			FD_SET(server, &Write);
+			FD_SET(server, &Err);
+
+
+
+			r = select(0, NULL, &Write, &Err, &Timeout);
+			if (r == 0) {
+				printf("Timeout during connection\n");
+				result = 0;
+			}
+			else {
+				if (FD_ISSET(server, &Write)) {
+					printf("Connected to the Server\n");
+					result = 1;
+					
+				}
+				if (FD_ISSET(server, &Err)) {
+					printf("Fail connecting to server\n");
+					result = 0;
+				}
+			}
+		}
+		else {
+			int last_error = WSAGetLastError();
+			printf("Fail connecting to server\n");
+			result = 0;
+		}
+
+	}
+	else {
+		printf("Connected to the Server\n");
+		result = 1;
+	}
+
+
+	iMode = 0;
+	r = ioctlsocket(server, FIONBIO, &iMode);
+	if (r != NO_ERROR)
+	{
+		printf("ioctlsocket failed with error: %ld\n", r);
+	}
+
+	return result;
+
 }
 
 static int il_net_reconnect(il_net_t *net)
@@ -826,6 +915,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	.create = il_eth_net_create,
 	.destroy = il_eth_net_destroy,
 	.connect = il_eth_net_connect,
+	.is_slave_connected = il_eth_net_is_slave_connected,
 	// .devs_list_get = il_eth_net_dev_list_get,
 	.servos_list_get = il_eth_net_servos_list_get,
 	.status_get = il_eth_status_get,

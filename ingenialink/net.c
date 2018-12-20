@@ -133,6 +133,11 @@ int il_net_status_get(il_net_t *net)
 	return net->ops->status_get(net);
 }
 
+int *il_net_is_slave_connected(il_net_t *net, const char *ip) 
+{
+	return il_eth_net_ops.is_slave_connected(net);
+}
+
 int il_net_mon_stop(il_net_t *net)
 {
 	return net->ops->mon_stop(net);

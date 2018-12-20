@@ -61,6 +61,8 @@ typedef struct {
 	int timeout_rd;
 	/** Write timeout (ms). */
 	int timeout_wr;
+	/** Connect to slave */
+	int connect_slave;
 } il_net_opts_t;
 
 
@@ -72,6 +74,8 @@ typedef struct {
 	int timeout_rd;
 	/** Write timeout (ms). */
 	int timeout_wr;
+	/** Connect to slave */
+	int connect_slave;
 } il_eth_net_opts_t;
 
 /** Default read timeout (ms). */
@@ -241,6 +245,19 @@ IL_EXPORT int il_net_mon_stop(il_net_t *net);
  *	Network port.
  */
 IL_EXPORT const char *il_net_port_get(il_net_t *net);
+
+/**
+ * Check if there is any slave connected.
+ *
+ * @param [in] net
+ *	  Network.
+ * @param [in] ip
+ *	  Address ip.
+ *	
+ */
+IL_EXPORT int *il_net_is_slave_connected(il_net_t *net, const char *ip);
+
+
 
 /**
  * Obtain network extended data.

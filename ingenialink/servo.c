@@ -608,6 +608,7 @@ int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		opts.port = dev->port;
 		opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 		opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+		opts.connect_slave = 1;
 
 		*net = il_net_create(prot, &opts);
 		if (!*net)
@@ -650,6 +651,7 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 	opts.address_ip = address_ip;
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+	opts.connect_slave = 1;
 
 	printf("before connect");
 	*net = il_net_create(prot, &opts);
@@ -675,4 +677,28 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 	
 	ilerr__set("No connected servos found");
 	return IL_EFAIL;
+}
+
+
+int il_servo_is_connected(il_net_t **net, const char *address_ip) 
+{
+	il_eth_net_opts_t opts;
+
+	opts.address_ip = address_ip;
+	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+	opts.connect_slave = 0;
+
+	*net = il_net_create(IL_NET_PROT_ETH, &opts);
+	if (!*net) {
+		printf("FAIL");
+		return IL_EFAIL;
+	}
+	int r = 0;
+	r = il_net_is_slave_connected(*net, address_ip);
+	printf("%s\n", opts.address_ip);
+	printf("%d\n", r);
+	while (1) {
+		
+	}
 }
