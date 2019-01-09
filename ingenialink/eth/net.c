@@ -169,17 +169,18 @@ restart:
 	il_eth_net_t *this = to_eth_net(args);
 	while(error_count < 10 && this->stop_reconnect == 0) {
 		printf("%i\n", error_count);
-		uint64_t vid;
+		uint16_t sw;
 
 		Sleep(2);
-		/* try to read the vendor id register to see if a servo is alive */
-		r = il_net__read(&this->net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
+		/* try to read the status word register to see if a servo is alive */
+		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 		if (r < 0) {
 			error_count = error_count + 1;
 			goto unlock;
 		}
 		else {
 			error_count = 0;
+			process_statusword(this, 1, sw);
 		}
 		
 		unlock:
