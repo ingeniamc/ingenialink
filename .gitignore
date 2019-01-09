@@ -11,3 +11,4 @@ Win32
 
 # Others
 _*/
+/CMakeLists.txt.user
