@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="benchmark_8c-example">
+    <title>benchmark.c</title>
+
+<para>This example performs a transfer benchmark. <literallayout><computeroutput>
+<emphasis class="preprocessor">#include&#32;&quot;utils.h&quot;</emphasis>
+
+<emphasis class="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+
+<emphasis class="preprocessor">#define&#32;ADDRESS&#32;0x6040</emphasis>
+
+<emphasis class="preprocessor">#ifdef&#32;_WIN32</emphasis>
+<emphasis class="preprocessor">#include&#32;&lt;Windows.h&gt;</emphasis>
+
+<emphasis class="preprocessor">#define&#32;benchmark_init(loops)&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;LARGE_INTEGER&#32;frequency;&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;LARGE_INTEGER&#32;start,&#32;end;&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;QueryPerformanceCounter(&amp;start);&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;for&#32;(int&#32;i&#32;=&#32;0;&#32;i&#32;&lt;&#32;(loops);&#32;i++)&#32;\</emphasis>
+<emphasis class="preprocessor"></emphasis>
+<emphasis class="preprocessor">#define&#32;benchmark_end(elapsed)&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;QueryPerformanceCounter(&amp;end);&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;QueryPerformanceFrequency(&amp;frequency);&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;elapsed&#32;=&#32;(end.QuadPart&#32;-&#32;start.QuadPart)&#32;*&#32;1000.0&#32;/&#32;frequency.QuadPart;</emphasis>
+<emphasis class="preprocessor">#else</emphasis>
+<emphasis class="preprocessor">#include&#32;&lt;sys/time.h&gt;</emphasis>
+
+<emphasis class="preprocessor">#define&#32;benchmark_init(loops)&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;struct&#32;timeval&#32;start,&#32;end;&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;gettimeofday(&amp;start,&#32;NULL);&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;for&#32;(int&#32;i&#32;=&#32;0;&#32;i&#32;&lt;&#32;(loops);&#32;i++)</emphasis>
+
+<emphasis class="preprocessor">#define&#32;benchmark_end(elapsed)&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;gettimeofday(&amp;end,&#32;NULL);&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;elapsed&#32;=&#32;(end.tv_sec&#32;-&#32;start.tv_sec)&#32;*&#32;1000.0;&#32;\</emphasis>
+<emphasis class="preprocessor">&#32;&#32;&#32;&#32;elapsed&#32;+=&#32;(end.tv_usec&#32;-&#32;start.tv_usec)&#32;/&#32;1000.0</emphasis>
+<emphasis class="preprocessor">#endif</emphasis>
+
+<emphasis class="keyword">static</emphasis>&#32;<emphasis class="keywordtype">int</emphasis>&#32;run(<emphasis class="keywordtype">int</emphasis>&#32;loops,&#32;<link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link>&#32;prot,&#32;<emphasis class="keyword">const</emphasis>&#32;<emphasis class="keywordtype">char</emphasis>&#32;*port,&#32;uint8_t&#32;<emphasis class="keywordtype">id</emphasis>)
+{
+&#32;&#32;&#32;&#32;int32_t&#32;r&#32;=&#32;0;
+
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link>&#32;*net;
+&#32;&#32;&#32;&#32;<link linkend="structil__net__opts__t">il_net_opts_t</link>&#32;opts;
+&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1ga3369ddfcc33492fe3a28f96cf455b13e">il_servo_t</link>&#32;*servo;
+&#32;&#32;&#32;&#32;<link linkend="structil__reg__t">il_reg_t</link>&#32;reg;
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordtype">double</emphasis>&#32;elapsed;
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;create&#32;network&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a8b65ee2151ffc84031d96eec857a0189">port</link>&#32;=&#32;port;
+&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a1fe07477ccaae61b81dd71b2cf4bde08">timeout_rd</link>&#32;=&#32;<link linkend="group__IL__NET_1ga7fb88a9dcbf2c6ae143dc9d16c70ad4f">IL_NET_TIMEOUT_RD_DEF</link>;
+&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a63e3d6b10ac90e08d629ac4458505d1a">timeout_wr</link>&#32;=&#32;<link linkend="group__IL__NET_1gaf43b0714cfed3be5907c593e18d4481d">IL_NET_TIMEOUT_WR_DEF</link>;
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*net&#32;=&#32;il_net_eusb_create(&amp;opts);*/</emphasis>
+&#32;&#32;&#32;&#32;net&#32;=&#32;<link linkend="group__IL__NET_1gaed82d6f49871934f3b6fdf3a9a022cc6">il_net_create</link>(prot,&#32;&amp;opts);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!net)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;create&#32;network:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;r&#32;=&#32;1;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;out;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;create&#32;servo&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;servo&#32;=&#32;<link linkend="group__IL__SERVO_1gaa3728b10386d3b9f67258a95cb3c2913">il_servo_create</link>(net,&#32;<emphasis class="keywordtype">id</emphasis>,&#32;NULL);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!servo)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;create&#32;servo:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_net;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;run&#32;benchmark&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;reg.<link linkend="structil__reg__t_1ac0433a8ae86e0990fa59a074a5ad1bd1">address</link>&#32;=&#32;ADDRESS;
+&#32;&#32;&#32;&#32;reg.<link linkend="structil__reg__t_1a1780caa197277828816c7214aa7b5d2f">dtype</link>&#32;=&#32;<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48">IL_REG_DTYPE_S32</link>;
+&#32;&#32;&#32;&#32;reg.<link linkend="structil__reg__t_1a8cd718765e48f0de2f978de386c61218">access</link>&#32;=&#32;<link linkend="group__IL__REGS_1gga4c623bd7d0d5f059dd91949c6948147ea12dabd43c525dfea5fb20914711168b8">IL_REG_ACCESS_RO</link>;
+&#32;&#32;&#32;&#32;reg.<link linkend="structil__reg__t_1a799847eb04e4f29073e7c9939ae977df">phy</link>&#32;=&#32;<link linkend="group__IL__REGS_1gga37538453e5c3d84733c628987a579590a34d96ac8a7b9afc02256a03d5a464822">IL_REG_PHY_NONE</link>;
+
+&#32;&#32;&#32;&#32;benchmark_init(loops)
+&#32;&#32;&#32;&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;int32_t&#32;buf;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="comment">/*double&#32;buf;*/</emphasis>
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__SERVO_1gab0c5bbb4fcd2784f10fab3648dc405c4">il_servo_raw_read_s32</link>(servo,&#32;&amp;reg,&#32;NULL,&#32;&amp;buf);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="comment">/*r&#32;=&#32;il_servo_read(servo,&#32;&amp;reg,&#32;NULL,&#32;&amp;buf);*/</emphasis>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Error&#32;while&#32;reading:&#32;%s\n&quot;</emphasis>,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">break</emphasis>;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+&#32;&#32;&#32;&#32;}
+&#32;&#32;&#32;&#32;benchmark_end(elapsed);
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;==&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;%d&#32;messages&#32;read&#32;in&#32;%.2f&#32;ms&#32;(%.2f&#32;msgs/s).\n&quot;</emphasis>,&#32;loops,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;elapsed,&#32;((<emphasis class="keywordtype">double</emphasis>)loops&#32;/&#32;elapsed)&#32;*&#32;1000.0);
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1gade6d6e8ae2488af2a6ae6a6c484eaf32">il_servo_destroy</link>(servo);
+
+cleanup_net:
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga4b9335320c644d86491b3bc20e055f5f">il_net_destroy</link>(net);
+
+out:
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;(<emphasis class="keywordtype">int</emphasis>)r;
+}
+
+<emphasis class="keywordtype">int</emphasis>&#32;main(<emphasis class="keywordtype">int</emphasis>&#32;argc,&#32;<emphasis class="keywordtype">char</emphasis>&#32;**argv)
+{
+&#32;&#32;&#32;&#32;<emphasis class="keywordtype">int</emphasis>&#32;loops;
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link>&#32;prot;
+&#32;&#32;&#32;&#32;<emphasis class="keyword">const</emphasis>&#32;<emphasis class="keywordtype">char</emphasis>&#32;*port;
+&#32;&#32;&#32;&#32;uint8_t&#32;id;
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(argc&#32;&lt;&#32;5)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="stringliteral">&quot;Usage:&#32;benchmark&#32;LOOPS&#32;PROT&#32;PORT&#32;SERVO_ID\n&quot;</emphasis>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;1;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;loops&#32;=&#32;(int)strtoul(argv[1],&#32;NULL,&#32;0);
+&#32;&#32;&#32;&#32;prot&#32;=&#32;str2prot(argv[2]);
+&#32;&#32;&#32;&#32;port&#32;=&#32;argv[3];
+&#32;&#32;&#32;&#32;<emphasis class="keywordtype">id</emphasis>&#32;=&#32;(uint8_t)strtoul(argv[4],&#32;NULL,&#32;0);
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;run(loops,&#32;prot,&#32;port,&#32;<emphasis class="keywordtype">id</emphasis>);
+}
+</computeroutput></literallayout> </para>
+
+</section>

@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST__VEL__SENSOR">
+    <title>Velocity sensors</title>
+<para>Collaboration diagram for Velocity sensors</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST__VEL__SENSOR.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__VEL__SENSOR_1ga84b8ae078f55b0fe678b42ba33ecbffb">ILK_VEL_SENSOR_POS</link> 0x00<para><emphasis>Position sensor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__VEL__SENSOR_1ga5e2000096458f2759519f81411f2f25e">ILK_VEL_SENSOR_TACHOMETER</link> 0x01<para><emphasis>External DC tachometer.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__VEL__SENSOR_1gadf37b8bf88afd7b938ac2edf99474553">ILK_VEL_SENSOR_NONE</link> 0x02<para><emphasis>None.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__VEL__SENSOR_1ga245f70defaf3b4a986ef63ae406db0df">ILK_VEL_SENSOR_DIGITAL_HALLS</link> 0x04<para><emphasis>Digital halls.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__CONST__VEL__SENSOR_1ga84b8ae078f55b0fe678b42ba33ecbffb">
+                <title>#define ILK_VEL_SENSOR_POS</title>                
+                <para>Definition at line 160 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__VEL__SENSOR_1ga5e2000096458f2759519f81411f2f25e">
+                <title>#define ILK_VEL_SENSOR_TACHOMETER</title>                
+                <para>Definition at line 162 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__VEL__SENSOR_1gadf37b8bf88afd7b938ac2edf99474553">
+                <title>#define ILK_VEL_SENSOR_NONE</title>                
+                <para>Definition at line 164 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__VEL__SENSOR_1ga245f70defaf3b4a986ef63ae406db0df">
+                <title>#define ILK_VEL_SENSOR_DIGITAL_HALLS</title>                
+                <para>Definition at line 166 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

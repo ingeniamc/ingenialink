@@ -46,9 +46,9 @@ endif()
 #-------------------------------------------------------------------------------
 # Build options
 
-option(WITH_EXAMPLES    "Build library usage example apps"                  OFF)
-option(WITH_DOCS        "Build library public API documentation"            OFF)
-option(WITH_PIC         "Generate position independent code"                OFF)
+option(WITH_EXAMPLES    "Build library usage example apps"                   ON)
+option(WITH_DOCS        "Build library public API documentation"             ON)
+option(WITH_PIC         "Generate position independent code"                 ON)
 option(WITH_PROT_EUSB   "Build with EUSB protocol support"                   ON)
 option(WITH_PROT_MCB    "Build with MCB protocol support (EXPERIMENTAL)"    OFF)
 
@@ -156,6 +156,7 @@ if(WITH_PROT_MCB)
 endif()
 
 # Dependencies
+set(sercomm_DIR "/home/surajcha/codebase/ingenialink/external/sercomm/bin/debian/lib/cmake/sercomm")
 find_package(sercomm CONFIG REQUIRED)
 target_link_libraries(ingenialink PRIVATE sercomm)
 

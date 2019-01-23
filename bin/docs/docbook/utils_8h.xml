@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="utils_8h">
+    <title>utils.h File Reference</title>
+    <programlisting>#include &lt;ingenialink/ingenialink.h&gt;</programlisting>
+<para>Include dependency diagram for utils.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="utils_8h__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Included by dependency diagram for utils.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="utils_8h__dep__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link> <link linkend="utils_8h_1a459ce8dc175c3f61127017729c519254">str2prot</link> (
+const char * name)<para><emphasis>Obtain protocol type from string.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+        <title>Detailed Description</title>
+    <para>Definition in file /home/surajcha/codebase/ingenialink/examples/utils.h</para>
+    </simplesect>
+</section>

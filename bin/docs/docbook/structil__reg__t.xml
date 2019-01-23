@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="structil__reg__t">
+<title>il_reg_t struct Reference</title>
+<para>
+    <programlisting>#include <link linkend="registers_8h">&lt;registers.h&gt;</link></programlisting>
+</para>
+<para>Inheritance diagram for il_reg_t</para>
+<para>
+    <figure>
+        <title>Inheritance graph</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="structil__reg__t__inherit__graph.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Collaboration diagram for il_reg_t</para>
+<para>
+    <figure>
+        <title>Collaboration graph</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="structil__reg__t__coll__graph.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Data Fields</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>uint32_t address<para><emphasis>Address.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>il_reg_dtype_t dtype<para><emphasis>Data type.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>il_reg_access_t access<para><emphasis>Access type.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>il_reg_phy_t phy<para><emphasis>Physical units type.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>il_reg_range_t range<para><emphasis>Range.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>il_dict_labels_t * labels<para><emphasis>Labels dictionary.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>const char * cat_id<para><emphasis>Category ID.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>const char * scat_id<para><emphasis>Subcategory ID.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+
+<para>Register. </para>
+    </simplesect>
+        <simplesect>
+            <title>Detailed Description</title>
+                <para>Definition at line 121 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+        </simplesect>
+        <section>
+            <title>Field Documentation</title>
+            <simplesect>
+                <title>uint32_t il_reg_t::address</title>                
+                <para>Definition at line 123 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>il_reg_dtype_t il_reg_t::dtype</title>                
+                <para>Definition at line 125 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>il_reg_access_t il_reg_t::access</title>                
+                <para>Definition at line 127 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>il_reg_phy_t il_reg_t::phy</title>                
+                <para>Definition at line 129 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>il_reg_range_t il_reg_t::range</title>                
+                <para>Definition at line 131 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>il_dict_labels_t* il_reg_t::labels</title>                
+                <para>Definition at line 133 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>const char* il_reg_t::cat_id</title>                
+                <para>Definition at line 135 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>const char* il_reg_t::scat_id</title>                
+                <para>Definition at line 137 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+        </section>
+</section>

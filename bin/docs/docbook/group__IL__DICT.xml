@@ -1,0 +1,630 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__DICT">
+    <title>Dictionary</title>
+<para>Collaboration diagram for Dictionary</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__DICT.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Typedefs</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef struct il_dict  <link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link><para><emphasis>IngeniaLink dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * <link linkend="group__IL__DICT_1gaf3d1da6ffb1d4efcf40946dc705230f2">il_dict_create</link> (
+const char * dict_f)<para><emphasis>Create a dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT_1ga37cc4ceb38514581a5bbecb47f5cfa61">il_dict_destroy</link> (
+<link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * dict)<para><emphasis>Destroy a dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__DICT_1ga3ea660af3316835c1799ce8dca67b566">il_dict_cat_get</link> (
+<link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * dict, const char * cat_id, <link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> ** labels)<para><emphasis>Obtain category labels from ID.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> size_t <link linkend="group__IL__DICT_1gac982efe51c1ceca824b89b729397bf6f">il_dict_cat_cnt</link> (
+<link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * dict)<para><emphasis>Obtain number of categories in the dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> const char ** <link linkend="group__IL__DICT_1ga254bc46b2740b8291fd0061e47c28758">il_dict_cat_ids_get</link> (
+<link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * dict)<para><emphasis>Obtain the list of category IDs.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT_1ga27125d99f6aa90dc36c3de0736993265">il_dict_cat_ids_destroy</link> (
+const char ** cat_ids)<para><emphasis>Destroy the list of obtained category IDs.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__DICT_1ga79fb4bf5b1fab3d67a201c6e5b11e5e7">il_dict_scat_get</link> (
+<link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * dict, const char * cat_id, const char * scat_id, <link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> ** labels)<para><emphasis>Obtain sub-category labels from a category.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> size_t <link linkend="group__IL__DICT_1gac34ec4d95d8526d1cf09641c843ce7aa">il_dict_scat_cnt</link> (
+<link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * dict, const char * cat_id)<para><emphasis>Obtain number of sub-categories in a category.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> const char ** <link linkend="group__IL__DICT_1ga51782d1acdcfd574ab717c6c721cb560">il_dict_scat_ids_get</link> (
+<link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * dict, const char * cat_id)<para><emphasis>Obtain the list of category IDs.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT_1gaa558e902f07600780b351f9e58f443df">il_dict_scat_ids_destroy</link> (
+const char ** scat_ids)<para><emphasis>Destroy the list of obtained sub-category IDs.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__DICT_1ga2c1e206d3c5d57a4a047855c2743fa5a">il_dict_reg_get</link> (
+<link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * dict, const char * id, const <link linkend="structil__reg__t">il_reg_t</link> ** reg)<para><emphasis>Obtain register from ID.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> size_t <link linkend="group__IL__DICT_1ga7d1b8cad25b75ec725c9dad237fe918a">il_dict_reg_cnt</link> (
+<link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * dict)<para><emphasis>Obtain number of registers in the dictionary.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> const char ** <link linkend="group__IL__DICT_1gaaf93ee11fe3006f72c03f03174abdf33">il_dict_reg_ids_get</link> (
+<link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * dict)<para><emphasis>Obtain the list of register IDs.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__DICT_1gacd7922e14cb903f3342747ed21a00ec1">il_dict_reg_ids_destroy</link> (
+const char ** regs)<para><emphasis>Destroy the list of obtained register IDs.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Typedef Documentation</title>
+            <section xml:id="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">
+                <title>typedef struct il_dict il_dict_t</title> <emphasis>IngeniaLink dictionary.</emphasis>
+                
+            </section>
+        </section>
+        <section>
+            <title>Function Documentation</title>
+            <section xml:id="group__IL__DICT_1gaf3d1da6ffb1d4efcf40946dc705230f2">
+                <title>IL_EXPORT il_dict_t* il_dict_create (const char *dict_f)</title> <emphasis>Create a dictionary.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>dict_f</entry>
+                                <entry>
+<para>Dictionary file.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Dictionary instance. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1ga37cc4ceb38514581a5bbecb47f5cfa61">
+                <title>IL_EXPORT void il_dict_destroy (il_dict_t *dict)</title> <emphasis>Destroy a dictionary.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>dict</entry>
+                                <entry>
+<para>Dictionary instance. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1ga3ea660af3316835c1799ce8dca67b566">
+                <title>IL_EXPORT int il_dict_cat_get (il_dict_t *dict, const char *cat_id, il_dict_labels_t **labels)</title> <emphasis>Obtain category labels from ID.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>dict</entry>
+                                <entry>
+<para>Dictionary instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>cat_id</entry>
+                                <entry>
+<para>Category ID. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>labels</entry>
+                                <entry>
+<para>Where labels for the given ID will be stored.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, IL_EFAIL if the register does not exist. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1gac982efe51c1ceca824b89b729397bf6f">
+                <title>IL_EXPORT size_t il_dict_cat_cnt (il_dict_t *dict)</title> <emphasis>Obtain number of categories in the dictionary.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>dict</entry>
+                                <entry>
+<para>Dictionary instance.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Number of categories in the dictionary. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1ga254bc46b2740b8291fd0061e47c28758">
+                <title>IL_EXPORT const char** il_dict_cat_ids_get (il_dict_t *dict)</title> <emphasis>Obtain the list of category IDs.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>dict</entry>
+                                <entry>
+<para>Dictionary instance.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Category IDs (NULL if none or error).</para>
+</formalpara>
+<formalpara><title>See also: </title>
+
+<para><link linkend="group__IL__DICT_1ga27125d99f6aa90dc36c3de0736993265">il_dict_cat_ids_destroy</link> </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1ga27125d99f6aa90dc36c3de0736993265">
+                <title>IL_EXPORT void il_dict_cat_ids_destroy (const char **cat_ids)</title> <emphasis>Destroy the list of obtained category IDs.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>cat_ids</entry>
+                                <entry>
+<para>Categories IDs.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>See also: </title>
+
+<para><link linkend="group__IL__DICT_1ga254bc46b2740b8291fd0061e47c28758">il_dict_cat_ids_get</link> </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1ga79fb4bf5b1fab3d67a201c6e5b11e5e7">
+                <title>IL_EXPORT int il_dict_scat_get (il_dict_t *dict, const char *cat_id, const char *scat_id, il_dict_labels_t **labels)</title> <emphasis>Obtain sub-category labels from a category.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>dict</entry>
+                                <entry>
+<para>Dictionary instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>cat_id</entry>
+                                <entry>
+<para>Category ID. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>scat_id</entry>
+                                <entry>
+<para>Sub-category ID. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>labels</entry>
+                                <entry>
+<para>Where labels for the given ID will be stored.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, IL_EFAIL if the register does not exist. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1gac34ec4d95d8526d1cf09641c843ce7aa">
+                <title>IL_EXPORT size_t il_dict_scat_cnt (il_dict_t *dict, const char *cat_id)</title> <emphasis>Obtain number of sub-categories in a category.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>dict</entry>
+                                <entry>
+<para>Dictionary instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>cat_id</entry>
+                                <entry>
+<para>Category ID.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Number of categories in the dictionary. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1ga51782d1acdcfd574ab717c6c721cb560">
+                <title>IL_EXPORT const char** il_dict_scat_ids_get (il_dict_t *dict, const char *cat_id)</title> <emphasis>Obtain the list of category IDs.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>dict</entry>
+                                <entry>
+<para>Dictionary instance.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Category IDs (NULL if none or error).</para>
+</formalpara>
+<formalpara><title>See also: </title>
+
+<para><link linkend="group__IL__DICT_1gaa558e902f07600780b351f9e58f443df">il_dict_scat_ids_destroy</link> </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1gaa558e902f07600780b351f9e58f443df">
+                <title>IL_EXPORT void il_dict_scat_ids_destroy (const char **scat_ids)</title> <emphasis>Destroy the list of obtained sub-category IDs.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>scat_ids</entry>
+                                <entry>
+<para>Sub-category IDs.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>See also: </title>
+
+<para><link linkend="group__IL__DICT_1ga51782d1acdcfd574ab717c6c721cb560">il_dict_scat_ids_get</link> </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1ga2c1e206d3c5d57a4a047855c2743fa5a">
+                <title>IL_EXPORT int il_dict_reg_get (il_dict_t *dict, const char *id, const il_reg_t **reg)</title> <emphasis>Obtain register from ID.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>dict</entry>
+                                <entry>
+<para>Dictionary instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>id</entry>
+                                <entry>
+<para>Register ID. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>reg</entry>
+                                <entry>
+<para>Where register with given ID will be stored.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, IL_EFAIL if the register does not exist. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1ga7d1b8cad25b75ec725c9dad237fe918a">
+                <title>IL_EXPORT size_t il_dict_reg_cnt (il_dict_t *dict)</title> <emphasis>Obtain number of registers in the dictionary.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>dict</entry>
+                                <entry>
+<para>Dictionary instance.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Number of registers in the dictionary. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1gaaf93ee11fe3006f72c03f03174abdf33">
+                <title>IL_EXPORT const char** il_dict_reg_ids_get (il_dict_t *dict)</title> <emphasis>Obtain the list of register IDs.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>dict</entry>
+                                <entry>
+<para>Dictionary instance.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Dictionary IDs (NULL if none or error).</para>
+</formalpara>
+<formalpara><title>See also: </title>
+
+<para><link linkend="group__IL__DICT_1gacd7922e14cb903f3342747ed21a00ec1">il_dict_reg_ids_destroy</link> </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__DICT_1gacd7922e14cb903f3342747ed21a00ec1">
+                <title>IL_EXPORT void il_dict_reg_ids_destroy (const char **regs)</title> <emphasis>Destroy the list of obtained register IDs.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>regs</entry>
+                                <entry>
+<para>Register list.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>See also: </title>
+
+<para><link linkend="group__IL__DICT_1gaaf93ee11fe3006f72c03f03174abdf33">il_dict_reg_ids_get</link> </para>
+</formalpara>
+</para>
+
+            </section>
+        </section>
+</section>

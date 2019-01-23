@@ -1,0 +1,109 @@
+\href{https://travis-ci.org/ingeniamc/ingenialink}{\tt } \href{https://ci.appveyor.com/project/gmarull/ingenialink}{\tt }
+
+{\ttfamily libingenialink} is a portable, pure C implementation library for simple motion control tasks and communications with Ingenia drives.
+
+\href{http://www.ingeniamc.com}{\tt }
+
+\subsection*{What it can do}
+
+The library provides\+:
+
+
+\begin{DoxyItemize}
+\item Simple motion control functions (homing, profile position, etc.)
+\item Communications A\+PI for Ingenia drives (multiple protocols supported)
+\item Load and use Ingenia\+Dictionary X\+ML dictionaries
+\item Operate directly using units (e.\+g. degrees, rad/s, etc.)
+\item Register polling and monitoring for scope applications
+\item Servo listing and monitoring
+\item Object oriented interface
+\item Thread-\/safe communications
+\item Descriptive and detailed error messages
+\end{DoxyItemize}
+
+\subsection*{Building libingenialink}
+
+{\ttfamily libingenialink} depends on \href{https://github.com/ingeniamc/sercomm}{\tt libsercomm} and \href{https://xmlsoft.org}{\tt libxml2}. A couple of sections below you will find some instructions on how to build and install them. {\ttfamily libingenialink} can be built and installed on any system like this\+:
+
+
+\begin{DoxyCode}
+1 cmake -H. -B\_build -DCMAKE\_INSTALL\_PREFIX=$INSTALL
+2 cmake --build \_build
+3 cmake --build \_build --target install
+\end{DoxyCode}
+
+
+Note that a {\ttfamily I\+N\+S\+T\+A\+LL} is the installation folder.
+
+\subsubsection*{Build options}
+
+The following build options are available\+:
+
+
+\begin{DoxyItemize}
+\item {\ttfamily W\+I\+T\+H\+\_\+\+P\+R\+O\+T\+\_\+\+E\+U\+SB} (ON)\+: Build {\ttfamily E\+U\+SB} protocol support.
+\item {\ttfamily W\+I\+T\+H\+\_\+\+P\+R\+O\+T\+\_\+\+M\+CB} (O\+FF)\+: Build {\ttfamily M\+CB} protocol support (E\+X\+P\+E\+R\+I\+M\+E\+N\+T\+AL).
+\item {\ttfamily W\+I\+T\+H\+\_\+\+E\+X\+A\+M\+P\+L\+ES} (O\+FF)\+: When enabled, the library usage example applications will be built.
+\item {\ttfamily W\+I\+T\+H\+\_\+\+D\+O\+CS} (O\+FF)\+: When enabled the A\+PI documentation can be built.
+\item {\ttfamily W\+I\+T\+H\+\_\+\+P\+IC} (O\+FF)\+: When enabled, generated code will be position independent. This may be useful if you want to embed ingenialink into a dynamic library.
+\end{DoxyItemize}
+
+Furthermore, {\itshape standard} C\+Make build options can be used. You may find useful to read this list of \href{https://cmake.org/Wiki/CMake_Useful_Variables}{\tt useful C\+Make variables}.
+
+\subsection*{Dependencies}
+
+As mentioned before, {\ttfamily libingenialink} depends on \href{https://github.com/ingeniamc/sercomm}{\tt libsercomm} and \href{https://xmlsoft.org}{\tt libxml2}, both referenced in the \href{https://github.com/ingeniamc/ingenialink/tree/master/external}{\tt external} folder as submodules. Therefore, if building them make sure to initialize the submodules first\+:
+
+
+\begin{DoxyCode}
+1 git submodule update --init --recursive
+\end{DoxyCode}
+
+
+Below you can find some building instructions for dependencies. Note that {\ttfamily I\+N\+S\+T\+A\+LL} is the installation folder.
+
+\subsubsection*{libsercomm}
+
+{\ttfamily libsercomm} also uses C\+Make, so it can be built and installed on any system like this\+:
+
+
+\begin{DoxyCode}
+1 cd external/sercomm
+2 cmake -H. -B\_build -DCMAKE\_INSTALL\_PREFIX=$INSTALL
+3 cmake --build \_build --target install
+\end{DoxyCode}
+
+
+\subsubsection*{libxml2}
+
+Athough {\ttfamily libxml2} is multiplatform, the building process can be somewhat painful on some systems, specially on Windows. This is why we provide a C\+Make script to build it on the systems we support. It can be built and installed like this\+:
+
+
+\begin{DoxyCode}
+1 cd external/libxml2
+2 cmake -H. -B\_build -DCMAKE\_INSTALL\_PREFIX=$INSTALL
+3 cmake --build \_build --target install
+\end{DoxyCode}
+
+
+If using Linux, we actually recommend installing the library packages from the official repositories. For example in Debian/\+Ubuntu systems\+:
+
+
+\begin{DoxyCode}
+1 sudo apt install libxml2-dev
+\end{DoxyCode}
+
+
+On recent versions of mac\+OS, it seems to be already installed on the system. If not, you can also use \href{https://brew.sh}{\tt brew} to install it.
+
+\subsection*{Coding standards}
+
+{\ttfamily libingenialink} is written in \href{http://en.wikipedia.org/wiki/ANSI_C}{\tt A\+N\+SI C} (C99), so any modern compiler should work.
+
+Code is written following the \href{https://www.kernel.org/doc/html/latest/process/coding-style.html}{\tt Linux Kernel coding style}. You can check for errors or suggestions like this (uses {\ttfamily checkpatch.\+pl})\+:
+
+
+\begin{DoxyCode}
+1 cmake --build build --target style\_check
+\end{DoxyCode}
+ 

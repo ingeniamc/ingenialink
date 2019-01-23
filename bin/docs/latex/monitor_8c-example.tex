@@ -1,0 +1,194 @@
+\hypertarget{monitor_8c-example}{}\section{monitor.\+c}
+Simple monitor example which uses the monitor to capture the velocity curve when the motion is started.
+
+
+\begin{DoxyCodeInclude}
+
+\textcolor{preprocessor}{#include <stdio.h>}
+\textcolor{preprocessor}{#include <\hyperlink{ingenialink_8h}{ingenialink/ingenialink.h}>}
+
+\textcolor{preprocessor}{#define ENABLE\_TIMEOUT  2000}
+
+\textcolor{preprocessor}{#define T\_S     1000}
+
+\textcolor{preprocessor}{#define MAX\_SAMPLES 200}
+
+\textcolor{preprocessor}{#define TARGET\_VEL  20}
+
+\textcolor{preprocessor}{#define MONITOR\_TIMEOUT 10000}
+
+\textcolor{keyword}{static} \textcolor{keywordtype}{int} run(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *port, uint8\_t \textcolor{keywordtype}{id}, \textcolor{keyword}{const} \textcolor{keywordtype}{char} *log\_fname)
+\{
+    \textcolor{keywordtype}{int} r = 0;
+
+    \hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\_net\_t} *net;
+    \hyperlink{structil__net__opts__t}{il\_net\_opts\_t} opts;
+    \hyperlink{group__IL__SERVO_ga3369ddfcc33492fe3a28f96cf455b13e}{il\_servo\_t} *servo;
+    \hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\_monitor\_t} *monitor;
+
+    \hyperlink{structil__monitor__acq__t}{il\_monitor\_acq\_t} *acq;
+    \textcolor{keywordtype}{size\_t} i;
+    FILE *log\_f;
+
+    \textcolor{keyword}{const} \hyperlink{structil__reg__t}{il\_reg\_t} IL\_REG\_VEL\_ACT = \{
+        .\hyperlink{structil__reg__t_ac0433a8ae86e0990fa59a074a5ad1bd1}{address} = 0x00606C,
+        .dtype = \hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48}{IL\_REG\_DTYPE\_S32},
+        .access = \hyperlink{group__IL__REGS_gga4c623bd7d0d5f059dd91949c6948147eafa388eb7ec6166ba6a59d0d665f3ac53}{IL\_REG\_ACCESS\_RW},
+        .phy = \hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590aea1c9cf80466e862af6a3a6f687550ef}{IL\_REG\_PHY\_VEL},
+        .range = \{
+            .min.s32 = INT32\_MIN,
+            .max.s32 = INT32\_MAX
+        \},
+        .labels = NULL
+    \};
+
+    \textcolor{comment}{/* create network */}
+    opts.\hyperlink{structil__net__opts__t_a8b65ee2151ffc84031d96eec857a0189}{port} = port;
+    opts.\hyperlink{structil__net__opts__t_a1fe07477ccaae61b81dd71b2cf4bde08}{timeout\_rd} = \hyperlink{group__IL__NET_ga7fb88a9dcbf2c6ae143dc9d16c70ad4f}{IL\_NET\_TIMEOUT\_RD\_DEF};
+    opts.\hyperlink{structil__net__opts__t_a63e3d6b10ac90e08d629ac4458505d1a}{timeout\_wr} = \hyperlink{group__IL__NET_gaf43b0714cfed3be5907c593e18d4481d}{IL\_NET\_TIMEOUT\_WR\_DEF};
+
+    net = \hyperlink{group__IL__NET_gaed82d6f49871934f3b6fdf3a9a022cc6}{il\_net\_create}(\hyperlink{group__IL__NET_gga9629f7451843e493e7665754b5c2fecaafb048fa22f8e422dd8af49370e5f24a5}{IL\_NET\_PROT\_EUSB}, &opts);
+    \textcolor{keywordflow}{if} (!net) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not create network: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        r = 1;
+        \textcolor{keywordflow}{goto} out;
+    \}
+
+    \textcolor{comment}{/* create servo */}
+    servo = \hyperlink{group__IL__SERVO_gaa3728b10386d3b9f67258a95cb3c2913}{il\_servo\_create}(net, \textcolor{keywordtype}{id}, NULL);
+    \textcolor{keywordflow}{if} (!servo) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not create servo: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        r = 1;
+        \textcolor{keywordflow}{goto} cleanup\_net;
+    \}
+
+
+    \hyperlink{group__IL__SERVO_gacd15dfc7141865bcb63912888aad71ba}{il\_servo\_units\_vel\_set}(servo, \hyperlink{group__IL__SERVO_gga548eebb728eb841e157b57f2063203eea7ddfb276f1013c053617d2c5693af2a6}{IL\_UNITS\_VEL\_RPS});
+
+    \textcolor{comment}{/* create monitor, configure to sample velocity @1ms after reaching a}
+\textcolor{comment}{     * 90 % of the target */}
+    monitor = \hyperlink{group__IL__MONITOR_gabab1b2d47a46eeabfcaa9ec5ce7c49a8}{il\_monitor\_create}(servo);
+    \textcolor{keywordflow}{if} (!monitor) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not create monitor: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        r = 1;
+        \textcolor{keywordflow}{goto} cleanup\_servo;
+    \}
+
+    r = \hyperlink{group__IL__MONITOR_ga8fc675f7d849ebcf162e396a98b6c710}{il\_monitor\_configure}(monitor, T\_S, 0, MAX\_SAMPLES);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not configure monitor: %s\(\backslash\)n"},
+            \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_monitor;
+    \}
+
+    r = \hyperlink{group__IL__MONITOR_gacda4fa0bc57e96988e62f895b256a62a}{il\_monitor\_ch\_configure}(monitor, 0, &IL\_REG\_VEL\_ACT, NULL);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not configure channel: %s\(\backslash\)n"},
+            \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_monitor;
+    \}
+
+    r = \hyperlink{group__IL__MONITOR_ga98522072a54d7e70fe94409d666d58cd}{il\_monitor\_trigger\_configure}(monitor, 
+      \hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a3e127c86c21f607d0df72b64403adb42}{IL\_MONITOR\_TRIGGER\_POS},
+                     0, &IL\_REG\_VEL\_ACT, NULL,
+                     TARGET\_VEL * 0.9, 0, 0);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not configure trigger: %s\(\backslash\)n"},
+            \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_monitor;
+    \}
+
+    \textcolor{comment}{/* enable servo in PV mode */}
+    r = \hyperlink{group__IL__SERVO_ga8b5938454ac8183a514d11203f2e6197}{il\_servo\_disable}(servo);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not disable servo: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_monitor;
+    \}
+
+    r = \hyperlink{group__IL__SERVO_ga9ef9a84e8b6aa1ee23d301dbd93b8b2f}{il\_servo\_mode\_set}(servo, \hyperlink{group__IL__SERVO_gga6b3323798a8f235c225cc1d0cd27840aa06f037b862ba17dfaac425ab706acf95}{IL\_SERVO\_MODE\_PV});
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not set mode: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_monitor;
+    \}
+
+    r = \hyperlink{group__IL__SERVO_gaee57b72c5f6d4756a6a914edbf0db0d9}{il\_servo\_enable}(servo, ENABLE\_TIMEOUT);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not enable servo: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} cleanup\_monitor;
+    \}
+
+    \textcolor{comment}{/* enable monitor, set velocity */}
+    r = \hyperlink{group__IL__MONITOR_ga41ec8c974f4322537d714844be7b8a2a}{il\_monitor\_start}(monitor);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not start monitor: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} servo\_disable;
+    \}
+
+    r = \hyperlink{group__IL__SERVO_ga8831402af125c7706353d0dc9bf1364c}{il\_servo\_velocity\_set}(servo, TARGET\_VEL);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not set velocity: %s\(\backslash\)n"}, \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} servo\_disable;
+    \}
+
+    \textcolor{comment}{/* wait for monitor to capture all samples, then store results */}
+    printf(\textcolor{stringliteral}{"Waiting for monitor to complete...\(\backslash\)n"});
+    r = \hyperlink{group__IL__MONITOR_ga5a2bfd4b0f37f4abee986a77afae5b32}{il\_monitor\_wait}(monitor, MONITOR\_TIMEOUT);
+    \textcolor{keywordflow}{if} (r < 0) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Monitor acquisition failed: %s\(\backslash\)n"},
+            \hyperlink{group__IL__ERR_gac427087bdfe4aae17ff3e74de51cfe87}{ilerr\_last}());
+        \textcolor{keywordflow}{goto} servo\_disable;
+    \}
+
+    \hyperlink{group__IL__MONITOR_gad6231f5d154969361fdd05d3f84707bb}{il\_monitor\_data\_get}(monitor, &acq);
+
+    \textcolor{keywordflow}{if} (acq->\hyperlink{structil__monitor__acq__t_a1abcafb439ed9802b75afe08b5d48cea}{sz} != acq->\hyperlink{structil__monitor__acq__t_a82be21ff5f08413736841b02666823ad}{cnt})
+        fprintf(stderr, \textcolor{stringliteral}{"WARNING: Acquisition did not complete!\(\backslash\)n"});
+
+    printf(\textcolor{stringliteral}{"Writing samples (%zu) to file...\(\backslash\)n"}, acq->\hyperlink{structil__monitor__acq__t_a82be21ff5f08413736841b02666823ad}{cnt});
+    log\_f = fopen(log\_fname, \textcolor{stringliteral}{"w"});
+    \textcolor{keywordflow}{if} (!log\_f) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Could not open log file"});
+        \textcolor{keywordflow}{goto} servo\_disable;
+    \}
+
+    \textcolor{keywordflow}{for} (i = 0; i < acq->\hyperlink{structil__monitor__acq__t_a82be21ff5f08413736841b02666823ad}{cnt}; i++)
+        fprintf(log\_f, \textcolor{stringliteral}{"%f, %f\(\backslash\)n"},
+            acq->\hyperlink{structil__monitor__acq__t_a80f1fa100ff681ce19657ec1d91e0423}{t}[i], acq->\hyperlink{structil__monitor__acq__t_adbc831472b0744d1a14b52f34388314f}{d}[0][i]);
+
+    fclose(log\_f);
+
+servo\_disable:
+    (void)\hyperlink{group__IL__SERVO_ga8b5938454ac8183a514d11203f2e6197}{il\_servo\_disable}(servo);
+
+cleanup\_monitor:
+    \hyperlink{group__IL__MONITOR_ga3bc1e187d696eadd07a3f33b502c998a}{il\_monitor\_destroy}(monitor);
+
+cleanup\_servo:
+    \hyperlink{group__IL__SERVO_gade6d6e8ae2488af2a6ae6a6c484eaf32}{il\_servo\_destroy}(servo);
+
+cleanup\_net:
+    \hyperlink{group__IL__NET_ga4b9335320c644d86491b3bc20e055f5f}{il\_net\_destroy}(net);
+
+out:
+    \textcolor{keywordflow}{return} r;
+\}
+
+\textcolor{keywordtype}{int} main(\textcolor{keywordtype}{int} argc, \textcolor{keywordtype}{char} **argv)
+\{
+    \textcolor{keyword}{const} \textcolor{keywordtype}{char} *port, *log\_fname;
+    uint8\_t id;
+
+    \textcolor{keywordflow}{if} (argc < 4) \{
+        fprintf(stderr,
+            \textcolor{stringliteral}{"Usage: monitor PORT SERVO\_ID LOG\_FILE\(\backslash\)n"});
+        \textcolor{keywordflow}{return} 1;
+    \}
+
+    port = argv[1];
+    \textcolor{keywordtype}{id} = (uint8\_t)strtoul(argv[2], NULL, 0);
+    log\_fname = argv[3];
+
+    \textcolor{keywordflow}{return} run(port, \textcolor{keywordtype}{id}, log\_fname);
+\}
+\end{DoxyCodeInclude}
+ 

@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="servo_monitor_8c-example">
+    <title>servo_monitor.c</title>
+
+<para>This example monitors the connection of devices/servos. <literallayout><computeroutput>
+<emphasis class="preprocessor">#include&#32;&quot;utils.h&quot;</emphasis>
+
+<emphasis class="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+
+<emphasis class="keywordtype">void</emphasis>&#32;on_found(<emphasis class="keywordtype">void</emphasis>&#32;*ctx,&#32;uint8_t&#32;<emphasis class="keywordtype">id</emphasis>)
+{
+&#32;&#32;&#32;&#32;(void)ctx;
+
+&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;Found&#32;servo&#32;with&#32;id&#32;0x%02x\n&quot;</emphasis>,&#32;<emphasis class="keywordtype">id</emphasis>);
+}
+
+<emphasis class="keywordtype">void</emphasis>&#32;on_evt(<emphasis class="keywordtype">void</emphasis>&#32;*ctx,&#32;<link linkend="group__IL__NET_1ga6e78452befa7532716d8035eb293bc10">il_net_dev_evt_t</link>&#32;evt,&#32;<emphasis class="keyword">const</emphasis>&#32;<emphasis class="keywordtype">char</emphasis>&#32;*port)
+{
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link>&#32;*prot&#32;=&#32;ctx;
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(evt&#32;==&#32;<link linkend="group__IL__NET_1gga6e78452befa7532716d8035eb293bc10a643a98c3c2f49473604cdda65b612103">IL_NET_DEV_EVT_ADDED</link>)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link>&#32;*net;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="structil__net__opts__t">il_net_opts_t</link>&#32;opts;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="structil__net__servos__list">il_net_servos_list_t</link>&#32;*servos;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;Plugged&#32;device&#32;%s\n&quot;</emphasis>,&#32;port);
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;create&#32;network&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a8b65ee2151ffc84031d96eec857a0189">port</link>&#32;=&#32;port;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a1fe07477ccaae61b81dd71b2cf4bde08">timeout_rd</link>&#32;=&#32;<link linkend="group__IL__NET_1ga7fb88a9dcbf2c6ae143dc9d16c70ad4f">IL_NET_TIMEOUT_RD_DEF</link>;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a63e3d6b10ac90e08d629ac4458505d1a">timeout_wr</link>&#32;=&#32;<link linkend="group__IL__NET_1gaf43b0714cfed3be5907c593e18d4481d">IL_NET_TIMEOUT_WR_DEF</link>;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;net&#32;=&#32;<link linkend="group__IL__NET_1gaed82d6f49871934f3b6fdf3a9a022cc6">il_net_create</link>(*prot,&#32;&amp;opts);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!net)
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;scan&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;Scanning...\n&quot;</emphasis>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;servos&#32;=&#32;<link linkend="group__IL__NET_1ga6167fb50406d818120a069b681d377df">il_net_servos_list_get</link>(net,&#32;on_found,&#32;NULL);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;Scanning&#32;finished\n&quot;</emphasis>);
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;free&#32;resources&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga7bb08347585c3760ba2f0c471c478d12">il_net_servos_list_destroy</link>(servos);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga4b9335320c644d86491b3bc20e055f5f">il_net_destroy</link>(net);
+&#32;&#32;&#32;&#32;}&#32;<emphasis class="keywordflow">else</emphasis>&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;Unplugged&#32;device&#32;%s\n&quot;</emphasis>,&#32;port);
+&#32;&#32;&#32;&#32;}
+}
+
+<emphasis class="keywordtype">int</emphasis>&#32;main(<emphasis class="keywordtype">int</emphasis>&#32;argc,&#32;<emphasis class="keyword">const</emphasis>&#32;<emphasis class="keywordtype">char</emphasis>&#32;*argv[])
+{
+&#32;&#32;&#32;&#32;<emphasis class="keywordtype">int</emphasis>&#32;r;
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link>&#32;prot;
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga732e586d3465268782c0c227056736e5">il_net_dev_mon_t</link>&#32;*mon;
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(argc&#32;&lt;&#32;2)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Usage:&#32;./servo_monitor&#32;PROT\n&quot;</emphasis>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;-1;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;prot&#32;=&#32;str2prot(argv[1]);
+
+&#32;&#32;&#32;&#32;mon&#32;=&#32;<link linkend="group__IL__NET_1ga78022aea4dc9147a87544533f2999bd9">il_net_dev_mon_create</link>(prot);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!mon)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Could&#32;not&#32;create&#32;monitor:&#32;%s\n&quot;</emphasis>,&#32;<link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link>());
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;1;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;r&#32;=&#32;<link linkend="group__IL__NET_1gac0ed4c0656f51a2e691907ccd8ac94ce">il_net_dev_mon_start</link>(mon,&#32;on_evt,&#32;&amp;prot);
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(r&#32;&lt;&#32;0)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;Press&#32;ENTER&#32;to&#32;stop&#32;monitoring\n&quot;</emphasis>);
+&#32;&#32;&#32;&#32;getchar();
+&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;Stopping...\n&quot;</emphasis>);
+
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga88fb38bdcb516562c504588b37ab934a">il_net_dev_mon_stop</link>(mon);
+
+cleanup:
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga71f76ab3a41bde25b3b77a661ff767d8">il_net_dev_mon_destroy</link>(mon);
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;r;
+}
+</computeroutput></literallayout> </para>
+
+</section>

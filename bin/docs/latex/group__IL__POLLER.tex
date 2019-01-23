@@ -1,0 +1,273 @@
+\hypertarget{group__IL__POLLER}{}\section{Poller}
+\label{group__IL__POLLER}\index{Poller@{Poller}}
+Collaboration diagram for Poller\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=223pt]{group__IL__POLLER}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structil__poller__acq__t}{il\+\_\+poller\+\_\+acq\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Poller acquisition results. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct il\+\_\+poller \hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Ingenia\+Link poller. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$ \hyperlink{group__IL__POLLER_gaf1a6d95123039ac685439062c34e7e54}{il\+\_\+poller\+\_\+create} (\hyperlink{group__IL__SERVO_ga3369ddfcc33492fe3a28f96cf455b13e}{il\+\_\+servo\+\_\+t} $\ast$servo, size\+\_\+t n\+\_\+ch)
+\begin{DoxyCompactList}\small\item\em Create a register poller. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__POLLER_gada8133cbba4d0212e6d5c84dab03d407}{il\+\_\+poller\+\_\+destroy} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller)
+\begin{DoxyCompactList}\small\item\em Destroy a register poller. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__POLLER_ga018f08358312c8610819a47fd9d2509f}{il\+\_\+poller\+\_\+start} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller)
+\begin{DoxyCompactList}\small\item\em Start poller. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__POLLER_ga1055384cca31fe730d07d488017c559f}{il\+\_\+poller\+\_\+stop} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller)
+\begin{DoxyCompactList}\small\item\em Stop poller. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__POLLER_ga67ccc0e92b0bb83756462d3c407d4d87}{il\+\_\+poller\+\_\+data\+\_\+get} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller, \hyperlink{structil__poller__acq__t}{il\+\_\+poller\+\_\+acq\+\_\+t} $\ast$$\ast$acq)
+\begin{DoxyCompactList}\small\item\em Obtain current time and data vectors. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__POLLER_ga90aa41e8a0ff21af9d077e522cefb205}{il\+\_\+poller\+\_\+configure} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller, unsigned int t\+\_\+s, size\+\_\+t buf\+\_\+sz)
+\begin{DoxyCompactList}\small\item\em Configure poller parameters. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__POLLER_ga615595277add47dd6966112e48e66988}{il\+\_\+poller\+\_\+ch\+\_\+configure} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller, unsigned int ch, const \hyperlink{structil__reg__t}{il\+\_\+reg\+\_\+t} $\ast$reg, const char $\ast$id)
+\begin{DoxyCompactList}\small\item\em Configure a poller channel. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__POLLER_ga1722948bea216e9bb85be820f175371d}{il\+\_\+poller\+\_\+ch\+\_\+disable} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller, unsigned int ch)
+\begin{DoxyCompactList}\small\item\em Disable a poller channel. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__POLLER_gac58b529d800310d6f68f00f195fab9c1}{il\+\_\+poller\+\_\+ch\+\_\+disable\+\_\+all} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller)
+\begin{DoxyCompactList}\small\item\em Disable all poller channels. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+
+
+\subsection{Typedef Documentation}
+\index{Poller@{Poller}!il\+\_\+poller\+\_\+t@{il\+\_\+poller\+\_\+t}}
+\index{il\+\_\+poller\+\_\+t@{il\+\_\+poller\+\_\+t}!Poller@{Poller}}
+\subsubsection[{\texorpdfstring{il\+\_\+poller\+\_\+t}{il_poller_t}}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct il\+\_\+poller {\bf il\+\_\+poller\+\_\+t}}\hypertarget{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{}\label{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}
+
+
+Ingenia\+Link poller. 
+
+
+
+\subsection{Function Documentation}
+\index{Poller@{Poller}!il\+\_\+poller\+\_\+ch\+\_\+configure@{il\+\_\+poller\+\_\+ch\+\_\+configure}}
+\index{il\+\_\+poller\+\_\+ch\+\_\+configure@{il\+\_\+poller\+\_\+ch\+\_\+configure}!Poller@{Poller}}
+\subsubsection[{\texorpdfstring{il\+\_\+poller\+\_\+ch\+\_\+configure(il\+\_\+poller\+\_\+t $\ast$poller, unsigned int ch, const il\+\_\+reg\+\_\+t $\ast$reg, const char $\ast$id)}{il_poller_ch_configure(il_poller_t *poller, unsigned int ch, const il_reg_t *reg, const char *id)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+poller\+\_\+ch\+\_\+configure (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+poller\+\_\+t} $\ast$}]{poller, }
+\item[{unsigned int}]{ch, }
+\item[{const {\bf il\+\_\+reg\+\_\+t} $\ast$}]{reg, }
+\item[{const char $\ast$}]{id}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__POLLER_ga615595277add47dd6966112e48e66988}{}\label{group__IL__POLLER_ga615595277add47dd6966112e48e66988}
+
+
+Configure a poller channel. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em poller} & Poller instance. \\
+\hline
+\mbox{\tt in}  & {\em ch} & Channel. \\
+\hline
+\mbox{\tt in}  & {\em reg} & Register (pre-\/defined) to be polled on this channel. \\
+\hline
+\mbox{\tt in}  & {\em id} & Register ID to be polled on this channel.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{motion_8c-example}{motion.\+c}.\end{Desc}
+\index{Poller@{Poller}!il\+\_\+poller\+\_\+ch\+\_\+disable@{il\+\_\+poller\+\_\+ch\+\_\+disable}}
+\index{il\+\_\+poller\+\_\+ch\+\_\+disable@{il\+\_\+poller\+\_\+ch\+\_\+disable}!Poller@{Poller}}
+\subsubsection[{\texorpdfstring{il\+\_\+poller\+\_\+ch\+\_\+disable(il\+\_\+poller\+\_\+t $\ast$poller, unsigned int ch)}{il_poller_ch_disable(il_poller_t *poller, unsigned int ch)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+poller\+\_\+ch\+\_\+disable (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+poller\+\_\+t} $\ast$}]{poller, }
+\item[{unsigned int}]{ch}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__POLLER_ga1722948bea216e9bb85be820f175371d}{}\label{group__IL__POLLER_ga1722948bea216e9bb85be820f175371d}
+
+
+Disable a poller channel. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em poller} & Poller instance. \\
+\hline
+\mbox{\tt in}  & {\em ch} & Channel.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\index{Poller@{Poller}!il\+\_\+poller\+\_\+ch\+\_\+disable\+\_\+all@{il\+\_\+poller\+\_\+ch\+\_\+disable\+\_\+all}}
+\index{il\+\_\+poller\+\_\+ch\+\_\+disable\+\_\+all@{il\+\_\+poller\+\_\+ch\+\_\+disable\+\_\+all}!Poller@{Poller}}
+\subsubsection[{\texorpdfstring{il\+\_\+poller\+\_\+ch\+\_\+disable\+\_\+all(il\+\_\+poller\+\_\+t $\ast$poller)}{il_poller_ch_disable_all(il_poller_t *poller)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+poller\+\_\+ch\+\_\+disable\+\_\+all (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+poller\+\_\+t} $\ast$}]{poller}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__POLLER_gac58b529d800310d6f68f00f195fab9c1}{}\label{group__IL__POLLER_gac58b529d800310d6f68f00f195fab9c1}
+
+
+Disable all poller channels. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em poller} & Poller instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\index{Poller@{Poller}!il\+\_\+poller\+\_\+configure@{il\+\_\+poller\+\_\+configure}}
+\index{il\+\_\+poller\+\_\+configure@{il\+\_\+poller\+\_\+configure}!Poller@{Poller}}
+\subsubsection[{\texorpdfstring{il\+\_\+poller\+\_\+configure(il\+\_\+poller\+\_\+t $\ast$poller, unsigned int t\+\_\+s, size\+\_\+t buf\+\_\+sz)}{il_poller_configure(il_poller_t *poller, unsigned int t_s, size_t buf_sz)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+poller\+\_\+configure (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+poller\+\_\+t} $\ast$}]{poller, }
+\item[{unsigned int}]{t\+\_\+s, }
+\item[{size\+\_\+t}]{buf\+\_\+sz}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__POLLER_ga90aa41e8a0ff21af9d077e522cefb205}{}\label{group__IL__POLLER_ga90aa41e8a0ff21af9d077e522cefb205}
+
+
+Configure poller parameters. 
+
+\begin{DoxyNote}{Note}
+
+\begin{DoxyItemize}
+\item The maximum stable polling rate is $\sim$500 Hz (2 ms) for a single register when the servo is enabled.
+\item The buffer size must be set according to your application needs. It should be large enough so that it can store all samples collected between subsequent calls to {\ttfamily il\+\_\+poller\+\_\+data\+\_\+get}.
+\end{DoxyItemize}
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em poller} & Poller instance. \\
+\hline
+\mbox{\tt in}  & {\em t\+\_\+s} & Sampling period (ms). \\
+\hline
+\mbox{\tt in}  & {\em buf\+\_\+sz} & Buffer size.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{motion_8c-example}{motion.\+c}.\end{Desc}
+\index{Poller@{Poller}!il\+\_\+poller\+\_\+create@{il\+\_\+poller\+\_\+create}}
+\index{il\+\_\+poller\+\_\+create@{il\+\_\+poller\+\_\+create}!Poller@{Poller}}
+\subsubsection[{\texorpdfstring{il\+\_\+poller\+\_\+create(il\+\_\+servo\+\_\+t $\ast$servo, size\+\_\+t n\+\_\+ch)}{il_poller_create(il_servo_t *servo, size_t n_ch)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} {\bf il\+\_\+poller\+\_\+t}$\ast$ il\+\_\+poller\+\_\+create (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+servo\+\_\+t} $\ast$}]{servo, }
+\item[{size\+\_\+t}]{n\+\_\+ch}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__POLLER_gaf1a6d95123039ac685439062c34e7e54}{}\label{group__IL__POLLER_gaf1a6d95123039ac685439062c34e7e54}
+
+
+Create a register poller. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em servo} & Ingenia\+Link servo. \\
+\hline
+\mbox{\tt in}  & {\em n\+\_\+ch} & Number of channels.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Poller instance (N\+U\+LL if it could not be created). 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{motion_8c-example}{motion.\+c}.\end{Desc}
+\index{Poller@{Poller}!il\+\_\+poller\+\_\+data\+\_\+get@{il\+\_\+poller\+\_\+data\+\_\+get}}
+\index{il\+\_\+poller\+\_\+data\+\_\+get@{il\+\_\+poller\+\_\+data\+\_\+get}!Poller@{Poller}}
+\subsubsection[{\texorpdfstring{il\+\_\+poller\+\_\+data\+\_\+get(il\+\_\+poller\+\_\+t $\ast$poller, il\+\_\+poller\+\_\+acq\+\_\+t $\ast$$\ast$acq)}{il_poller_data_get(il_poller_t *poller, il_poller_acq_t **acq)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+poller\+\_\+data\+\_\+get (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+poller\+\_\+t} $\ast$}]{poller, }
+\item[{{\bf il\+\_\+poller\+\_\+acq\+\_\+t} $\ast$$\ast$}]{acq}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__POLLER_ga67ccc0e92b0bb83756462d3c407d4d87}{}\label{group__IL__POLLER_ga67ccc0e92b0bb83756462d3c407d4d87}
+
+
+Obtain current time and data vectors. 
+
+\begin{DoxyNote}{Note}
+The obtained acquisition data can be used until the next call to this function.
+\end{DoxyNote}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em poller} & Poller instance. \\
+\hline
+\mbox{\tt out}  & {\em acq} & Where the acquisition results will be left. \\
+\hline
+\end{DoxyParams}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{motion_8c-example}{motion.\+c}.\end{Desc}
+\index{Poller@{Poller}!il\+\_\+poller\+\_\+destroy@{il\+\_\+poller\+\_\+destroy}}
+\index{il\+\_\+poller\+\_\+destroy@{il\+\_\+poller\+\_\+destroy}!Poller@{Poller}}
+\subsubsection[{\texorpdfstring{il\+\_\+poller\+\_\+destroy(il\+\_\+poller\+\_\+t $\ast$poller)}{il_poller_destroy(il_poller_t *poller)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+poller\+\_\+destroy (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+poller\+\_\+t} $\ast$}]{poller}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__POLLER_gada8133cbba4d0212e6d5c84dab03d407}{}\label{group__IL__POLLER_gada8133cbba4d0212e6d5c84dab03d407}
+
+
+Destroy a register poller. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em poller} & Poller instance. \\
+\hline
+\end{DoxyParams}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{motion_8c-example}{motion.\+c}.\end{Desc}
+\index{Poller@{Poller}!il\+\_\+poller\+\_\+start@{il\+\_\+poller\+\_\+start}}
+\index{il\+\_\+poller\+\_\+start@{il\+\_\+poller\+\_\+start}!Poller@{Poller}}
+\subsubsection[{\texorpdfstring{il\+\_\+poller\+\_\+start(il\+\_\+poller\+\_\+t $\ast$poller)}{il_poller_start(il_poller_t *poller)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} int il\+\_\+poller\+\_\+start (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+poller\+\_\+t} $\ast$}]{poller}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__POLLER_ga018f08358312c8610819a47fd9d2509f}{}\label{group__IL__POLLER_ga018f08358312c8610819a47fd9d2509f}
+
+
+Start poller. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em poller} & Poller instance.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 on success, error code otherwise. 
+\end{DoxyReturn}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{motion_8c-example}{motion.\+c}.\end{Desc}
+\index{Poller@{Poller}!il\+\_\+poller\+\_\+stop@{il\+\_\+poller\+\_\+stop}}
+\index{il\+\_\+poller\+\_\+stop@{il\+\_\+poller\+\_\+stop}!Poller@{Poller}}
+\subsubsection[{\texorpdfstring{il\+\_\+poller\+\_\+stop(il\+\_\+poller\+\_\+t $\ast$poller)}{il_poller_stop(il_poller_t *poller)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf I\+L\+\_\+\+E\+X\+P\+O\+RT} void il\+\_\+poller\+\_\+stop (
+\begin{DoxyParamCaption}
+\item[{{\bf il\+\_\+poller\+\_\+t} $\ast$}]{poller}
+\end{DoxyParamCaption}
+)}\hypertarget{group__IL__POLLER_ga1055384cca31fe730d07d488017c559f}{}\label{group__IL__POLLER_ga1055384cca31fe730d07d488017c559f}
+
+
+Stop poller. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em poller} & Poller instance. \\
+\hline
+\end{DoxyParams}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{motion_8c-example}{motion.\+c}.\end{Desc}

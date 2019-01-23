@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST__MOTOR">
+    <title>Motor types</title>
+<para>Collaboration diagram for Motor types</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST__MOTOR.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga5bdb2f869123533b63941efbb1a7aea3">ILK_MOTOR_SQUIRREL</link> 0x0007<para><emphasis>Squirrel cage induction.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga13f49aebf7a4d08b01a9c7aa00164ead">ILK_MOTOR_STEPPER</link> 0x0009<para><emphasis>Stepper with microstepping capability.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga9e363ce9fcb333f1a0ca43cf3e018de9">ILK_MOTOR_ROT_BLAC</link> 0x000A<para><emphasis>Rotary brushless AC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga1b190d9b607368d639ccfd6b61d27616">ILK_MOTOR_ROT_BLDC</link> 0x000B<para><emphasis>Rotary brushless DC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga1f7f2854dad7608e3f814d9409866ccc">ILK_MOTOR_ROT_DC</link> 0x000D<para><emphasis>Rotary DC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga7ce94e9b64195dad671ec5bc25938f78">ILK_MOTOR_ROT_VC</link> 0x8000<para><emphasis>Rotary voice coil.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga4e9537c5560f52a0c69d5cfe9e06f4af">ILK_MOTOR_LIN_BLAC</link> 0x8001<para><emphasis>Linear brushless AC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1gafb0b611a2644cf1673896daf236b69b7">ILK_MOTOR_LIN_BLDC</link> 0x8002<para><emphasis>Linear brushless DC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1gad90b5df2f58dc0a6ff0452abdc0f0e22">ILK_MOTOR_LIN_VC</link> 0x8003<para><emphasis>Linear voice coil.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga023e91fb0fb03bd5273e90c1399336f9">ILK_MOTOR_LIN_DC</link> 0x8004<para><emphasis>Linear DC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__CONST__MOTOR_1ga5bdb2f869123533b63941efbb1a7aea3">
+                <title>#define ILK_MOTOR_SQUIRREL</title>                
+                <para>Definition at line 104 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__MOTOR_1ga13f49aebf7a4d08b01a9c7aa00164ead">
+                <title>#define ILK_MOTOR_STEPPER</title>                
+                <para>Definition at line 106 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__MOTOR_1ga9e363ce9fcb333f1a0ca43cf3e018de9">
+                <title>#define ILK_MOTOR_ROT_BLAC</title>                
+                <para>Definition at line 108 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__MOTOR_1ga1b190d9b607368d639ccfd6b61d27616">
+                <title>#define ILK_MOTOR_ROT_BLDC</title>                
+                <para>Definition at line 110 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__MOTOR_1ga1f7f2854dad7608e3f814d9409866ccc">
+                <title>#define ILK_MOTOR_ROT_DC</title>                
+                <para>Definition at line 112 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__MOTOR_1ga7ce94e9b64195dad671ec5bc25938f78">
+                <title>#define ILK_MOTOR_ROT_VC</title>                
+                <para>Definition at line 114 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__MOTOR_1ga4e9537c5560f52a0c69d5cfe9e06f4af">
+                <title>#define ILK_MOTOR_LIN_BLAC</title>                
+                <para>Definition at line 116 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__MOTOR_1gafb0b611a2644cf1673896daf236b69b7">
+                <title>#define ILK_MOTOR_LIN_BLDC</title>                
+                <para>Definition at line 118 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__MOTOR_1gad90b5df2f58dc0a6ff0452abdc0f0e22">
+                <title>#define ILK_MOTOR_LIN_VC</title>                
+                <para>Definition at line 120 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

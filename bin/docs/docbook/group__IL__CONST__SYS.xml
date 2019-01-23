@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST__SYS">
+    <title>System</title>
+<para>Collaboration diagram for System</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST__SYS.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1gaefbce026149e3fd1ca4912e8b831e1c0">ILK_SYS_PWM_MAX</link> 32767<para><emphasis>PWM maximum value (maximum of signed 16-bit).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1gaebdf8cd11949f44b6f98507754e2eda5">ILK_SYS_CLOOP_FREQ_TORQUE</link> 10000<para><emphasis>Current/Torque loop frequency (Hz).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1gab7567b15639de41f00debc89e8cf69c1">ILK_SYS_CLOOP_FREQ_VEL</link> 1000<para><emphasis>Velocity loop frequency (Hz).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1ga0936a074e3c6022add3b4dd936d7472e">ILK_SYS_CLOOP_FREQ_POS</link> 1000<para><emphasis>Position loop frequency (Hz).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1ga7d97997e842304310662f2b151281a9f">ILK_SYS_TORQUE_MAX</link> 32767<para><emphasis>Maximum rated torque (maximum of INT16).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1ga67fd909fd6fa467e246a1d03aaaab058">ILK_SYS_DSIG_MAX_SAMPLES</link> 1000<para><emphasis>Disturbance signal maximum samples.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__CONST__SYS_1gaefbce026149e3fd1ca4912e8b831e1c0">
+                <title>#define ILK_SYS_PWM_MAX</title>                
+                <para>Definition at line 42 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__SYS_1gaebdf8cd11949f44b6f98507754e2eda5">
+                <title>#define ILK_SYS_CLOOP_FREQ_TORQUE</title>                
+                <para>Definition at line 44 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__SYS_1gab7567b15639de41f00debc89e8cf69c1">
+                <title>#define ILK_SYS_CLOOP_FREQ_VEL</title>                
+                <para>Definition at line 46 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__SYS_1ga0936a074e3c6022add3b4dd936d7472e">
+                <title>#define ILK_SYS_CLOOP_FREQ_POS</title>                
+                <para>Definition at line 48 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__SYS_1ga7d97997e842304310662f2b151281a9f">
+                <title>#define ILK_SYS_TORQUE_MAX</title>                
+                <para>Definition at line 50 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__SYS_1ga67fd909fd6fa467e246a1d03aaaab058">
+                <title>#define ILK_SYS_DSIG_MAX_SAMPLES</title>                
+                <para>Definition at line 52 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

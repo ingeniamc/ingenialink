@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="list_8c-example">
+    <title>list.c</title>
+
+<para>This example scans for all availe servo on every network device. <literallayout><computeroutput>
+<emphasis class="preprocessor">#include&#32;&quot;utils.h&quot;</emphasis>
+
+<emphasis class="preprocessor">#include&#32;&lt;stdio.h&gt;</emphasis>
+
+<emphasis class="keywordtype">int</emphasis>&#32;main(<emphasis class="keywordtype">int</emphasis>&#32;argc,&#32;<emphasis class="keyword">const</emphasis>&#32;<emphasis class="keywordtype">char</emphasis>&#32;*argv[])
+{
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link>&#32;prot;
+&#32;&#32;&#32;&#32;<link linkend="structil__net__dev__list">il_net_dev_list_t</link>&#32;*devs,&#32;*dev;
+&#32;&#32;&#32;&#32;<link linkend="structil__net__servos__list">il_net_servos_list_t</link>&#32;*servo_ids,&#32;*servo_id;
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(argc&#32;&lt;&#32;2)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;fprintf(stderr,&#32;<emphasis class="stringliteral">&quot;Usage:&#32;./list&#32;PROT\n&quot;</emphasis>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;-1;
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;prot&#32;=&#32;str2prot(argv[1]);
+
+&#32;&#32;&#32;&#32;devs&#32;=&#32;<link linkend="group__IL__NET_1gaa59e20a4749f276763c45e5d278934d3">il_net_dev_list_get</link>(prot);
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1gae80aefde62011dd14dbf60840669cc54">il_net_dev_list_foreach</link>(dev,&#32;devs)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link>&#32;*net;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="structil__net__opts__t">il_net_opts_t</link>&#32;opts;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;create&#32;network&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a8b65ee2151ffc84031d96eec857a0189">port</link>&#32;=&#32;dev-&gt;<link linkend="structil__net__dev__list_1afda23220e636423e482e27f89fd0535c">port</link>;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a1fe07477ccaae61b81dd71b2cf4bde08">timeout_rd</link>&#32;=&#32;<link linkend="group__IL__NET_1ga7fb88a9dcbf2c6ae143dc9d16c70ad4f">IL_NET_TIMEOUT_RD_DEF</link>;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;opts.<link linkend="structil__net__opts__t_1a63e3d6b10ac90e08d629ac4458505d1a">timeout_wr</link>&#32;=&#32;<link linkend="group__IL__NET_1gaf43b0714cfed3be5907c593e18d4481d">IL_NET_TIMEOUT_WR_DEF</link>;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="comment">/*net&#32;=&#32;il_net_eusb_create(&amp;opts);*/</emphasis>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;net&#32;=&#32;<link linkend="group__IL__NET_1gaed82d6f49871934f3b6fdf3a9a022cc6">il_net_create</link>(prot,&#32;&amp;opts);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!net)
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">continue</emphasis>;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;scan&#32;(use&#32;callback&#32;to&#32;print&#32;on&#32;the&#32;go)&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;Scanning&#32;%s...\n&quot;</emphasis>,&#32;dev-&gt;<link linkend="structil__net__dev__list_1afda23220e636423e482e27f89fd0535c">port</link>);
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;servo_ids&#32;=&#32;<link linkend="group__IL__NET_1ga6167fb50406d818120a069b681d377df">il_net_servos_list_get</link>(net,&#32;NULL,&#32;NULL);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga70cbad080864d1cc39dd701f9a27d9b6">il_net_servos_list_foreach</link>(servo_id,&#32;servo_ids)&#32;{
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1ga3369ddfcc33492fe3a28f96cf455b13e">il_servo_t</link>&#32;*servo;
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="structil__servo__info__t">il_servo_info_t</link>&#32;info;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;servo&#32;=&#32;<link linkend="group__IL__SERVO_1gaa3728b10386d3b9f67258a95cb3c2913">il_servo_create</link>(net,&#32;servo_id-&gt;<link linkend="structil__net__servos__list_1a6c8494453cd1a81ddc9cf12d208dc95d">id</link>,&#32;NULL);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(!servo)
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">continue</emphasis>;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">if</emphasis>&#32;(<link linkend="group__IL__SERVO_1gac10a7958e9f2c4ef31ba2df3d7b51168">il_servo_info_get</link>(servo,&#32;&amp;info)&#32;&lt;&#32;0)
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="keywordflow">goto</emphasis>&#32;cleanup_servo;
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;-------------------------------------------\n&quot;</emphasis>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;%s,&#32;0x%02x\n&quot;</emphasis>,&#32;info.<link linkend="structil__servo__info__t_1a1499b7681107bb0310f353615f9ea6d6">name</link>,&#32;servo_id-&gt;<link linkend="structil__net__servos__list_1a6c8494453cd1a81ddc9cf12d208dc95d">id</link>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;\tSerial&#32;number:&#32;%u\n&quot;</emphasis>,&#32;info.<link linkend="structil__servo__info__t_1a0ae637a9d167672496e381e23c5cd5d5">serial</link>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;\tSoftware&#32;version:&#32;%s\n&quot;</emphasis>,&#32;info.<link linkend="structil__servo__info__t_1ad08af6ad43a8c261812fa9775bc4fc08">sw_version</link>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;\tHardware&#32;variant:&#32;%s\n&quot;</emphasis>,&#32;info.<link linkend="structil__servo__info__t_1abd47e38a9b25fd17f1dfb09341a83c93">hw_variant</link>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;\tProduct&#32;code:&#32;0x%08x\n&quot;</emphasis>,&#32;info.<link linkend="structil__servo__info__t_1a5faaa1ff2b81386dfe159650ba85a0be">prod_code</link>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;\tProduct&#32;revision:&#32;0x%08x\n&quot;</emphasis>,&#32;info.<link linkend="structil__servo__info__t_1abfec53fe057b8a4a5fa79d02be777643">revision</link>);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;printf(<emphasis class="stringliteral">&quot;-------------------------------------------\n&quot;</emphasis>);
+
+cleanup_servo:
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__SERVO_1gade6d6e8ae2488af2a6ae6a6c484eaf32">il_servo_destroy</link>(servo);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<emphasis class="comment">/*&#32;free&#32;resources&#32;*/</emphasis>
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga7bb08347585c3760ba2f0c471c478d12">il_net_servos_list_destroy</link>(servo_ids);
+&#32;&#32;&#32;&#32;&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga4b9335320c644d86491b3bc20e055f5f">il_net_destroy</link>(net);
+&#32;&#32;&#32;&#32;}
+
+&#32;&#32;&#32;&#32;<link linkend="group__IL__NET_1ga86d432b3a9ef2fdc6719e19a59dcbf65">il_net_dev_list_destroy</link>(devs);
+
+&#32;&#32;&#32;&#32;<emphasis class="keywordflow">return</emphasis>&#32;0;
+}
+</computeroutput></literallayout> </para>
+
+</section>

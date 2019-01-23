@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="benchmark_8c">
+    <title>benchmark.c File Reference</title>
+    <programlisting>#include &quot;utils.h&quot;</programlisting>
+    <programlisting>#include &lt;stdio.h&gt;</programlisting>
+    <programlisting>#include &lt;sys/time.h&gt;</programlisting>
+<para>Include dependency diagram for benchmark.c</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="benchmark_8c__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Included by dependency diagram for benchmark.c</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="benchmark_8c__dep__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="benchmark_8c_1a280feb883e9d4a7edcc69c8bcb9f38f2">ADDRESS</link> 0x6040<para><emphasis>Register address.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="benchmark_8c_1a7a6f822296573bd5c84eff1c60c05be2">benchmark_init</link> struct timeval start, end; \
+	gettimeofday(&amp;start, NULL); \
+	for (int i = 0; i &lt; (loops); i++)</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="benchmark_8c_1afc2df380ce0900e4ace97e44c9e82da0">benchmark_end</link> gettimeofday(&amp;end, NULL); \
+	elapsed = (end.tv_sec - start.tv_sec) * 1000.0; \
+	elapsed += (end.tv_usec - start.tv_usec) / 1000.0</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>static int <link linkend="benchmark_8c_1a80a7e19a889f1dab21ec40aa7cc9b221">run</link> (
+int loops, <link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link> prot, const char * port, uint8_t id)</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>int <link linkend="benchmark_8c_1a3c04138a5bfe5d72780bb7e82a18e627">main</link> (
+int argc, char ** argv)</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+        <title>Detailed Description</title>
+    <para>Definition in file /home/surajcha/codebase/ingenialink/examples/benchmark.c</para>
+    </simplesect>
+</section>

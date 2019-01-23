@@ -1,0 +1,51 @@
+\hypertarget{dict__labels_8h}{}\section{ingenialink/dict\+\_\+labels.h File Reference}
+\label{dict__labels_8h}\index{ingenialink/dict\+\_\+labels.\+h@{ingenialink/dict\+\_\+labels.\+h}}
+
+
+Labels dictionary.  
+
+
+{\ttfamily \#include \char`\"{}common.\+h\char`\"{}}\\*
+Include dependency graph for dict\+\_\+labels.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=265pt]{dict__labels_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=349pt]{dict__labels_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct il\+\_\+dict\+\_\+labels \hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\+\_\+dict\+\_\+labels\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Labels dictionary. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\+\_\+dict\+\_\+labels\+\_\+t} $\ast$ \hyperlink{group__IL__DICT__LABELS_ga3d1801f1328932552ae98c151079514b}{il\+\_\+dict\+\_\+labels\+\_\+create} (void)
+\begin{DoxyCompactList}\small\item\em Create a labels dictionary. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__DICT__LABELS_ga5dbfa1bafc6fd6e5c1e3356579e6b03a}{il\+\_\+dict\+\_\+labels\+\_\+destroy} (\hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\+\_\+dict\+\_\+labels\+\_\+t} $\ast$labels)
+\begin{DoxyCompactList}\small\item\em Destroy a labels dictionary. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__DICT__LABELS_ga40033ee8b33c612a90feec8ecfeaec40}{il\+\_\+dict\+\_\+labels\+\_\+get} (\hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\+\_\+dict\+\_\+labels\+\_\+t} $\ast$labels, const char $\ast$lang, const char $\ast$$\ast$label)
+\begin{DoxyCompactList}\small\item\em Obtain the label given a language. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__DICT__LABELS_ga31c468b558ffe84fbd413883ce80eb84}{il\+\_\+dict\+\_\+labels\+\_\+set} (\hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\+\_\+dict\+\_\+labels\+\_\+t} $\ast$labels, const char $\ast$lang, const char $\ast$label)
+\begin{DoxyCompactList}\small\item\em Set the label for a given language. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__DICT__LABELS_ga8910c8ced7a73f8971264ae83208c07e}{il\+\_\+dict\+\_\+labels\+\_\+del} (\hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\+\_\+dict\+\_\+labels\+\_\+t} $\ast$labels, const char $\ast$lang)
+\begin{DoxyCompactList}\small\item\em Remove the label of the given language. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} size\+\_\+t \hyperlink{group__IL__DICT__LABELS_gae088f90ebbe304009129f502da289122}{il\+\_\+dict\+\_\+labels\+\_\+nlabels\+\_\+get} (\hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\+\_\+dict\+\_\+labels\+\_\+t} $\ast$labels)
+\begin{DoxyCompactList}\small\item\em Obtain the number of labels. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} const char $\ast$$\ast$ \hyperlink{group__IL__DICT__LABELS_ga8fe3b029fc05420611468de19d2b6439}{il\+\_\+dict\+\_\+labels\+\_\+langs\+\_\+get} (\hyperlink{group__IL__DICT__LABELS_ga69d1109256f465cbcfa8aac7fa592495}{il\+\_\+dict\+\_\+labels\+\_\+t} $\ast$labels)
+\begin{DoxyCompactList}\small\item\em Obtain the languages available in the labels dictionary. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__DICT__LABELS_ga522d5f9739e165588a79e085d9112f06}{il\+\_\+dict\+\_\+labels\+\_\+langs\+\_\+destroy} (const char $\ast$$\ast$langs)
+\begin{DoxyCompactList}\small\item\em Destroy a list of languages. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Labels dictionary. 
+

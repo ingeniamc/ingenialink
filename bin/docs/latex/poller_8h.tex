@@ -1,0 +1,58 @@
+\hypertarget{poller_8h}{}\section{ingenialink/poller.h File Reference}
+\label{poller_8h}\index{ingenialink/poller.\+h@{ingenialink/poller.\+h}}
+
+
+Poller.  
+
+
+{\ttfamily \#include \char`\"{}servo.\+h\char`\"{}}\\*
+Include dependency graph for poller.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=280pt]{poller_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=199pt]{poller_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structil__poller__acq__t}{il\+\_\+poller\+\_\+acq\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Poller acquisition results. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct il\+\_\+poller \hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Ingenia\+Link poller. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$ \hyperlink{group__IL__POLLER_gaf1a6d95123039ac685439062c34e7e54}{il\+\_\+poller\+\_\+create} (\hyperlink{group__IL__SERVO_ga3369ddfcc33492fe3a28f96cf455b13e}{il\+\_\+servo\+\_\+t} $\ast$servo, size\+\_\+t n\+\_\+ch)
+\begin{DoxyCompactList}\small\item\em Create a register poller. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__POLLER_gada8133cbba4d0212e6d5c84dab03d407}{il\+\_\+poller\+\_\+destroy} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller)
+\begin{DoxyCompactList}\small\item\em Destroy a register poller. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__POLLER_ga018f08358312c8610819a47fd9d2509f}{il\+\_\+poller\+\_\+start} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller)
+\begin{DoxyCompactList}\small\item\em Start poller. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__POLLER_ga1055384cca31fe730d07d488017c559f}{il\+\_\+poller\+\_\+stop} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller)
+\begin{DoxyCompactList}\small\item\em Stop poller. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__POLLER_ga67ccc0e92b0bb83756462d3c407d4d87}{il\+\_\+poller\+\_\+data\+\_\+get} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller, \hyperlink{structil__poller__acq__t}{il\+\_\+poller\+\_\+acq\+\_\+t} $\ast$$\ast$acq)
+\begin{DoxyCompactList}\small\item\em Obtain current time and data vectors. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__POLLER_ga90aa41e8a0ff21af9d077e522cefb205}{il\+\_\+poller\+\_\+configure} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller, unsigned int t\+\_\+s, size\+\_\+t buf\+\_\+sz)
+\begin{DoxyCompactList}\small\item\em Configure poller parameters. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__POLLER_ga615595277add47dd6966112e48e66988}{il\+\_\+poller\+\_\+ch\+\_\+configure} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller, unsigned int ch, const \hyperlink{structil__reg__t}{il\+\_\+reg\+\_\+t} $\ast$reg, const char $\ast$id)
+\begin{DoxyCompactList}\small\item\em Configure a poller channel. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__POLLER_ga1722948bea216e9bb85be820f175371d}{il\+\_\+poller\+\_\+ch\+\_\+disable} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller, unsigned int ch)
+\begin{DoxyCompactList}\small\item\em Disable a poller channel. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__POLLER_gac58b529d800310d6f68f00f195fab9c1}{il\+\_\+poller\+\_\+ch\+\_\+disable\+\_\+all} (\hyperlink{group__IL__POLLER_ga896ad3836b2a1e121ce8b0c30c58d3ab}{il\+\_\+poller\+\_\+t} $\ast$poller)
+\begin{DoxyCompactList}\small\item\em Disable all poller channels. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Poller. 
+

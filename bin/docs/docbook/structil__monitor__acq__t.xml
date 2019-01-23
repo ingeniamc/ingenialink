@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="structil__monitor__acq__t">
+<title>il_monitor_acq_t struct Reference</title>
+<para>
+    <programlisting>#include <link linkend="monitor_8h">&lt;monitor.h&gt;</link></programlisting>
+</para>
+<para>Inheritance diagram for il_monitor_acq_t</para>
+<para>
+    <figure>
+        <title>Inheritance graph</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="structil__monitor__acq__t__inherit__graph.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Collaboration diagram for il_monitor_acq_t</para>
+<para>
+    <figure>
+        <title>Collaboration graph</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="structil__monitor__acq__t__coll__graph.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Data Fields</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>double * t<para><emphasis>Time buffer.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>double * d[IL_MONITOR_CH_NUM]<para><emphasis>Data samples buffers.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>size_t sz<para><emphasis>Size of samples buffer.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>size_t cnt<para><emphasis>Number of actual samples.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+
+<para>Monitor acquisition results. </para>
+    </simplesect>
+        <simplesect>
+            <title>Detailed Description</title>
+
+<para><formalpara><title>Note: </title>
+
+<para>On successful acquisitions, sz and n_samples should be equal. In case of timeout, n_samples may be less than sz. </para>
+</formalpara>
+</para>
+                <para>Definition at line 73 of file monitor.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>monitor.h</para></listitem></itemizedlist></para>
+        </simplesect>
+        <section>
+            <title>Field Documentation</title>
+            <simplesect>
+                <title>double* il_monitor_acq_t::t</title>                
+                <para>Definition at line 75 of file monitor.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>monitor.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>double* il_monitor_acq_t::d[IL_MONITOR_CH_NUM]</title>                
+                <para>Definition at line 77 of file monitor.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>monitor.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>size_t il_monitor_acq_t::sz</title>                
+                <para>Definition at line 79 of file monitor.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>monitor.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>size_t il_monitor_acq_t::cnt</title>                
+                <para>Definition at line 81 of file monitor.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>monitor.h</para></listitem></itemizedlist></para>
+            </simplesect>
+        </section>
+</section>

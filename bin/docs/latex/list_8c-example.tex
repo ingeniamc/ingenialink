@@ -1,0 +1,77 @@
+\hypertarget{list_8c-example}{}\section{list.\+c}
+This example scans for all availe servo on every network device.
+
+
+\begin{DoxyCodeInclude}
+
+\textcolor{preprocessor}{#include "utils.h"}
+
+\textcolor{preprocessor}{#include <stdio.h>}
+
+\textcolor{keywordtype}{int} main(\textcolor{keywordtype}{int} argc, \textcolor{keyword}{const} \textcolor{keywordtype}{char} *argv[])
+\{
+    \hyperlink{group__IL__NET_ga9629f7451843e493e7665754b5c2feca}{il\_net\_prot\_t} prot;
+    \hyperlink{structil__net__dev__list}{il\_net\_dev\_list\_t} *devs, *dev;
+    \hyperlink{structil__net__servos__list}{il\_net\_servos\_list\_t} *servo\_ids, *servo\_id;
+
+    \textcolor{keywordflow}{if} (argc < 2) \{
+        fprintf(stderr, \textcolor{stringliteral}{"Usage: ./list PROT\(\backslash\)n"});
+        \textcolor{keywordflow}{return} -1;
+    \}
+
+    prot = str2prot(argv[1]);
+
+    devs = \hyperlink{group__IL__NET_gaa59e20a4749f276763c45e5d278934d3}{il\_net\_dev\_list\_get}(prot);
+    \hyperlink{group__IL__NET_gae80aefde62011dd14dbf60840669cc54}{il\_net\_dev\_list\_foreach}(dev, devs) \{
+        \hyperlink{group__IL__NET_ga0657204ab779a5b7a504aa0b895d1ae6}{il\_net\_t} *net;
+        \hyperlink{structil__net__opts__t}{il\_net\_opts\_t} opts;
+
+        \textcolor{comment}{/* create network */}
+        opts.\hyperlink{structil__net__opts__t_a8b65ee2151ffc84031d96eec857a0189}{port} = dev->\hyperlink{structil__net__dev__list_afda23220e636423e482e27f89fd0535c}{port};
+        opts.\hyperlink{structil__net__opts__t_a1fe07477ccaae61b81dd71b2cf4bde08}{timeout\_rd} = \hyperlink{group__IL__NET_ga7fb88a9dcbf2c6ae143dc9d16c70ad4f}{IL\_NET\_TIMEOUT\_RD\_DEF};
+        opts.\hyperlink{structil__net__opts__t_a63e3d6b10ac90e08d629ac4458505d1a}{timeout\_wr} = \hyperlink{group__IL__NET_gaf43b0714cfed3be5907c593e18d4481d}{IL\_NET\_TIMEOUT\_WR\_DEF};
+
+        \textcolor{comment}{/*net = il\_net\_eusb\_create(&opts);*/}
+        net = \hyperlink{group__IL__NET_gaed82d6f49871934f3b6fdf3a9a022cc6}{il\_net\_create}(prot, &opts);
+        \textcolor{keywordflow}{if} (!net)
+            \textcolor{keywordflow}{continue};
+
+        \textcolor{comment}{/* scan (use callback to print on the go) */}
+        printf(\textcolor{stringliteral}{"Scanning %s...\(\backslash\)n"}, dev->\hyperlink{structil__net__dev__list_afda23220e636423e482e27f89fd0535c}{port});
+
+        servo\_ids = \hyperlink{group__IL__NET_ga6167fb50406d818120a069b681d377df}{il\_net\_servos\_list\_get}(net, NULL, NULL);
+        \hyperlink{group__IL__NET_ga70cbad080864d1cc39dd701f9a27d9b6}{il\_net\_servos\_list\_foreach}(servo\_id, servo\_ids) \{
+            \hyperlink{group__IL__SERVO_ga3369ddfcc33492fe3a28f96cf455b13e}{il\_servo\_t} *servo;
+            \hyperlink{structil__servo__info__t}{il\_servo\_info\_t} info;
+
+            servo = \hyperlink{group__IL__SERVO_gaa3728b10386d3b9f67258a95cb3c2913}{il\_servo\_create}(net, servo\_id->\hyperlink{structil__net__servos__list_a6c8494453cd1a81ddc9cf12d208dc95d}{id}, NULL);
+            \textcolor{keywordflow}{if} (!servo)
+                \textcolor{keywordflow}{continue};
+
+            \textcolor{keywordflow}{if} (\hyperlink{group__IL__SERVO_gac10a7958e9f2c4ef31ba2df3d7b51168}{il\_servo\_info\_get}(servo, &info) < 0)
+                \textcolor{keywordflow}{goto} cleanup\_servo;
+
+            printf(\textcolor{stringliteral}{"-------------------------------------------\(\backslash\)n"});
+            printf(\textcolor{stringliteral}{"%s, 0x%02x\(\backslash\)n"}, info.\hyperlink{structil__servo__info__t_a1499b7681107bb0310f353615f9ea6d6}{name}, servo\_id->\hyperlink{structil__net__servos__list_a6c8494453cd1a81ddc9cf12d208dc95d}{id});
+            printf(\textcolor{stringliteral}{"\(\backslash\)tSerial number: %u\(\backslash\)n"}, info.\hyperlink{structil__servo__info__t_a0ae637a9d167672496e381e23c5cd5d5}{serial});
+            printf(\textcolor{stringliteral}{"\(\backslash\)tSoftware version: %s\(\backslash\)n"}, info.\hyperlink{structil__servo__info__t_ad08af6ad43a8c261812fa9775bc4fc08}{sw\_version});
+            printf(\textcolor{stringliteral}{"\(\backslash\)tHardware variant: %s\(\backslash\)n"}, info.\hyperlink{structil__servo__info__t_abd47e38a9b25fd17f1dfb09341a83c93}{hw\_variant});
+            printf(\textcolor{stringliteral}{"\(\backslash\)tProduct code: 0x%08x\(\backslash\)n"}, info.\hyperlink{structil__servo__info__t_a5faaa1ff2b81386dfe159650ba85a0be}{prod\_code});
+            printf(\textcolor{stringliteral}{"\(\backslash\)tProduct revision: 0x%08x\(\backslash\)n"}, info.\hyperlink{structil__servo__info__t_abfec53fe057b8a4a5fa79d02be777643}{revision});
+            printf(\textcolor{stringliteral}{"-------------------------------------------\(\backslash\)n"});
+
+cleanup\_servo:
+            \hyperlink{group__IL__SERVO_gade6d6e8ae2488af2a6ae6a6c484eaf32}{il\_servo\_destroy}(servo);
+        \}
+
+        \textcolor{comment}{/* free resources */}
+        \hyperlink{group__IL__NET_ga7bb08347585c3760ba2f0c471c478d12}{il\_net\_servos\_list\_destroy}(servo\_ids);
+        \hyperlink{group__IL__NET_ga4b9335320c644d86491b3bc20e055f5f}{il\_net\_destroy}(net);
+    \}
+
+    \hyperlink{group__IL__NET_ga86d432b3a9ef2fdc6719e19a59dcbf65}{il\_net\_dev\_list\_destroy}(devs);
+
+    \textcolor{keywordflow}{return} 0;
+\}
+\end{DoxyCodeInclude}
+ 

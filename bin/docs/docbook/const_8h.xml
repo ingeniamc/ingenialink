@@ -1,0 +1,747 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="const_8h">
+    <title>const.h File Reference</title>
+<para>Include dependency diagram for const.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="const_8h__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Included by dependency diagram for const.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="const_8h__dep__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1gaefbce026149e3fd1ca4912e8b831e1c0">ILK_SYS_PWM_MAX</link> 32767<para><emphasis>PWM maximum value (maximum of signed 16-bit).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1gaebdf8cd11949f44b6f98507754e2eda5">ILK_SYS_CLOOP_FREQ_TORQUE</link> 10000<para><emphasis>Current/Torque loop frequency (Hz).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1gab7567b15639de41f00debc89e8cf69c1">ILK_SYS_CLOOP_FREQ_VEL</link> 1000<para><emphasis>Velocity loop frequency (Hz).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1ga0936a074e3c6022add3b4dd936d7472e">ILK_SYS_CLOOP_FREQ_POS</link> 1000<para><emphasis>Position loop frequency (Hz).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1ga7d97997e842304310662f2b151281a9f">ILK_SYS_TORQUE_MAX</link> 32767<para><emphasis>Maximum rated torque (maximum of INT16).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SYS_1ga67fd909fd6fa467e246a1d03aaaab058">ILK_SYS_DSIG_MAX_SAMPLES</link> 1000<para><emphasis>Disturbance signal maximum samples.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SIGNATURES_1ga4c86aee7016ece956e15b5d1523fbc07">ILK_SIGNATURE_STORE</link> 0x65766173<para><emphasis>Store signature.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__SIGNATURES_1gafec6f03943f9194696a21de117dedbfc">ILK_SIGNATURE_RESET</link> 0x64747372<para><emphasis>Reset signature.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga1f22e168e8a3092acf6982d6374ef829">ILK_OP_MODE_OLV</link> -2<para><emphasis>Open loop (vector mode).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga0a7de45bb24cb05b8bae5a4399baef6e">ILK_OP_MODE_OLS</link> -1<para><emphasis>Open loop (scalar mode).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga52b02647597ea4e09718a62b2ee8d994">ILK_OP_MODE_PP</link> 1<para><emphasis>Profile position.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga2e2b186a23f0b7d57a0f9faa590cea05">ILK_OP_MODE_VEL</link> 2<para><emphasis>Velocity.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga835525c916eb87bd07495702423f5571">ILK_OP_MODE_PV</link> 3<para><emphasis>Profile velocity.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga620365ff1869f00172b03ed1f8ea3b2f">ILK_OP_MODE_PT</link> 4<para><emphasis>Profile torque.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga9f1663d81dc7e4cb79afa5cdfceded54">ILK_OP_MODE_HOMING</link> 6<para><emphasis>Homing.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga35cf56e35484129095342ad889db552c">ILK_OP_MODE_IP</link> 7<para><emphasis>Interpolated position mode.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga95c806de859172e9f09af0d620f15ec5">ILK_OP_MODE_CSP</link> 8<para><emphasis>Cyclic sync position mode.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1gaaf121cd4e10a148b001f0a4d7cafae96">ILK_OP_MODE_CSV</link> 9<para><emphasis>Cyclic sync velocity mode.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__OP__MODE_1ga336b0e7a48565b41d3b67cc4527b6298">ILK_OP_MODE_CST</link> 10<para><emphasis>Cyclic sync torque mode.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga5bdb2f869123533b63941efbb1a7aea3">ILK_MOTOR_SQUIRREL</link> 0x0007<para><emphasis>Squirrel cage induction.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga13f49aebf7a4d08b01a9c7aa00164ead">ILK_MOTOR_STEPPER</link> 0x0009<para><emphasis>Stepper with microstepping capability.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga9e363ce9fcb333f1a0ca43cf3e018de9">ILK_MOTOR_ROT_BLAC</link> 0x000A<para><emphasis>Rotary brushless AC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga1b190d9b607368d639ccfd6b61d27616">ILK_MOTOR_ROT_BLDC</link> 0x000B<para><emphasis>Rotary brushless DC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga1f7f2854dad7608e3f814d9409866ccc">ILK_MOTOR_ROT_DC</link> 0x000D<para><emphasis>Rotary DC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga7ce94e9b64195dad671ec5bc25938f78">ILK_MOTOR_ROT_VC</link> 0x8000<para><emphasis>Rotary voice coil.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga4e9537c5560f52a0c69d5cfe9e06f4af">ILK_MOTOR_LIN_BLAC</link> 0x8001<para><emphasis>Linear brushless AC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1gafb0b611a2644cf1673896daf236b69b7">ILK_MOTOR_LIN_BLDC</link> 0x8002<para><emphasis>Linear brushless DC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1gad90b5df2f58dc0a6ff0452abdc0f0e22">ILK_MOTOR_LIN_VC</link> 0x8003<para><emphasis>Linear voice coil.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__MOTOR_1ga023e91fb0fb03bd5273e90c1399336f9">ILK_MOTOR_LIN_DC</link> 0x8004<para><emphasis>Linear DC.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1gae3ff92eb789c2fec9b7a629b20418af1">ILK_FB_DIGITAL_ENCODER</link> 0x00<para><emphasis>Digital encoder.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga624f38df3393c8c74ca8f350f1acfb7b">ILK_FB_DIGITAL_HALLS</link> 0x01<para><emphasis>Digital halls.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1gada00d2cfc8c349a4976600232b399a2c">ILK_FB_ANALOG_HALLS</link> 0x02<para><emphasis>Analog halls.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga03d870b0c6512ec965806036c6878ebb">ILK_FB_ANALOG_INPUT</link> 0x04<para><emphasis>Analog input.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga9874ed60d637b9bf51850678add98685">ILK_FB_SSI</link> 0x05<para><emphasis>SSI.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga06e050308174827bf2f5de8c1fb18340">ILK_FB_SINCOS</link> 0x06<para><emphasis>SinCos.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga43f62e2c2cc014a82a93c76a11ad8106">ILK_FB_PWM</link> 0x07<para><emphasis>PWM.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga50a41df2322b1b41b9ec93ec2fbe4811">ILK_FB_RESOLVER</link> 0x08<para><emphasis>Resolver.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1ga4caccef6137e2cce88d4c230fe9be977">ILK_FB_NONE</link> 0x09<para><emphasis>None.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__FB_1gaa3a26923923455feb238d74ec5d64a3c">ILK_FB_SIMULATED</link> 0x0B<para><emphasis>Simulated.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__VEL__SENSOR_1ga84b8ae078f55b0fe678b42ba33ecbffb">ILK_VEL_SENSOR_POS</link> 0x00<para><emphasis>Position sensor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__VEL__SENSOR_1ga5e2000096458f2759519f81411f2f25e">ILK_VEL_SENSOR_TACHOMETER</link> 0x01<para><emphasis>External DC tachometer.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__VEL__SENSOR_1gadf37b8bf88afd7b938ac2edf99474553">ILK_VEL_SENSOR_NONE</link> 0x02<para><emphasis>None.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__VEL__SENSOR_1ga245f70defaf3b4a986ef63ae406db0df">ILK_VEL_SENSOR_DIGITAL_HALLS</link> 0x04<para><emphasis>Digital halls.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga9e22496d29b1c97487de0d32559d2492">ILK_POS_SENSOR_DIGITAL_ENCODER</link> 0x00<para><emphasis>Digital encoder.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1gadf3325d38c0443100a7250e690f59616">ILK_POS_SENSOR_DIGITAL_HALLS</link> 0x01<para><emphasis>Digital halls.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1gad4226b47b6b8d3876a153a99d6ac6b22">ILK_POS_SENSOR_ANALOG_HALLS</link> 0x02<para><emphasis>Analog halls.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga9ad3cda1577a3d1a912a7b9fdff366d9">ILK_POS_SENSOR_ANALOG_INPUT</link> 0x04<para><emphasis>Analog input.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1gac3a8ad54033792117e711e4282ff0702">ILK_POS_SENSOR_SSI</link> 0x05<para><emphasis>SSI.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga83adaa5a63bbae0da0a15e6700181558">ILK_POS_SENSOR_SINCOS</link> 0x06<para><emphasis>SinCos.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1gad60267efbd76b9f67e581b7b58477fab">ILK_POS_SENSOR_PWM</link> 0x07<para><emphasis>PWM.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga2b72626eee8054c3bae2d4b787a29773">ILK_POS_SENSOR_RESOLVER</link> 0x08<para><emphasis>Resolver.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga92cd1904ad594cbfc972210a456020e2">ILK_POS_SENSOR_NONE</link> 0x09<para><emphasis>None.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga4500e1b8522b1088b4b6d5061eee2d8e">ILK_POS_SENSOR_SIMULATED</link> 0x0B<para><emphasis>Simulated.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1gadf9c1c973f6b28915598b69515406a0e">ILK_POS_SENSOR_TACHOMETER</link> 0x0C<para><emphasis>Digital tachometer.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__IANGLE__METHOD_1ga7161a9b8940249da7355c5a799735872">ILK_IANGLE_METHOD_FORCED_ALIGN</link> 0x00<para><emphasis>Forced alignment method.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__IANGLE__METHOD_1ga6b4be92e288bbf584fe0836291b222c6">ILK_IANGLE_METHOD_NINCR_SENSOR</link> 0x01<para><emphasis>Non incremental sensor used.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__IANGLE__METHOD_1gae83411aac214acbb2259a47cdb67f3bc">ILK_IANGLE_METHOD_POS_KNOWN</link> 0x02<para><emphasis>Initial rotor position known.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1gab022f184ba8cf874ef8721e8abe09c77">ILK_DENC_SINCOS_NSWAPPED</link> 0x00<para><emphasis>Not swapped.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga6dffe9e93f3ca75469f7a06a0c30698e">ILK_DENC_SINCOS_SWAPPED</link> 0x01<para><emphasis>Swapped.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga41502cd69c22253c445453a996abda64">ILK_DENC_SINCOS_TYPE_NONE</link> 0x00<para><emphasis>No encoder.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga97bc5306fab0925635bf69eb06d5535f">ILK_DENC_SINCOS_TYPE_2CH_S</link> 0x01<para><emphasis>2 channels encoder (single ended).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga8520f2c6591863e2f7edc711b53f459e">ILK_DENC_SINCOS_TYPE_2CH_S_IDX</link> 0x02<para><emphasis>2 channels + index encoder (single ended).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga5b8581a8298b5dfd970efed796a73efb">ILK_DENC_SINCOS_TYPE_2CH_D</link> 0x03<para><emphasis>2 channels encoder (differential).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga7a929c521c9237a8bd3a734f8ae068f3">ILK_DENC_SINCOS_TYPE_2CH_D_IDX</link> 0x04<para><emphasis>2 channels + index encoder (differential).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1gaa67a33025988b8d085baeb0804770837">ILK_DENC_SINCOS_FILTER_30MHZ</link> 0x00<para><emphasis>Maximum encoder frequency, 30 MHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga2aec5b9498641698044e780eaecca09c">ILK_DENC_SINCOS_FILTER_10MHZ</link> 0x01<para><emphasis>Maximum encoder frequency, 10 MHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga8bf6bb5fbc1f27e1fcd97c7450893cfc">ILK_DENC_SINCOS_FILTER_5MHZ</link> 0x02<para><emphasis>Maximum encoder frequency, 5 MHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga89c1fe515b90e1d16bd7270c189e0e45">ILK_DENC_SINCOS_FILTER_2MHZ</link> 0x03<para><emphasis>Maximum encoder frequency, 2 MHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1gac266c211396c8281f25e50373b1d59c1">ILK_DENC_SINCOS_FILTER_1MHZ</link> 0x04<para><emphasis>Maximum encoder frequency, 1 MHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga0f785aa2d5b11e4d656f2ea19cb6a926">ILK_DENC_SINCOS_FILTER_625KHZ</link> 0x05<para><emphasis>Maximum encoder frequency, 625 KHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1gabf0b203f9902719cc22e4ec133ab8b13">ILK_DENC_SINCOS_FILTER_312_5KHZ</link> 0x06<para><emphasis>Maximum encoder frequency, 312,5 KHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga2821c6dfcb9c57af1d255d81e6b0f4a9">ILK_DENC_SINCOS_FILTER_156_25KHZ</link> 0x07<para><emphasis>Maximum encoder frequency, 156,25 KHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga1d917241b2d4351fb37663abf9e65ef7">ILK_DENC_SINCOS_FILTER_39_06KHZ</link> 0x08<para><emphasis>Maximum encoder frequency, 39,06 KHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga2a8188af50a070b8d706ec993e2e288c">ILK_DSIG_INJ_NONE</link> 0x00<para><emphasis>None.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1gaa2f0c5ecb182317e3882918acc628cd4">ILK_DSIG_INJ_CSRC_TOR</link> 0x01<para><emphasis>Torque command source.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga0d2db20d760c659401d8168710efe721">ILK_DSIG_INJ_DEMAND_TOR</link> 0x02<para><emphasis>Torque demand.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga91ffd66b7114fd2f772768a9658d6eaa">ILK_DSIG_INJ_CLOOP_TOR</link> 0x03<para><emphasis>Torque control loop.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga782af9a5787a2b7d32cce3e5f57d76a7">ILK_DSIG_INJ_CSRC_VEL</link> 0x04<para><emphasis>Velocity command source.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga181b0771be1a6a7989ab5dcf16a62922">ILK_DSIG_INJ_DEMAND_VEL</link> 0x05<para><emphasis>Velocity demand.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1gae687f53e49d8047df481297c1621eb6d">ILK_DSIG_INJ_CLOOP_VEL</link> 0x06<para><emphasis>Velocity control loop.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga51800e271fa5f8d6fe7674956a827d04">ILK_DSIG_INJ_CSRC_POS</link> 0x07<para><emphasis>Position command source.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1gaf90006989892a45217b8254bdffd7e5b">ILK_DSIG_INJ_DEMAND_POS</link> 0x08<para><emphasis>Position command source.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga108671d95dfe95f35d1e1d80e6aac8a8">ILK_DSIG_INJ_CLOOP_POS</link> 0x09<para><emphasis>Position control loop.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1ga88919277ef4cb64e612b18356061b87d">ILK_CMD_SRC_NETWORK</link> 0x00<para><emphasis>Network.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1gaef878333a1356fde2b0534a169b93978">ILK_CMD_SRC_AIN</link> 0x01<para><emphasis>Analog input.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1ga354c3281eb53b704f8fb7a6ec62a88c6">ILK_CMD_SRC_PWM</link> 0x02<para><emphasis>PWM or PWM &amp; direction.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1ga65139db060bb9ccf75324070aac63635">ILK_CMD_SRC_STEPDIR</link> 0x03<para><emphasis>Step &amp; direction.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1ga23b5f07af7a7285c8e7cf0d371586f1d">ILK_CMD_SRC_EGEARING</link> 0x05<para><emphasis>Electronic gearing.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__CMD__SRC_1gaf24cb62945a45167b7edb440559baab4">ILK_CMD_SRC_INTEGRAL_GEN</link> 0x06<para><emphasis>Integral generator.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+        <title>Detailed Description</title>
+
+<para>Constants. </para>
+    <para>Definition in file /home/surajcha/codebase/ingenialink/include/public/ingenialink/const.h</para>
+    </simplesect>
+</section>

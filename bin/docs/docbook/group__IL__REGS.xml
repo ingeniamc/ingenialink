@@ -1,0 +1,286 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__REGS">
+    <title>Registers</title>
+<para>Collaboration diagram for Registers</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__REGS.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title> Data Structures </title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>struct <link linkend="unionil__reg__limit__t">il_reg_limit_t</link></para>
+<para><emphasis>Limits.</emphasis></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>struct <link linkend="structil__reg__range__t">il_reg_range_t</link></para>
+<para><emphasis>Range.</emphasis></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>struct <link linkend="structil__reg__t">il_reg_t</link></para>
+<para><emphasis>Register.</emphasis></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Enumerations</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para><literallayout>enum <link linkend="group__IL__REGS_1gaddd7edef254d348f2e8a48c40840cdd6">il_reg_dtype_t</link> {
+<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6afebd31a475c6cb6b6c9ac200fd90a09b">IL_REG_DTYPE_U8</link>,
+<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a4d3f76f5e0e716d7b358d819691e834a">IL_REG_DTYPE_S8</link>,
+<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a4776d418653151a6cadd41574d631bfa">IL_REG_DTYPE_U16</link>,
+<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a3eb3b654856f84234168d58355e83a85">IL_REG_DTYPE_S16</link>,
+<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a3d299c6c4bbda29b3286a3483271ee90">IL_REG_DTYPE_U32</link>,
+<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48">IL_REG_DTYPE_S32</link>,
+<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a5a0f02c573b8800ee8f113160ce93712">IL_REG_DTYPE_U64</link>,
+<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a37398082dc9828038d3403ca24a28d5a">IL_REG_DTYPE_S64</link>,
+<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a07e3bbcf6a1d00d8f62887e41b529239">IL_REG_DTYPE_FLOAT</link>,
+<link linkend="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6aeb15ea8dd9961e96edebfc3d0f36fbd3">IL_REG_DTYPE_STR</link>
+}</literallayout>
+<para><emphasis>Register data type.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para><literallayout>enum <link linkend="group__IL__REGS_1ga4c623bd7d0d5f059dd91949c6948147e">il_reg_access_t</link> {
+<link linkend="group__IL__REGS_1gga4c623bd7d0d5f059dd91949c6948147eafa388eb7ec6166ba6a59d0d665f3ac53">IL_REG_ACCESS_RW</link>,
+<link linkend="group__IL__REGS_1gga4c623bd7d0d5f059dd91949c6948147ea12dabd43c525dfea5fb20914711168b8">IL_REG_ACCESS_RO</link>,
+<link linkend="group__IL__REGS_1gga4c623bd7d0d5f059dd91949c6948147eadb0026436ae70de8a60920c1085561bb">IL_REG_ACCESS_WO</link>
+}</literallayout>
+<para><emphasis>Register access.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para><literallayout>enum <link linkend="group__IL__REGS_1ga37538453e5c3d84733c628987a579590">il_reg_phy_t</link> {
+<link linkend="group__IL__REGS_1gga37538453e5c3d84733c628987a579590a34d96ac8a7b9afc02256a03d5a464822">IL_REG_PHY_NONE</link>,
+<link linkend="group__IL__REGS_1gga37538453e5c3d84733c628987a579590a799176bbdcea555949cd68969361bc8f">IL_REG_PHY_TORQUE</link>,
+<link linkend="group__IL__REGS_1gga37538453e5c3d84733c628987a579590ad7bdcaae981dfbbd28c46bed55f947ac">IL_REG_PHY_POS</link>,
+<link linkend="group__IL__REGS_1gga37538453e5c3d84733c628987a579590aea1c9cf80466e862af6a3a6f687550ef">IL_REG_PHY_VEL</link>,
+<link linkend="group__IL__REGS_1gga37538453e5c3d84733c628987a579590a3dc604058c640ad2997c5d4a1ad37b97">IL_REG_PHY_ACC</link>,
+<link linkend="group__IL__REGS_1gga37538453e5c3d84733c628987a579590a99385428e977da83262b2ad47bcfc8f0">IL_REG_PHY_VOLT_REL</link>,
+<link linkend="group__IL__REGS_1gga37538453e5c3d84733c628987a579590a0cad6fc9aa35ccf3b78d695f9a446e2e">IL_REG_PHY_RAD</link>
+}</literallayout>
+<para><emphasis>Register physical units type.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Enumeration Type Documentation</title>
+            <section xml:id="group__IL__REGS_1gaddd7edef254d348f2e8a48c40840cdd6">
+               <title>enum il_reg_dtype_t </title>
+               
+               <formalpara>
+                    <title>Enumerator:</title>
+                    <variablelist>
+                        <varlistentry xml:id="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6afebd31a475c6cb6b6c9ac200fd90a09b">
+                            <term>IL_REG_DTYPE_U8</term>
+                            <listitem>
+                                <para>Unsigned 8-bit integer.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a4d3f76f5e0e716d7b358d819691e834a">
+                            <term>IL_REG_DTYPE_S8</term>
+                            <listitem>
+                                <para>Signed 8-bit integer.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a4776d418653151a6cadd41574d631bfa">
+                            <term>IL_REG_DTYPE_U16</term>
+                            <listitem>
+                                <para>Unsigned 16-bit integer.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a3eb3b654856f84234168d58355e83a85">
+                            <term>IL_REG_DTYPE_S16</term>
+                            <listitem>
+                                <para>Signed 16-bit integer.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a3d299c6c4bbda29b3286a3483271ee90">
+                            <term>IL_REG_DTYPE_U32</term>
+                            <listitem>
+                                <para>Unsigned 32-bit integer.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48">
+                            <term>IL_REG_DTYPE_S32</term>
+                            <listitem>
+                                <para>Signed 32-bit integer.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a5a0f02c573b8800ee8f113160ce93712">
+                            <term>IL_REG_DTYPE_U64</term>
+                            <listitem>
+                                <para>Unsigned 64-bit integer.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a37398082dc9828038d3403ca24a28d5a">
+                            <term>IL_REG_DTYPE_S64</term>
+                            <listitem>
+                                <para>Signed 64-bit integer.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6a07e3bbcf6a1d00d8f62887e41b529239">
+                            <term>IL_REG_DTYPE_FLOAT</term>
+                            <listitem>
+                                <para>Float.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1ggaddd7edef254d348f2e8a48c40840cdd6aeb15ea8dd9961e96edebfc3d0f36fbd3">
+                            <term>IL_REG_DTYPE_STR</term>
+                            <listitem>
+                                <para>String.</para>
+                            </listitem>
+                        </varlistentry>
+                     </variablelist>
+                </formalpara>
+                <para>Definition at line 41 of file registers.h
+                    <computeroutput><literallayout>
+{
+IL_REG_DTYPE_U8, 
+IL_REG_DTYPE_S8, 
+IL_REG_DTYPE_U16, 
+IL_REG_DTYPE_S16, 
+IL_REG_DTYPE_U32, 
+IL_REG_DTYPE_S32, 
+IL_REG_DTYPE_U64, 
+IL_REG_DTYPE_S64, 
+IL_REG_DTYPE_FLOAT, 
+IL_REG_DTYPE_STR, 
+}il_reg_dtype_t;
+                    </literallayout></computeroutput>
+                </para>
+            </section>
+            <section xml:id="group__IL__REGS_1ga4c623bd7d0d5f059dd91949c6948147e">
+               <title>enum il_reg_access_t </title>
+               
+               <formalpara>
+                    <title>Enumerator:</title>
+                    <variablelist>
+                        <varlistentry xml:id="group__IL__REGS_1gga4c623bd7d0d5f059dd91949c6948147eafa388eb7ec6166ba6a59d0d665f3ac53">
+                            <term>IL_REG_ACCESS_RW</term>
+                            <listitem>
+                                <para>Read/Write.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1gga4c623bd7d0d5f059dd91949c6948147ea12dabd43c525dfea5fb20914711168b8">
+                            <term>IL_REG_ACCESS_RO</term>
+                            <listitem>
+                                <para>Read only.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1gga4c623bd7d0d5f059dd91949c6948147eadb0026436ae70de8a60920c1085561bb">
+                            <term>IL_REG_ACCESS_WO</term>
+                            <listitem>
+                                <para>Write only.</para>
+                            </listitem>
+                        </varlistentry>
+                     </variablelist>
+                </formalpara>
+                <para>Definition at line 65 of file registers.h
+                    <computeroutput><literallayout>
+{
+IL_REG_ACCESS_RW, 
+IL_REG_ACCESS_RO, 
+IL_REG_ACCESS_WO, 
+}il_reg_access_t;
+                    </literallayout></computeroutput>
+                </para>
+            </section>
+            <section xml:id="group__IL__REGS_1ga37538453e5c3d84733c628987a579590">
+               <title>enum il_reg_phy_t </title>
+               
+               <formalpara>
+                    <title>Enumerator:</title>
+                    <variablelist>
+                        <varlistentry xml:id="group__IL__REGS_1gga37538453e5c3d84733c628987a579590a34d96ac8a7b9afc02256a03d5a464822">
+                            <term>IL_REG_PHY_NONE</term>
+                            <listitem>
+                                <para>None.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1gga37538453e5c3d84733c628987a579590a799176bbdcea555949cd68969361bc8f">
+                            <term>IL_REG_PHY_TORQUE</term>
+                            <listitem>
+                                <para>Torque.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1gga37538453e5c3d84733c628987a579590ad7bdcaae981dfbbd28c46bed55f947ac">
+                            <term>IL_REG_PHY_POS</term>
+                            <listitem>
+                                <para>Position.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1gga37538453e5c3d84733c628987a579590aea1c9cf80466e862af6a3a6f687550ef">
+                            <term>IL_REG_PHY_VEL</term>
+                            <listitem>
+                                <para>Velocity.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1gga37538453e5c3d84733c628987a579590a3dc604058c640ad2997c5d4a1ad37b97">
+                            <term>IL_REG_PHY_ACC</term>
+                            <listitem>
+                                <para>Acceleration.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1gga37538453e5c3d84733c628987a579590a99385428e977da83262b2ad47bcfc8f0">
+                            <term>IL_REG_PHY_VOLT_REL</term>
+                            <listitem>
+                                <para>Voltage (relative to DC bus).</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__REGS_1gga37538453e5c3d84733c628987a579590a0cad6fc9aa35ccf3b78d695f9a446e2e">
+                            <term>IL_REG_PHY_RAD</term>
+                            <listitem>
+                                <para>Radians.</para>
+                            </listitem>
+                        </varlistentry>
+                     </variablelist>
+                </formalpara>
+                <para>Definition at line 75 of file registers.h
+                    <computeroutput><literallayout>
+{
+IL_REG_PHY_NONE, 
+IL_REG_PHY_TORQUE, 
+IL_REG_PHY_POS, 
+IL_REG_PHY_VEL, 
+IL_REG_PHY_ACC, 
+IL_REG_PHY_VOLT_REL, 
+IL_REG_PHY_RAD, 
+}il_reg_phy_t;
+                    </literallayout></computeroutput>
+                </para>
+            </section>
+        </section>
+</section>

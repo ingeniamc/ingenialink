@@ -1,0 +1,248 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST__DENC__SINCOS__PARAM">
+    <title>Digital encoder / SinCos parameters</title>
+<para>Collaboration diagram for Digital encoder / SinCos parameters</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST__DENC__SINCOS__PARAM.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1gab022f184ba8cf874ef8721e8abe09c77">ILK_DENC_SINCOS_NSWAPPED</link> 0x00<para><emphasis>Not swapped.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga6dffe9e93f3ca75469f7a06a0c30698e">ILK_DENC_SINCOS_SWAPPED</link> 0x01<para><emphasis>Swapped.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga41502cd69c22253c445453a996abda64">ILK_DENC_SINCOS_TYPE_NONE</link> 0x00<para><emphasis>No encoder.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga97bc5306fab0925635bf69eb06d5535f">ILK_DENC_SINCOS_TYPE_2CH_S</link> 0x01<para><emphasis>2 channels encoder (single ended).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga8520f2c6591863e2f7edc711b53f459e">ILK_DENC_SINCOS_TYPE_2CH_S_IDX</link> 0x02<para><emphasis>2 channels + index encoder (single ended).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga5b8581a8298b5dfd970efed796a73efb">ILK_DENC_SINCOS_TYPE_2CH_D</link> 0x03<para><emphasis>2 channels encoder (differential).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga7a929c521c9237a8bd3a734f8ae068f3">ILK_DENC_SINCOS_TYPE_2CH_D_IDX</link> 0x04<para><emphasis>2 channels + index encoder (differential).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1gaa67a33025988b8d085baeb0804770837">ILK_DENC_SINCOS_FILTER_30MHZ</link> 0x00<para><emphasis>Maximum encoder frequency, 30 MHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga2aec5b9498641698044e780eaecca09c">ILK_DENC_SINCOS_FILTER_10MHZ</link> 0x01<para><emphasis>Maximum encoder frequency, 10 MHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga8bf6bb5fbc1f27e1fcd97c7450893cfc">ILK_DENC_SINCOS_FILTER_5MHZ</link> 0x02<para><emphasis>Maximum encoder frequency, 5 MHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga89c1fe515b90e1d16bd7270c189e0e45">ILK_DENC_SINCOS_FILTER_2MHZ</link> 0x03<para><emphasis>Maximum encoder frequency, 2 MHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1gac266c211396c8281f25e50373b1d59c1">ILK_DENC_SINCOS_FILTER_1MHZ</link> 0x04<para><emphasis>Maximum encoder frequency, 1 MHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga0f785aa2d5b11e4d656f2ea19cb6a926">ILK_DENC_SINCOS_FILTER_625KHZ</link> 0x05<para><emphasis>Maximum encoder frequency, 625 KHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1gabf0b203f9902719cc22e4ec133ab8b13">ILK_DENC_SINCOS_FILTER_312_5KHZ</link> 0x06<para><emphasis>Maximum encoder frequency, 312,5 KHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga2821c6dfcb9c57af1d255d81e6b0f4a9">ILK_DENC_SINCOS_FILTER_156_25KHZ</link> 0x07<para><emphasis>Maximum encoder frequency, 156,25 KHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DENC__SINCOS__PARAM_1ga1d917241b2d4351fb37663abf9e65ef7">ILK_DENC_SINCOS_FILTER_39_06KHZ</link> 0x08<para><emphasis>Maximum encoder frequency, 39,06 KHz.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1gab022f184ba8cf874ef8721e8abe09c77">
+                <title>#define ILK_DENC_SINCOS_NSWAPPED</title>                
+                <para>Definition at line 220 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga6dffe9e93f3ca75469f7a06a0c30698e">
+                <title>#define ILK_DENC_SINCOS_SWAPPED</title>                
+                <para>Definition at line 222 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga41502cd69c22253c445453a996abda64">
+                <title>#define ILK_DENC_SINCOS_TYPE_NONE</title>                
+                <para>Definition at line 225 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga97bc5306fab0925635bf69eb06d5535f">
+                <title>#define ILK_DENC_SINCOS_TYPE_2CH_S</title>                
+                <para>Definition at line 227 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga8520f2c6591863e2f7edc711b53f459e">
+                <title>#define ILK_DENC_SINCOS_TYPE_2CH_S_IDX</title>                
+                <para>Definition at line 229 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga5b8581a8298b5dfd970efed796a73efb">
+                <title>#define ILK_DENC_SINCOS_TYPE_2CH_D</title>                
+                <para>Definition at line 231 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga7a929c521c9237a8bd3a734f8ae068f3">
+                <title>#define ILK_DENC_SINCOS_TYPE_2CH_D_IDX</title>                
+                <para>Definition at line 233 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1gaa67a33025988b8d085baeb0804770837">
+                <title>#define ILK_DENC_SINCOS_FILTER_30MHZ</title>                
+                <para>Definition at line 236 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga2aec5b9498641698044e780eaecca09c">
+                <title>#define ILK_DENC_SINCOS_FILTER_10MHZ</title>                
+                <para>Definition at line 238 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga8bf6bb5fbc1f27e1fcd97c7450893cfc">
+                <title>#define ILK_DENC_SINCOS_FILTER_5MHZ</title>                
+                <para>Definition at line 240 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga89c1fe515b90e1d16bd7270c189e0e45">
+                <title>#define ILK_DENC_SINCOS_FILTER_2MHZ</title>                
+                <para>Definition at line 242 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1gac266c211396c8281f25e50373b1d59c1">
+                <title>#define ILK_DENC_SINCOS_FILTER_1MHZ</title>                
+                <para>Definition at line 244 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga0f785aa2d5b11e4d656f2ea19cb6a926">
+                <title>#define ILK_DENC_SINCOS_FILTER_625KHZ</title>                
+                <para>Definition at line 246 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1gabf0b203f9902719cc22e4ec133ab8b13">
+                <title>#define ILK_DENC_SINCOS_FILTER_312_5KHZ</title>                
+                <para>Definition at line 248 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga2821c6dfcb9c57af1d255d81e6b0f4a9">
+                <title>#define ILK_DENC_SINCOS_FILTER_156_25KHZ</title>                
+                <para>Definition at line 250 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DENC__SINCOS__PARAM_1ga1d917241b2d4351fb37663abf9e65ef7">
+                <title>#define ILK_DENC_SINCOS_FILTER_39_06KHZ</title>                
+                <para>Definition at line 252 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

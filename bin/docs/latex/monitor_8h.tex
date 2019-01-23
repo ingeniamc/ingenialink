@@ -1,0 +1,80 @@
+\hypertarget{monitor_8h}{}\section{ingenialink/monitor.h File Reference}
+\label{monitor_8h}\index{ingenialink/monitor.\+h@{ingenialink/monitor.\+h}}
+
+
+Monitor.  
+
+
+{\ttfamily \#include \char`\"{}servo.\+h\char`\"{}}\\*
+Include dependency graph for monitor.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=280pt]{monitor_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=199pt]{monitor_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structil__monitor__acq__t}{il\+\_\+monitor\+\_\+acq\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Monitor acquisition results. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{group__IL__MONITOR_ga05007f227fb5f253ed8ba714c0efb2cd}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+C\+H\+\_\+\+N\+UM}~4
+\begin{DoxyCompactList}\small\item\em Number of channels. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef struct il\+\_\+monitor \hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Ingenia\+Link monitor. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{group__IL__MONITOR_ga713d0c15082ee67cb77d384d4537e107}{il\+\_\+monitor\+\_\+trigger\+\_\+t} \{ \\*
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a7a2adbfffa9d5301d44c58aee1524947}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+I\+M\+M\+E\+D\+I\+A\+TE} = 0, 
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a3d9776dc06a1769bb3bac474d0d2f671}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+M\+O\+T\+I\+ON} = 1, 
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107a3e127c86c21f607d0df72b64403adb42}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+P\+OS} = 2, 
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107afff4584d639834baa2242e2ab08aafd6}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+N\+EG} = 3, 
+\\*
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107af66901be0c630d815042a98f13b0781b}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+W\+I\+N\+D\+OW} = 4, 
+\hyperlink{group__IL__MONITOR_gga713d0c15082ee67cb77d384d4537e107aededed6d0aa1e43dd19b0019f857db06}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+T\+R\+I\+G\+G\+E\+R\+\_\+\+D\+IN} = 5
+ \}\begin{DoxyCompactList}\small\item\em Trigger modes. \end{DoxyCompactList}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} \hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$ \hyperlink{group__IL__MONITOR_gabab1b2d47a46eeabfcaa9ec5ce7c49a8}{il\+\_\+monitor\+\_\+create} (\hyperlink{group__IL__SERVO_ga3369ddfcc33492fe3a28f96cf455b13e}{il\+\_\+servo\+\_\+t} $\ast$servo)
+\begin{DoxyCompactList}\small\item\em Create monitor instance. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__MONITOR_ga3bc1e187d696eadd07a3f33b502c998a}{il\+\_\+monitor\+\_\+destroy} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor)
+\begin{DoxyCompactList}\small\item\em Destroy a monitor instance. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga41ec8c974f4322537d714844be7b8a2a}{il\+\_\+monitor\+\_\+start} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor)
+\begin{DoxyCompactList}\small\item\em Start monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__MONITOR_ga2408490312f9562407f93111a4deece8}{il\+\_\+monitor\+\_\+stop} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor)
+\begin{DoxyCompactList}\small\item\em Stop monitor. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga5a2bfd4b0f37f4abee986a77afae5b32}{il\+\_\+monitor\+\_\+wait} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, int timeout)
+\begin{DoxyCompactList}\small\item\em Wait until current acquisition is completed. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} void \hyperlink{group__IL__MONITOR_gad6231f5d154969361fdd05d3f84707bb}{il\+\_\+monitor\+\_\+data\+\_\+get} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, \hyperlink{structil__monitor__acq__t}{il\+\_\+monitor\+\_\+acq\+\_\+t} $\ast$$\ast$acq)
+\begin{DoxyCompactList}\small\item\em Obtain current available data. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga8fc675f7d849ebcf162e396a98b6c710}{il\+\_\+monitor\+\_\+configure} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, unsigned int t\+\_\+s, size\+\_\+t delay\+\_\+samples, size\+\_\+t max\+\_\+samples)
+\begin{DoxyCompactList}\small\item\em Configure monitor parameters. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_gacda4fa0bc57e96988e62f895b256a62a}{il\+\_\+monitor\+\_\+ch\+\_\+configure} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, int ch, const \hyperlink{structil__reg__t}{il\+\_\+reg\+\_\+t} $\ast$reg, const char $\ast$id)
+\begin{DoxyCompactList}\small\item\em Configure channel mapping. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga33dffe1563b9d4a53d7623a123d7710c}{il\+\_\+monitor\+\_\+ch\+\_\+disable} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, int ch)
+\begin{DoxyCompactList}\small\item\em Disable one channel. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga19230bb2f539a808deb9e42afcb58678}{il\+\_\+monitor\+\_\+ch\+\_\+disable\+\_\+all} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor)
+\begin{DoxyCompactList}\small\item\em Disable all channels. \end{DoxyCompactList}\item 
+\hyperlink{common_8h_a6bb629d26c52bfe10519ba3176853f47}{I\+L\+\_\+\+E\+X\+P\+O\+RT} int \hyperlink{group__IL__MONITOR_ga98522072a54d7e70fe94409d666d58cd}{il\+\_\+monitor\+\_\+trigger\+\_\+configure} (\hyperlink{group__IL__MONITOR_ga40e12e851c8c83202f0bccbaaafbc1f3}{il\+\_\+monitor\+\_\+t} $\ast$monitor, \hyperlink{group__IL__MONITOR_ga713d0c15082ee67cb77d384d4537e107}{il\+\_\+monitor\+\_\+trigger\+\_\+t} mode, size\+\_\+t delay\+\_\+samples, const \hyperlink{structil__reg__t}{il\+\_\+reg\+\_\+t} $\ast$source, const char $\ast$source\+\_\+id, double th\+\_\+pos, double th\+\_\+neg, uint32\+\_\+t din\+\_\+msk)
+\begin{DoxyCompactList}\small\item\em Trigger configuration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Monitor. 
+

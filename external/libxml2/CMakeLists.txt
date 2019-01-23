@@ -45,7 +45,7 @@ endif()
 #-------------------------------------------------------------------------------
 # Build options
 
-option(WITH_PIC "Generate position independent code" OFF)
+option(WITH_PIC "Generate position independent code" ON)
 
 # Build a shared library by default
 if(NOT DEFINED BUILD_SHARED_LIBS)

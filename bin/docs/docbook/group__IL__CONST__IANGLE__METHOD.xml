@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST__IANGLE__METHOD">
+    <title>Initial angle determination methods</title>
+<para>Collaboration diagram for Initial angle determination methods</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST__IANGLE__METHOD.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__IANGLE__METHOD_1ga7161a9b8940249da7355c5a799735872">ILK_IANGLE_METHOD_FORCED_ALIGN</link> 0x00<para><emphasis>Forced alignment method.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__IANGLE__METHOD_1ga6b4be92e288bbf584fe0836291b222c6">ILK_IANGLE_METHOD_NINCR_SENSOR</link> 0x01<para><emphasis>Non incremental sensor used.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__IANGLE__METHOD_1gae83411aac214acbb2259a47cdb67f3bc">ILK_IANGLE_METHOD_POS_KNOWN</link> 0x02<para><emphasis>Initial rotor position known.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__CONST__IANGLE__METHOD_1ga7161a9b8940249da7355c5a799735872">
+                <title>#define ILK_IANGLE_METHOD_FORCED_ALIGN</title>                
+                <para>Definition at line 206 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__IANGLE__METHOD_1ga6b4be92e288bbf584fe0836291b222c6">
+                <title>#define ILK_IANGLE_METHOD_NINCR_SENSOR</title>                
+                <para>Definition at line 208 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__IANGLE__METHOD_1gae83411aac214acbb2259a47cdb67f3bc">
+                <title>#define ILK_IANGLE_METHOD_POS_KNOWN</title>                
+                <para>Definition at line 210 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

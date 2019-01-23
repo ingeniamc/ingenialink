@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="unionil__reg__limit__t">
+<title>il_reg_limit_t union Reference</title>
+<para>
+    <programlisting>#include <link linkend="registers_8h">&lt;registers.h&gt;</link></programlisting>
+</para>
+<para>Inheritance diagram for il_reg_limit_t</para>
+<para>
+    <figure>
+        <title>Inheritance graph</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="unionil__reg__limit__t__inherit__graph.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Collaboration diagram for il_reg_limit_t</para>
+<para>
+    <figure>
+        <title>Collaboration graph</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="unionil__reg__limit__t__coll__graph.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Data Fields</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>uint8_t u8<para><emphasis>Unsigned 8-bit value.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>int8_t s8<para><emphasis>Signed 8-bit value.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>uint16_t u16<para><emphasis>Unsigned 16-bit value.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>int16_t s16<para><emphasis>Signed 16-bit value.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>uint32_t u32<para><emphasis>Unsigned 32-bit value.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>int32_t s32<para><emphasis>Signed 32-bit value.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>uint64_t u64<para><emphasis>Unsigned 64-bit value.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>int64_t s64<para><emphasis>Signed 64-bit value.</emphasis></para></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+
+<para>Limits. </para>
+    </simplesect>
+        <simplesect>
+            <title>Detailed Description</title>
+                <para>Definition at line 93 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+        </simplesect>
+        <section>
+            <title>Field Documentation</title>
+            <simplesect>
+                <title>uint8_t il_reg_limit_t::u8</title>                
+                <para>Definition at line 95 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>int8_t il_reg_limit_t::s8</title>                
+                <para>Definition at line 97 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>uint16_t il_reg_limit_t::u16</title>                
+                <para>Definition at line 99 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>int16_t il_reg_limit_t::s16</title>                
+                <para>Definition at line 101 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>uint32_t il_reg_limit_t::u32</title>                
+                <para>Definition at line 103 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>int32_t il_reg_limit_t::s32</title>                
+                <para>Definition at line 105 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>uint64_t il_reg_limit_t::u64</title>                
+                <para>Definition at line 107 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+            <simplesect>
+                <title>int64_t il_reg_limit_t::s64</title>                
+                <para>Definition at line 109 of file registers.h</para>
+                <para>The Documentation for this struct was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>registers.h</para></listitem></itemizedlist></para>
+            </simplesect>
+        </section>
+</section>

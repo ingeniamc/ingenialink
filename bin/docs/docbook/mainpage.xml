@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>libingenialink - Motion and communications library for Ingenia servodrives</title>
+
+<para><link xlink:href="https://travis-ci.org/ingeniamc/ingenialink"></link> <link xlink:href="https://ci.appveyor.com/project/gmarull/ingenialink"></link></para>
+
+<para><computeroutput>libingenialink</computeroutput> is a portable, pure C implementation library for simple motion control tasks and communications with Ingenia drives.</para>
+
+<para><link xlink:href="http://www.ingeniamc.com"></link></para>
+
+<para><formalpara><title>What it can do</title></formalpara>
+</para>
+
+<para>The library provides:</para>
+
+<para><itemizedlist>
+<listitem>
+<para>Simple motion control functions (homing, profile position, etc.)</para>
+</listitem><listitem>
+<para>Communications API for Ingenia drives (multiple protocols supported)</para>
+</listitem><listitem>
+<para>Load and use IngeniaDictionary XML dictionaries</para>
+</listitem><listitem>
+<para>Operate directly using units (e.g. degrees, rad/s, etc.)</para>
+</listitem><listitem>
+<para>Register polling and monitoring for scope applications</para>
+</listitem><listitem>
+<para>Servo listing and monitoring</para>
+</listitem><listitem>
+<para>Object oriented interface</para>
+</listitem><listitem>
+<para>Thread-safe communications</para>
+</listitem><listitem>
+<para>Descriptive and detailed error messages</para>
+</listitem></itemizedlist>
+</para>
+
+<para><formalpara><title>Building libingenialink</title></formalpara>
+</para>
+
+<para><computeroutput>libingenialink</computeroutput> depends on <link xlink:href="https://github.com/ingeniamc/sercomm">libsercomm</link> and <link xlink:href="https://xmlsoft.org">libxml2</link>. A couple of sections below you will find some instructions on how to build and install them. <computeroutput>libingenialink</computeroutput> can be built and installed on any system like this:</para>
+
+<para><literallayout><computeroutput>cmake&#32;-H.&#32;-B_build&#32;-DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake&#32;--build&#32;_build
+cmake&#32;--build&#32;_build&#32;--target&#32;install
+</computeroutput></literallayout></para>
+
+<para>Note that a <computeroutput>INSTALL</computeroutput> is the installation folder.</para>
+
+<para><formalpara><title>Build options</title></formalpara>
+</para>
+
+<para>The following build options are available:</para>
+
+<para><itemizedlist>
+<listitem>
+<para><computeroutput>WITH_PROT_EUSB</computeroutput> (ON): Build <computeroutput>EUSB</computeroutput> protocol support.</para>
+</listitem><listitem>
+<para><computeroutput>WITH_PROT_MCB</computeroutput> (OFF): Build <computeroutput>MCB</computeroutput> protocol support (EXPERIMENTAL).</para>
+</listitem><listitem>
+<para><computeroutput>WITH_EXAMPLES</computeroutput> (OFF): When enabled, the library usage example applications will be built.</para>
+</listitem><listitem>
+<para><computeroutput>WITH_DOCS</computeroutput> (OFF): When enabled the API documentation can be built.</para>
+</listitem><listitem>
+<para><computeroutput>WITH_PIC</computeroutput> (OFF): When enabled, generated code will be position independent. This may be useful if you want to embed ingenialink into a dynamic library.</para>
+</listitem></itemizedlist>
+</para>
+
+<para>Furthermore, <emphasis>standard</emphasis> CMake build options can be used. You may find useful to read this list of <link xlink:href="https://cmake.org/Wiki/CMake_Useful_Variables">useful CMake variables</link>.</para>
+
+<para><formalpara><title>Dependencies</title></formalpara>
+</para>
+
+<para>As mentioned before, <computeroutput>libingenialink</computeroutput> depends on <link xlink:href="https://github.com/ingeniamc/sercomm">libsercomm</link> and <link xlink:href="https://xmlsoft.org">libxml2</link>, both referenced in the <link xlink:href="https://github.com/ingeniamc/ingenialink/tree/master/external">external</link> folder as submodules. Therefore, if building them make sure to initialize the submodules first:</para>
+
+<para><literallayout><computeroutput>git&#32;submodule&#32;update&#32;--init&#32;--recursive
+</computeroutput></literallayout></para>
+
+<para>Below you can find some building instructions for dependencies. Note that <computeroutput>INSTALL</computeroutput> is the installation folder.</para>
+
+<para><formalpara><title>libsercomm</title></formalpara>
+</para>
+
+<para><computeroutput>libsercomm</computeroutput> also uses CMake, so it can be built and installed on any system like this:</para>
+
+<para><literallayout><computeroutput>cd&#32;external/sercomm
+cmake&#32;-H.&#32;-B_build&#32;-DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake&#32;--build&#32;_build&#32;--target&#32;install
+</computeroutput></literallayout></para>
+
+<para><formalpara><title>libxml2</title></formalpara>
+</para>
+
+<para>Athough <computeroutput>libxml2</computeroutput> is multiplatform, the building process can be somewhat painful on some systems, specially on Windows. This is why we provide a CMake script to build it on the systems we support. It can be built and installed like this:</para>
+
+<para><literallayout><computeroutput>cd&#32;external/libxml2
+cmake&#32;-H.&#32;-B_build&#32;-DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake&#32;--build&#32;_build&#32;--target&#32;install
+</computeroutput></literallayout></para>
+
+<para>If using Linux, we actually recommend installing the library packages from the official repositories. For example in Debian/Ubuntu systems:</para>
+
+<para><literallayout><computeroutput>sudo&#32;apt&#32;install&#32;libxml2-dev
+</computeroutput></literallayout></para>
+
+<para>On recent versions of macOS, it seems to be already installed on the system. If not, you can also use <link xlink:href="https://brew.sh">brew</link> to install it.</para>
+
+<para><formalpara><title>Coding standards</title></formalpara>
+</para>
+
+<para><computeroutput>libingenialink</computeroutput> is written in <link xlink:href="http://en.wikipedia.org/wiki/ANSI_C">ANSI C</link> (C99), so any modern compiler should work.</para>
+
+<para>Code is written following the <link xlink:href="https://www.kernel.org/doc/html/latest/process/coding-style.html">Linux Kernel coding style</link>. You can check for errors or suggestions like this (uses <computeroutput>checkpatch.pl</computeroutput>):</para>
+
+<para><literallayout><computeroutput>cmake&#32;--build&#32;build&#32;--target&#32;style_check
+</computeroutput></literallayout> </para>
+
+</chapter>

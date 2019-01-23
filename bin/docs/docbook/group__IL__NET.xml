@@ -1,0 +1,944 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__NET">
+    <title>Network</title>
+<para>Collaboration diagram for Network</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__NET.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title> Data Structures </title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>struct <link linkend="structil__net__opts__t">il_net_opts_t</link></para>
+<para><emphasis>Network initialization options.</emphasis></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>struct <link linkend="structil__net__dev__list">il_net_dev_list</link></para>
+<para><emphasis>network devices list.</emphasis></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>struct <link linkend="structil__net__servos__list">il_net_servos_list</link></para>
+<para><emphasis>Network servos list.</emphasis></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Enumerations</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para><literallayout>enum <link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link> {
+<link linkend="group__IL__NET_1gga9629f7451843e493e7665754b5c2fecaafb048fa22f8e422dd8af49370e5f24a5">IL_NET_PROT_EUSB</link>,
+<link linkend="group__IL__NET_1gga9629f7451843e493e7665754b5c2fecaacdfe55790a47d94d5e6a633598f4eb5c">IL_NET_PROT_MCB</link>
+}</literallayout>
+<para><emphasis>Network protocols.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para><literallayout>enum <link linkend="group__IL__NET_1ga0391fec0328dc9cfd7b91990998930a7">il_net_state_t</link> {
+<link linkend="group__IL__NET_1gga0391fec0328dc9cfd7b91990998930a7a2e3dc49a7ff84f0bae3fc4a237d63fc5">IL_NET_STATE_CONNECTED</link>,
+<link linkend="group__IL__NET_1gga0391fec0328dc9cfd7b91990998930a7abf97cabc9736acafc52a079fe3a98a6f">IL_NET_STATE_DISCONNECTED</link>,
+<link linkend="group__IL__NET_1gga0391fec0328dc9cfd7b91990998930a7ad761916bd5ecfefe4578e53c39bf8ade">IL_NET_STATE_FAULTY</link>
+}</literallayout>
+<para><emphasis>Network state.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para><literallayout>enum <link linkend="group__IL__NET_1ga6e78452befa7532716d8035eb293bc10">il_net_dev_evt_t</link> {
+<link linkend="group__IL__NET_1gga6e78452befa7532716d8035eb293bc10a643a98c3c2f49473604cdda65b612103">IL_NET_DEV_EVT_ADDED</link>,
+<link linkend="group__IL__NET_1gga6e78452befa7532716d8035eb293bc10a49f0b316d9ca1d19fa3b31cba22e8581">IL_NET_DEV_EVT_REMOVED</link>
+}</literallayout>
+<para><emphasis>Device monitor event types.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Typedefs</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef struct il_net  <link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link><para><emphasis>Network.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef struct <link linkend="structil__net__dev__list">il_net_dev_list</link>  <link linkend="group__IL__NET_1ga9c0173ee0e17218e9f6dcc5ae0a6f74d">il_net_dev_list_t</link><para><emphasis>network devices list.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef struct <link linkend="structil__net__servos__list">il_net_servos_list</link>  <link linkend="group__IL__NET_1ga81660630b147245b0a160f13ef465811">il_net_servos_list_t</link><para><emphasis>Network servos list.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef void(*  <link linkend="group__IL__NET_1ga4ba09545bd04fa6df4f0a26f14df84f7">il_net_servos_on_found_t</link><para><emphasis>Node found callback.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef struct il_net_dev_mon  <link linkend="group__IL__NET_1ga732e586d3465268782c0c227056736e5">il_net_dev_mon_t</link><para><emphasis>Network device monitor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef void(*  <link linkend="group__IL__NET_1ga86bfa409239ad771481bd4dd1a451367">il_net_dev_on_evt_t</link><para><emphasis>Network device event callback.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link> * <link linkend="group__IL__NET_1gaed82d6f49871934f3b6fdf3a9a022cc6">il_net_create</link> (
+<link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link> prot, const <link linkend="structil__net__opts__t">il_net_opts_t</link> * opts)<para><emphasis>Create a network.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__NET_1ga4b9335320c644d86491b3bc20e055f5f">il_net_destroy</link> (
+<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link> * net)<para><emphasis>Destroy a network.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__NET_1gae7992a1213d501e4df7ef3ae64e0c835">il_net_connect</link> (
+<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link> * net)<para><emphasis>Connect network.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__NET_1gaaacc31d9cbf294a17dae29eacfb7e735">il_net_disconnect</link> (
+<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link> * net)<para><emphasis>Disconnect network.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link> <link linkend="group__IL__NET_1gaa72feed444ad53acc497505239b950f9">il_net_prot_get</link> (
+<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link> * net)<para><emphasis>Obtain network protocol.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__NET_1ga0391fec0328dc9cfd7b91990998930a7">il_net_state_t</link> <link linkend="group__IL__NET_1ga83bb157bace16b18f1ebba59a6c6fe59">il_net_state_get</link> (
+<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link> * net)<para><emphasis>Obtain network state.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> const char * <link linkend="group__IL__NET_1ga307f630cca0e1d5e1ff44ce04abc9389">il_net_port_get</link> (
+<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link> * net)<para><emphasis>Obtain network port.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__NET_1ga81660630b147245b0a160f13ef465811">il_net_servos_list_t</link> * <link linkend="group__IL__NET_1ga6167fb50406d818120a069b681d377df">il_net_servos_list_get</link> (
+<link linkend="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">il_net_t</link> * net, <link linkend="group__IL__NET_1ga4ba09545bd04fa6df4f0a26f14df84f7">il_net_servos_on_found_t</link> on_found, void * ctx)<para><emphasis>Obtain network servos list.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__NET_1ga7bb08347585c3760ba2f0c471c478d12">il_net_servos_list_destroy</link> (
+<link linkend="group__IL__NET_1ga81660630b147245b0a160f13ef465811">il_net_servos_list_t</link> * lst)<para><emphasis>Destroy network servos list.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__NET_1ga732e586d3465268782c0c227056736e5">il_net_dev_mon_t</link> * <link linkend="group__IL__NET_1ga78022aea4dc9147a87544533f2999bd9">il_net_dev_mon_create</link> (
+<link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link> prot)<para><emphasis>Create a network device monitor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__NET_1gac0ed4c0656f51a2e691907ccd8ac94ce">il_net_dev_mon_start</link> (
+<link linkend="group__IL__NET_1ga732e586d3465268782c0c227056736e5">il_net_dev_mon_t</link> * mon, <link linkend="group__IL__NET_1ga86bfa409239ad771481bd4dd1a451367">il_net_dev_on_evt_t</link> on_evt, void * ctx)<para><emphasis>Start the network device monitor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__NET_1ga88fb38bdcb516562c504588b37ab934a">il_net_dev_mon_stop</link> (
+<link linkend="group__IL__NET_1ga732e586d3465268782c0c227056736e5">il_net_dev_mon_t</link> * mon)<para><emphasis>Stop the network device monitor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__NET_1ga71f76ab3a41bde25b3b77a661ff767d8">il_net_dev_mon_destroy</link> (
+<link linkend="group__IL__NET_1ga732e586d3465268782c0c227056736e5">il_net_dev_mon_t</link> * mon)<para><emphasis>Destroy the network device monitor.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__NET_1ga9c0173ee0e17218e9f6dcc5ae0a6f74d">il_net_dev_list_t</link> * <link linkend="group__IL__NET_1gaa59e20a4749f276763c45e5d278934d3">il_net_dev_list_get</link> (
+<link linkend="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">il_net_prot_t</link> prot)<para><emphasis>Obtain network devices list.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__NET_1ga86d432b3a9ef2fdc6719e19a59dcbf65">il_net_dev_list_destroy</link> (
+<link linkend="group__IL__NET_1ga9c0173ee0e17218e9f6dcc5ae0a6f74d">il_net_dev_list_t</link> * lst)<para><emphasis>Destroy Network device list.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__NET_1ga7fb88a9dcbf2c6ae143dc9d16c70ad4f">IL_NET_TIMEOUT_RD_DEF</link> 500<para><emphasis>Default read timeout (ms).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__NET_1gaf43b0714cfed3be5907c593e18d4481d">IL_NET_TIMEOUT_WR_DEF</link> 500<para><emphasis>Default write timeout (ms).</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__NET_1ga9c33d1c3bf660e4cb980a9e7a676cb88">IL_NET_PORT_SZ</link> 128U<para><emphasis>Port maximum size.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__NET_1ga70cbad080864d1cc39dd701f9a27d9b6">il_net_servos_list_foreach</link> for ((item) = (lst); (item); (item) = (item)-&gt;next)<para><emphasis>Utility macro to iterate over a list of network servos list.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__NET_1gae80aefde62011dd14dbf60840669cc54">il_net_dev_list_foreach</link> for ((item) = (lst); (item); (item) = (item)-&gt;next)<para><emphasis>Utility macro to iterate over a list of network devices.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Enumeration Type Documentation</title>
+            <section xml:id="group__IL__NET_1ga9629f7451843e493e7665754b5c2feca">
+               <title>enum il_net_prot_t </title>
+               
+               <formalpara>
+                    <title>Enumerator:</title>
+                    <variablelist>
+                        <varlistentry xml:id="group__IL__NET_1gga9629f7451843e493e7665754b5c2fecaafb048fa22f8e422dd8af49370e5f24a5">
+                            <term>IL_NET_PROT_EUSB</term>
+                            <listitem>
+                                <para>E-USB.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__NET_1gga9629f7451843e493e7665754b5c2fecaacdfe55790a47d94d5e6a633598f4eb5c">
+                            <term>IL_NET_PROT_MCB</term>
+                            <listitem>
+                                <para>MCB.</para>
+                            </listitem>
+                        </varlistentry>
+                     </variablelist>
+                </formalpara>
+                <para>Definition at line 44 of file net.h
+                    <computeroutput><literallayout>
+{
+IL_NET_PROT_EUSB, 
+IL_NET_PROT_MCB, 
+}il_net_prot_t;
+                    </literallayout></computeroutput>
+                </para>
+            </section>
+            <section xml:id="group__IL__NET_1ga0391fec0328dc9cfd7b91990998930a7">
+               <title>enum il_net_state_t </title>
+               
+               <formalpara>
+                    <title>Enumerator:</title>
+                    <variablelist>
+                        <varlistentry xml:id="group__IL__NET_1gga0391fec0328dc9cfd7b91990998930a7a2e3dc49a7ff84f0bae3fc4a237d63fc5">
+                            <term>IL_NET_STATE_CONNECTED</term>
+                            <listitem>
+                                <para>Connected.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__NET_1gga0391fec0328dc9cfd7b91990998930a7abf97cabc9736acafc52a079fe3a98a6f">
+                            <term>IL_NET_STATE_DISCONNECTED</term>
+                            <listitem>
+                                <para>Disconnected.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__NET_1gga0391fec0328dc9cfd7b91990998930a7ad761916bd5ecfefe4578e53c39bf8ade">
+                            <term>IL_NET_STATE_FAULTY</term>
+                            <listitem>
+                                <para>Faulty (e.g.</para>
+                            </listitem>
+                        </varlistentry>
+                     </variablelist>
+                </formalpara>
+                <para>Definition at line 68 of file net.h
+                    <computeroutput><literallayout>
+{
+IL_NET_STATE_CONNECTED, 
+IL_NET_STATE_DISCONNECTED, 
+IL_NET_STATE_FAULTY, 
+}il_net_state_t;
+                    </literallayout></computeroutput>
+                </para>
+            </section>
+            <section xml:id="group__IL__NET_1ga6e78452befa7532716d8035eb293bc10">
+               <title>enum il_net_dev_evt_t </title>
+               
+               <formalpara>
+                    <title>Enumerator:</title>
+                    <variablelist>
+                        <varlistentry xml:id="group__IL__NET_1gga6e78452befa7532716d8035eb293bc10a643a98c3c2f49473604cdda65b612103">
+                            <term>IL_NET_DEV_EVT_ADDED</term>
+                            <listitem>
+                                <para>Device added.</para>
+                            </listitem>
+                        </varlistentry>
+                        <varlistentry xml:id="group__IL__NET_1gga6e78452befa7532716d8035eb293bc10a49f0b316d9ca1d19fa3b31cba22e8581">
+                            <term>IL_NET_DEV_EVT_REMOVED</term>
+                            <listitem>
+                                <para>Device removed.</para>
+                            </listitem>
+                        </varlistentry>
+                     </variablelist>
+                </formalpara>
+                <para>Definition at line 100 of file net.h
+                    <computeroutput><literallayout>
+{
+IL_NET_DEV_EVT_ADDED, 
+IL_NET_DEV_EVT_REMOVED, 
+}il_net_dev_evt_t;
+                    </literallayout></computeroutput>
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>Typedef Documentation</title>
+            <section xml:id="group__IL__NET_1ga0657204ab779a5b7a504aa0b895d1ae6">
+                <title>typedef struct il_net il_net_t</title> <emphasis>Network.</emphasis>
+                
+            </section>
+            <section xml:id="group__IL__NET_1ga9c0173ee0e17218e9f6dcc5ae0a6f74d">
+                <title>typedef struct il_net_dev_list  il_net_dev_list_t</title> <emphasis>network devices list.</emphasis>
+                
+            </section>
+            <section xml:id="group__IL__NET_1ga81660630b147245b0a160f13ef465811">
+                <title>typedef struct il_net_servos_list  il_net_servos_list_t</title> <emphasis>Network servos list.</emphasis>
+                
+            </section>
+            <section xml:id="group__IL__NET_1ga4ba09545bd04fa6df4f0a26f14df84f7">
+                <title>typedef void(* il_net_servos_on_found_t) (void *ctx, uint8_t id)</title> <emphasis>Node found callback.</emphasis>
+                
+            </section>
+            <section xml:id="group__IL__NET_1ga732e586d3465268782c0c227056736e5">
+                <title>typedef struct il_net_dev_mon il_net_dev_mon_t</title> <emphasis>Network device monitor.</emphasis>
+                
+            </section>
+            <section xml:id="group__IL__NET_1ga86bfa409239ad771481bd4dd1a451367">
+                <title>typedef void(* il_net_dev_on_evt_t) (void *ctx, il_net_dev_evt_t evt, const char *port)</title> <emphasis>Network device event callback.</emphasis>
+                
+            </section>
+        </section>
+        <section>
+            <title>Function Documentation</title>
+            <section xml:id="group__IL__NET_1gaed82d6f49871934f3b6fdf3a9a022cc6">
+                <title>IL_EXPORT il_net_t* il_net_create (il_net_prot_t prot, const il_net_opts_t *opts)</title> <emphasis>Create a network.</emphasis>
+                
+<para>Network is connected when created.</para>
+
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>prot</entry>
+                                <entry>
+<para>Protocol. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>opts</entry>
+                                <entry>
+<para>Initialization options.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Network (NULL if it could not be created). </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__NET_1ga4b9335320c644d86491b3bc20e055f5f">
+                <title>IL_EXPORT void il_net_destroy (il_net_t *net)</title> <emphasis>Destroy a network.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>net</entry>
+                                <entry>
+<para>Network. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__NET_1gae7992a1213d501e4df7ef3ae64e0c835">
+                <title>IL_EXPORT int il_net_connect (il_net_t *net)</title> <emphasis>Connect network.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>net</entry>
+                                <entry>
+<para>Network.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__NET_1gaaacc31d9cbf294a17dae29eacfb7e735">
+                <title>IL_EXPORT void il_net_disconnect (il_net_t *net)</title> <emphasis>Disconnect network.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>net</entry>
+                                <entry>
+<para>Network. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__NET_1gaa72feed444ad53acc497505239b950f9">
+                <title>IL_EXPORT il_net_prot_t il_net_prot_get (il_net_t *net)</title> <emphasis>Obtain network protocol.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>net</entry>
+                                <entry>
+<para>Network.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Network protocol. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__NET_1ga83bb157bace16b18f1ebba59a6c6fe59">
+                <title>IL_EXPORT il_net_state_t il_net_state_get (il_net_t *net)</title> <emphasis>Obtain network state.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>net</entry>
+                                <entry>
+<para>Network.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Network state. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__NET_1ga307f630cca0e1d5e1ff44ce04abc9389">
+                <title>IL_EXPORT const char* il_net_port_get (il_net_t *net)</title> <emphasis>Obtain network port.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>net</entry>
+                                <entry>
+<para>Network.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Network port. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__NET_1ga6167fb50406d818120a069b681d377df">
+                <title>IL_EXPORT il_net_servos_list_t* il_net_servos_list_get (il_net_t *net, il_net_servos_on_found_t on_found, void *ctx)</title> <emphasis>Obtain network servos list.</emphasis>
+                
+<para><formalpara><title>Note: </title>
+
+<para>A callback can be given to obtain <emphasis>real-time</emphasis> servos information. This may be useful for GUIs.</para>
+</formalpara>
+
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>net</entry>
+                                <entry>
+<para>network. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>on_found</entry>
+                                <entry>
+<para>Callback that will be called every time a node is found (optional). </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>ctx</entry>
+                                <entry>
+<para>Callback context (optional).</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Network servos list (NULL if none are found or any error occurs).</para>
+</formalpara>
+<formalpara><title>See also: </title>
+
+<para><link linkend="group__IL__NET_1ga7bb08347585c3760ba2f0c471c478d12">il_net_servos_list_destroy</link> </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__NET_1ga7bb08347585c3760ba2f0c471c478d12">
+                <title>IL_EXPORT void il_net_servos_list_destroy (il_net_servos_list_t *lst)</title> <emphasis>Destroy network servos list.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>lst</entry>
+                                <entry>
+<para>Network servos list.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>See also: </title>
+
+<para><link linkend="group__IL__NET_1ga6167fb50406d818120a069b681d377df">il_net_servos_list_get</link> </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__NET_1ga78022aea4dc9147a87544533f2999bd9">
+                <title>IL_EXPORT il_net_dev_mon_t* il_net_dev_mon_create (il_net_prot_t prot)</title> <emphasis>Create a network device monitor.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>prot</entry>
+                                <entry>
+<para>Protocol.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>An of a device monitor (NULL if it could not be created). </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__NET_1gac0ed4c0656f51a2e691907ccd8ac94ce">
+                <title>IL_EXPORT int il_net_dev_mon_start (il_net_dev_mon_t *mon, il_net_dev_on_evt_t on_evt, void *ctx)</title> <emphasis>Start the network device monitor.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>mon</entry>
+                                <entry>
+<para>Monitor. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>on_evt</entry>
+                                <entry>
+<para>Callback function that will be called when a new device is added or removed. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>ctx</entry>
+                                <entry>
+<para>Callback context (optional).</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__NET_1ga88fb38bdcb516562c504588b37ab934a">
+                <title>IL_EXPORT void il_net_dev_mon_stop (il_net_dev_mon_t *mon)</title> <emphasis>Stop the network device monitor.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>mon</entry>
+                                <entry>
+<para>Monitor. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__NET_1ga71f76ab3a41bde25b3b77a661ff767d8">
+                <title>IL_EXPORT void il_net_dev_mon_destroy (il_net_dev_mon_t *mon)</title> <emphasis>Destroy the network device monitor.</emphasis>
+                
+<para><formalpara><title>Note: </title>
+
+<para>If the monitor is running, it will be stopped.</para>
+</formalpara>
+
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>mon</entry>
+                                <entry>
+<para>Monitor. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__NET_1gaa59e20a4749f276763c45e5d278934d3">
+                <title>IL_EXPORT il_net_dev_list_t* il_net_dev_list_get (il_net_prot_t prot)</title> <emphasis>Obtain network devices list.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>prot</entry>
+                                <entry>
+<para>Protocol.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Network devices list (NULL if none are found or any error occurs).</para>
+</formalpara>
+<formalpara><title>See also: </title>
+
+<para><link linkend="group__IL__NET_1ga86d432b3a9ef2fdc6719e19a59dcbf65">il_net_dev_list_destroy</link> </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__NET_1ga86d432b3a9ef2fdc6719e19a59dcbf65">
+                <title>IL_EXPORT void il_net_dev_list_destroy (il_net_dev_list_t *lst)</title> <emphasis>Destroy Network device list.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>lst</entry>
+                                <entry>
+<para>Network device list.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>See also: </title>
+
+<para><link linkend="group__IL__NET_1gaa59e20a4749f276763c45e5d278934d3">il_net_dev_list_get</link> </para>
+</formalpara>
+</para>
+
+            </section>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__NET_1ga7fb88a9dcbf2c6ae143dc9d16c70ad4f">
+                <title>#define IL_NET_TIMEOUT_RD_DEF</title>                
+                <para>Definition at line 62 of file net.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>net.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__NET_1gaf43b0714cfed3be5907c593e18d4481d">
+                <title>#define IL_NET_TIMEOUT_WR_DEF</title>                
+                <para>Definition at line 65 of file net.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>net.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__NET_1ga9c33d1c3bf660e4cb980a9e7a676cb88">
+                <title>#define IL_NET_PORT_SZ</title>                
+                <para>Definition at line 78 of file net.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>net.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__NET_1ga70cbad080864d1cc39dd701f9a27d9b6">
+                <title>#define il_net_servos_list_foreach</title>                
+                <para>Definition at line 226 of file net.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>net.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__NET_1gae80aefde62011dd14dbf60840669cc54">
+                <title>#define il_net_dev_list_foreach</title>                
+                <para>Definition at line 302 of file net.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>net.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

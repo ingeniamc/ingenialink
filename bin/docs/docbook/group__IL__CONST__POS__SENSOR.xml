@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST__POS__SENSOR">
+    <title>Position sensors</title>
+<para>Collaboration diagram for Position sensors</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST__POS__SENSOR.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga9e22496d29b1c97487de0d32559d2492">ILK_POS_SENSOR_DIGITAL_ENCODER</link> 0x00<para><emphasis>Digital encoder.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1gadf3325d38c0443100a7250e690f59616">ILK_POS_SENSOR_DIGITAL_HALLS</link> 0x01<para><emphasis>Digital halls.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1gad4226b47b6b8d3876a153a99d6ac6b22">ILK_POS_SENSOR_ANALOG_HALLS</link> 0x02<para><emphasis>Analog halls.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga9ad3cda1577a3d1a912a7b9fdff366d9">ILK_POS_SENSOR_ANALOG_INPUT</link> 0x04<para><emphasis>Analog input.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1gac3a8ad54033792117e711e4282ff0702">ILK_POS_SENSOR_SSI</link> 0x05<para><emphasis>SSI.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga83adaa5a63bbae0da0a15e6700181558">ILK_POS_SENSOR_SINCOS</link> 0x06<para><emphasis>SinCos.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1gad60267efbd76b9f67e581b7b58477fab">ILK_POS_SENSOR_PWM</link> 0x07<para><emphasis>PWM.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga2b72626eee8054c3bae2d4b787a29773">ILK_POS_SENSOR_RESOLVER</link> 0x08<para><emphasis>Resolver.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga92cd1904ad594cbfc972210a456020e2">ILK_POS_SENSOR_NONE</link> 0x09<para><emphasis>None.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1ga4500e1b8522b1088b4b6d5061eee2d8e">ILK_POS_SENSOR_SIMULATED</link> 0x0B<para><emphasis>Simulated.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__POS__SENSOR_1gadf9c1c973f6b28915598b69515406a0e">ILK_POS_SENSOR_TACHOMETER</link> 0x0C<para><emphasis>Digital tachometer.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__CONST__POS__SENSOR_1ga9e22496d29b1c97487de0d32559d2492">
+                <title>#define ILK_POS_SENSOR_DIGITAL_ENCODER</title>                
+                <para>Definition at line 176 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__POS__SENSOR_1gadf3325d38c0443100a7250e690f59616">
+                <title>#define ILK_POS_SENSOR_DIGITAL_HALLS</title>                
+                <para>Definition at line 178 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__POS__SENSOR_1gad4226b47b6b8d3876a153a99d6ac6b22">
+                <title>#define ILK_POS_SENSOR_ANALOG_HALLS</title>                
+                <para>Definition at line 180 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__POS__SENSOR_1ga9ad3cda1577a3d1a912a7b9fdff366d9">
+                <title>#define ILK_POS_SENSOR_ANALOG_INPUT</title>                
+                <para>Definition at line 182 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__POS__SENSOR_1gac3a8ad54033792117e711e4282ff0702">
+                <title>#define ILK_POS_SENSOR_SSI</title>                
+                <para>Definition at line 184 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__POS__SENSOR_1ga83adaa5a63bbae0da0a15e6700181558">
+                <title>#define ILK_POS_SENSOR_SINCOS</title>                
+                <para>Definition at line 186 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__POS__SENSOR_1gad60267efbd76b9f67e581b7b58477fab">
+                <title>#define ILK_POS_SENSOR_PWM</title>                
+                <para>Definition at line 188 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__POS__SENSOR_1ga2b72626eee8054c3bae2d4b787a29773">
+                <title>#define ILK_POS_SENSOR_RESOLVER</title>                
+                <para>Definition at line 190 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__POS__SENSOR_1ga92cd1904ad594cbfc972210a456020e2">
+                <title>#define ILK_POS_SENSOR_NONE</title>                
+                <para>Definition at line 192 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__POS__SENSOR_1ga4500e1b8522b1088b4b6d5061eee2d8e">
+                <title>#define ILK_POS_SENSOR_SIMULATED</title>                
+                <para>Definition at line 194 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__POS__SENSOR_1gadf9c1c973f6b28915598b69515406a0e">
+                <title>#define ILK_POS_SENSOR_TACHOMETER</title>                
+                <para>Definition at line 196 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

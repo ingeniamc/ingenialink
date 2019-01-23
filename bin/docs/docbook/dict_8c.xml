@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="dict_8c">
+    <title>dict.c File Reference</title>
+    <programlisting>#include &lt;stdio.h&gt;</programlisting>
+    <programlisting>#include &lt;inttypes.h&gt;</programlisting>
+    <programlisting>#include &lt;ingenialink/ingenialink.h&gt;</programlisting>
+<para>Include dependency diagram for dict.c</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="dict_8c__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Included by dependency diagram for dict.c</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="dict_8c__dep__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>static void <link linkend="dict_8c_1a5a1a30d67b78a247ca87a794755ce977">print_scat</link> (
+const char * id, <link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels)</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>static void <link linkend="dict_8c_1a60d562b3f54b2b75b14eff966a7262d2">print_cat</link> (
+<link linkend="group__IL__DICT_1gac2cb8ba7974d8506df3017879572fc84">il_dict_t</link> * dict, const char * id, <link linkend="group__IL__DICT__LABELS_1ga69d1109256f465cbcfa8aac7fa592495">il_dict_labels_t</link> * labels)</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>static void <link linkend="dict_8c_1a22cac6346b53552810d7d09806d9c24a">print_reg</link> (
+const <link linkend="structil__reg__t">il_reg_t</link> * reg)</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>int <link linkend="dict_8c_1a217dbf8b442f20279ea00b898af96f52">main</link> (
+int argc, const char ** argv)</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+        <title>Detailed Description</title>
+    <para>Definition in file /home/surajcha/codebase/ingenialink/examples/dict.c</para>
+    </simplesect>
+</section>

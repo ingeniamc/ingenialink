@@ -1,0 +1,13 @@
+<map id="ingenialink/ingenialink.h" name="ingenialink/ingenialink.h">
+<area shape="rect" id="node2" href="$const_8h.html" title="Constants. " alt="" coords="5,80,71,107"/>
+<area shape="rect" id="node3" href="$dict_8h.html" title="Dictionary. " alt="" coords="124,229,179,256"/>
+<area shape="rect" id="node10" href="$err_8h.html" title="Error reporting. " alt="" coords="313,155,361,181"/>
+<area shape="rect" id="node11" href="$monitor_8h.html" title="Monitor. " alt="" coords="147,80,223,107"/>
+<area shape="rect" id="node14" href="$poller_8h.html" title="Poller. " alt="" coords="247,80,311,107"/>
+<area shape="rect" id="node15" href="$version_8h.html" title="Version information. " alt="" coords="362,229,437,256"/>
+<area shape="rect" id="node4" href="$dict__labels_8h.html" title="Labels dictionary. " alt="" coords="141,379,236,405"/>
+<area shape="rect" id="node9" href="$registers_8h.html" title="Registers. " alt="" coords="71,304,154,331"/>
+<area shape="rect" id="node5" href="$common_8h.html" title="Common. " alt="" coords="258,453,341,480"/>
+<area shape="rect" id="node12" href="$servo_8h.html" title="Servo. " alt="" coords="220,155,285,181"/>
+<area shape="rect" id="node13" href="$net_8h.html" title="Network. " alt="" coords="231,304,282,331"/>
+</map>

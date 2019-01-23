@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL">
+    <title>IngeniaLink</title>
+<para>Collaboration diagram for IngeniaLink</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <simplesect>
+            <title> File </title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>file <link linkend="common_8h">common.h</link></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </simplesect>
+    <simplesect>
+        <title>Modules</title>
+    </simplesect>
+    <para>
+        <itemizedlist>
+            <listitem><para><link linkend="group__IL__CONST">Constants</link></para></listitem>
+            <listitem><para><link linkend="group__IL__DICT">Dictionary</link></para></listitem>
+            <listitem><para><link linkend="group__IL__DICT__LABELS">Labels dictionary</link></para></listitem>
+            <listitem><para><link linkend="group__IL__ERR">Error reporting</link></para></listitem>
+            <listitem><para><link linkend="group__IL__MONITOR">Monitor</link></para></listitem>
+            <listitem><para><link linkend="group__IL__NET">Network</link></para></listitem>
+            <listitem><para><link linkend="group__IL__POLLER">Poller</link></para></listitem>
+            <listitem><para><link linkend="group__IL__REGS">Registers</link></para></listitem>
+            <listitem><para><link linkend="group__IL__SERVO">Servo</link></para></listitem>
+            <listitem><para><link linkend="group__IL__VERSION">Version information</link></para></listitem>
+        </itemizedlist>
+    </para>
+<xi:include href="group__IL__CONST.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__DICT.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__DICT__LABELS.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__ERR.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__MONITOR.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__NET.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__POLLER.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__REGS.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__SERVO.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+<xi:include href="group__IL__VERSION.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+</section>

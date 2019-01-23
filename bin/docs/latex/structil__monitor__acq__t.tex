@@ -1,0 +1,81 @@
+\hypertarget{structil__monitor__acq__t}{}\section{il\+\_\+monitor\+\_\+acq\+\_\+t Struct Reference}
+\label{structil__monitor__acq__t}\index{il\+\_\+monitor\+\_\+acq\+\_\+t@{il\+\_\+monitor\+\_\+acq\+\_\+t}}
+
+
+Monitor acquisition results.  
+
+
+
+
+{\ttfamily \#include $<$monitor.\+h$>$}
+
+\subsection*{Data Fields}
+\begin{DoxyCompactItemize}
+\item 
+double $\ast$ \hyperlink{structil__monitor__acq__t_a80f1fa100ff681ce19657ec1d91e0423}{t}
+\begin{DoxyCompactList}\small\item\em Time buffer. \end{DoxyCompactList}\item 
+double $\ast$ \hyperlink{structil__monitor__acq__t_adbc831472b0744d1a14b52f34388314f}{d} \mbox{[}\hyperlink{group__IL__MONITOR_ga05007f227fb5f253ed8ba714c0efb2cd}{I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+C\+H\+\_\+\+N\+UM}\mbox{]}
+\begin{DoxyCompactList}\small\item\em Data samples buffers. \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{structil__monitor__acq__t_a1abcafb439ed9802b75afe08b5d48cea}{sz}
+\begin{DoxyCompactList}\small\item\em Size of samples buffer. \end{DoxyCompactList}\item 
+size\+\_\+t \hyperlink{structil__monitor__acq__t_a82be21ff5f08413736841b02666823ad}{cnt}
+\begin{DoxyCompactList}\small\item\em Number of actual samples. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Monitor acquisition results. 
+
+\begin{DoxyNote}{Note}
+On successful acquisitions, sz and n\+\_\+samples should be equal. In case of timeout, n\+\_\+samples may be less than sz. 
+\end{DoxyNote}
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+
+
+\subsection{Field Documentation}
+\index{il\+\_\+monitor\+\_\+acq\+\_\+t@{il\+\_\+monitor\+\_\+acq\+\_\+t}!cnt@{cnt}}
+\index{cnt@{cnt}!il\+\_\+monitor\+\_\+acq\+\_\+t@{il\+\_\+monitor\+\_\+acq\+\_\+t}}
+\subsubsection[{\texorpdfstring{cnt}{cnt}}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t il\+\_\+monitor\+\_\+acq\+\_\+t\+::cnt}\hypertarget{structil__monitor__acq__t_a82be21ff5f08413736841b02666823ad}{}\label{structil__monitor__acq__t_a82be21ff5f08413736841b02666823ad}
+
+
+Number of actual samples. 
+
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+\index{il\+\_\+monitor\+\_\+acq\+\_\+t@{il\+\_\+monitor\+\_\+acq\+\_\+t}!d@{d}}
+\index{d@{d}!il\+\_\+monitor\+\_\+acq\+\_\+t@{il\+\_\+monitor\+\_\+acq\+\_\+t}}
+\subsubsection[{\texorpdfstring{d}{d}}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ il\+\_\+monitor\+\_\+acq\+\_\+t\+::d\mbox{[}{\bf I\+L\+\_\+\+M\+O\+N\+I\+T\+O\+R\+\_\+\+C\+H\+\_\+\+N\+UM}\mbox{]}}\hypertarget{structil__monitor__acq__t_adbc831472b0744d1a14b52f34388314f}{}\label{structil__monitor__acq__t_adbc831472b0744d1a14b52f34388314f}
+
+
+Data samples buffers. 
+
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+\index{il\+\_\+monitor\+\_\+acq\+\_\+t@{il\+\_\+monitor\+\_\+acq\+\_\+t}!sz@{sz}}
+\index{sz@{sz}!il\+\_\+monitor\+\_\+acq\+\_\+t@{il\+\_\+monitor\+\_\+acq\+\_\+t}}
+\subsubsection[{\texorpdfstring{sz}{sz}}]{\setlength{\rightskip}{0pt plus 5cm}size\+\_\+t il\+\_\+monitor\+\_\+acq\+\_\+t\+::sz}\hypertarget{structil__monitor__acq__t_a1abcafb439ed9802b75afe08b5d48cea}{}\label{structil__monitor__acq__t_a1abcafb439ed9802b75afe08b5d48cea}
+
+
+Size of samples buffer. 
+
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+\index{il\+\_\+monitor\+\_\+acq\+\_\+t@{il\+\_\+monitor\+\_\+acq\+\_\+t}!t@{t}}
+\index{t@{t}!il\+\_\+monitor\+\_\+acq\+\_\+t@{il\+\_\+monitor\+\_\+acq\+\_\+t}}
+\subsubsection[{\texorpdfstring{t}{t}}]{\setlength{\rightskip}{0pt plus 5cm}double$\ast$ il\+\_\+monitor\+\_\+acq\+\_\+t\+::t}\hypertarget{structil__monitor__acq__t_a80f1fa100ff681ce19657ec1d91e0423}{}\label{structil__monitor__acq__t_a80f1fa100ff681ce19657ec1d91e0423}
+
+
+Time buffer. 
+
+\begin{Desc}
+\item[Examples\+: ]\par
+\hyperlink{monitor_8c-example}{monitor.\+c}.\end{Desc}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+ingenialink/\hyperlink{monitor_8h}{monitor.\+h}\end{DoxyCompactItemize}

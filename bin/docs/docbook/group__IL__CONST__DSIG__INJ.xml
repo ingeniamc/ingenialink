@@ -1,0 +1,164 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__CONST__DSIG__INJ">
+    <title>Disturbance signal injection points</title>
+<para>Collaboration diagram for Disturbance signal injection points</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__CONST__DSIG__INJ.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga2a8188af50a070b8d706ec993e2e288c">ILK_DSIG_INJ_NONE</link> 0x00<para><emphasis>None.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1gaa2f0c5ecb182317e3882918acc628cd4">ILK_DSIG_INJ_CSRC_TOR</link> 0x01<para><emphasis>Torque command source.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga0d2db20d760c659401d8168710efe721">ILK_DSIG_INJ_DEMAND_TOR</link> 0x02<para><emphasis>Torque demand.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga91ffd66b7114fd2f772768a9658d6eaa">ILK_DSIG_INJ_CLOOP_TOR</link> 0x03<para><emphasis>Torque control loop.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga782af9a5787a2b7d32cce3e5f57d76a7">ILK_DSIG_INJ_CSRC_VEL</link> 0x04<para><emphasis>Velocity command source.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga181b0771be1a6a7989ab5dcf16a62922">ILK_DSIG_INJ_DEMAND_VEL</link> 0x05<para><emphasis>Velocity demand.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1gae687f53e49d8047df481297c1621eb6d">ILK_DSIG_INJ_CLOOP_VEL</link> 0x06<para><emphasis>Velocity control loop.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga51800e271fa5f8d6fe7674956a827d04">ILK_DSIG_INJ_CSRC_POS</link> 0x07<para><emphasis>Position command source.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1gaf90006989892a45217b8254bdffd7e5b">ILK_DSIG_INJ_DEMAND_POS</link> 0x08<para><emphasis>Position command source.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__CONST__DSIG__INJ_1ga108671d95dfe95f35d1e1d80e6aac8a8">ILK_DSIG_INJ_CLOOP_POS</link> 0x09<para><emphasis>Position control loop.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__CONST__DSIG__INJ_1ga2a8188af50a070b8d706ec993e2e288c">
+                <title>#define ILK_DSIG_INJ_NONE</title>                
+                <para>Definition at line 262 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DSIG__INJ_1gaa2f0c5ecb182317e3882918acc628cd4">
+                <title>#define ILK_DSIG_INJ_CSRC_TOR</title>                
+                <para>Definition at line 264 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DSIG__INJ_1ga0d2db20d760c659401d8168710efe721">
+                <title>#define ILK_DSIG_INJ_DEMAND_TOR</title>                
+                <para>Definition at line 266 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DSIG__INJ_1ga91ffd66b7114fd2f772768a9658d6eaa">
+                <title>#define ILK_DSIG_INJ_CLOOP_TOR</title>                
+                <para>Definition at line 268 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DSIG__INJ_1ga782af9a5787a2b7d32cce3e5f57d76a7">
+                <title>#define ILK_DSIG_INJ_CSRC_VEL</title>                
+                <para>Definition at line 270 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DSIG__INJ_1ga181b0771be1a6a7989ab5dcf16a62922">
+                <title>#define ILK_DSIG_INJ_DEMAND_VEL</title>                
+                <para>Definition at line 272 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DSIG__INJ_1gae687f53e49d8047df481297c1621eb6d">
+                <title>#define ILK_DSIG_INJ_CLOOP_VEL</title>                
+                <para>Definition at line 274 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DSIG__INJ_1ga51800e271fa5f8d6fe7674956a827d04">
+                <title>#define ILK_DSIG_INJ_CSRC_POS</title>                
+                <para>Definition at line 276 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DSIG__INJ_1gaf90006989892a45217b8254bdffd7e5b">
+                <title>#define ILK_DSIG_INJ_DEMAND_POS</title>                
+                <para>Definition at line 278 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__CONST__DSIG__INJ_1ga108671d95dfe95f35d1e1d80e6aac8a8">
+                <title>#define ILK_DSIG_INJ_CLOOP_POS</title>                
+                <para>Definition at line 280 of file const.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>const.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>

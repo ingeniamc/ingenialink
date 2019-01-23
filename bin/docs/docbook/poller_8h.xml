@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="poller_8h">
+    <title>poller.h File Reference</title>
+    <programlisting>#include &quot;servo.h&quot;</programlisting>
+<para>Include dependency diagram for poller.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="poller_8h__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+<para>Included by dependency diagram for poller.h</para>
+<para>
+    <figure>
+        <title>Dependency diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="poller_8h__dep__incl.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title> Data Structures </title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>struct <link linkend="structil__poller__acq__t">il_poller_acq_t</link></para>
+<para><emphasis>Poller acquisition results.</emphasis></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Typedefs</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef struct il_poller  <link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link><para><emphasis>IngeniaLink poller.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * <link linkend="group__IL__POLLER_1gaf1a6d95123039ac685439062c34e7e54">il_poller_create</link> (
+<link linkend="group__IL__SERVO_1ga3369ddfcc33492fe3a28f96cf455b13e">il_servo_t</link> * servo, size_t n_ch)<para><emphasis>Create a register poller.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__POLLER_1gada8133cbba4d0212e6d5c84dab03d407">il_poller_destroy</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller)<para><emphasis>Destroy a register poller.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__POLLER_1ga018f08358312c8610819a47fd9d2509f">il_poller_start</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller)<para><emphasis>Start poller.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__POLLER_1ga1055384cca31fe730d07d488017c559f">il_poller_stop</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller)<para><emphasis>Stop poller.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__POLLER_1ga67ccc0e92b0bb83756462d3c407d4d87">il_poller_data_get</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller, <link linkend="structil__poller__acq__t">il_poller_acq_t</link> ** acq)<para><emphasis>Obtain current time and data vectors.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__POLLER_1ga90aa41e8a0ff21af9d077e522cefb205">il_poller_configure</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller, unsigned int t_s, size_t buf_sz)<para><emphasis>Configure poller parameters.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__POLLER_1ga615595277add47dd6966112e48e66988">il_poller_ch_configure</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller, unsigned int ch, const <link linkend="structil__reg__t">il_reg_t</link> * reg, const char * id)<para><emphasis>Configure a poller channel.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__POLLER_1ga1722948bea216e9bb85be820f175371d">il_poller_ch_disable</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller, unsigned int ch)<para><emphasis>Disable a poller channel.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__POLLER_1gac58b529d800310d6f68f00f195fab9c1">il_poller_ch_disable_all</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller)<para><emphasis>Disable all poller channels.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+    <simplesect>
+        <title>Detailed Description</title>
+
+<para>Poller. </para>
+    <para>Definition in file /home/surajcha/codebase/ingenialink/include/public/ingenialink/poller.h</para>
+    </simplesect>
+</section>

@@ -1,0 +1,70 @@
+\hypertarget{registers_8h}{}\section{ingenialink/registers.h File Reference}
+\label{registers_8h}\index{ingenialink/registers.\+h@{ingenialink/registers.\+h}}
+
+
+Registers.  
+
+
+{\ttfamily \#include \char`\"{}dict\+\_\+labels.\+h\char`\"{}}\\*
+Include dependency graph for registers.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=265pt]{registers_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=344pt]{registers_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+union \hyperlink{unionil__reg__limit__t}{il\+\_\+reg\+\_\+limit\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Limits. \end{DoxyCompactList}\item 
+struct \hyperlink{structil__reg__range__t}{il\+\_\+reg\+\_\+range\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Range. \end{DoxyCompactList}\item 
+struct \hyperlink{structil__reg__t}{il\+\_\+reg\+\_\+t}
+\begin{DoxyCompactList}\small\item\em Register. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{group__IL__REGS_gaddd7edef254d348f2e8a48c40840cdd6}{il\+\_\+reg\+\_\+dtype\+\_\+t} \{ \\*
+\hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6afebd31a475c6cb6b6c9ac200fd90a09b}{I\+L\+\_\+\+R\+E\+G\+\_\+\+D\+T\+Y\+P\+E\+\_\+\+U8}, 
+\hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a4d3f76f5e0e716d7b358d819691e834a}{I\+L\+\_\+\+R\+E\+G\+\_\+\+D\+T\+Y\+P\+E\+\_\+\+S8}, 
+\hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a4776d418653151a6cadd41574d631bfa}{I\+L\+\_\+\+R\+E\+G\+\_\+\+D\+T\+Y\+P\+E\+\_\+\+U16}, 
+\hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a3eb3b654856f84234168d58355e83a85}{I\+L\+\_\+\+R\+E\+G\+\_\+\+D\+T\+Y\+P\+E\+\_\+\+S16}, 
+\\*
+\hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a3d299c6c4bbda29b3286a3483271ee90}{I\+L\+\_\+\+R\+E\+G\+\_\+\+D\+T\+Y\+P\+E\+\_\+\+U32}, 
+\hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6aaf16d13caf933d3e002054de7a0f1c48}{I\+L\+\_\+\+R\+E\+G\+\_\+\+D\+T\+Y\+P\+E\+\_\+\+S32}, 
+\hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a5a0f02c573b8800ee8f113160ce93712}{I\+L\+\_\+\+R\+E\+G\+\_\+\+D\+T\+Y\+P\+E\+\_\+\+U64}, 
+\hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a37398082dc9828038d3403ca24a28d5a}{I\+L\+\_\+\+R\+E\+G\+\_\+\+D\+T\+Y\+P\+E\+\_\+\+S64}, 
+\\*
+\hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6a07e3bbcf6a1d00d8f62887e41b529239}{I\+L\+\_\+\+R\+E\+G\+\_\+\+D\+T\+Y\+P\+E\+\_\+\+F\+L\+O\+AT}, 
+\hyperlink{group__IL__REGS_ggaddd7edef254d348f2e8a48c40840cdd6aeb15ea8dd9961e96edebfc3d0f36fbd3}{I\+L\+\_\+\+R\+E\+G\+\_\+\+D\+T\+Y\+P\+E\+\_\+\+S\+TR}
+ \}\begin{DoxyCompactList}\small\item\em Register data type. \end{DoxyCompactList}
+\item 
+enum \hyperlink{group__IL__REGS_ga4c623bd7d0d5f059dd91949c6948147e}{il\+\_\+reg\+\_\+access\+\_\+t} \{ \hyperlink{group__IL__REGS_gga4c623bd7d0d5f059dd91949c6948147eafa388eb7ec6166ba6a59d0d665f3ac53}{I\+L\+\_\+\+R\+E\+G\+\_\+\+A\+C\+C\+E\+S\+S\+\_\+\+RW}, 
+\hyperlink{group__IL__REGS_gga4c623bd7d0d5f059dd91949c6948147ea12dabd43c525dfea5fb20914711168b8}{I\+L\+\_\+\+R\+E\+G\+\_\+\+A\+C\+C\+E\+S\+S\+\_\+\+RO}, 
+\hyperlink{group__IL__REGS_gga4c623bd7d0d5f059dd91949c6948147eadb0026436ae70de8a60920c1085561bb}{I\+L\+\_\+\+R\+E\+G\+\_\+\+A\+C\+C\+E\+S\+S\+\_\+\+WO}
+ \}\begin{DoxyCompactList}\small\item\em Register access. \end{DoxyCompactList}
+\item 
+enum \hyperlink{group__IL__REGS_ga37538453e5c3d84733c628987a579590}{il\+\_\+reg\+\_\+phy\+\_\+t} \{ \\*
+\hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590a34d96ac8a7b9afc02256a03d5a464822}{I\+L\+\_\+\+R\+E\+G\+\_\+\+P\+H\+Y\+\_\+\+N\+O\+NE}, 
+\hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590a799176bbdcea555949cd68969361bc8f}{I\+L\+\_\+\+R\+E\+G\+\_\+\+P\+H\+Y\+\_\+\+T\+O\+R\+Q\+UE}, 
+\hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590ad7bdcaae981dfbbd28c46bed55f947ac}{I\+L\+\_\+\+R\+E\+G\+\_\+\+P\+H\+Y\+\_\+\+P\+OS}, 
+\hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590aea1c9cf80466e862af6a3a6f687550ef}{I\+L\+\_\+\+R\+E\+G\+\_\+\+P\+H\+Y\+\_\+\+V\+EL}, 
+\\*
+\hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590a3dc604058c640ad2997c5d4a1ad37b97}{I\+L\+\_\+\+R\+E\+G\+\_\+\+P\+H\+Y\+\_\+\+A\+CC}, 
+\hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590a99385428e977da83262b2ad47bcfc8f0}{I\+L\+\_\+\+R\+E\+G\+\_\+\+P\+H\+Y\+\_\+\+V\+O\+L\+T\+\_\+\+R\+EL}, 
+\hyperlink{group__IL__REGS_gga37538453e5c3d84733c628987a579590a0cad6fc9aa35ccf3b78d695f9a446e2e}{I\+L\+\_\+\+R\+E\+G\+\_\+\+P\+H\+Y\+\_\+\+R\+AD}
+ \}\begin{DoxyCompactList}\small\item\em Register physical units type. \end{DoxyCompactList}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Registers. 
+

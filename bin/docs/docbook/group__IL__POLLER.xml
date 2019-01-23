@@ -1,0 +1,445 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__POLLER">
+    <title>Poller</title>
+<para>Collaboration diagram for Poller</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__POLLER.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title> Data Structures </title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para>struct <link linkend="structil__poller__acq__t">il_poller_acq_t</link></para>
+<para><emphasis>Poller acquisition results.</emphasis></para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Typedefs</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>typedef struct il_poller  <link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link><para><emphasis>IngeniaLink poller.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> <link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * <link linkend="group__IL__POLLER_1gaf1a6d95123039ac685439062c34e7e54">il_poller_create</link> (
+<link linkend="group__IL__SERVO_1ga3369ddfcc33492fe3a28f96cf455b13e">il_servo_t</link> * servo, size_t n_ch)<para><emphasis>Create a register poller.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__POLLER_1gada8133cbba4d0212e6d5c84dab03d407">il_poller_destroy</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller)<para><emphasis>Destroy a register poller.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__POLLER_1ga018f08358312c8610819a47fd9d2509f">il_poller_start</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller)<para><emphasis>Start poller.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__POLLER_1ga1055384cca31fe730d07d488017c559f">il_poller_stop</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller)<para><emphasis>Stop poller.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> void <link linkend="group__IL__POLLER_1ga67ccc0e92b0bb83756462d3c407d4d87">il_poller_data_get</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller, <link linkend="structil__poller__acq__t">il_poller_acq_t</link> ** acq)<para><emphasis>Obtain current time and data vectors.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__POLLER_1ga90aa41e8a0ff21af9d077e522cefb205">il_poller_configure</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller, unsigned int t_s, size_t buf_sz)<para><emphasis>Configure poller parameters.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__POLLER_1ga615595277add47dd6966112e48e66988">il_poller_ch_configure</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller, unsigned int ch, const <link linkend="structil__reg__t">il_reg_t</link> * reg, const char * id)<para><emphasis>Configure a poller channel.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__POLLER_1ga1722948bea216e9bb85be820f175371d">il_poller_ch_disable</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller, unsigned int ch)<para><emphasis>Disable a poller channel.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> int <link linkend="group__IL__POLLER_1gac58b529d800310d6f68f00f195fab9c1">il_poller_ch_disable_all</link> (
+<link linkend="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">il_poller_t</link> * poller)<para><emphasis>Disable all poller channels.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Typedef Documentation</title>
+            <section xml:id="group__IL__POLLER_1ga896ad3836b2a1e121ce8b0c30c58d3ab">
+                <title>typedef struct il_poller il_poller_t</title> <emphasis>IngeniaLink poller.</emphasis>
+                
+            </section>
+        </section>
+        <section>
+            <title>Function Documentation</title>
+            <section xml:id="group__IL__POLLER_1gaf1a6d95123039ac685439062c34e7e54">
+                <title>IL_EXPORT il_poller_t* il_poller_create (il_servo_t *servo, size_t n_ch)</title> <emphasis>Create a register poller.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>servo</entry>
+                                <entry>
+<para>IngeniaLink servo. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>n_ch</entry>
+                                <entry>
+<para>Number of channels.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>Poller instance (NULL if it could not be created). </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__POLLER_1gada8133cbba4d0212e6d5c84dab03d407">
+                <title>IL_EXPORT void il_poller_destroy (il_poller_t *poller)</title> <emphasis>Destroy a register poller.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>poller</entry>
+                                <entry>
+<para>Poller instance. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__POLLER_1ga018f08358312c8610819a47fd9d2509f">
+                <title>IL_EXPORT int il_poller_start (il_poller_t *poller)</title> <emphasis>Start poller.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>poller</entry>
+                                <entry>
+<para>Poller instance.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__POLLER_1ga1055384cca31fe730d07d488017c559f">
+                <title>IL_EXPORT void il_poller_stop (il_poller_t *poller)</title> <emphasis>Stop poller.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>poller</entry>
+                                <entry>
+<para>Poller instance. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__POLLER_1ga67ccc0e92b0bb83756462d3c407d4d87">
+                <title>IL_EXPORT void il_poller_data_get (il_poller_t *poller, il_poller_acq_t **acq)</title> <emphasis>Obtain current time and data vectors.</emphasis>
+                
+<para><formalpara><title>Note: </title>
+
+<para>The obtained acquisition data can be used until the next call to this function.</para>
+</formalpara>
+
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>poller</entry>
+                                <entry>
+<para>Poller instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>acq</entry>
+                                <entry>
+<para>Where the acquisition results will be left. </para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                </para>
+
+            </section>
+            <section xml:id="group__IL__POLLER_1ga90aa41e8a0ff21af9d077e522cefb205">
+                <title>IL_EXPORT int il_poller_configure (il_poller_t *poller, unsigned int t_s, size_t buf_sz)</title> <emphasis>Configure poller parameters.</emphasis>
+                
+<para><formalpara><title>Note: </title>
+
+<para><itemizedlist>
+<listitem>
+<para>The maximum stable polling rate is ~500 Hz (2 ms) for a single register when the servo is enabled.</para>
+</listitem><listitem>
+<para>The buffer size must be set according to your application needs. It should be large enough so that it can store all samples collected between subsequent calls to <computeroutput>il_poller_data_get</computeroutput>.</para>
+</listitem></itemizedlist>
+</para>
+</formalpara>
+
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>poller</entry>
+                                <entry>
+<para>Poller instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>t_s</entry>
+                                <entry>
+<para>Sampling period (ms). </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>buf_sz</entry>
+                                <entry>
+<para>Buffer size.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__POLLER_1ga615595277add47dd6966112e48e66988">
+                <title>IL_EXPORT int il_poller_ch_configure (il_poller_t *poller, unsigned int ch, const il_reg_t *reg, const char *id)</title> <emphasis>Configure a poller channel.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>poller</entry>
+                                <entry>
+<para>Poller instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>ch</entry>
+                                <entry>
+<para>Channel. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>reg</entry>
+                                <entry>
+<para>Register (pre-defined) to be polled on this channel. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>id</entry>
+                                <entry>
+<para>Register ID to be polled on this channel.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__POLLER_1ga1722948bea216e9bb85be820f175371d">
+                <title>IL_EXPORT int il_poller_ch_disable (il_poller_t *poller, unsigned int ch)</title> <emphasis>Disable a poller channel.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>poller</entry>
+                                <entry>
+<para>Poller instance. </para>
+</entry>
+                            </row>
+                            <row>
+                                <entry>ch</entry>
+                                <entry>
+<para>Channel.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+            <section xml:id="group__IL__POLLER_1gac58b529d800310d6f68f00f195fab9c1">
+                <title>IL_EXPORT int il_poller_ch_disable_all (il_poller_t *poller)</title> <emphasis>Disable all poller channels.</emphasis>
+                
+<para>
+                <formalpara>
+                    <title/>
+                    <table frame="all">
+                        <title>Parameters                        </title>
+                        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="4*"/>
+                        <tbody>
+                            <row>
+                                <entry>poller</entry>
+                                <entry>
+<para>Poller instance.</para>
+</entry>
+                            </row>
+                        </tbody>
+                        </tgroup>
+                    </table>
+                </formalpara>
+                <formalpara><title>Returns: </title>
+
+<para>0 on success, error code otherwise. </para>
+</formalpara>
+</para>
+
+            </section>
+        </section>
+</section>

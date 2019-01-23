@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<section xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="group__IL__ERR">
+    <title>Error reporting</title>
+<para>Collaboration diagram for Error reporting</para>
+<para>
+    <figure>
+        <title>Group Collaboration diagram</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata width="50%" align="center" valign="middle" scalefit="1" fileref="group__IL__ERR.svg"></imagedata>
+            </imageobject>
+        </mediaobject>
+    </figure>
+</para>
+        <section>
+            <title>Detailed Description</title>
+        </section>
+        <section>
+            <title>Functions</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                        <para><link linkend="common_8h_1a6bb629d26c52bfe10519ba3176853f47">IL_EXPORT</link> const char * <link linkend="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">ilerr_last</link> (
+void )<para><emphasis>Obtain library last error details.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Macros</title>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga19bb985b7d18cefc5aed42f9907fb2e0">IL_EFAIL</link> -1<para><emphasis>General failure.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga47cf82d575e6ab2f1af332b192f5a152">IL_EINVAL</link> -2<para><emphasis>Invalid values.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1gac51a50be89cb8812586de3d7c403a3d2">IL_ETIMEDOUT</link> -3<para><emphasis>Operation timed out.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1gaf70f61bc8e6136b385edb92f72b0e676">IL_ENOMEM</link> -4<para><emphasis>Not enough memory.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga6450573c3dc43ce215afa857082692eb">IL_EALREADY</link> -5<para><emphasis>Already initialized.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga09294945616872dde2c5ed98e257406d">IL_EDISCONN</link> -6<para><emphasis>Device disconnected.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1gaf8957a58cdc74c6cda94eb5bb990a26b">IL_EACCESS</link> -7<para><emphasis>Access error.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga85eb5ca72fd69575a0d927efcdd44188">IL_ESTATE</link> -8<para><emphasis>State error.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1ga150b9efcf3d35150433b151f1f134b98">IL_EIO</link> -9<para><emphasis>I/O error.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>
+                <itemizedlist>
+                    <listitem>
+                            <para>#define <link linkend="group__IL__ERR_1gacafae18e9ab826ace3f9135d2ed7deeb">IL_ENOTSUP</link> -10<para><emphasis>Not supported.</emphasis></para>
+</para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section>
+            <title>Function Documentation</title>
+            <section xml:id="group__IL__ERR_1gac427087bdfe4aae17ff3e74de51cfe87">
+                <title>IL_EXPORT const char* ilerr_last (void)</title> <emphasis>Obtain library last error details.</emphasis>
+                
+<para><formalpara><title>Note: </title>
+
+<para>If host target supports thread local storage (TLS) the last error description is kept on a per-thread basis.</para>
+</formalpara>
+<formalpara><title>Returns: </title>
+
+<para>Last error details. </para>
+</formalpara>
+</para>
+
+            </section>
+        </section>
+        <section>
+            <title>Macro Definition Documentation</title>
+            <section xml:id="group__IL__ERR_1ga19bb985b7d18cefc5aed42f9907fb2e0">
+                <title>#define IL_EFAIL</title>                
+                <para>Definition at line 45 of file err.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>err.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__ERR_1ga47cf82d575e6ab2f1af332b192f5a152">
+                <title>#define IL_EINVAL</title>                
+                <para>Definition at line 47 of file err.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>err.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__ERR_1gac51a50be89cb8812586de3d7c403a3d2">
+                <title>#define IL_ETIMEDOUT</title>                
+                <para>Definition at line 49 of file err.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>err.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__ERR_1gaf70f61bc8e6136b385edb92f72b0e676">
+                <title>#define IL_ENOMEM</title>                
+                <para>Definition at line 51 of file err.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>err.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__ERR_1ga6450573c3dc43ce215afa857082692eb">
+                <title>#define IL_EALREADY</title>                
+                <para>Definition at line 53 of file err.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>err.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__ERR_1ga09294945616872dde2c5ed98e257406d">
+                <title>#define IL_EDISCONN</title>                
+                <para>Definition at line 55 of file err.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>err.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__ERR_1gaf8957a58cdc74c6cda94eb5bb990a26b">
+                <title>#define IL_EACCESS</title>                
+                <para>Definition at line 57 of file err.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>err.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__ERR_1ga85eb5ca72fd69575a0d927efcdd44188">
+                <title>#define IL_ESTATE</title>                
+                <para>Definition at line 59 of file err.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>err.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__ERR_1ga150b9efcf3d35150433b151f1f134b98">
+                <title>#define IL_EIO</title>                
+                <para>Definition at line 61 of file err.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>err.h</para></listitem></itemizedlist></para>
+            </section>
+            <section xml:id="group__IL__ERR_1gacafae18e9ab826ace3f9135d2ed7deeb">
+                <title>#define IL_ENOTSUP</title>                
+                <para>Definition at line 63 of file err.h</para>
+                <para>The Documentation for this define was generated from the following file: </para>
+                <para><itemizedlist><listitem><para>err.h</para></listitem></itemizedlist></para>
+            </section>
+        </section>
+</section>
