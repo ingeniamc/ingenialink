@@ -373,7 +373,7 @@ static void il_eusb_net__release(il_net_t *net)
 	il_utils__refcnt_release(this->refcnt);
 }
 
-static int il_eusb_net__read(il_net_t *net, uint16_t id, uint32_t address,
+static int il_eusb_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
 			     void *buf, size_t sz)
 {
 	il_eusb_net_t *this = to_eusb_net(net);
@@ -394,7 +394,7 @@ static int il_eusb_net__read(il_net_t *net, uint16_t id, uint32_t address,
 	return r;
 }
 
-static int il_eusb_net__write(il_net_t *net, uint16_t id, uint32_t address,
+static int il_eusb_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
 			      const void *buf, size_t sz, int confirmed)
 {
 	il_eusb_net_t *this = to_eusb_net(net);
