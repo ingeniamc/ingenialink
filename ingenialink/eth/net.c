@@ -168,7 +168,7 @@ restart:
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
 	while(error_count < 10 && this->stop_reconnect == 0) {
-		printf("%i\n", error_count);
+		// printf("%i\n", error_count);
 		uint16_t sw;
 
 		Sleep(2);
@@ -180,6 +180,7 @@ restart:
 		}
 		else {
 			error_count = 0;
+			this->stop = 0;
 			process_statusword(this, 1, sw);
 		}
 		
@@ -886,7 +887,6 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 						for (int j = i; j < size / 2; j = j + num_mapped) {
 							net->monitoring_data_channels[i].value.monitoring_data_flt[(j / num_mapped)] = *(float*)&net->monitoring_raw_data[j];
 						}
-						printf("holi");
 						break;
 				}
 			}	
