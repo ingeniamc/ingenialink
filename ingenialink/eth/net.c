@@ -168,7 +168,7 @@ restart:
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
 	while(error_count < 10 && this->stop_reconnect == 0) {
-		// printf("%i\n", error_count);
+		printf("%i\n", error_count);
 		uint16_t sw;
 
 		Sleep(2);
@@ -288,7 +288,8 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 			fd_set Write, Err;
 			TIMEVAL Timeout;
 			Timeout.tv_sec = 0;
-			Timeout.tv_usec = 150000;
+			Timeout.tv_usec = 200000;
+			// Timeout.tv_usec = 150000;
 			// Timeout.tv_usec = 100000;
 
 			FD_ZERO(&Write);
