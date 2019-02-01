@@ -858,6 +858,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 			uint16_t size = *(uint16_t*)buf;
 			/*uint8_t *pBufMonitoring = (uint8_t*)net->monitoring_raw_data;*/
 			r = recv(server, (uint8_t*)net->monitoring_raw_data, size, 0);
+			net->monitoring_data_size = size;
 			int num_mapped = net->monitoring_number_mapped_registers;
 			for (int i = 0; i < num_mapped; ++i)
 			{
