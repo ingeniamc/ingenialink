@@ -288,7 +288,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 			fd_set Write, Err;
 			TIMEVAL Timeout;
 			Timeout.tv_sec = 0;
-			Timeout.tv_usec = 200000;
+			Timeout.tv_usec = 500000;
 			// Timeout.tv_usec = 150000;
 			// Timeout.tv_usec = 100000;
 
