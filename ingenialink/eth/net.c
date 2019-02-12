@@ -1,26 +1,26 @@
 /*
- * MIT License
- *
- * Copyright (c) 2017-2018 Ingenia-CAT S.L.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+* MIT License
+*
+* Copyright (c) 2017-2018 Ingenia-CAT S.L.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*/
 #include <winsock2.h>
 #include "net.h"
 #include "frame.h"
@@ -35,18 +35,17 @@
 
 WSADATA WSAData;
 SOCKET server;
-SOCKADDR_IN addr;
 
 /*******************************************************************************
- * Private
- ******************************************************************************/
+* Private
+******************************************************************************/
 
 /**
- * Destroy VIRTUAL network.
- *
- * @param [in] ctx
- *	Context (il_net_t *).
- */
+* Destroy VIRTUAL network.
+*
+* @param [in] ctx
+*	Context (il_net_t *).
+*/
 static void eth_net_destroy(void *ctx)
 {
 	il_eth_net_t *this = ctx;
@@ -67,29 +66,29 @@ bool crc_tabccitt_init_eth = false;
 uint16_t crc_tabccitt_eth[256];
 
 /**
- * Compute CRC of the given buffer.
- *
- * @param [in] buf
- *	Buffer.
- * @param [in] sz
- *	Buffer size (bytes).
- *
- * @return
- *	CRC.
- */
-static void init_crcccitt_tab_eth( void ) {
+* Compute CRC of the given buffer.
+*
+* @param [in] buf
+*	Buffer.
+* @param [in] sz
+*	Buffer size (bytes).
+*
+* @return
+*	CRC.
+*/
+static void init_crcccitt_tab_eth(void) {
 
 	uint16_t i;
 	uint16_t j;
 	uint16_t crc;
 	uint16_t c;
 
-	for (i=0; i<256; i++) {
+	for (i = 0; i<256; i++) {
 		crc = 0;
-		c   = i << 8;
-		for (j=0; j<8; j++) {
-			if ( (crc ^ c) & 0x8000 ) crc = ( crc << 1 ) ^ 0x1021;
-			else crc =   crc << 1;
+		c = i << 8;
+		for (j = 0; j<8; j++) {
+			if ((crc ^ c) & 0x8000) crc = (crc << 1) ^ 0x1021;
+			else crc = crc << 1;
 			c = c << 1;
 		}
 		crc_tabccitt_eth[i] = crc;
@@ -97,34 +96,34 @@ static void init_crcccitt_tab_eth( void ) {
 	crc_tabccitt_init_eth = true;
 }
 
-static uint16_t update_crc_ccitt_eth( uint16_t crc, unsigned char c ) {
+static uint16_t update_crc_ccitt_eth(uint16_t crc, unsigned char c) {
 
-	if ( ! crc_tabccitt_init_eth ) init_crcccitt_tab_eth();
-	return (crc << 8) ^ crc_tabccitt_eth[ ((crc >> 8) ^ (uint16_t) c) & 0x00FF ];
+	if (!crc_tabccitt_init_eth) init_crcccitt_tab_eth();
+	return (crc << 8) ^ crc_tabccitt_eth[((crc >> 8) ^ (uint16_t)c) & 0x00FF];
 
-} 
+}
 
 static uint16_t crc_calc_eth(const uint16_t *buf, uint16_t u16Sz)
 {
-	
+
 	uint16_t crc = 0x0000;
-    uint8_t* pu8In = (uint8_t*) buf;
-    
+	uint8_t* pu8In = (uint8_t*)buf;
+
 	for (uint16_t u16Idx = 0; u16Idx < u16Sz * 2; u16Idx++)
-    {
-        crc = update_crc_ccitt_eth(crc, pu8In[u16Idx]);
-    }
-    return crc;
+	{
+		crc = update_crc_ccitt_eth(crc, pu8In[u16Idx]);
+	}
+	return crc;
 }
 
 /**
- * Process asynchronous statusword messages.
- *
- * @param [in] this
- *	ETH Network.
- * @param [in] frame
- *	IngeniaLink frame.
- */
+* Process asynchronous statusword messages.
+*
+* @param [in] this
+*	ETH Network.
+* @param [in] frame
+*	IngeniaLink frame.
+*/
 static void process_statusword(il_eth_net_t *this, uint8_t subnode, uint16_t *data)
 {
 	il_net_sw_subscriber_lst_t *subs;
@@ -154,11 +153,11 @@ static void process_statusword(il_eth_net_t *this, uint8_t subnode, uint16_t *da
 }
 
 /**
- * Listener thread.
- *
- * @param [in] args
- *	MCB Network (il_eth_net_t *).
- */
+* Listener thread.
+*
+* @param [in] args
+*	MCB Network (il_eth_net_t *).
+*/
 int listener_eth(void *args)
 {
 	int r;
@@ -167,8 +166,8 @@ int listener_eth(void *args)
 restart:
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
-	while(error_count < 10 && this->stop_reconnect == 0) {
-		printf("%i\n", error_count);
+	while (error_count < 10 && this->stop_reconnect == 0) {
+		// printf("%i\n", error_count);
 		uint16_t sw;
 
 		Sleep(2);
@@ -183,11 +182,11 @@ restart:
 			this->stop = 0;
 			process_statusword(this, 1, sw);
 		}
-		
-		unlock:
-			Sleep(200);
+
+	unlock:
+		Sleep(200);
 	}
-	if(error_count == 10 && this->stop_reconnect == 0) {
+	if (error_count == 10 && this->stop_reconnect == 0) {
 		goto err;
 	}
 	return 0;
@@ -195,28 +194,28 @@ restart:
 err:
 	ilerr__set("Device at %s disconnected\n", this->ip_address);
 	r = il_net_reconnect(this);
-	if(r == 0) goto restart;
+	if (r == 0) goto restart;
 	return 0;
 }
 
 static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 {
 	il_eth_net_t *this;
- 	int r;
+	int r;
 
- 	this = calloc(1, sizeof(*this));
- 	if (!this) {
- 		ilerr__set("Network allocation failed");
- 		return NULL;
- 	}
+	this = calloc(1, sizeof(*this));
+	if (!this) {
+		ilerr__set("Network allocation failed");
+		return NULL;
+	}
 
- 	/* initialize parent */
- 	r = il_net_base__init(&this->net, opts);
- 	if (r < 0)
- 		goto cleanup_this;
+	/* initialize parent */
+	r = il_net_base__init(&this->net, opts);
+	if (r < 0)
+		goto cleanup_this;
 
- 	this->net.ops = &il_eth_net_ops;
- 	this->net.prot = IL_NET_PROT_ETH;
+	this->net.ops = &il_eth_net_ops;
+	this->net.prot = IL_NET_PROT_ETH;
 	this->ip_address = opts->port;
 	this->port = "23";
 
@@ -229,7 +228,7 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 		if (r < 0)
 			goto cleanup_this;
 	}
- 	
+
 	return &this->net;
 
 cleanup_refcnt:
@@ -266,7 +265,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 
 	server = socket(AF_INET, SOCK_STREAM, 0);
 
-	// addr.sin_addr.s_addr = inet_addr("192.168.150.2");
+	SOCKADDR_IN addr = { 0 };
 	addr.sin_addr.s_addr = inet_addr(this->ip_address);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(23);
@@ -288,9 +287,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 			fd_set Write, Err;
 			TIMEVAL Timeout;
 			Timeout.tv_sec = 0;
-			Timeout.tv_usec = 500000;
-			// Timeout.tv_usec = 150000;
-			// Timeout.tv_usec = 100000;
+			Timeout.tv_usec = 100000;
 
 			FD_ZERO(&Write);
 			FD_ZERO(&Err);
@@ -308,7 +305,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 				if (FD_ISSET(server, &Write)) {
 					printf("Connected to the Server\n");
 					result = 1;
-					
+
 				}
 				if (FD_ISSET(server, &Err)) {
 					printf("Fail connecting to server\n");
@@ -346,6 +343,11 @@ static int il_net_reconnect(il_net_t *net)
 	this->stop = 1;
 	int r = -1;
 
+	SOCKADDR_IN addr = { 0 };
+	addr.sin_addr.s_addr = inet_addr(this->ip_address);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(23);
+
 	while (r < 0 && this->stop_reconnect == 0)
 	{
 		printf("Reconnecting...\n");
@@ -361,9 +363,9 @@ static int il_net_reconnect(il_net_t *net)
 
 		r = connect(server, (SOCKADDR *)&addr, sizeof(addr));
 
-		
+
 		if (r == SOCKET_ERROR) {
-			
+
 			r = WSAGetLastError();
 
 			// check if error was WSAEWOULDBLOCK, where we'll wait
@@ -379,7 +381,7 @@ static int il_net_reconnect(il_net_t *net)
 				FD_SET(server, &Write);
 				FD_SET(server, &Err);
 
-				
+
 
 				r = select(0, NULL, &Write, &Err, &Timeout);
 				if (r == 0) {
@@ -399,12 +401,12 @@ static int il_net_reconnect(il_net_t *net)
 				int last_error = WSAGetLastError();
 				printf("Fail connecting to server\n");
 			}
-			
+
 		}
-		
+
 		/*if (r < 0) {
-			int last_error = WSAGetLastError();
-			printf("Fail connecting to server\n");
+		int last_error = WSAGetLastError();
+		printf("Fail connecting to server\n");
 		}*/
 		else {
 			printf("Connected to the Server\n");
@@ -426,29 +428,29 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 {
 	il_eth_net_t *this = to_eth_net(net);
 
-    int r = 0;
+	int r = 0;
 
-    if ((r = WSAStartup(0x202, &WSAData)) != 0)
-    {
-        fprintf(stderr,"Server: WSAStartup() failed with error %d\n", r);
-        WSACleanup();
-        return -1;
-    }
-    else printf("Server: WSAStartup() is OK.\n");
+	if ((r = WSAStartup(0x202, &WSAData)) != 0)
+	{
+		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
+		WSACleanup();
+		return -1;
+	}
+	else printf("Server: WSAStartup() is OK.\n");
 
-    server = socket(AF_INET, SOCK_STREAM, 0);
+	server = socket(AF_INET, SOCK_STREAM, 0);
 
-    // addr.sin_addr.s_addr = inet_addr("192.168.150.2");
+	SOCKADDR_IN addr = { 0 };
 	addr.sin_addr.s_addr = inet_addr(this->ip_address);
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(23);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(23);
 
 	r = connect(server, (SOCKADDR *)&addr, sizeof(addr));
-    if (r < 0) {
-        int last_error = WSAGetLastError();
-        printf("Fail connecting to server\n");
-        return -1;
-    }
+	if (r < 0) {
+		int last_error = WSAGetLastError();
+		printf("Fail connecting to server\n");
+		return -1;
+	}
 	printf("Connected to the Server!");
 	// il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 
@@ -511,14 +513,14 @@ static il_net_servos_list_t *il_eth_net_servos_list_get(
 	lst = malloc(sizeof(*lst));
 	if (!lst) {
 		return NULL;
-	}	
+	}
 	lst->next = NULL;
 	lst->id = 1;
 
 	if (on_found) {
 		on_found(ctx, 1);
 	}
-		
+
 	return lst;
 }
 
@@ -543,8 +545,8 @@ static int *il_eth_net_remove_all_mapped_registers(il_net_t *net)
 }
 
 /**
- * Monitoring set mapped registers
- */
+* Monitoring set mapped registers
+*/
 static int *il_eth_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
 {
 	int r = 0;
@@ -555,13 +557,13 @@ static int *il_eth_net_set_mapped_register(il_net_t *net, int channel, uint32_t 
 	// Map address
 	r = il_net__write(&this->net, 1, 0, 0x00E0, &address, 2, 1, 0);
 	if (r < 0) {
-	
+
 	}
 	// Update number of mapped registers & monitoring bytes per block
 	net->monitoring_number_mapped_registers = net->monitoring_number_mapped_registers + 1;
 	r = il_net__read(&this->net, 1, 0, 0x00E4, &net->monitoring_bytes_per_block, sizeof(net->monitoring_bytes_per_block));
 	if (r < 0) {
-	
+
 	}
 
 
@@ -571,7 +573,7 @@ static int *il_eth_net_set_mapped_register(il_net_t *net, int channel, uint32_t 
 /**
 * Monitoring enable
 */
-static int *il_eth_net_enable_monitoring(il_net_t *net) 
+static int *il_eth_net_enable_monitoring(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
@@ -589,7 +591,7 @@ static int *il_eth_net_enable_monitoring(il_net_t *net)
 	return r;
 }
 
-static int *il_eth_net_disable_monitoring(il_net_t *net) 
+static int *il_eth_net_disable_monitoring(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
@@ -602,23 +604,23 @@ static int *il_eth_net_disable_monitoring(il_net_t *net)
 	return r;
 }
 
-static int *il_eth_net_read_monitoring_data(il_net_t *net) 
+static int *il_eth_net_read_monitoring_data(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
 
 	uint64_t vid;
-	
+
 	r = il_net__read(&this->net, 1, 0, 0x00F4, &vid, sizeof(vid));
 	if (r < 0) {
-	
+
 	}
 }
 
 
 /**
- * Monitor event callback.
- */
+* Monitor event callback.
+*/
 static void on_ser_evt(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
 {
 	il_eth_net_dev_mon_t *this = ctx;
@@ -655,8 +657,8 @@ static void il_eth_net_dev_mon_destroy(il_net_dev_mon_t *mon)
 }
 
 static int il_eth_net_dev_mon_start(il_net_dev_mon_t *mon,
-				    il_net_dev_on_evt_t on_evt,
-				    void *ctx)
+	il_net_dev_on_evt_t on_evt,
+	void *ctx)
 {
 	il_eth_net_dev_mon_t *this = to_eth_mon(mon);
 
@@ -671,7 +673,7 @@ static int il_eth_net_dev_mon_start(il_net_dev_mon_t *mon,
 	this->smon = ser_dev_monitor_init(on_ser_evt, this);
 	if (!this->smon) {
 		ilerr__set("Network device monitor allocation failed (%s)",
-			   sererr_last());
+			sererr_last());
 		return IL_EFAIL;
 	}
 
@@ -691,7 +693,7 @@ static void il_eth_net_dev_mon_stop(il_net_dev_mon_t *mon)
 }
 
 static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
-			    void *buf, size_t sz)
+	void *buf, size_t sz)
 {
 	il_eth_net_t *this = to_eth_net(net);
 	int r;
@@ -712,7 +714,7 @@ unlock:
 }
 
 static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
-			     const void *buf, size_t sz, int confirmed, uint16_t extended)
+	const void *buf, size_t sz, int confirmed, uint16_t extended)
 {
 	il_eth_net_t *this = to_eth_net(net);
 
@@ -743,8 +745,8 @@ typedef union
 } UINT_UNION_T;
 
 static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const void *data,
-		    size_t sz, uint16_t extended, il_net_t *net)
-{	
+	size_t sz, uint16_t extended, il_net_t *net)
+{
 	int finished = 0;
 	uint8_t cmd;
 
@@ -796,13 +798,13 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 		else {
 			r = send(server, (const char*)&frame[0], sizeof(frame), 0);
 			if (r < 0)
-				return ilerr__ser(r);		
+				return ilerr__ser(r);
 		}
 		finished = 1;
 		/*if (extended == 1) {
-			r = send(server, (const char*)&net->disturbance_data[0], net->disturbance_data_size, 0);
-			if (r < 0)
-				return ilerr__ser(r);
+		r = send(server, (const char*)&net->disturbance_data[0], net->disturbance_data_size, 0);
+		if (r < 0)
+		return ilerr__ser(r);
 		}*/
 	}
 
@@ -810,7 +812,7 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 }
 
 static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
-		    size_t sz, uint16_t *monitoring_raw_data, il_net_t *net)
+	size_t sz, uint16_t *monitoring_raw_data, il_net_t *net)
 {
 	int finished = 0;
 	size_t pending_sz = sz;
@@ -819,14 +821,14 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	uint16_t frame[7];
 	size_t block_sz = 0;
 	uint16_t crc, hdr_l;
-	uint8_t *pBuf = (uint8_t*) &frame;
+	uint8_t *pBuf = (uint8_t*)&frame;
 	uint8_t extended_bit = 0;
 
 	Sleep(5);
 	/* read next frame */
 	int r = 0;
 	r = recv(server, (char*)&pBuf[0], sizeof(frame), 0);
-	
+
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
 	uint16_t crc_res = crc_calc_eth((uint16_t *)frame, 6);
@@ -859,39 +861,41 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 			uint16_t size = *(uint16_t*)buf;
 			/*uint8_t *pBufMonitoring = (uint8_t*)net->monitoring_raw_data;*/
 			r = recv(server, (uint8_t*)net->monitoring_raw_data, size, 0);
+			net->monitoring_data_size = size;
 			int num_mapped = net->monitoring_number_mapped_registers;
 			for (int i = 0; i < num_mapped; ++i)
 			{
 				il_reg_dtype_t type = net->monitoring_data_channels[i].type;
 				switch (type) {
-					case IL_REG_DTYPE_U16:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_u16[(j / num_mapped)] = *(uint16_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_S16:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_s16[(j / num_mapped)] = *(int16_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_U32:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_u32[(j / num_mapped)] = *(uint32_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_S32:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_s32[(j / num_mapped)] = *(int32_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_FLOAT:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_flt[(j / num_mapped)] = *(float*)&net->monitoring_raw_data[j];
-						}
-						break;
+				case IL_REG_DTYPE_U16:
+					for (int j = i; j < size / 2; j = j + num_mapped) {
+						net->monitoring_data_channels[i].value.monitoring_data_u16[(j / num_mapped)] = *(uint16_t*)&net->monitoring_raw_data[j];
+					}
+					break;
+				case IL_REG_DTYPE_S16:
+					for (int j = i; j < size / 2; j = j + num_mapped) {
+						net->monitoring_data_channels[i].value.monitoring_data_s16[(j / num_mapped)] = *(int16_t*)&net->monitoring_raw_data[j];
+					}
+					break;
+				case IL_REG_DTYPE_U32:
+					for (int j = i; j < size / 2; j = j + num_mapped) {
+						net->monitoring_data_channels[i].value.monitoring_data_u32[(j / num_mapped)] = *(uint32_t*)&net->monitoring_raw_data[j];
+					}
+					break;
+				case IL_REG_DTYPE_S32:
+					for (int j = i; j < size / 2; j = j + num_mapped) {
+						net->monitoring_data_channels[i].value.monitoring_data_s32[(j / num_mapped)] = *(int32_t*)&net->monitoring_raw_data[j];
+					}
+					break;
+				case IL_REG_DTYPE_FLOAT:
+					for (int j = i; j < size / 2; j = j + num_mapped) {
+						net->monitoring_data_channels[i].value.monitoring_data_flt[(j / num_mapped)] = *(float*)&net->monitoring_raw_data[j];
+					}
+					break;
 				}
-			}	
-		} else {
+			}
+		}
+		else {
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
 			r = recv(server, net->extended_buff, size, 0);
@@ -900,7 +904,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	else {
 		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
 	}
-	
+
 	return 0;
 }
 
