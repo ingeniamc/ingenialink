@@ -164,7 +164,7 @@ restart:
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
 	while (error_count < 10 && this->stop_reconnect == 0) {
-		// printf("%i\n", error_count);
+		printf("%i\n", error_count);
 		uint16_t sw;
 
 		Sleep(2);
@@ -177,11 +177,15 @@ restart:
 		else {
 			error_count = 0;
 			this->stop = 0;
+			printf("Process StatusWord");
 			process_statusword(this, 1, sw);
+			printf("End process StatusWord");
 		}
 
 	unlock:
+		printf("Unlock");
 		Sleep(200);
+		printf("End unlock");
 	}
 	if (error_count == 10 && this->stop_reconnect == 0) {
 		goto err;
@@ -367,8 +371,6 @@ static int il_net_reconnect(il_net_t *net)
 				FD_ZERO(&Err);
 				FD_SET(this->server, &Write);
 				FD_SET(this->server, &Err);
-
-
 
 				r = select(0, NULL, &Write, &Err, &Timeout);
 				if (r == 0) {
