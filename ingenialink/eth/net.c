@@ -281,14 +281,13 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 			printf("Attempting to connect.\n");
 			fd_set Write, Err;
 			TIMEVAL Timeout;
-			Timeout.tv_sec = 0;
-			Timeout.tv_usec = 200000;
+			Timeout.tv_sec = 2;
+			Timeout.tv_usec = 0;
 
 			FD_ZERO(&Write);
 			FD_ZERO(&Err);
 			FD_SET(this->server, &Write);
 			FD_SET(this->server, &Err);
-
 
 			r = select(0, NULL, &Write, &Err, &Timeout);
 			if (r == 0) {
@@ -299,7 +298,6 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 				if (FD_ISSET(this->server, &Write)) {
 					printf("Connected to the Server\n");
 					result = 1;
-
 				}
 				if (FD_ISSET(this->server, &Err)) {
 					printf("Fail connecting to server\n");
