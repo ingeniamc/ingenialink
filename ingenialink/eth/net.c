@@ -260,6 +260,11 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	}
 	else printf("Server: WSAStartup() is OK.\n");
 
+	this->server = socket(AF_INET, SOCK_STREAM, 0);
+	this->addr.sin_addr.s_addr = inet_addr(this->ip_address);
+	this->addr.sin_family = AF_INET;
+	this->addr.sin_port = htons(23);
+
 	unsigned long iMode = 1;
 	r = ioctlsocket(this->server, FIONBIO, &iMode);
 	if (r != NO_ERROR)
