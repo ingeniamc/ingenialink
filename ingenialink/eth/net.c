@@ -33,9 +33,6 @@
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
 
-WSADATA WSAData;
-SOCKET server;
-
 /*******************************************************************************
 * Private
 ******************************************************************************/
@@ -255,7 +252,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	int r = 0;
 	int result = 0;
 
-	if ((r = WSAStartup(0x202, &WSAData)) != 0)
+	if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
 	{
 		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
 		WSACleanup();
@@ -263,20 +260,13 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	}
 	else printf("Server: WSAStartup() is OK.\n");
 
-	server = socket(AF_INET, SOCK_STREAM, 0);
-
-	SOCKADDR_IN addr = { 0 };
-	addr.sin_addr.s_addr = inet_addr(this->ip_address);
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(23);
-
 	unsigned long iMode = 1;
-	r = ioctlsocket(server, FIONBIO, &iMode);
+	r = ioctlsocket(this->server, FIONBIO, &iMode);
 	if (r != NO_ERROR)
 	{
 		printf("ioctlsocket failed with error: %ld\n", r);
 	}
-	r = connect(server, (SOCKADDR *)&addr, sizeof(addr));
+	r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
 	if (r == SOCKET_ERROR) {
 
 		r = WSAGetLastError();
@@ -291,8 +281,8 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 
 			FD_ZERO(&Write);
 			FD_ZERO(&Err);
-			FD_SET(server, &Write);
-			FD_SET(server, &Err);
+			FD_SET(this->server, &Write);
+			FD_SET(this->server, &Err);
 
 
 
@@ -302,12 +292,12 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 				result = 0;
 			}
 			else {
-				if (FD_ISSET(server, &Write)) {
+				if (FD_ISSET(this->server, &Write)) {
 					printf("Connected to the Server\n");
 					result = 1;
 
 				}
-				if (FD_ISSET(server, &Err)) {
+				if (FD_ISSET(this->server, &Err)) {
 					printf("Fail connecting to server\n");
 					result = 0;
 				}
@@ -327,7 +317,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 
 
 	iMode = 0;
-	r = ioctlsocket(server, FIONBIO, &iMode);
+	r = ioctlsocket(this->server, FIONBIO, &iMode);
 	if (r != NO_ERROR)
 	{
 		printf("ioctlsocket failed with error: %ld\n", r);
@@ -342,26 +332,20 @@ static int il_net_reconnect(il_net_t *net)
 	il_eth_net_t *this = to_eth_net(net);
 	this->stop = 1;
 	int r = -1;
-
-	SOCKADDR_IN addr = { 0 };
-	addr.sin_addr.s_addr = inet_addr(this->ip_address);
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(23);
-
+	
 	while (r < 0 && this->stop_reconnect == 0)
 	{
 		printf("Reconnecting...\n");
-		server = socket(AF_INET, SOCK_STREAM, 0);
 
 		//set the socket in non-blocking
 		unsigned long iMode = 1;
-		r = ioctlsocket(server, FIONBIO, &iMode);
+		r = ioctlsocket(this->server, FIONBIO, &iMode);
 		if (r != NO_ERROR)
 		{
 			printf("ioctlsocket failed with error: %ld\n", r);
 		}
 
-		r = connect(server, (SOCKADDR *)&addr, sizeof(addr));
+		r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
 
 
 		if (r == SOCKET_ERROR) {
@@ -378,8 +362,8 @@ static int il_net_reconnect(il_net_t *net)
 
 				FD_ZERO(&Write);
 				FD_ZERO(&Err);
-				FD_SET(server, &Write);
-				FD_SET(server, &Err);
+				FD_SET(this->server, &Write);
+				FD_SET(this->server, &Err);
 
 
 
@@ -388,11 +372,11 @@ static int il_net_reconnect(il_net_t *net)
 					printf("Timeout during connection\n");
 				}
 				else {
-					if (FD_ISSET(server, &Write)) {
+					if (FD_ISSET(this->server, &Write)) {
 						printf("Reconnected to the Server\n");
 						this->stop = 0;
 					}
-					if (FD_ISSET(server, &Err)) {
+					if (FD_ISSET(this->server, &Err)) {
 						printf("Error reconnecting\n");
 					}
 				}
@@ -413,7 +397,7 @@ static int il_net_reconnect(il_net_t *net)
 			this->stop = 0;
 		}
 		iMode = 0;
-		r = ioctlsocket(server, FIONBIO, &iMode);
+		r = ioctlsocket(this->server, FIONBIO, &iMode);
 		if (r != NO_ERROR)
 		{
 			printf("ioctlsocket failed with error: %ld\n", r);
@@ -430,22 +414,20 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 
 	int r = 0;
 
-	if ((r = WSAStartup(0x202, &WSAData)) != 0)
+	if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
 	{
 		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
 		WSACleanup();
 		return -1;
 	}
 	else printf("Server: WSAStartup() is OK.\n");
+	
+	this->server = socket(AF_INET, SOCK_STREAM, 0);
+	this->addr.sin_addr.s_addr = inet_addr(this->ip_address);
+	this->addr.sin_family = AF_INET;
+	this->addr.sin_port = htons(23);
 
-	server = socket(AF_INET, SOCK_STREAM, 0);
-
-	SOCKADDR_IN addr = { 0 };
-	addr.sin_addr.s_addr = inet_addr(this->ip_address);
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(23);
-
-	r = connect(server, (SOCKADDR *)&addr, sizeof(addr));
+	r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
 	if (r < 0) {
 		int last_error = WSAGetLastError();
 		printf("Fail connecting to server\n");
@@ -791,12 +773,12 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 			uint16_t extended_frame[(sizeof(uint16_t) * ETH_MCB_FRAME_SZ) + 2048];
 			memcpy(&extended_frame[0], frame, frame_size);
 			memcpy(&extended_frame[ETH_MCB_FRAME_SZ], net->disturbance_data, 2048);
-			r = send(server, (const char*)&extended_frame[0], net->disturbance_data_size + frame_size, 0);
+			r = send(this->server, (const char*)&extended_frame[0], net->disturbance_data_size + frame_size, 0);
 			if (r < 0)
 				return ilerr__ser(r);
 		}
 		else {
-			r = send(server, (const char*)&frame[0], sizeof(frame), 0);
+			r = send(this->server, (const char*)&frame[0], sizeof(frame), 0);
 			if (r < 0)
 				return ilerr__ser(r);
 		}
@@ -827,7 +809,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	Sleep(5);
 	/* read next frame */
 	int r = 0;
-	r = recv(server, (char*)&pBuf[0], sizeof(frame), 0);
+	r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
 
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
@@ -860,7 +842,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
 			/*uint8_t *pBufMonitoring = (uint8_t*)net->monitoring_raw_data;*/
-			r = recv(server, (uint8_t*)net->monitoring_raw_data, size, 0);
+			r = recv(this->server, (uint8_t*)net->monitoring_raw_data, size, 0);
 			net->monitoring_data_size = size;
 			int num_mapped = net->monitoring_number_mapped_registers;
 			for (int i = 0; i < num_mapped; ++i)
@@ -898,7 +880,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		else {
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			r = recv(server, net->extended_buff, size, 0);
+			r = recv(this->server, net->extended_buff, size, 0);
 		}
 	}
 	else {

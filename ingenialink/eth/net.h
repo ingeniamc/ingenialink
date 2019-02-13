@@ -56,9 +56,9 @@ typedef struct il_eth_net {
     /** Port */
     int port;
 	/** Server: WSAStartup() */
-	WSADATA WSAData;
+	WSADATA *WSAData;
 	/** Socket */
-	SOCKET server;
+	SOCKET *server;
 	/** Socket address */
 	SOCKADDR_IN addr;
     /** Stop reconnect */
