@@ -282,13 +282,12 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 			fd_set Write, Err;
 			TIMEVAL Timeout;
 			Timeout.tv_sec = 0;
-			Timeout.tv_usec = 100000;
+			Timeout.tv_usec = 200000;
 
 			FD_ZERO(&Write);
 			FD_ZERO(&Err);
 			FD_SET(this->server, &Write);
 			FD_SET(this->server, &Err);
-
 
 
 			r = select(0, NULL, &Write, &Err, &Timeout);
