@@ -346,12 +346,8 @@ static int il_net_reconnect(il_net_t *net)
 		}
 
 		this->server = socket(AF_INET, SOCK_STREAM, 0);
-		this->addr.sin_addr.s_addr = inet_addr(this->ip_address);
-		this->addr.sin_family = AF_INET;
-		this->addr.sin_port = htons(23);
 
 		r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
-
 
 		if (r == SOCKET_ERROR) {
 
