@@ -177,15 +177,15 @@ restart:
 		else {
 			error_count = 0;
 			this->stop = 0;
-			printf("Process StatusWord");
+			printf("Process StatusWord\n");
 			process_statusword(this, 1, sw);
-			printf("End process StatusWord");
+			printf("End process StatusWord\n");
 		}
 
 	unlock:
-		printf("Unlock");
+		printf("Unlock\n");
 		Sleep(200);
-		printf("End unlock");
+		printf("End unlock\n");
 	}
 	if (error_count == 10 && this->stop_reconnect == 0) {
 		goto err;
@@ -604,7 +604,6 @@ static int *il_eth_net_read_monitoring_data(il_net_t *net)
 	}
 }
 
-
 /**
 * Monitor event callback.
 */
@@ -718,6 +717,8 @@ static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 		goto unlock;
 
 	r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
+	if (r < 0)
+		goto unlock;
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -740,7 +741,8 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 	cmd = sz ? ETH_MCB_CMD_WRITE : ETH_MCB_CMD_READ;
 
 	// (void)ser_flush(this->ser, SER_QUEUE_ALL);
-
+	
+	printf("Start send\n");
 	while (!finished) {
 		int r;
 		uint16_t frame[ETH_MCB_FRAME_SZ];
@@ -779,11 +781,13 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 			memcpy(&extended_frame[0], frame, frame_size);
 			memcpy(&extended_frame[ETH_MCB_FRAME_SZ], net->disturbance_data, 2048);
 			r = send(this->server, (const char*)&extended_frame[0], net->disturbance_data_size + frame_size, 0);
+			printf("Extended, result of send: %i\n", r);
 			if (r < 0)
 				return ilerr__ser(r);
 		}
 		else {
 			r = send(this->server, (const char*)&frame[0], sizeof(frame), 0);
+			printf("Not extended, result of send: %i\n", r);
 			if (r < 0)
 				return ilerr__ser(r);
 		}
@@ -794,6 +798,7 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 		return ilerr__ser(r);
 		}*/
 	}
+	printf("End send\n");
 
 	return 0;
 }
@@ -886,6 +891,8 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
 			r = recv(this->server, net->extended_buff, size, 0);
+			if (r < 0)
+				return ilerr__ser(r);
 		}
 	}
 	else {
