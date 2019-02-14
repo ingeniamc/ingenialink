@@ -692,6 +692,8 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	}
 	uint32_t *monitoring_raw_data = NULL;
 	r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
+	if (r < 0)
+		goto unlock;
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -815,12 +817,14 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	uint16_t crc, hdr_l;
 	uint8_t *pBuf = (uint8_t*)&frame;
 	uint8_t extended_bit = 0;
-
+	
+	printf("Start 1 recv\n");
 	Sleep(5);
 	/* read next frame */
 	int r = 0;
 	r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
 
+	printf("End 1 recv\n");
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
 	uint16_t crc_res = crc_calc_eth((uint16_t *)frame, 6);
@@ -830,7 +834,8 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	}
 
 	/* TODO: Check subnode */
-
+	
+	printf("Check ACK\n");
 	/* Check ACK */
 	hdr_l = *(uint16_t *)&frame[ETH_MCB_HDR_L_POS];
 	int cmd = (hdr_l & ETH_MCB_CMD_MSK) >> ETH_MCB_CMD_POS;
@@ -898,6 +903,8 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	else {
 		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
 	}
+	
+	printf("End recv\n");
 
 	return 0;
 }
