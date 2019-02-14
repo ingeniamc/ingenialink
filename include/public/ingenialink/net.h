@@ -293,6 +293,16 @@ IL_EXPORT uint16_t *il_net_monitornig_data_get(il_net_t *net);
  */
 IL_EXPORT uint16_t il_net_monitornig_data_size_get(il_net_t *net);
 
+/**
+ * Obtain monitoring bytes per block.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Monitoring bytes per block.
+ */
+IL_EXPORT uint16_t il_net_monitornig_bytes_per_block_get(il_net_t *net);
 
 /**
  * Obtain network disturbance data.
@@ -361,6 +371,17 @@ IL_EXPORT int *il_net_remove_all_mapped_registers(il_net_t *net);
  */
 IL_EXPORT int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype);
 
+
+/**
+ * Obtain number of mapped registers.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ * @returns
+ *	Number of mapped registers.
+ */
+IL_EXPORT uint16_t il_net_num_mapped_registers_get(il_net_t *net);
 /**
  * Enable monitoring.
  *

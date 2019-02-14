@@ -168,6 +168,11 @@ uint16_t il_net_monitornig_data_size_get(il_net_t *net)
 	return net->monitoring_data_size;
 }
 
+uint16_t il_net_monitornig_bytes_per_block_get(il_net_t *net)
+{
+	return net->monitoring_bytes_per_block;
+}
+
 uint16_t *il_net_disturbance_data_get(il_net_t *net) 
 {
 	return net->disturbance_data;
@@ -196,6 +201,11 @@ int *il_net_remove_all_mapped_registers(il_net_t *net)
 int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
 {
 	return il_eth_net_ops.set_mapped_register(net, channel, address, dtype);
+}
+
+uint16_t il_net_num_mapped_registers_get(il_net_t *net) 
+{
+	return net->monitoring_number_mapped_registers;
 }
 
 int *il_net_enable_monitoring(il_net_t *net)
