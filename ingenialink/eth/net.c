@@ -167,12 +167,11 @@ restart:
 		// printf("%i\n", error_count);
 		uint16_t sw;
 
-		Sleep(2);
 		/* try to read the status word register to see if a servo is alive */
 		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 		if (r < 0) {
 			error_count = error_count + 1;
-			printf("\nERRORS: %i", error_count);
+			printf("\nERRORS: %i\n", error_count);
 			goto unlock;
 		}
 		else {
@@ -184,9 +183,9 @@ restart:
 		}
 
 	unlock:
-		// printf("Unlock\n");
+		printf("Unlock\n");
 		Sleep(200);
-		// printf("End unlock\n");
+		printf("End unlock\n");
 	}
 	if (error_count == 10 && this->stop_reconnect == 0) {
 		goto err;
@@ -286,7 +285,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 			printf("Attempting to connect.\n");
 			fd_set Write, Err;
 			TIMEVAL Timeout;
-			Timeout.tv_sec = 2;
+			Timeout.tv_sec = 1;
 			Timeout.tv_usec = 0;
 
 			FD_ZERO(&Write);
@@ -338,77 +337,16 @@ static int il_net_reconnect(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
 	this->stop = 1;
-	int r = -1;
-	
-	while (r < 0 && this->stop_reconnect == 0)
+	int r = 0;
+	while (r < 1 && this->stop_reconnect == 0)
 	{
-		printf("Reconnecting...\n");
-
-		//set the socket in non-blocking
-		unsigned long iMode = 1;
-		r = ioctlsocket(this->server, FIONBIO, &iMode);
-		if (r != NO_ERROR)
-		{
-			printf("ioctlsocket failed with error: %ld\n", r);
+		r = il_eth_net_is_slave_connected(net, this->ip_address);
+		if (r < 1) {
+			Sleep(1000);
 		}
-
-		this->server = socket(AF_INET, SOCK_STREAM, 0);
-
-		r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
-
-		if (r == SOCKET_ERROR) {
-
-			r = WSAGetLastError();
-
-			// check if error was WSAEWOULDBLOCK, where we'll wait
-			if (r == WSAEWOULDBLOCK) {
-				printf("Attempting to connect.\n");
-				fd_set Write, Err;
-				TIMEVAL Timeout;
-				Timeout.tv_sec = 2;
-				Timeout.tv_usec = 0;
-
-				FD_ZERO(&Write);
-				FD_ZERO(&Err);
-				FD_SET(this->server, &Write);
-				FD_SET(this->server, &Err);
-
-				r = select(0, NULL, &Write, &Err, &Timeout);
-				if (r == 0) {
-					printf("Timeout during connection\n");
-				}
-				else {
-					if (FD_ISSET(this->server, &Write)) {
-						printf("Reconnected to the Server\n");
-						this->stop = 0;
-					}
-					if (FD_ISSET(this->server, &Err)) {
-						printf("Error reconnecting\n");
-					}
-				}
-			}
-			else {
-				int last_error = WSAGetLastError();
-				printf("Fail connecting to server\n");
-			}
-
-		}
-
-		/*if (r < 0) {
-		int last_error = WSAGetLastError();
-		printf("Fail connecting to server\n");
-		}*/
 		else {
-			printf("Connected to the Server\n");
 			this->stop = 0;
 		}
-		iMode = 0;
-		r = ioctlsocket(this->server, FIONBIO, &iMode);
-		if (r != NO_ERROR)
-		{
-			printf("ioctlsocket failed with error: %ld\n", r);
-		}
-		Sleep(1000);
 	}
 	r = this->stop_reconnect;
 	return r;
@@ -427,7 +365,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		return -1;
 	}
 	else printf("Server: WSAStartup() is OK.\n");
-	
+	Sleep(500);
 	this->server = socket(AF_INET, SOCK_STREAM, 0);
 	this->addr.sin_addr.s_addr = inet_addr(this->ip_address);
 	this->addr.sin_family = AF_INET;
@@ -437,9 +375,10 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	if (r < 0) {
 		int last_error = WSAGetLastError();
 		printf("Fail connecting to server\n");
+		closesocket(this->server);
 		return -1;
 	}
-	printf("Connected to the Server!");
+	printf("Connected to the Server!\n");
 	// il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 
 	/* start listener thread */
@@ -819,7 +758,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	uint8_t *pBuf = (uint8_t*)&frame;
 	uint8_t extended_bit = 0;
 
-	struct timeval timeout;
+	TIMEVAL timeout;
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 100000;
 	fd_set set;
