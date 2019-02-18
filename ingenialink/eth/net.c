@@ -163,39 +163,34 @@ int listener_eth(void *args)
 restart:
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
-	while (error_count < 10 && this->stop_reconnect == 0) {
-		// printf("%i\n", error_count);
+	while (error_count < 10 && this != NULL && this->stop_reconnect == 0) {
 		uint16_t sw;
 
 		/* try to read the status word register to see if a servo is alive */
-		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
-		if (r < 0) {
-			error_count = error_count + 1;
-			printf("\nERRORS: %i\n", error_count);
-			goto unlock;
+		if (this != NULL) {
+			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
+			if (r < 0) {
+				error_count = error_count + 1;
+			}
+			else {
+				error_count = 0;
+				this->stop = 0;
+				process_statusword(this, 1, sw);
+			}
 		}
-		else {
-			error_count = 0;
-			this->stop = 0;
-			// printf("Process StatusWord\n");
-			process_statusword(this, 1, sw);
-			// printf("End process StatusWord\n");
-		}
-
-	unlock:
-		printf("Unlock\n");
-		Sleep(200);
-		printf("End unlock\n");
+		Sleep(100);
 	}
-	if (error_count == 10 && this->stop_reconnect == 0) {
+	if (error_count == 10 && this != NULL && this->stop_reconnect == 0) {
 		goto err;
 	}
 	return 0;
 
 err:
-	ilerr__set("Device at %s disconnected\n", this->ip_address);
-	r = il_net_reconnect(this);
-	if (r == 0) goto restart;
+	if(this != NULL) {
+		ilerr__set("Device at %s disconnected\n", this->ip_address);
+		r = il_net_reconnect(this);
+		if (r == 0) goto restart;
+	}
 	return 0;
 }
 
@@ -214,7 +209,6 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 	r = il_net_base__init(&this->net, opts);
 	if (r < 0)
 		goto cleanup_this;
-
 	this->net.ops = &il_eth_net_ops;
 	this->net.prot = IL_NET_PROT_ETH;
 	this->ip_address = opts->port;
@@ -244,10 +238,9 @@ cleanup_this:
 static void il_eth_net_destroy(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
-	il_eth_mon_stop(this);
-	osal_thread_join(this->listener, NULL);
 	il_utils__refcnt_release(this->refcnt);
 	printf("Net destroyed\n");
+	Sleep(300);
 }
 
 static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
@@ -263,71 +256,74 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 		return -1;
 	}
 	else printf("Server: WSAStartup() is OK.\n");
+	if (this != NULL) {
+		this->server = socket(AF_INET, SOCK_STREAM, 0);
+		this->addr.sin_addr.s_addr = inet_addr(this->ip_address);
+		this->addr.sin_family = AF_INET;
+		this->addr.sin_port = htons(23);
 
-	this->server = socket(AF_INET, SOCK_STREAM, 0);
-	this->addr.sin_addr.s_addr = inet_addr(this->ip_address);
-	this->addr.sin_family = AF_INET;
-	this->addr.sin_port = htons(23);
+		unsigned long iMode = 1;
+		r = ioctlsocket(this->server, FIONBIO, &iMode);
+		if (r != NO_ERROR)
+		{
+			printf("ioctlsocket failed with error: %ld\n", r);
+		}
+		
+		r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
+		if (r == SOCKET_ERROR) {
 
-	unsigned long iMode = 1;
-	r = ioctlsocket(this->server, FIONBIO, &iMode);
-	if (r != NO_ERROR)
-	{
-		printf("ioctlsocket failed with error: %ld\n", r);
-	}
-	r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
-	if (r == SOCKET_ERROR) {
+			r = WSAGetLastError();
 
-		r = WSAGetLastError();
+			// check if error was WSAEWOULDBLOCK, where we'll wait
+			if (r == WSAEWOULDBLOCK) {
+				printf("Attempting to connect.\n");
+				fd_set Write, Err;
+				TIMEVAL Timeout;
+				Timeout.tv_sec = 1;
+				Timeout.tv_usec = 0;
 
-		// check if error was WSAEWOULDBLOCK, where we'll wait
-		if (r == WSAEWOULDBLOCK) {
-			printf("Attempting to connect.\n");
-			fd_set Write, Err;
-			TIMEVAL Timeout;
-			Timeout.tv_sec = 1;
-			Timeout.tv_usec = 0;
+				FD_ZERO(&Write);
+				FD_ZERO(&Err);
+				FD_SET(this->server, &Write);
+				FD_SET(this->server, &Err);
 
-			FD_ZERO(&Write);
-			FD_ZERO(&Err);
-			FD_SET(this->server, &Write);
-			FD_SET(this->server, &Err);
-
-			r = select(0, NULL, &Write, &Err, &Timeout);
-			if (r == 0) {
-				printf("Timeout during connection\n");
-				result = 0;
-			}
-			else {
-				if (FD_ISSET(this->server, &Write)) {
-					printf("Connected to the Server\n");
-					result = 1;
-				}
-				if (FD_ISSET(this->server, &Err)) {
-					printf("Fail connecting to server\n");
+				r = select(0, NULL, &Write, &Err, &Timeout);
+				if (r == 0) {
+					printf("Timeout during connection\n");
 					result = 0;
 				}
+				else {
+					if (FD_ISSET(this->server, &Write)) {
+						printf("Connected to the Server\n");
+						result = 1;
+					}
+					if (FD_ISSET(this->server, &Err)) {
+						printf("Fail connecting to server\n");
+						result = 0;
+					}
+				}
 			}
+			else {
+				int last_error = WSAGetLastError();
+				printf("Fail connecting to server\n");
+				result = 0;
+			}
+
 		}
 		else {
-			int last_error = WSAGetLastError();
-			printf("Fail connecting to server\n");
-			result = 0;
+			printf("Connected to the Server\n");
+			result = 1;
 		}
 
-	}
-	else {
-		printf("Connected to the Server\n");
-		result = 1;
-	}
 
-
-	iMode = 0;
-	r = ioctlsocket(this->server, FIONBIO, &iMode);
-	if (r != NO_ERROR)
-	{
-		printf("ioctlsocket failed with error: %ld\n", r);
+		iMode = 0;
+		r = ioctlsocket(this->server, FIONBIO, &iMode);
+		if (r != NO_ERROR)
+		{
+			printf("ioctlsocket failed with error: %ld\n", r);
+		}
 	}
+	else result = 0;
 
 	return result;
 
@@ -365,7 +361,6 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		return -1;
 	}
 	else printf("Server: WSAStartup() is OK.\n");
-	Sleep(500);
 	this->server = socket(AF_INET, SOCK_STREAM, 0);
 	this->addr.sin_addr.s_addr = inet_addr(this->ip_address);
 	this->addr.sin_family = AF_INET;
@@ -421,6 +416,9 @@ static int il_eth_mon_stop(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
 	this->stop_reconnect = 1;
+	Sleep(200);
+	osal_thread_join(this->listener, NULL);
+	Sleep(200);
 }
 
 static il_net_servos_list_t *il_eth_net_servos_list_get(
@@ -773,13 +771,10 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	}
 	else
 	{
-		printf("\nRESULT: %i\n", rv);
-		printf("Start 1 recv\n");
 		int r;
 		Sleep(5);
 		/* read next frame */
 		r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
-		printf("End 1 recv\n");
 		/* process frame: validate CRC, address, ACK */
 		crc = *(uint16_t *)&frame[6];
 		uint16_t crc_res = crc_calc_eth((uint16_t *)frame, 6);
@@ -789,8 +784,6 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		}
 
 		/* TODO: Check subnode */
-		
-		printf("Check ACK\n");
 		/* Check ACK */
 		hdr_l = *(uint16_t *)&frame[ETH_MCB_HDR_L_POS];
 		int cmd = (hdr_l & ETH_MCB_CMD_MSK) >> ETH_MCB_CMD_POS;
@@ -859,8 +852,6 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
 		}
 	}
-	
-	printf("End recv\n");
 
 	return 0;
 }

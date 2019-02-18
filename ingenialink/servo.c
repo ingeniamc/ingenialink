@@ -687,7 +687,7 @@ int il_servo_is_connected(il_net_t **net, const char *address_ip)
 	opts.address_ip = address_ip;
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
-	opts.connect_slave = 0;
+	opts.connect_slave = 1;
 
 	*net = il_net_create(IL_NET_PROT_ETH, &opts);
 	if (!*net) {
@@ -696,6 +696,5 @@ int il_servo_is_connected(il_net_t **net, const char *address_ip)
 	}
 	int r = 0;
 	r = il_net_is_slave_connected(*net, address_ip);
-	
 	return r;
 }
