@@ -333,17 +333,72 @@ static int il_net_reconnect(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
 	this->stop = 1;
-	int r = 0;
-	while (r < 1 && this->stop_reconnect == 0)
+	int r = -1;
+	while (r < 0 && this->stop_reconnect == 0)
 	{
-		r = il_eth_net_is_slave_connected(net, this->ip_address);
-		printf("\nis_slave_connected %i\n", r);
-		if (r < 1) {
-			Sleep(1000);
+		// r = il_eth_net_is_slave_connected(net, this->ip_address);
+		// printf("\nis_slave_connected %i\n", r);
+		// if (r < 1) {
+		// 	Sleep(1000);
+		// }
+		// else {
+		// 	this->stop = 0;
+		// }
+		printf("Reconnecting...\n");
+		this->server = socket(AF_INET, SOCK_STREAM, 0);
+
+		//set the socket in non-blocking
+		unsigned long iMode = 1;
+		r = ioctlsocket(this->server, FIONBIO, &iMode);
+		if (r != NO_ERROR)
+		{
+			printf("ioctlsocket failed with error: %ld\n", r);
+		}
+		r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
+		if (r == SOCKET_ERROR) {	
+			r = WSAGetLastError();
+			// check if error was WSAEWOULDBLOCK, where we'll wait
+			if (r == WSAEWOULDBLOCK) {
+				printf("Attempting to connect.\n");
+				fd_set Write, Err;
+				TIMEVAL Timeout;
+				Timeout.tv_sec = 2;
+				Timeout.tv_usec = 0;
+
+				FD_ZERO(&Write);
+				FD_ZERO(&Err);
+				FD_SET(this->server, &Write);
+				FD_SET(this->server, &Err);
+				r = select(0, NULL, &Write, &Err, &Timeout);
+				if (r == 0) {
+					printf("Timeout during connection\n");
+				}
+				else {
+					if (FD_ISSET(this->server, &Write)) {
+						printf("Reconnected to the Server\n");
+						this->stop = 0;
+					}
+					if (FD_ISSET(this->server, &Err)) {
+						printf("Error reconnecting\n");
+					}
+				}
+			}
+			else {
+				int last_error = WSAGetLastError();
+				printf("Fail connecting to server\n");
+			}
 		}
 		else {
+			printf("Connected to the Server\n");
 			this->stop = 0;
 		}
+		iMode = 0;
+		r = ioctlsocket(this->server, FIONBIO, &iMode);
+		if (r != NO_ERROR)
+		{
+			printf("ioctlsocket failed with error: %ld\n", r);
+		}
+		Sleep(1000);
 	}
 	r = this->stop_reconnect;
 	return r;
