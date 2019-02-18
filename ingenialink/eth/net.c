@@ -287,22 +287,20 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 				FD_SET(this->server, &Write);
 				FD_SET(this->server, &Err);
 
-				r = select(0, NULL, &Write, &Err, &Timeout);
+				r = select(this->server, NULL, &Write, &Err, &Timeout);
 				if (r == 0) {
 					printf("Timeout during connection\n");
 					result = 0;
 				}
 				else {
-					printf("Connected to the Server\n");
-					result = 1;
-					// if (FD_ISSET(this->server, &Write)) {
-					// 	printf("Connected to the Server\n");
-					// 	result = 1;
-					// }
-					// if (FD_ISSET(this->server, &Err)) {
-					// 	printf("Fail connecting to server\n");
-					// 	result = 0;
-					// }
+					if (FD_ISSET(this->server, &Write)) {
+						printf("Connected to the Server\n");
+						result = 1;
+					}
+					if (FD_ISSET(this->server, &Err)) {
+						printf("Fail connecting to server\n");
+						result = 0;
+					}
 				}
 			}
 			else {
