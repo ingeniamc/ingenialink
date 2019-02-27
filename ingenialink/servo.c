@@ -640,12 +640,11 @@ int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		   const char *dict, const char *address_ip)
 {	
-	il_eth_net_dev_list_t *devs, *dev;
+	il_eth_net_dev_list_t *dev;
 	il_net_servos_list_t *servo_ids, *servo_id;
 
 	/* scan all available network devices */
 	dev = il_net_dev_list_get(prot);
-	//il_net_dev_list_foreach(dev, devs) {
 	il_eth_net_opts_t opts;
 
 	opts.address_ip = address_ip;
@@ -666,14 +665,12 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		/* found */
 		if (*servo) {
 			il_net_servos_list_destroy(servo_ids);
-			//il_net_dev_list_destroy(devs);
 
 			return 0;
 		}
 	}
 	il_net_servos_list_destroy(servo_ids);
 	il_net_destroy(*net);
-	il_net_dev_list_destroy(devs);
 	
 	ilerr__set("No connected servos found");
 	return IL_EFAIL;

@@ -300,6 +300,9 @@ typedef struct {
 	int (*read_monitoring_data)();
 	/** Is Slave Connected. */
 	int (*is_slave_connected)();
+	/** Close socket */
+	int (*close_socket)();
+	
 } il_eth_net_ops_t;
 
 /** Network device monitor operations. */

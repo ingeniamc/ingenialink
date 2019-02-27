@@ -27,6 +27,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <windows.h>
 
@@ -194,10 +195,39 @@ err:
 	return 0;
 }
 
+void SignalHandler(int signal)
+{
+	if (signal == SIGINT || signal == SIGTERM || signal == SIGABRT) {
+		// abort signal handler code
+		il_eth_net_t *this;
+		this = calloc(1, sizeof(*this));
+		if (!this) {
+			ilerr__set("Network allocation failed");
+			return NULL;
+		}
+		int r = il_net_close_socket(&this->net);
+		printf("Unexpected termination: %i\n", signal);
+
+		exit(-1);
+	}
+	else {
+		// ...  
+		printf("Unhandled signal exception: %i\n", signal);
+	}
+}
+
 static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 {
 	il_eth_net_t *this;
 	int r;
+
+	typedef void(*SignalHandlerPointer)(int);
+
+	/* Adding signal to catch exceptions */
+	SignalHandlerPointer exc_handler_sigint, exc_handler_sigterm, exc_handler_sigabrt;
+	exc_handler_sigint = signal(SIGINT, SignalHandler);
+	exc_handler_sigterm = signal(SIGTERM, SignalHandler);
+	exc_handler_sigabrt = signal(SIGABRT, SignalHandler);
 
 	this = calloc(1, sizeof(*this));
 	if (!this) {
@@ -235,9 +265,19 @@ cleanup_this:
 	return NULL;
 }
 
+static void il_eth_net_close_socket(il_net_t *net) {
+	il_eth_net_t *this = to_eth_net(net);
+	
+	int r = 0;
+	r = closesocket(this->server);
+	WSACleanup();
+	return r;
+}
+
 static void il_eth_net_destroy(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
+	
 	il_utils__refcnt_release(this->refcnt);
 	printf("Net destroyed\n");
 	Sleep(300);
@@ -914,7 +954,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 }
 
 
-/** MCB network operations. */
+/** ETH network operations. */
 const il_eth_net_ops_t il_eth_net_ops = {
 	/* internal */
 	._read = il_eth_net__read,
@@ -926,6 +966,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	/* public */
 	.create = il_eth_net_create,
 	.destroy = il_eth_net_destroy,
+	.close_socket = il_eth_net_close_socket,
 	.connect = il_eth_net_connect,
 	.is_slave_connected = il_eth_net_is_slave_connected,
 	// .devs_list_get = il_eth_net_dev_list_get,
