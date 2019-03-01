@@ -480,6 +480,9 @@ IL_EXPORT int32_t *il_net_monitoring_channel_s32(il_net_t *net, int channel);
  */
 IL_EXPORT float *il_net_monitoring_channel_flt(il_net_t *net, int channel);
 
+
+IL_EXPORT int il_net_close_socket(il_net_t *net);
+
 /**
  * Obtain network servos list.
  *

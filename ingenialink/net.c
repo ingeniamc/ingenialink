@@ -248,6 +248,11 @@ float *il_net_monitoring_channel_flt(il_net_t *net, int channel)
 	return net->monitoring_data_channels[channel].value.monitoring_data_flt;
 }
 
+int il_net_close_socket(il_net_t *net) 
+{
+	return il_eth_net_ops.close_socket(net);
+}
+
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)

@@ -33,6 +33,7 @@
 
 #define _SER_NO_LEGACY_STDINT
 #include <sercomm/sercomm.h>
+#include <winsock2.h>
 
 
 /** Default read timeout. */
@@ -54,6 +55,12 @@ typedef struct il_eth_net {
     const char *ip_address;
     /** Port */
     int port;
+	/** Server: WSAStartup() */
+	WSADATA *WSAData;
+	/** Socket */
+	SOCKET *server;
+	/** Socket address */
+	SOCKADDR_IN addr;
     /** Stop reconnect */
     int stop_reconnect;
 	/** Listener thread. */
