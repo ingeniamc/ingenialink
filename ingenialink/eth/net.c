@@ -845,6 +845,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 {
 	int finished = 0;
 	size_t pending_sz = sz;
+	int r;
 
 	/*while (!finished) {*/
 	uint16_t frame[7];
@@ -860,7 +861,6 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	FD_ZERO(&set); /* clear the set */
 	FD_SET(this->server, &set); /* add our file descriptor to the set */
 	
-<<<<<<< HEAD
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
 	uint16_t crc_res = crc_calc_eth((uint16_t *)frame, 6);
@@ -887,12 +887,12 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		/* Check if we are reading monitoring data */
 		if (address == 0x00F4) {
 			/* Monitoring */
-
+			
 			/* Read size of data */
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
 			/*uint8_t *pBufMonitoring = (uint8_t*)net->monitoring_raw_data;*/
-			r = recv(server, (uint8_t*)net->monitoring_raw_data, size, 0);
+			r = recv(this->server, (uint8_t*)net->monitoring_raw_data, size, 0);
 			net->monitoring_data_size = size;
 			int num_mapped = net->monitoring_number_mapped_registers;
 			for (int i = 0; i < num_mapped; ++i)
@@ -924,22 +924,20 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 							net->monitoring_data_channels[i].value.monitoring_data_flt[(j / num_mapped)] = *(float*)&net->monitoring_raw_data[j];
 						}
 						break;
-					}
 				}
 			}
-			else {
-				memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
-				uint16_t size = *(uint16_t*)buf;
-				r = recv(this->server, net->extended_buff, size, 0);
-				if (r < 0)
-					return ilerr__ser(r);
-			}
-		}
+		}	
 		else {
-			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
+			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
+			uint16_t size = *(uint16_t*)buf;
+			r = recv(this->server, net->extended_buff, size, 0);
+			if (r < 0)
+				return ilerr__ser(r);
 		}
 	}
-
+	else {
+		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
+	}
 	return 0;
 }
 
