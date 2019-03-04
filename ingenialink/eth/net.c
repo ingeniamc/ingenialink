@@ -364,6 +364,9 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 		}
 	}
 	else result = 0;
+	
+	// Closing socket
+	closesocket(this->server);
 
 	return result;
 
@@ -461,7 +464,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	this->addr.sin_addr.s_addr = inet_addr(this->ip_address);
 	this->addr.sin_family = AF_INET;
 	this->addr.sin_port = htons(23);
-
+		
 	r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
 	if (r < 0) {
 		int last_error = WSAGetLastError();
@@ -469,6 +472,19 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		closesocket(this->server);
 		return -1;
 	}
+	/*
+		Due to restriction of sockets connected to the slave, it's necessary to check that
+		we can communicate with the slave.
+	*/
+	uint16_t sw;
+	r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
+	if (r < 0) {
+		printf("Can't connect to the slave\n");
+		closesocket(this->server);
+		return -2;
+	}
+
+
 	printf("Connected to the Server!\n");
 	// il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 
@@ -845,7 +861,6 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 {
 	int finished = 0;
 	size_t pending_sz = sz;
-	int r;
 
 	/*while (!finished) {*/
 	uint16_t frame[7];
@@ -854,13 +869,11 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	uint8_t *pBuf = (uint8_t*)&frame;
 	uint8_t extended_bit = 0;
 
-	TIMEVAL timeout;
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 100000;
-	fd_set set;
-	FD_ZERO(&set); /* clear the set */
-	FD_SET(this->server, &set); /* add our file descriptor to the set */
-	
+	Sleep(5);
+	/* read next frame */
+	int r = 0;
+	r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
+
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
 	uint16_t crc_res = crc_calc_eth((uint16_t *)frame, 6);
@@ -887,7 +900,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		/* Check if we are reading monitoring data */
 		if (address == 0x00F4) {
 			/* Monitoring */
-			
+
 			/* Read size of data */
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
@@ -899,45 +912,44 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 			{
 				il_reg_dtype_t type = net->monitoring_data_channels[i].type;
 				switch (type) {
-					case IL_REG_DTYPE_U16:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_u16[(j / num_mapped)] = *(uint16_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_S16:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_s16[(j / num_mapped)] = *(int16_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_U32:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_u32[(j / num_mapped)] = *(uint32_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_S32:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_s32[(j / num_mapped)] = *(int32_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_FLOAT:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_flt[(j / num_mapped)] = *(float*)&net->monitoring_raw_data[j];
-						}
-						break;
+				case IL_REG_DTYPE_U16:
+					for (int j = i; j < size / 2; j = j + num_mapped) {
+						net->monitoring_data_channels[i].value.monitoring_data_u16[(j / num_mapped)] = *(uint16_t*)&net->monitoring_raw_data[j];
+					}
+					break;
+				case IL_REG_DTYPE_S16:
+					for (int j = i; j < size / 2; j = j + num_mapped) {
+						net->monitoring_data_channels[i].value.monitoring_data_s16[(j / num_mapped)] = *(int16_t*)&net->monitoring_raw_data[j];
+					}
+					break;
+				case IL_REG_DTYPE_U32:
+					for (int j = i; j < size / 2; j = j + num_mapped) {
+						net->monitoring_data_channels[i].value.monitoring_data_u32[(j / num_mapped)] = *(uint32_t*)&net->monitoring_raw_data[j];
+					}
+					break;
+				case IL_REG_DTYPE_S32:
+					for (int j = i; j < size / 2; j = j + num_mapped) {
+						net->monitoring_data_channels[i].value.monitoring_data_s32[(j / num_mapped)] = *(int32_t*)&net->monitoring_raw_data[j];
+					}
+					break;
+				case IL_REG_DTYPE_FLOAT:
+					for (int j = i; j < size / 2; j = j + num_mapped) {
+						net->monitoring_data_channels[i].value.monitoring_data_flt[(j / num_mapped)] = *(float*)&net->monitoring_raw_data[j];
+					}
+					break;
 				}
 			}
-		}	
+		}
 		else {
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
 			r = recv(this->server, net->extended_buff, size, 0);
-			if (r < 0)
-				return ilerr__ser(r);
 		}
 	}
 	else {
 		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
 	}
+
 	return 0;
 }
 

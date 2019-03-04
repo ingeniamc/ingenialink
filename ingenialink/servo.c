@@ -692,6 +692,7 @@ int il_servo_is_connected(il_net_t **net, const char *address_ip)
 		return IL_EFAIL;
 	}
 	int r = 0;
+	r = il_net_close_socket(*net);
 	r = il_net_is_slave_connected(*net, address_ip);
 	return r;
 }
