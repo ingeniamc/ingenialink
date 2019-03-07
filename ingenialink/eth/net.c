@@ -319,8 +319,8 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 				printf("Attempting to connect.\n");
 				fd_set Write, Err;
 				TIMEVAL Timeout;
-				Timeout.tv_sec = 1;
-				Timeout.tv_usec = 0;
+				Timeout.tv_sec = 0;
+				Timeout.tv_usec = 50000;
 
 				FD_ZERO(&Write);
 				FD_ZERO(&Err);
