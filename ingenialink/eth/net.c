@@ -366,7 +366,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	else result = 0;
 	
 	// Closing socket
-	closesocket(this->server);
+	//closesocket(this->server);
 
 	return result;
 
@@ -379,14 +379,6 @@ static int il_net_reconnect(il_net_t *net)
 	int r = -1;
 	while (r < 0 && this->stop_reconnect == 0)
 	{
-		// r = il_eth_net_is_slave_connected(net, this->ip_address);
-		// printf("\nis_slave_connected %i\n", r);
-		// if (r < 1) {
-		// 	Sleep(1000);
-		// }
-		// else {
-		// 	this->stop = 0;
-		// }
 		printf("Reconnecting...\n");
 		this->server = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -464,14 +456,64 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	this->addr.sin_addr.s_addr = inet_addr(this->ip_address);
 	this->addr.sin_family = AF_INET;
 	this->addr.sin_port = htons(23);
-		
-	r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
-	if (r < 0) {
-		int last_error = WSAGetLastError();
-		printf("Fail connecting to server\n");
-		closesocket(this->server);
-		return -1;
+
+	//set the socket in non-blocking
+	unsigned long iMode = 1;
+	r = ioctlsocket(this->server, FIONBIO, &iMode);
+	if (r != NO_ERROR)
+	{
+		printf("ioctlsocket failed with error: %ld\n", r);
 	}
+
+	r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
+	if (r == SOCKET_ERROR) {
+		r = WSAGetLastError();
+		// check if error was WSAEWOULDBLOCK, where we'll wait
+		if (r == WSAEWOULDBLOCK) {
+			printf("Attempting to connect.\n");
+			fd_set Write, Err;
+			TIMEVAL Timeout;
+			Timeout.tv_sec = 2;
+			Timeout.tv_usec = 0;
+
+			FD_ZERO(&Write);
+			FD_ZERO(&Err);
+			FD_SET(this->server, &Write);
+			FD_SET(this->server, &Err);
+			r = select(0, NULL, &Write, &Err, &Timeout);
+			if (r == 0) {
+				printf("Timeout during connection\n");
+				closesocket(this->server);
+				return -1;
+			}
+			else {
+				if (FD_ISSET(this->server, &Write)) {
+					printf("Connected to the Server\n");
+				}
+				if (FD_ISSET(this->server, &Err)) {
+					printf("Error connecting\n");
+					closesocket(this->server);
+					return -1;
+				}
+			}
+		}
+		else {
+			int last_error = WSAGetLastError();
+			printf("Fail connecting to server\n");
+			closesocket(this->server);
+			return -1;
+		}
+	}
+	else {
+		printf("Connected to the Server\n");
+	}
+	iMode = 0;
+	r = ioctlsocket(this->server, FIONBIO, &iMode);
+	if (r != NO_ERROR)
+	{
+		printf("ioctlsocket failed with error: %ld\n", r);
+	}
+
 	/*
 		Due to restriction of sockets connected to the slave, it's necessary to check that
 		we can communicate with the slave.
