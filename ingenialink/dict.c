@@ -612,8 +612,10 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 	if (!param) {
 		reg->subnode = 1;
 	}
-
-	reg->subnode = strtoul((char *)param, NULL, 4);
+	else {
+		reg->subnode = strtoul((char *)param, NULL, 4);
+	}
+	
 
 	/* parse: address */
 	param = xmlGetProp(node, (const xmlChar *)"address");
