@@ -193,6 +193,10 @@ typedef struct {
 	int (*_write)(
 		il_net_t *net, uint16_t id, uint32_t address, const void *buf,
 		size_t sz, int confirmed);
+	/** Wait Write. */
+	int (*_wait_write)(
+		il_net_t *net, uint16_t id, uint32_t address, const void *buf,
+		size_t sz, int confirmed);
 	/** Subscribe to state updates. */
 	int (*_sw_subscribe)(
 		il_net_t *net, uint16_t id, il_net_sw_subscriber_cb_t cb,
@@ -252,6 +256,11 @@ typedef struct {
 		size_t sz);
 	/** Write. */
 	int (*_write)(
+		il_net_t *net, uint16_t id, uint32_t address, const void *buf,
+		size_t sz, int confirmed);
+
+	/** Write. */
+	int (*_wait_write)(
 		il_net_t *net, uint16_t id, uint32_t address, const void *buf,
 		size_t sz, int confirmed);
 	/** Subscribe to state updates. */

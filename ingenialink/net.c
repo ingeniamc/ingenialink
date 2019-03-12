@@ -53,6 +53,12 @@ int il_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
 	return net->ops->_write(net, id, subnode, address, buf, sz, confirmed, extended);
 }
 
+int il_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, const void *buf,
+		  size_t sz, int confirmed, uint16_t extended)
+{
+	return net->ops->_wait_write(net, id, subnode, address, buf, sz, confirmed, extended);
+}
+
 int il_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, void *buf,
 		 size_t sz)
 {

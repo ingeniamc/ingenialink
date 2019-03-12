@@ -140,6 +140,9 @@ typedef struct {
 	int (*raw_write_u32)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
 		uint32_t val, int confirm);
+	int (*raw_wait_write_u32)(
+		il_servo_t *servo, const il_reg_t *reg, const char *id,
+		uint32_t val, int confirm);
 	int (*raw_write_s32)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
 		int32_t val, int confirm);

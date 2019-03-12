@@ -870,6 +870,9 @@ IL_EXPORT int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
 IL_EXPORT int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
 				     const char *id, uint32_t val, int confirm, uint16_t extended);
 
+IL_EXPORT int il_servo_raw_wait_write_u32(il_servo_t *servo, const il_reg_t *reg,
+				     const char *id, uint32_t val, int confirm, uint16_t extended);
+
 /**
  * Write signed 32-bit integer to a register.
  *

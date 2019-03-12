@@ -299,13 +299,6 @@ static int il_eth_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
 	return 0;
 }
 
-static int il_eth_servo_store_all(il_servo_t *servo)
-{
-	(void)servo;
-
-	return not_supported();
-}
-
 static int il_eth_servo_store_comm(il_servo_t *servo)
 {
 	(void)servo;
@@ -510,6 +503,18 @@ static int il_eth_servo_fault_reset(il_servo_t *servo)
 	return 0;
 }
 
+static int il_eth_servo_store_all(il_servo_t *servo)
+{
+	int r;
+
+	r = il_servo_raw_wait_write_u32(servo, &IL_REG_ETH_STORE_ALL,
+						   NULL, 0x65766173, 1, 0);
+
+	printf("Store finished!");
+	r = 0;
+	return r;
+}
+
 static int il_eth_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode)
 {
 	(void)servo;
@@ -667,7 +672,6 @@ const il_servo_ops_t il_eth_servo_ops = {
 	.name_get = il_eth_servo_name_get,
 	.name_set = il_eth_servo_name_set,
 	.info_get = il_eth_servo_info_get,
-	.store_all = il_eth_servo_store_all,
 	.store_comm = il_eth_servo_store_comm,
 	.store_app = il_eth_servo_store_app,
 	.units_update = il_eth_servo_units_update,
@@ -696,6 +700,7 @@ const il_servo_ops_t il_eth_servo_ops = {
 	.raw_write_u16 = il_servo_base__raw_write_u16,
 	.raw_write_s16 = il_servo_base__raw_write_s16,
 	.raw_write_u32 = il_servo_base__raw_write_u32,
+	.raw_wait_write_u32 = il_servo_base__raw_wait_write_u32,
 	.raw_write_s32 = il_servo_base__raw_write_s32,
 	.raw_write_u64 = il_servo_base__raw_write_u64,
 	.raw_write_s64 = il_servo_base__raw_write_s64,
@@ -705,6 +710,7 @@ const il_servo_ops_t il_eth_servo_ops = {
 	.switch_on = il_eth_servo_switch_on,
 	.enable = il_eth_servo_enable,
 	.fault_reset = il_eth_servo_fault_reset,
+	.store_all = il_eth_servo_store_all,
 	.mode_get = il_eth_servo_mode_get,
 	.mode_set = il_eth_servo_mode_set,
 	.ol_voltage_get = il_eth_servo_ol_voltage_get,

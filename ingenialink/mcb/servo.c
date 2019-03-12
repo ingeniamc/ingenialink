@@ -26,6 +26,9 @@
 #include "mc.h"
 
 #include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <windows.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/servo.h"
@@ -320,9 +323,14 @@ static int il_mcb_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
 
 static int il_mcb_servo_store_all(il_servo_t *servo)
 {
-	(void)servo;
+	int r;
 
-	return not_supported();
+	r = il_servo_raw_wait_write_u32(servo, &IL_REG_ETH_STORE_ALL,
+						   NULL, 0x65766173, 1, 0);
+
+	printf("Store finished!");
+	r = 0;
+	return r;
 }
 
 static int il_mcb_servo_store_comm(il_servo_t *servo)
@@ -707,6 +715,7 @@ const il_servo_ops_t il_mcb_servo_ops = {
 	.raw_write_u16 = il_servo_base__raw_write_u16,
 	.raw_write_s16 = il_servo_base__raw_write_s16,
 	.raw_write_u32 = il_servo_base__raw_write_u32,
+	.raw_wait_write_u32 = il_servo_base__raw_wait_write_u32,
 	.raw_write_s32 = il_servo_base__raw_write_s32,
 	.raw_write_u64 = il_servo_base__raw_write_u64,
 	.raw_write_s64 = il_servo_base__raw_write_s64,

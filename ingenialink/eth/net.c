@@ -821,6 +821,35 @@ unlock:
 	return r;
 }
 
+static int il_eth_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
+	const void *buf, size_t sz, int confirmed, uint16_t extended)
+{
+	il_eth_net_t *this = to_eth_net(net);
+
+	int r;
+
+	(void)id;
+	(void)confirmed;
+
+	osal_mutex_lock(this->net.lock);
+
+
+	r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
+	if (r < 0)
+		goto unlock;
+
+	Sleep(1000);
+
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
+	if (r < 0)
+		goto unlock;
+
+unlock:
+	osal_mutex_unlock(this->net.lock);
+
+	return r;
+}
+
 typedef union
 {
 	uint64_t u64;
@@ -1001,6 +1030,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	/* internal */
 	._read = il_eth_net__read,
 	._write = il_eth_net__write,
+	._wait_write = il_eth_net__wait_write,
 	._sw_subscribe = il_net_base__sw_subscribe,
 	._sw_unsubscribe = il_net_base__sw_unsubscribe,
 	._emcy_subscribe = il_net_base__emcy_subscribe,

@@ -155,6 +155,31 @@ static int raw_write(il_servo_t *servo, const il_reg_t *reg,
 			     confirmed_, extended);
 }
 
+static int raw_wait_write(il_servo_t *servo, const il_reg_t *reg,
+		     il_reg_dtype_t dtype, const void *data, size_t sz,
+		     int confirmed, uint16_t extended)
+{
+	int confirmed_;
+
+	/* verify register properties */
+	if (reg->dtype != dtype) {
+		ilerr__set("Unexpected register data type");
+		return IL_EINVAL;
+	}
+
+	if (reg->access == IL_REG_ACCESS_RO) {
+		ilerr__set("Register is read-only");
+		return IL_EACCESS;
+	}
+
+	/* skip confirmation on write-only registers */
+	confirmed_ = (reg->access == IL_REG_ACCESS_WO) ? 0 : confirmed;
+
+	return il_net__wait_write(servo->net, servo->id, reg->subnode, reg->address, data, sz,
+			     confirmed_, extended);
+}
+
+
 /**
  * Wait until the statusword changes its value.
  *
@@ -1124,6 +1149,30 @@ int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U32, &val_, sizeof(val_),
 			 confirm, extended);
+}
+
+int il_servo_base__raw_wait_write_u32(il_servo_t *servo, const il_reg_t *reg,
+	const char *id, uint32_t val, int confirm, uint16_t extended)
+{
+	int r;
+	uint32_t val_;
+	const il_reg_t *reg_;
+
+	r = get_reg(servo->dict, reg, id, &reg_);
+	if (r < 0)
+		return r;
+
+	if (reg != NULL) {
+		if ((val < reg->range.min.u32) || (val > reg->range.max.u32)) {
+			ilerr__set("Value out of range");
+			return IL_EINVAL;
+		}
+	}
+
+	val_ = __swap_be_32(val);
+
+	return raw_wait_write(servo, reg_, IL_REG_DTYPE_U32, &val_, sizeof(val_),
+		confirm, extended);
 }
 
 int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
