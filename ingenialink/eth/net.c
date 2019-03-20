@@ -660,11 +660,11 @@ static int *il_eth_net_enable_monitoring(il_net_t *net)
 
 	uint16_t enable_monitoring_val = 1;
 	uint16_t monitoring_period = 10000;
-	r = il_net__write(&this->net, 1, 0, 0x00F2, &monitoring_period, 2, 1, 0);
+	r = il_net__write(&this->net, 1, 0, 0x00C1, &monitoring_period, 2, 1, 0);
 	if (r < 0) {
 
 	}
-	r = il_net__write(&this->net, 1, 0, 0x00F1, &enable_monitoring_val, 2, 1, 0);
+	r = il_net__write(&this->net, 1, 0, 0x00C0, &enable_monitoring_val, 2, 1, 0);
 	if (r < 0) {
 
 	}
@@ -677,7 +677,7 @@ static int *il_eth_net_disable_monitoring(il_net_t *net)
 	il_eth_net_t *this = to_eth_net(net);
 
 	uint16_t disable_monitoring_val = 0;
-	r = il_net__write(&this->net, 1, 0, 0x00F1, &disable_monitoring_val, 2, 1, 0);
+	r = il_net__write(&this->net, 1, 0, 0x00C0, &disable_monitoring_val, 2, 1, 0);
 	if (r < 0) {
 
 	}
@@ -691,7 +691,7 @@ static int *il_eth_net_read_monitoring_data(il_net_t *net)
 
 	uint64_t vid;
 
-	r = il_net__read(&this->net, 1, 0, 0x00F4, &vid, sizeof(vid));
+	r = il_net__read(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
 	if (r < 0) {
 
 	}
@@ -969,7 +969,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	extended_bit = (hdr_l & ETH_MCB_PENDING_MSK) >> ETH_MCB_PENDING_POS;
 	if (extended_bit == 1) {
 		/* Check if we are reading monitoring data */
-		if (address == 0x00F4) {
+		if (address == 0x00B2) {
 			/* Monitoring */
 
 			/* Read size of data */
