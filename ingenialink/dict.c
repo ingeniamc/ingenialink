@@ -739,6 +739,14 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 		reg->scat_id = NULL;
 	}
 
+	/* parse: internal_use (optional) */
+	param = xmlGetProp(node, (const xmlChar *)"internal_use");
+	if (param) {
+		reg->internal_use = 1;
+	} else {
+		reg->internal_use = 0;
+	}
+
 	/* assign default min/max */
 	switch (reg->dtype) {
 	case IL_REG_DTYPE_U8:
