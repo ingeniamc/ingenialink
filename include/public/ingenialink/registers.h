@@ -161,6 +161,8 @@ typedef struct {
 	const char *cat_id;
 	/** Subcategory ID. */
 	const char *scat_id;
+	/** Internal use. */
+	uint8_t internal_use;
 } il_reg_t;
 
 /** @} */
