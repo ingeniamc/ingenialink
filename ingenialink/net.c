@@ -266,22 +266,22 @@ int *il_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t
 
 void il_net_disturbance_data_u16_set(il_net_t *net, int channel, uint16_t disturbance_data[2048]) 
 {
-	for (int i = 0; i < 2048; net->disturbance_data_channels[channel].value.disturbance_data_u16[i] = disturbance_data[i], i++);
+	for (int i = 0; i < (1010/sizeof(uint16_t)); net->disturbance_data_channels[channel].value.disturbance_data_u16[i] = disturbance_data[i], i++);
 }
 
 void il_net_disturbance_data_s16_set(il_net_t *net, int channel, int16_t disturbance_data[2048]) 
 {
-	for (int i = 0; i < 2048; net->disturbance_data_channels[channel].value.disturbance_data_s16[i] = disturbance_data[i], i++);
+	for (int i = 0; i < (1010/sizeof(int16_t)); net->disturbance_data_channels[channel].value.disturbance_data_s16[i] = disturbance_data[i], i++);
 }
 
 void il_net_disturbance_data_u32_set(il_net_t *net, int channel, uint32_t disturbance_data[2048]) 
 {
-	for (int i = 0; i < 2048; net->disturbance_data_channels[channel].value.disturbance_data_u32[i] = disturbance_data[i], i++);
+	for (int i = 0; i < (1010/sizeof(uint32_t)); net->disturbance_data_channels[channel].value.disturbance_data_u32[i] = disturbance_data[i], i++);
 }
 
 void il_net_disturbance_data_s32_set(il_net_t *net, int channel, int32_t disturbance_data[2048]) 
 {
-	for (int i = 0; i < 2048; net->disturbance_data_channels[channel].value.disturbance_data_s32[i] = disturbance_data[i], i++);
+	for (int i = 0; i < (1010/sizeof(int32_t)); net->disturbance_data_channels[channel].value.disturbance_data_s32[i] = disturbance_data[i], i++);
 }
 
 void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturbance_data[2048]) 
