@@ -254,6 +254,41 @@ float *il_net_monitoring_channel_flt(il_net_t *net, int channel)
 	return net->monitoring_data_channels[channel].value.monitoring_data_flt;
 }
 
+int *il_net_disturbance_remove_all_mapped_registers(il_net_t *net) 
+{
+	return il_eth_net_ops.disturbance_remove_all_mapped_registers(net);
+}
+
+int *il_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
+{
+	return il_eth_net_ops.disturbance_set_mapped_register(net, channel, address, dtype);
+}
+
+void il_net_disturbance_data_u16_set(il_net_t *net, int channel, uint16_t disturbance_data[2048]) 
+{
+	for (int i = 0; i < 2048; net->disturbance_data_channels[channel].value.disturbance_data_u16[i] = disturbance_data[i], i++);
+}
+
+void il_net_disturbance_data_s16_set(il_net_t *net, int channel, int16_t disturbance_data[2048]) 
+{
+	for (int i = 0; i < 2048; net->disturbance_data_channels[channel].value.disturbance_data_s16[i] = disturbance_data[i], i++);
+}
+
+void il_net_disturbance_data_u32_set(il_net_t *net, int channel, uint32_t disturbance_data[2048]) 
+{
+	for (int i = 0; i < 2048; net->disturbance_data_channels[channel].value.disturbance_data_u32[i] = disturbance_data[i], i++);
+}
+
+void il_net_disturbance_data_s32_set(il_net_t *net, int channel, int32_t disturbance_data[2048]) 
+{
+	for (int i = 0; i < 2048; net->disturbance_data_channels[channel].value.disturbance_data_s32[i] = disturbance_data[i], i++);
+}
+
+void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturbance_data[2048]) 
+{
+	for (int i = 0; i < (1010/sizeof(float)); net->disturbance_data_channels[channel].value.disturbance_data_flt[i] = disturbance_data[i], i++);
+}
+
 int il_net_close_socket(il_net_t *net) 
 {
 	return il_eth_net_ops.close_socket(net);

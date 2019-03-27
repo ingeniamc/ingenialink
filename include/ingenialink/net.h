@@ -307,6 +307,9 @@ typedef struct {
 	int (*enable_monitoring)();
 	int (*disable_monitoring)();
 	int (*read_monitoring_data)();
+	/** Disturbance. */
+	int (*disturbance_remove_all_mapped_registers)();
+	int (*disturbance_set_mapped_register)();
 	/** Is Slave Connected. */
 	int (*is_slave_connected)();
 	/** Close socket */

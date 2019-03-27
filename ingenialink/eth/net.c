@@ -651,6 +651,45 @@ static int *il_eth_net_set_mapped_register(il_net_t *net, int channel, uint32_t 
 }
 
 /**
+* Disturbance remove all mapped registers
+*/
+static int *il_eth_net_disturbance_remove_all_mapped_registers(il_net_t *net)
+{
+	int r = 0;
+	il_eth_net_t *this = to_eth_net(net);
+
+	uint16_t remove_val = 1;
+
+	r = il_net__write(&this->net, 1, 0, 0x00E7, &remove_val, 2, 1, 0);
+	if (r < 0) {
+
+	}
+
+	return r;
+}
+
+/**
+* Disturbance set mapped reg
+*/
+static int *il_eth_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
+{
+	int r = 0;
+	il_eth_net_t *this = to_eth_net(net);
+
+	// Always 0 for the moment
+	net->disturbance_data_channels[channel].type = dtype;
+
+	// Map address
+	r = il_net__write(&this->net, 1, 0, 0x00E5, &address, 2, 1, 0);
+	if (r < 0) {
+
+	}
+
+	return r;
+}
+
+
+/**
 * Monitoring enable
 */
 static int *il_eth_net_enable_monitoring(il_net_t *net)
@@ -901,11 +940,34 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 		/* send frame */
 		if (extended == 1) {
 			uint16_t frame_size = sizeof(uint16_t) * ETH_MCB_FRAME_SZ;
-			uint16_t extended_frame[(sizeof(uint16_t) * ETH_MCB_FRAME_SZ) + 2048];
+			uint8_t extended_frame[1024];
+
+			il_reg_dtype_t type = net->disturbance_data_channels[0].type;
+			
+			void* pData;
+			switch (type) {
+				case IL_REG_DTYPE_U16:
+					pData = net->disturbance_data_channels[0].value.disturbance_data_u16;
+					break;
+				case IL_REG_DTYPE_S16:
+					pData = net->disturbance_data_channels[0].value.disturbance_data_s16;
+					break;
+				case IL_REG_DTYPE_U32:
+					pData = net->disturbance_data_channels[0].value.disturbance_data_u32;
+					break;
+				case IL_REG_DTYPE_S32:
+					pData = net->disturbance_data_channels[0].value.disturbance_data_s32;
+					break;
+				case IL_REG_DTYPE_FLOAT:
+					pData = net->disturbance_data_channels[0].value.disturbance_data_flt;
+					break;
+			}
+
 			memcpy(&extended_frame[0], frame, frame_size);
-			memcpy(&extended_frame[ETH_MCB_FRAME_SZ], net->disturbance_data, 2048);
+			memcpy(&extended_frame[frame_size], pData, 1024 - frame_size);
+			
 			r = send(this->server, (const char*)&extended_frame[0], net->disturbance_data_size + frame_size, 0);
-			// printf("Extended, result of send: %i\n", r);
+			// r = send(this->server, (const char*)&extended_frame[0],	1010 + frame_size, 0);
 			if (r < 0)
 				return ilerr__ser(r);
 		}
@@ -971,7 +1033,6 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		/* Check if we are reading monitoring data */
 		if (address == 0x00B2) {
 			/* Monitoring */
-
 			/* Read size of data */
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
@@ -983,31 +1044,31 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 			{
 				il_reg_dtype_t type = net->monitoring_data_channels[i].type;
 				switch (type) {
-				case IL_REG_DTYPE_U16:
-					for (int j = i; j < size / 2; j = j + num_mapped) {
-						net->monitoring_data_channels[i].value.monitoring_data_u16[(j / num_mapped)] = *(uint16_t*)&net->monitoring_raw_data[j];
-					}
-					break;
-				case IL_REG_DTYPE_S16:
-					for (int j = i; j < size / 2; j = j + num_mapped) {
-						net->monitoring_data_channels[i].value.monitoring_data_s16[(j / num_mapped)] = *(int16_t*)&net->monitoring_raw_data[j];
-					}
-					break;
-				case IL_REG_DTYPE_U32:
-					for (int j = i; j < size / 2; j = j + num_mapped) {
-						net->monitoring_data_channels[i].value.monitoring_data_u32[(j / num_mapped)] = *(uint32_t*)&net->monitoring_raw_data[j];
-					}
-					break;
-				case IL_REG_DTYPE_S32:
-					for (int j = i; j < size / 2; j = j + num_mapped) {
-						net->monitoring_data_channels[i].value.monitoring_data_s32[(j / num_mapped)] = *(int32_t*)&net->monitoring_raw_data[j];
-					}
-					break;
-				case IL_REG_DTYPE_FLOAT:
-					for (int j = i; j < size / 2; j = j + num_mapped) {
-						net->monitoring_data_channels[i].value.monitoring_data_flt[(j / num_mapped)] = *(float*)&net->monitoring_raw_data[j];
-					}
-					break;
+					case IL_REG_DTYPE_U16:
+						for (int j = i; j < size / 2; j = j + num_mapped) {
+							net->monitoring_data_channels[i].value.monitoring_data_u16[(j / num_mapped)] = *(uint16_t*)&net->monitoring_raw_data[j];
+						}
+						break;
+					case IL_REG_DTYPE_S16:
+						for (int j = i; j < size / 2; j = j + num_mapped) {
+							net->monitoring_data_channels[i].value.monitoring_data_s16[(j / num_mapped)] = *(int16_t*)&net->monitoring_raw_data[j];
+						}
+						break;
+					case IL_REG_DTYPE_U32:
+						for (int j = i; j < size / 2; j = j + num_mapped) {
+							net->monitoring_data_channels[i].value.monitoring_data_u32[(j / num_mapped)] = *(uint32_t*)&net->monitoring_raw_data[j];
+						}
+						break;
+					case IL_REG_DTYPE_S32:
+						for (int j = i; j < size / 2; j = j + num_mapped) {
+							net->monitoring_data_channels[i].value.monitoring_data_s32[(j / num_mapped)] = *(int32_t*)&net->monitoring_raw_data[j];
+						}
+						break;
+					case IL_REG_DTYPE_FLOAT:
+						for (int j = i; j < size / 2; j = j + num_mapped) {
+							net->monitoring_data_channels[i].value.monitoring_data_flt[(j / num_mapped)] = *(float*)&net->monitoring_raw_data[j];
+						}
+						break;
 				}
 			}
 		}
@@ -1050,7 +1111,11 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	.set_mapped_register = il_eth_net_set_mapped_register,
 	.enable_monitoring = il_eth_net_enable_monitoring,
 	.disable_monitoring = il_eth_net_disable_monitoring,
-	.read_monitoring_data = il_eth_net_read_monitoring_data
+	.read_monitoring_data = il_eth_net_read_monitoring_data,
+	/* Disturbance */
+	.disturbance_remove_all_mapped_registers = il_eth_net_disturbance_remove_all_mapped_registers,
+	.disturbance_set_mapped_register = il_eth_net_disturbance_set_mapped_register
+
 };
 
 /** MCB network device monitor operations. */
