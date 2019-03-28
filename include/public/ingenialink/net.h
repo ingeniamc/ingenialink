@@ -56,7 +56,11 @@ typedef enum {
 /** Network initialization options. */
 typedef struct {
 	/** Port. */
+	const char *address_ip;
+	/** Port. */
 	const char *port;
+	/** Port IP. */
+	int port_ip;
 	/** Read timeout (ms). */
 	int timeout_rd;
 	/** Write timeout (ms). */
@@ -68,8 +72,12 @@ typedef struct {
 
 /** Ethernet network initialization options. */
 typedef struct {
-	/** Port. */
+	/** Address ip. */
 	const char *address_ip;
+	/** Port. */
+	const char *port;
+	/** Port. */
+	int port_ip;
 	/** Read timeout (ms). */
 	int timeout_rd;
 	/** Write timeout (ms). */

@@ -52,9 +52,11 @@ typedef struct il_eth_net {
 	/** Reference counter. */
 	il_utils_refcnt_t *refcnt;
 	/** Slave Address */
-    const char *ip_address;
+    const char *address_ip;
     /** Port */
     int port;
+	/** Port IP*/
+    int port_ip;
 	/** Server: WSAStartup() */
 	WSADATA *WSAData;
 	/** Socket */

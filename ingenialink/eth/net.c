@@ -188,7 +188,7 @@ restart:
 
 err:
 	if(this != NULL) {
-		ilerr__set("Device at %s disconnected\n", this->ip_address);
+		ilerr__set("Device at %s disconnected\n", this->address_ip);
 		r = il_net_reconnect(this);
 		if (r == 0) goto restart;
 	}
@@ -241,8 +241,8 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 		goto cleanup_this;
 	this->net.ops = &il_eth_net_ops;
 	this->net.prot = IL_NET_PROT_ETH;
-	this->ip_address = opts->port;
-	this->port = "23";
+	this->address_ip = opts->address_ip;
+	this->port_ip = opts->port_ip;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(eth_net_destroy, this);
@@ -298,9 +298,9 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	else printf("Server: WSAStartup() is OK.\n");
 	if (this != NULL) {
 		this->server = socket(AF_INET, SOCK_STREAM, 0);
-		this->addr.sin_addr.s_addr = inet_addr(this->ip_address);
+		this->addr.sin_addr.s_addr = inet_addr(this->address_ip);
 		this->addr.sin_family = AF_INET;
-		this->addr.sin_port = htons(23);
+		this->addr.sin_port = htons(this->port_ip);
 
 		unsigned long iMode = 1;
 		r = ioctlsocket(this->server, FIONBIO, &iMode);
@@ -453,9 +453,9 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	}
 	else printf("Server: WSAStartup() is OK.\n");
 	this->server = socket(AF_INET, SOCK_STREAM, 0);
-	this->addr.sin_addr.s_addr = inet_addr(this->ip_address);
+	this->addr.sin_addr.s_addr = inet_addr(this->address_ip);
 	this->addr.sin_family = AF_INET;
-	this->addr.sin_port = htons(23);
+	this->addr.sin_port = htons(this->port_ip);
 
 	//set the socket in non-blocking
 	unsigned long iMode = 1;

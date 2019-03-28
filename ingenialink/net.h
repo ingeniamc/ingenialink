@@ -123,6 +123,10 @@ struct il_net {
 	il_net_prot_t prot;
 	/** Port */
 	char *port;
+	/** Port IP */
+	int port_ip;
+	/** Address Ip */
+	char *address_ip;
 	/** Read timeout. */
 	int timeout_rd;
 	/** Write timeout. */
