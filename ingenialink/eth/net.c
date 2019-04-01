@@ -822,7 +822,7 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	if (r < 0) {
 		goto unlock;
 	}
-	uint32_t *monitoring_raw_data = NULL;
+	uint16_t *monitoring_raw_data = NULL;
 	r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
 	if (r < 0)
 		goto unlock;
@@ -1040,36 +1040,41 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 			r = recv(this->server, (uint8_t*)net->monitoring_raw_data, size, 0);
 			net->monitoring_data_size = size;
 			int num_mapped = net->monitoring_number_mapped_registers;
-			for (int i = 0; i < num_mapped; ++i)
+			int bytes_per_block = net->monitoring_bytes_per_block;
+
+			int number_blocks = size / bytes_per_block;
+			uint8_t* pData = net->monitoring_raw_data;
+
+			for (int i = 0; i < number_blocks; ++i)
 			{
-				il_reg_dtype_t type = net->monitoring_data_channels[i].type;
-				switch (type) {
-					case IL_REG_DTYPE_U16:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_u16[(j / num_mapped)] = *(uint16_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_S16:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_s16[(j / num_mapped)] = *(int16_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_U32:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_u32[(j / num_mapped)] = *(uint32_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_S32:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_s32[(j / num_mapped)] = *(int32_t*)&net->monitoring_raw_data[j];
-						}
-						break;
-					case IL_REG_DTYPE_FLOAT:
-						for (int j = i; j < size / 2; j = j + num_mapped) {
-							net->monitoring_data_channels[i].value.monitoring_data_flt[(j / num_mapped)] = *(float*)&net->monitoring_raw_data[j];
-						}
-						break;
+				int OffsetIndexIntraBlockInBytes = 0;
+				for (int j = 0; j < num_mapped; ++j)
+				{
+					il_reg_dtype_t type = net->monitoring_data_channels[j].type;
+					switch (type) {
+						case IL_REG_DTYPE_U16:
+							net->monitoring_data_channels[j].value.monitoring_data_u16[i] = *((uint16_t*)(pData + OffsetIndexIntraBlockInBytes));
+							OffsetIndexIntraBlockInBytes += sizeof(uint16_t);
+							break;
+						case IL_REG_DTYPE_S16:
+							net->monitoring_data_channels[j].value.monitoring_data_s16[i] = *((int16_t*)(pData + OffsetIndexIntraBlockInBytes));
+							OffsetIndexIntraBlockInBytes += sizeof(int16_t);
+							break;
+						case IL_REG_DTYPE_U32:
+							net->monitoring_data_channels[j].value.monitoring_data_u32[i] = *((uint32_t*)(pData + OffsetIndexIntraBlockInBytes));
+							OffsetIndexIntraBlockInBytes += sizeof(uint32_t);
+							break;
+						case IL_REG_DTYPE_S32:
+							net->monitoring_data_channels[j].value.monitoring_data_s32[i] = *((int32_t*)(pData + OffsetIndexIntraBlockInBytes));
+							OffsetIndexIntraBlockInBytes += sizeof(int32_t);
+							break;
+						case IL_REG_DTYPE_FLOAT:
+							net->monitoring_data_channels[j].value.monitoring_data_flt[i] = *((float*)(pData + OffsetIndexIntraBlockInBytes));
+							OffsetIndexIntraBlockInBytes += sizeof(float);
+							break;
+					}
 				}
+				pData += bytes_per_block;
 			}
 		}
 		else {
