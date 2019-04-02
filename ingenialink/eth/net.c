@@ -698,11 +698,6 @@ static int *il_eth_net_enable_monitoring(il_net_t *net)
 	il_eth_net_t *this = to_eth_net(net);
 
 	uint16_t enable_monitoring_val = 1;
-	uint16_t monitoring_period = 10000;
-	r = il_net__write(&this->net, 1, 0, 0x00C1, &monitoring_period, 2, 1, 0);
-	if (r < 0) {
-
-	}
 	r = il_net__write(&this->net, 1, 0, 0x00C0, &enable_monitoring_val, 2, 1, 0);
 	if (r < 0) {
 
