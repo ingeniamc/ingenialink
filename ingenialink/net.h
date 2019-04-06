@@ -91,28 +91,44 @@ typedef struct {
 struct monitoring_data_t {
 	il_reg_dtype_t type;
 	union {
+		// uint8_t monitoring_data_u8[1024];
+		// int8_t monitoring_data_s8[1024];
+		// uint16_t monitoring_data_u16[512];
+		// int16_t monitoring_data_s16[512];
+		// uint32_t monitoring_data_u32[256];
+		// int32_t monitoring_data_s32[256];
+		// uint64_t monitoring_data_u64[128];
+		// int64_t monitoring_data_s64[128];
+		// float monitoring_data_flt[256];
 		uint8_t monitoring_data_u8[1024];
 		int8_t monitoring_data_s8[1024];
-		uint16_t monitoring_data_u16[512];
-		int16_t monitoring_data_s16[512];
-		uint32_t monitoring_data_u32[256];
-		int32_t monitoring_data_s32[256];
-		uint64_t monitoring_data_u64[128];
-		int64_t monitoring_data_s64[128];
-		float monitoring_data_flt[256];
+		uint16_t monitoring_data_u16[1024];
+		int16_t monitoring_data_s16[1024];
+		uint32_t monitoring_data_u32[1024];
+		int32_t monitoring_data_s32[1024];
+		uint64_t monitoring_data_u64[1024];
+		int64_t monitoring_data_s64[1024];
+		float monitoring_data_flt[1024];
 	} value;
 };
 
 struct disturbance_data_t {
 	il_reg_dtype_t type;
 	union {
-		uint8_t disturbance_data_u8[1024 / sizeof(uint8_t)];
-		int8_t disturbance_data_s8[1024 / sizeof(int8_t)];
-		uint16_t disturbance_data_u16[1024 / sizeof(uint16_t)];
-		int16_t disturbance_data_s16[1024 / sizeof(int16_t)];
-		uint32_t disturbance_data_u32[1024 / sizeof(uint32_t)];
-		int32_t disturbance_data_s32[1024 / sizeof(int32_t)];
-		float disturbance_data_flt[1024 / sizeof(float)];
+		// uint8_t disturbance_data_u8[1024 / sizeof(uint8_t)];
+		// int8_t disturbance_data_s8[1024 / sizeof(int8_t)];
+		// uint16_t disturbance_data_u16[1024 / sizeof(uint16_t)];
+		// int16_t disturbance_data_s16[1024 / sizeof(int16_t)];
+		// uint32_t disturbance_data_u32[1024 / sizeof(uint32_t)];
+		// int32_t disturbance_data_s32[1024 / sizeof(int32_t)];
+		// float disturbance_data_flt[1024 / sizeof(float)];
+		uint8_t disturbance_data_u8[1024];
+		int8_t disturbance_data_s8[1024];
+		uint16_t disturbance_data_u16[1024];
+		int16_t disturbance_data_s16[1024];
+		uint32_t disturbance_data_u32[1024];
+		int32_t disturbance_data_s32[1024];
+		float disturbance_data_flt[1024];
 	} value;
 };
 
