@@ -563,6 +563,7 @@ il_eth_net_dev_list_t *il_eth_net_dev_list_get()
 static int il_eth_status_get(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
+	printf("Status\n");
 	return this->stop;
 }
 
