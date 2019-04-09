@@ -276,8 +276,6 @@ static void il_eth_net_close_socket(il_net_t *net) {
 
 static void il_eth_net_destroy(il_net_t *net)
 {
-	printf("Net destroyed\n");
-	Sleep(1000);
 	il_eth_net_t *this = to_eth_net(net);
 	il_utils__refcnt_release(this->refcnt);
 }
@@ -576,9 +574,7 @@ static int il_eth_mon_stop(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
 	this->stop_reconnect = 1;
-	Sleep(200);
 	osal_thread_join(this->listener, NULL);
-	Sleep(200);
 }
 
 static il_net_servos_list_t *il_eth_net_servos_list_get(
