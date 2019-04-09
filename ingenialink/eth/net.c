@@ -542,6 +542,13 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	return 0;
 }
 
+static void il_eth_net__release(il_net_t *net)
+{
+	il_eth_net_t *this = to_eth_net(net);
+
+	il_utils__refcnt_release(this->refcnt);
+}
+
 il_eth_net_dev_list_t *il_eth_net_dev_list_get()
 {
 	// TODO: Get slaves scanned
@@ -1089,6 +1096,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	/* internal */
 	._read = il_eth_net__read,
 	._write = il_eth_net__write,
+	._release = il_eth_net__release,
 	._wait_write = il_eth_net__wait_write,
 	._sw_subscribe = il_net_base__sw_subscribe,
 	._sw_unsubscribe = il_net_base__sw_unsubscribe,
