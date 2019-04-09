@@ -276,11 +276,10 @@ static void il_eth_net_close_socket(il_net_t *net) {
 
 static void il_eth_net_destroy(il_net_t *net)
 {
-	il_eth_net_t *this = to_eth_net(net);
-	
-	il_utils__refcnt_release(this->refcnt);
 	printf("Net destroyed\n");
-	Sleep(300);
+	Sleep(1000);
+	il_eth_net_t *this = to_eth_net(net);
+	il_utils__refcnt_release(this->refcnt);
 }
 
 static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
