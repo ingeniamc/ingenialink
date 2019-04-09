@@ -149,6 +149,7 @@ static int sw_wait_value(il_servo_t *servo, uint16_t msk, uint16_t val,
  */
 static void servo_destroy(void *ctx)
 {
+	printf("Servo destroyed!\n");
 	il_eth_servo_t *this = ctx;
 
 	il_servo_base__deinit(&this->servo);
