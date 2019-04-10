@@ -364,10 +364,7 @@ void il_net_dev_mon_stop(il_net_dev_mon_t *mon)
 	mon->ops->stop(mon);
 }
 
-void il_net_hello() {
-	printf("Hello\n");
-
-}
+void il_net_fake_destroy(il_net_t *net) {}
 
 il_net_dev_list_t *il_net_dev_list_get(il_net_prot_t prot)
 {

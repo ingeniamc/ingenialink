@@ -1263,6 +1263,9 @@ IL_EXPORT int il_servo_velocity_res_get(il_servo_t *servo, uint32_t *res);
  */
 IL_EXPORT int il_servo_wait_reached(il_servo_t *servo, int timeout);
 
+
+IL_EXPORT void il_servo_fake_destroy(il_servo_t *servo);
+
 /**
  * Utility function to connect to the first available servo drive.
  *
