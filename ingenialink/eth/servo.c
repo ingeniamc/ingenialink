@@ -337,7 +337,7 @@ static int il_eth_servo_disable(il_servo_t *servo)
 	int timeout = PDS_TIMEOUT;
 
 	sw = sw_get(servo);
-
+	
 	do {
 		servo->ops->_state_decode(sw, &state, NULL);
 
@@ -423,19 +423,25 @@ static int il_eth_servo_enable(il_servo_t *servo, int timeout)
 
 	sw = sw_get(servo);
 
+	servo->ops->_state_decode(sw, &state, NULL);
+
+	/* try fault reset if faulty */
+	if ((state == IL_SERVO_STATE_FAULT) ||
+		(state == IL_SERVO_STATE_FAULTR)) {
+		r = il_servo_fault_reset(servo);
+		if (r < 0)
+			return r;
+
+		sw = sw_get(servo);
+	}
+
+	sw = sw_get(servo);
+
 	do {
 		servo->ops->_state_decode(sw, &state, NULL);
 
-		/* try fault reset if faulty */
-		if ((state == IL_SERVO_STATE_FAULT) ||
-		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_servo_fault_reset(servo);
-			if (r < 0)
-				return r;
-
-			sw = sw_get(servo);
 		/* check state and command action to reach enabled */
-		} else if ((state != IL_SERVO_STATE_ENABLED)) {
+		if ((state != IL_SERVO_STATE_ENABLED)) {
 			if (state == IL_SERVO_STATE_NRDY)
 				cmd = IL_MC_PDS_CMD_DV;
 			else if (state == IL_SERVO_STATE_DISABLED)
