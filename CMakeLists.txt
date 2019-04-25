@@ -51,6 +51,7 @@ option(WITH_DOCS        "Build library public API documentation"            OFF)
 option(WITH_PIC         "Generate position independent code"                OFF)
 option(WITH_PROT_EUSB   "Build with EUSB protocol support"                   ON)
 option(WITH_PROT_MCB    "Build with MCB protocol support (EXPERIMENTAL)"    OFF)
+option(WITH_DEVMON      "Build with DEVMON support"    OFF)
 
 # Build a shared library by default
 if(NOT DEFINED BUILD_SHARED_LIBS)
@@ -146,6 +147,10 @@ target_include_directories(
 
 # Definitions
 target_compile_definitions(ingenialink PRIVATE IL_BUILDING)
+
+if(WITH_DEVMON)
+  target_compile_definitions(ingenialink PRIVATE IL_HAS_DEVMON)
+endif()
 
 if(WITH_PROT_EUSB)
   target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_EUSB)

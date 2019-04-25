@@ -111,24 +111,28 @@ struct il_net {
 	/** Operations. */
 	const il_net_ops_t *ops;
 };
-
+#ifdef IL_HAS_DEVMON
 /** Network device monitor. */
 struct il_net_dev_mon {
 	/** Operations. */
 	const il_net_dev_mon_ops_t *ops;
 };
+#endif
 
 /** Network implementations. */
 #ifdef IL_HAS_PROT_EUSB
 extern const il_net_ops_t il_eusb_net_ops;
+#ifdef IL_HAS_DEVMON
 extern const il_net_dev_mon_ops_t il_eusb_net_dev_mon_ops;
 il_net_dev_list_t *il_eusb_net_dev_list_get(void);
+#endif
 #endif
 
 #ifdef IL_HAS_PROT_MCB
 extern const il_net_ops_t il_mcb_net_ops;
+#ifdef IL_HAS_DEVMON
 extern const il_net_dev_mon_ops_t il_mcb_net_dev_mon_ops;
 il_net_dev_list_t *il_mcb_net_dev_list_get(void);
 #endif
-
+#endif
 #endif

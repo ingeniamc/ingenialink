@@ -153,6 +153,8 @@ void il_net_servos_list_destroy(il_net_servos_list_t *lst)
 	}
 }
 
+#ifdef IL_HAS_DEVMON
+
 void il_net_dev_list_destroy(il_net_dev_list_t *lst)
 {
 	il_net_dev_list_t *curr;
@@ -216,3 +218,5 @@ il_net_dev_list_t *il_net_dev_list_get(il_net_prot_t prot)
 		return NULL;
 	}
 }
+
+#endif

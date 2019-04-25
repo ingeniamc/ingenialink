@@ -249,18 +249,6 @@ err:
 	return IL_EFAIL;
 }
 
-/**
- * Monitor event callback.
- */
-void on_ser_evt(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
-{
-	il_eusb_net_dev_mon_t *this = to_eusb_mon(ctx);
-
-	if (evt == SER_DEV_EVT_ADDED)
-		this->on_evt(this->ctx, IL_NET_DEV_EVT_ADDED, dev->path);
-	else
-		this->on_evt(this->ctx, IL_NET_DEV_EVT_REMOVED, dev->path);
-}
 
 /**
  * Destroy network.
@@ -758,6 +746,21 @@ sync_unlock:
 	return lst;
 }
 
+#ifdef IL_HAS_DEVMON
+
+/**
+ * Monitor event callback.
+ */
+void on_ser_evt(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
+{
+	il_eusb_net_dev_mon_t *this = to_eusb_mon(ctx);
+
+	if (evt == SER_DEV_EVT_ADDED)
+		this->on_evt(this->ctx, IL_NET_DEV_EVT_ADDED, dev->path);
+	else
+		this->on_evt(this->ctx, IL_NET_DEV_EVT_REMOVED, dev->path);
+}
+
 static il_net_dev_mon_t *il_eusb_net_dev_mon_create(void)
 {
 	il_eusb_net_dev_mon_t *this;
@@ -865,6 +868,16 @@ out:
 	return lst;
 }
 
+/** E-USB network device monitor operations. */
+const il_net_dev_mon_ops_t il_eusb_net_dev_mon_ops = {
+	.create = il_eusb_net_dev_mon_create,
+	.destroy = il_eusb_net_dev_mon_destroy,
+	.start = il_eusb_net_dev_mon_start,
+	.stop = il_eusb_net_dev_mon_stop,
+};
+
+#endif
+
 /** E-USB network operations. */
 const il_net_ops_t il_eusb_net_ops = {
 	/* internal */
@@ -884,12 +897,4 @@ const il_net_ops_t il_eusb_net_ops = {
 	.disconnect = il_eusb_net_disconnect,
 	.state_get = il_net_base__state_get,
 	.servos_list_get = il_eusb_net_servos_list_get,
-};
-
-/** E-USB network device monitor operations. */
-const il_net_dev_mon_ops_t il_eusb_net_dev_mon_ops = {
-	.create = il_eusb_net_dev_mon_create,
-	.destroy = il_eusb_net_dev_mon_destroy,
-	.start = il_eusb_net_dev_mon_start,
-	.stop = il_eusb_net_dev_mon_stop,
 };
