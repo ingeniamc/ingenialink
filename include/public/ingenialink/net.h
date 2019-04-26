@@ -77,6 +77,7 @@ typedef enum {
 /** Port maximum size. */
 #define IL_NET_PORT_SZ 128U
 
+#ifdef IL_HAS_DEVMON
 /** network devices list. */
 typedef struct il_net_dev_list {
 	/** Port. */
@@ -84,6 +85,7 @@ typedef struct il_net_dev_list {
 	/** Next device */
 	struct il_net_dev_list *next;
 } il_net_dev_list_t;
+#endif
 
 /** Network servos list. */
 typedef struct il_net_servos_list {
@@ -226,6 +228,8 @@ IL_EXPORT void il_net_servos_list_destroy(il_net_servos_list_t *lst);
 #define il_net_servos_list_foreach(item, lst) \
 	for ((item) = (lst); (item); (item) = (item)->next)
 
+#ifdef IL_HAS_DEVMON
+
 /**
  * Create a network device monitor.
  *
@@ -303,6 +307,8 @@ IL_EXPORT void il_net_dev_list_destroy(il_net_dev_list_t *lst);
 	for ((item) = (lst); (item); (item) = (item)->next)
 
 /** @} */
+
+#endif
 
 IL_END_DECL
 

@@ -1220,6 +1220,8 @@ IL_EXPORT int il_servo_velocity_res_get(il_servo_t *servo, uint32_t *res);
  */
 IL_EXPORT int il_servo_wait_reached(il_servo_t *servo, int timeout);
 
+#ifdef IL_HAS_DEVMON
+
 /**
  * Utility function to connect to the first available servo drive.
  *
@@ -1239,6 +1241,8 @@ IL_EXPORT int il_servo_lucky(il_net_prot_t prot, il_net_t **net,
 			     il_servo_t **servo, const char *dict);
 
 /** @} */
+
+#endif
 
 IL_END_DECL
 

@@ -223,6 +223,7 @@ typedef struct {
 		il_net_t *net, il_net_servos_on_found_t on_found, void *ctx);
 } il_net_ops_t;
 
+#ifdef IL_HAS_DEVMON
 /** Network device monitor operations. */
 typedef struct {
 	/** Create. */
@@ -237,5 +238,5 @@ typedef struct {
 	void (*stop)(
 		il_net_dev_mon_t *mon);
 } il_net_dev_mon_ops_t;
-
+#endif
 #endif

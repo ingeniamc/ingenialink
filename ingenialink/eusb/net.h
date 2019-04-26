@@ -101,6 +101,8 @@ typedef struct il_eusb_net {
 	il_eusb_net_sync_t sync;
 } il_eusb_net_t;
 
+#ifdef IL_HAS_DEVMON
+
 /** E-USB Network device monitor */
 typedef struct il_eusb_net_dev_mon {
 	/** Network device monitor (parent). */
@@ -114,6 +116,8 @@ typedef struct il_eusb_net_dev_mon {
 	/** Context */
 	void *ctx;
 } il_eusb_net_dev_mon_t;
+
+#endif
 
 /** Obtain E-USB Network from parent. */
 #define to_eusb_net(ptr) container_of(ptr, struct il_eusb_net, net)

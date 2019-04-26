@@ -424,6 +424,8 @@ int il_servo_wait_reached(il_servo_t *servo, int timeout)
 	return servo->ops->wait_reached(servo, timeout);
 }
 
+#ifdef IL_HAS_DEVMON
+
 int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		   const char *dict)
 {
@@ -465,3 +467,5 @@ int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 	ilerr__set("No connected servos found");
 	return IL_EFAIL;
 }
+
+#endif

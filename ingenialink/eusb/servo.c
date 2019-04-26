@@ -1166,6 +1166,10 @@ static int il_eusb_servo_velocity_res_get(il_servo_t *servo, uint32_t *res)
 
 		break;
 
+	case ILK_VEL_SENSOR_DIGITAL_HALLS:
+		r = il_servo_position_res_get(servo, res);
+		break;
+
 	default:
 		*res = 1;
 	}
