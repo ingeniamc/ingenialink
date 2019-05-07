@@ -388,7 +388,9 @@ static int il_eth_servo_switch_on(il_servo_t *servo, int timeout)
 			sw = sw_get(servo);
 		/* check state and command action to reach switch on */
 		} else if (state != IL_SERVO_STATE_ON) {
-			if (state == IL_SERVO_STATE_NRDY)
+			if (state == IL_SERVO_STATE_FAULT)
+				return IL_ESTATE;
+			else if (state == IL_SERVO_STATE_NRDY)
 				cmd = IL_MC_PDS_CMD_DV;
 			else if (state == IL_SERVO_STATE_DISABLED)
 				cmd = IL_MC_PDS_CMD_SD;
@@ -442,7 +444,9 @@ static int il_eth_servo_enable(il_servo_t *servo, int timeout)
 
 		/* check state and command action to reach enabled */
 		if ((state != IL_SERVO_STATE_ENABLED)) {
-			if (state == IL_SERVO_STATE_NRDY)
+			if (state == IL_SERVO_STATE_FAULT)
+				return IL_ESTATE;
+			else if (state == IL_SERVO_STATE_NRDY)
 				cmd = IL_MC_PDS_CMD_DV;
 			else if (state == IL_SERVO_STATE_DISABLED)
 				cmd = IL_MC_PDS_CMD_SD;
