@@ -519,7 +519,7 @@ static void il_mcb_net_disconnect(il_net_t *net)
 
 	if (il_net_state_get(&this->net) != IL_NET_STATE_DISCONNECTED) {
 		this->stop = 1;
-		osal_thread_join(this->listener, NULL);
+		//osal_thread_join(this->listener, NULL);
 
 		ser_close(this->ser);
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
