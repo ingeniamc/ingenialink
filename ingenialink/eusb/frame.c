@@ -130,8 +130,7 @@ int il_eusb_frame__init(il_eusb_frame_t *frame, uint8_t id, uint32_t address,
 	frame->buf[FR_NODE_FLD] = id;
 
 	/* index, subindex, address (0) */
-	//idx = __swap_index(IL_EUSB_FRAME_IDX(address));
-	idx = IL_EUSB_FRAME_IDX(address);
+	idx = __swap_index(IL_EUSB_FRAME_IDX(address));
 	sidx = IL_EUSB_FRAME_SIDX(address);
 
 	memcpy(&frame->buf[FR_INDEX_H_FLD], &idx, sizeof(idx));
