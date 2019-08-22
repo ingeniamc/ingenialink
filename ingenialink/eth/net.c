@@ -294,7 +294,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	}
 	else printf("Server: WSAStartup() is OK.\n");
 	if (this != NULL) {
-		this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		this->server = socket(AF_INET, SOCK_STREAM, 0);
 		this->addr.sin_addr.s_addr = inet_addr(this->address_ip);
 		this->addr.sin_family = AF_INET;
 		this->addr.sin_port = htons(this->port_ip);
@@ -377,7 +377,7 @@ static int il_net_reconnect(il_net_t *net)
 	while (r < 0 && this->stop_reconnect == 0)
 	{
 		printf("Reconnecting...\n");
-		this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		this->server = socket(AF_INET, SOCK_STREAM, 0);
 
 		//set the socket in non-blocking
 		unsigned long iMode = 1;
@@ -449,7 +449,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		return -1;
 	}
 	else printf("Server: WSAStartup() is OK.\n");
-	this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	this->server = socket(AF_INET, SOCK_STREAM, 0);
 	this->addr.sin_addr.s_addr = inet_addr(this->address_ip);
 	this->addr.sin_family = AF_INET;
 	this->addr.sin_port = htons(this->port_ip);
@@ -992,7 +992,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	size_t pending_sz = sz;
 
 	/*while (!finished) {*/
-	uint16_t frame[7];
+	uint16_t frame[1024];
 	size_t block_sz = 0;
 	uint16_t crc, hdr_l;
 	uint8_t *pBuf = (uint8_t*)&frame;
@@ -1001,7 +1001,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	Sleep(5);
 	/* read next frame */
 	int r = 0;
-	r = recvfrom(this->server, (char*)&pBuf[0], sizeof(frame), 0, inet_addr(this->address_ip), 0);
+	r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
 
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
@@ -1076,7 +1076,8 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		else {
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			r = recv(this->server, net->extended_buff, size, 0);
+			memcpy(net->extended_buff, (char*)&pBuf[14], size);
+		
 		}
 	}
 	else {
