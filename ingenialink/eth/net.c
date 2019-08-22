@@ -1032,8 +1032,9 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 			/* Read size of data */
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			/*uint8_t *pBufMonitoring = (uint8_t*)net->monitoring_raw_data;*/
-			r = recv(this->server, (uint8_t*)net->monitoring_raw_data, size, 0);
+			memcpy(net->monitoring_raw_data, (uint8_t*)&pBuf[14], size);
+			//r = recv(this->server, (uint8_t*)net->monitoring_raw_data, size, 0);
+
 			net->monitoring_data_size = size;
 			int num_mapped = net->monitoring_number_mapped_registers;
 			int bytes_per_block = net->monitoring_bytes_per_block;
