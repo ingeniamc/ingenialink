@@ -1001,7 +1001,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	Sleep(5);
 	/* read next frame */
 	int r = 0;
-	r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
+	r = recvfrom(this->server, (char*)&pBuf[0], sizeof(frame), 0, inet_addr(this->address_ip), 0);
 
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
