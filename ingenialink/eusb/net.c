@@ -617,6 +617,18 @@ static void il_eusb_net_disconnect(il_net_t *net)
 	}
 }
 
+static int il_eusb_status_get(il_net_t *net)
+{
+	il_eusb_net_t *this = to_eusb_net(net);
+	return this->stop;
+}
+
+static int il_eusb_mon_stop(il_net_t *net)
+{
+	ilerr__set("Functionality not supported");
+	return IL_ENOTSUP;
+}
+
 static il_net_servos_list_t *il_eusb_net_servos_list_get(
 	il_net_t *net, il_net_servos_on_found_t on_found, void *ctx)
 {
@@ -651,7 +663,7 @@ static il_net_servos_list_t *il_eusb_net_servos_list_get(
 	/* QUIRK: ignore first run, as on cold-boot firmware may issue
 	 * improperly formatted binary messages, leading to no servos found.
 	 */
-	r = ser_write(this->ser, frame.buf, frame.sz, NULL);
+	/*r = ser_write(this->ser, frame.buf, frame.sz, NULL);
 	if (r < 0) {
 		ilerr__ser(r);
 		goto sync_unlock;
@@ -666,7 +678,7 @@ static il_net_servos_list_t *il_eusb_net_servos_list_get(
 		else
 			r = osal_cond_wait(this->sync.cond, this->sync.lock,
 					   SCAN_TIMEOUT);
-	}
+	}*/
 
 	/* second try */
 	this->sync.complete = 0;
@@ -826,6 +838,8 @@ const il_net_ops_t il_eusb_net_ops = {
 	.disconnect = il_eusb_net_disconnect,
 	.state_get = il_net_base__state_get,
 	.servos_list_get = il_eusb_net_servos_list_get,
+	.status_get = il_eusb_status_get,
+	.mon_stop = il_eusb_mon_stop,
 };
 
 /** E-USB network device monitor operations. */

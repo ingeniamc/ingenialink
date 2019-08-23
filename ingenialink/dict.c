@@ -520,6 +520,39 @@ static void parse_reg_range(xmlNodePtr node, il_reg_t *reg)
 }
 
 /**
+ * Parse register enumeration.
+ *
+ * @param [in] node
+ *	XML Node.
+ * @param [in, out] reg
+ *	Register.
+ */
+static void parse_reg_enums(xmlNodePtr node, il_reg_t *reg) 
+{
+	xmlNode *enumeration;
+	int index = 0;
+	for (enumeration = node->children; enumeration; enumeration = enumeration->next) {
+		xmlChar *value, *content;
+		
+		if (enumeration->type != XML_ELEMENT_NODE)
+			continue;
+
+		content = xmlNodeGetContent(enumeration);
+		if (content) {
+			il_reg_enum_t new_enum;
+			value = xmlGetProp(enumeration, (const xmlChar *)"value");
+			if (value != NULL) {		
+				reg->enums[index].value = atoi(value);
+				reg->enums[index].label = strdup(content);
+				index = index + 1;
+				reg->enums_count = reg->enums_count + 1;
+			}
+		}
+	}
+}
+
+
+/**
  * Parse register properties.
  *
  * @param [in] node
@@ -551,6 +584,13 @@ static int parse_reg_props(xmlNodePtr node, il_reg_t *reg)
 
 		if (xmlStrcmp(prop->name, (const xmlChar *)"Range") == 0)
 			parse_reg_range(prop, reg);
+		reg->enums_count = 0;
+		if (xmlStrcmp(prop->name, (const xmlChar *)"Enumerations") == 0) {
+			
+			parse_reg_enums(prop, reg);
+		}
+			
+
 	}
 
 	return 0;
@@ -612,11 +652,17 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 	if (!param) {
 		reg->subnode = 1;
 	}
+
 	else {
 		reg->subnode = strtoul((char *)param, NULL, 4);
 	}
-	
 
+	/* parse: cyclic */
+	xmlChar *cyclic;
+	cyclic = xmlGetProp(node, (const xmlChar *)"cyclic");
+	if (!cyclic) reg->cyclic = "";
+	else reg->cyclic = (char *)cyclic;
+	
 	/* parse: address */
 	param = xmlGetProp(node, (const xmlChar *)"address");
 	if (!param) {
@@ -693,6 +739,14 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 		xmlFree(param);
 	} else {
 		reg->scat_id = NULL;
+	}
+
+	/* parse: internal_use (optional) */
+	param = xmlGetProp(node, (const xmlChar *)"internal_use");
+	if (param) {
+		reg->internal_use = 1;
+	} else {
+		reg->internal_use = 0;
 	}
 
 	/* assign default min/max */

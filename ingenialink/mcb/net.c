@@ -91,6 +91,85 @@ static uint16_t crc_calc(const uint16_t *buf, uint16_t u16Sz)
     return crc;
 }
 
+/**
+ * Process asynchronous statusword messages.
+ *
+ * @param [in] this
+ *	MCB Network.
+ * @param [in] frame
+ *	IngeniaLink frame.
+ */
+static void process_statusword(il_mcb_net_t *this, uint8_t subnode, uint16_t data)
+{
+	il_net_sw_subscriber_lst_t *subs;
+	int i;
+	uint8_t id;
+	uint16_t sw;
+
+	subs = &this->net.sw_subs;
+
+	id = subnode;
+	sw = data;
+
+	osal_mutex_lock(subs->lock);
+
+	for (i = 0; i < subs->sz; i++) {
+		if (subs->subs[i].id == id && subs->subs[i].cb) {
+			void *ctx;
+
+			ctx = subs->subs[i].ctx;
+			subs->subs[i].cb(ctx, sw);
+
+			break;
+		}
+	}
+
+	osal_mutex_unlock(subs->lock);
+}
+
+
+
+
+/**
+ * Listener thread.
+ *
+ * @param [in] args
+ *	MCB Network (il_mcb_net_t *).
+ */
+int listener_mcb(void *args)
+{
+	int r;
+	uint16_t buf;
+
+	il_mcb_net_t *this = to_mcb_net(args);
+	while(1) {
+		osal_mutex_lock(this->net.lock);
+			
+		r = net_send(this, 1, 0x0011, NULL, 0);
+		if (r < 0)
+			goto unlock;
+		r = net_recv(this, 1, 0x0011, &buf, 4);
+
+		unlock:
+			osal_mutex_unlock(this->net.lock);
+
+			r = buf;
+			process_statusword(this, 1, buf);
+			// printf("%d\n", buf);
+			Sleep(200);
+	}
+	
+
+	return 0;
+
+ err:
+ 	ser_close(this->ser);
+ 	il_net__state_set(&this->net, IL_NET_STATE_FAULTY);
+
+ 	return IL_EFAIL;
+}
+
+
 
 typedef union
 {
@@ -154,60 +233,58 @@ static int net_recv(il_mcb_net_t *this, uint8_t subnode, uint16_t address, uint8
 	size_t pending_sz = sz;
 
 	/*while (!finished) {*/
-		uint16_t frame[7];
-		size_t block_sz = 0;
-		uint16_t crc, hdr_l;
-		uint8_t *pBuf = (uint8_t*) &frame;
+	uint16_t frame[7];
+	size_t block_sz = 0;
+	uint16_t crc, hdr_l;
+	uint8_t *pBuf = (uint8_t*) &frame;
 
-		Sleep(5);
-		/* read next frame */
-		while (block_sz < 14) {
-			int r;
-			size_t chunk_sz;
-			
-			r = ser_read(this->ser, pBuf,
-				     sizeof(frame) - block_sz, &chunk_sz);
-			if (r == SER_EEMPTY) {
-				r = ser_read_wait(this->ser);
-				if (r < 0)
-					return ilerr__ser(r);
-			} else if (r < 0) {
+	Sleep(5);
+	/* read next frame */
+	while (block_sz < 14) {
+		int r;
+		size_t chunk_sz;
+		
+		r = ser_read(this->ser, pBuf,
+					sizeof(frame) - block_sz, &chunk_sz);
+		if (r == SER_EEMPTY) {
+			r = ser_read_wait(this->ser);
+			if (r < 0)
 				return ilerr__ser(r);
-			} else {
-				block_sz += chunk_sz;
-				pBuf += block_sz;
-			}
+		} else if (r < 0) {
+			return ilerr__ser(r);
+		} else {
+			block_sz += chunk_sz;
+			pBuf += block_sz;
 		}
+	}
 
-		/* process frame: validate CRC, address, ACK */
-		crc = *(uint16_t *)&frame[6];
-		uint16_t crc_res = crc_calc((uint16_t *)frame, 6);
-		if (crc_res != crc) {
-			ilerr__set("Communications error (CRC mismatch)");
-			return IL_EIO;
-		}
+	/* process frame: validate CRC, address, ACK */
+	crc = *(uint16_t *)&frame[6];
+	uint16_t crc_res = crc_calc((uint16_t *)frame, 6);
+	if (crc_res != crc) {
+		ilerr__set("Communications error (CRC mismatch)");
+		return IL_EIO;
+	}
 
-		/* TODO: Check subnode */
+	/* TODO: Check subnode */
 
-		/* Check ACK */
-		hdr_l = *(uint16_t *)&frame[MCB_HDR_L_POS];
-		int cmd = (hdr_l & MCB_CMD_MSK) >> MCB_CMD_POS;
-		if (cmd != MCB_CMD_ACK) {
-			uint32_t err;
+	/* Check ACK */
+	hdr_l = *(uint16_t *)&frame[MCB_HDR_L_POS];
+	int cmd = (hdr_l & MCB_CMD_MSK) >> MCB_CMD_POS;
+	if (cmd != MCB_CMD_ACK) {
+		uint32_t err;
 
-			err = __swap_be_32(*(uint32_t *)&frame[MCB_DATA_POS]);
+		err = __swap_be_32(*(uint32_t *)&frame[MCB_DATA_POS]);
 
-			ilerr__set("Communications error (NACK -> %08x)", err);
-			return IL_EIO;
-		}
-		if (!pending_sz) {
-			finished = 1;
-		}
-		else {
-			size_t data_sz;
-			data_sz = 8;	// bytes
-			memcpy(buf, &(frame[MCB_DATA_POS]), data_sz);
-		}
+		ilerr__set("Communications error (NACK -> %08x)", err);
+		return IL_EIO;
+	}
+	if (!pending_sz) {
+		finished = 1;
+	}
+	else {
+		memcpy(buf, &(frame[MCB_DATA_POS]), sz);
+	}
 
 	return 0;
 }
@@ -311,6 +388,32 @@ unlock:
 	return r;
 }
 
+static int il_mcb_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
+	const void *buf, size_t sz, int confirmed)
+{
+	il_mcb_net_t *this = to_mcb_net(net);
+
+	int r;
+
+	(void)id;
+	(void)confirmed;
+
+	osal_mutex_lock(this->net.lock);
+
+	r = net_send(this, subnode, (uint16_t)address, buf, sz);
+	if (r < 0)
+		goto unlock;
+
+	Sleep(1000);
+
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0);
+
+unlock:
+	osal_mutex_unlock(this->net.lock);
+
+	return r;
+}
+
 /*******************************************************************************
  * Implementation: Public
  ******************************************************************************/
@@ -398,6 +501,15 @@ static int il_mcb_net_connect(il_net_t *net)
 
 	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 
+	/* start listener thread */
+	this->stop = 0;
+
+	this->listener = osal_thread_create(listener_mcb, this);
+	if (!this->listener) {
+		ilerr__set("Listener thread creation failed");
+		// goto close_ser;
+	}
+
 	return 0;
 }
 
@@ -406,6 +518,9 @@ static void il_mcb_net_disconnect(il_net_t *net)
 	il_mcb_net_t *this = to_mcb_net(net);
 
 	if (il_net_state_get(&this->net) != IL_NET_STATE_DISCONNECTED) {
+		this->stop = 1;
+		//osal_thread_join(this->listener, NULL);
+
 		ser_close(this->ser);
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
 	}
@@ -435,6 +550,18 @@ static il_net_servos_list_t *il_mcb_net_servos_list_get(
 		on_found(ctx, 1);
 
 	return lst;
+}
+
+static int il_mcb_status_get(il_net_t *net)
+{
+	il_mcb_net_t *this = to_mcb_net(net);
+	return this->stop;
+}
+
+static int il_mcb_mon_stop(il_net_t *net)
+{
+	ilerr__set("Functionality not supported");
+	return IL_ENOTSUP;
 }
 
 static il_net_dev_mon_t *il_mcb_net_dev_mon_create(void)
@@ -540,6 +667,7 @@ const il_net_ops_t il_mcb_net_ops = {
 	._state_set = il_net_base__state_set,
 	._read = il_mcb_net__read,
 	._write = il_mcb_net__write,
+	._wait_write = il_mcb_net__wait_write,
 	._sw_subscribe = il_net_base__sw_subscribe,
 	._sw_unsubscribe = il_net_base__sw_unsubscribe,
 	._emcy_subscribe = il_net_base__emcy_subscribe,
@@ -551,6 +679,8 @@ const il_net_ops_t il_mcb_net_ops = {
 	.disconnect = il_mcb_net_disconnect,
 	.state_get = il_net_base__state_get,
 	.servos_list_get = il_mcb_net_servos_list_get,
+	.status_get = il_mcb_status_get,
+	.mon_stop = il_mcb_mon_stop,
 };
 
 /** MCB network device monitor operations. */

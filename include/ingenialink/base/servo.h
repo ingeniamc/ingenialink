@@ -81,6 +81,9 @@ int il_servo_base__raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
 int il_servo_base__raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
 				const char *id, uint32_t *buf);
 
+int il_servo_base__raw_read_str(il_servo_t *servo, const il_reg_t *reg,
+				const char *id, uint32_t *buf);
+
 int il_servo_base__raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
 				const char *id, int32_t *buf);
 
@@ -109,6 +112,9 @@ int il_servo_base__raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
 				 const char *id, int16_t val, int confirm);
 
 int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
+				 const char *id, uint32_t val, int confirm);
+
+int il_servo_base__raw_wait_write_u32(il_servo_t *servo, const il_reg_t *reg,
 				 const char *id, uint32_t val, int confirm);
 
 int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,

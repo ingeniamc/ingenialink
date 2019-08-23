@@ -321,7 +321,7 @@ static void il_eusb_servo_destroy(il_servo_t *servo)
 static int il_eusb_servo_reset(il_servo_t *servo)
 {
 	return il_servo_raw_write_u32(servo, &IL_REG_RESET_DEVICE, NULL,
-				      ILK_SIGNATURE_RESET, 0);
+				      ILK_SIGNATURE_RESET, 0, 0);
 }
 
 static int il_eusb_servo_name_get(il_servo_t *servo, char *name, size_t sz)
@@ -356,7 +356,7 @@ static int il_eusb_servo_name_set(il_servo_t *servo, const char *name)
 	memcpy(&name_, name, sz);
 
 	return il_servo_raw_write_u64(
-		servo, &IL_REG_DRIVE_NAME, NULL, name_, 1);
+		servo, &IL_REG_DRIVE_NAME, NULL, name_, 1, 0);
 }
 
 static int il_eusb_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
@@ -410,19 +410,19 @@ static int il_eusb_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
 static int il_eusb_servo_store_all(il_servo_t *servo)
 {
 	return il_servo_raw_write_u32(servo, &IL_REG_STORE_ALL, NULL,
-				      ILK_SIGNATURE_STORE, 0);
+				      ILK_SIGNATURE_STORE, 0, 0);
 }
 
 static int il_eusb_servo_store_comm(il_servo_t *servo)
 {
 	return il_servo_raw_write_u32(servo, &IL_REG_STORE_COMM, NULL,
-				      ILK_SIGNATURE_STORE, 0);
+				      ILK_SIGNATURE_STORE, 0, 0);
 }
 
 static int il_eusb_servo_store_app(il_servo_t *servo)
 {
 	return il_servo_raw_write_u32(servo, &IL_REG_STORE_APP, NULL,
-				      ILK_SIGNATURE_STORE, 0);
+				      ILK_SIGNATURE_STORE, 0, 0);
 }
 
 static int il_eusb_servo_units_update(il_servo_t *servo)
@@ -640,7 +640,7 @@ static int il_eusb_servo_disable(il_servo_t *servo)
 		/* check state and command action to reach disabled */
 		} else if (state != IL_SERVO_STATE_DISABLED) {
 			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
-						   NULL, IL_MC_PDS_CMD_DV, 1);
+						   NULL, IL_MC_PDS_CMD_DV, 1, 0);
 			if (r < 0)
 				return r;
 
@@ -688,7 +688,7 @@ static int il_eusb_servo_switch_on(il_servo_t *servo, int timeout)
 				cmd = IL_MC_PDS_CMD_DV;
 
 			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
-						   NULL, cmd, 1);
+						   NULL, cmd, 1, 0);
 			if (r < 0)
 				return r;
 
@@ -735,7 +735,7 @@ static int il_eusb_servo_enable(il_servo_t *servo, int timeout)
 				cmd = IL_MC_PDS_CMD_EO;
 
 			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
-						   NULL, cmd, 1);
+						   NULL, cmd, 1, 0);
 			if (r < 0)
 				return r;
 
@@ -765,12 +765,12 @@ static int il_eusb_servo_fault_reset(il_servo_t *servo)
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
 			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
-						   NULL, 0, 1);
+						   NULL, 0, 1, 0);
 			if (r < 0)
 				return r;
 
 			r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD,
-						   NULL, IL_MC_PDS_CMD_FR, 1);
+						   NULL, IL_MC_PDS_CMD_FR, 1, 0);
 			if (r < 0)
 				return r;
 
@@ -881,7 +881,7 @@ static int il_eusb_servo_mode_set(il_servo_t *servo, il_servo_mode_t mode)
 		return IL_EINVAL;
 	}
 
-	r = il_servo_raw_write_s8(servo, &IL_REG_OP_MODE, NULL, code, 1);
+	r = il_servo_raw_write_s8(servo, &IL_REG_OP_MODE, NULL, code, 1, 0);
 	if (r < 0)
 		return r;
 
@@ -897,7 +897,7 @@ static int il_eusb_servo_ol_voltage_get(il_servo_t *servo, double *voltage)
 
 static int il_eusb_servo_ol_voltage_set(il_servo_t *servo, double voltage)
 {
-	return il_servo_write(servo, &IL_REG_OL_VOLTAGE, NULL, voltage, 1);
+	return il_servo_write(servo, &IL_REG_OL_VOLTAGE, NULL, voltage, 1, 0);
 }
 
 static int il_eusb_servo_ol_frequency_get(il_servo_t *servo, double *freq)
@@ -907,14 +907,14 @@ static int il_eusb_servo_ol_frequency_get(il_servo_t *servo, double *freq)
 
 static int il_eusb_servo_ol_frequency_set(il_servo_t *servo, double freq)
 {
-	return il_servo_write(servo, &IL_REG_OL_FREQUENCY, NULL, freq, 1);
+	return il_servo_write(servo, &IL_REG_OL_FREQUENCY, NULL, freq, 1, 0);
 }
 
 static int il_eusb_servo_homing_start(il_servo_t *servo)
 {
 	return il_servo_raw_write_u16(
 			servo, &IL_REG_CTL_WORD, NULL,
-			IL_MC_HOMING_CW_START | IL_MC_PDS_CMD_EO, 1);
+			IL_MC_HOMING_CW_START | IL_MC_PDS_CMD_EO, 1, 0);
 }
 
 static int il_eusb_servo_homing_wait(il_servo_t *servo, int timeout)
@@ -958,7 +958,7 @@ static int il_eusb_servo_torque_get(il_servo_t *servo, double *torque)
 
 static int il_eusb_servo_torque_set(il_servo_t *servo, double torque)
 {
-	return il_servo_write(servo, &IL_REG_TORQUE_TGT, NULL, torque, 1);
+	return il_servo_write(servo, &IL_REG_TORQUE_TGT, NULL, torque, 1, 0);
 }
 
 static int il_eusb_servo_position_get(il_servo_t *servo, double *pos)
@@ -976,7 +976,7 @@ static int il_eusb_servo_position_set(il_servo_t *servo, double pos,
 	int flags;
 
 	/* send position */
-	r = il_servo_write(servo, &IL_REG_POS_TGT, NULL, pos, 1);
+	r = il_servo_write(servo, &IL_REG_POS_TGT, NULL, pos, 1, 0);
 	if (r < 0)
 		return r;
 
@@ -988,7 +988,7 @@ static int il_eusb_servo_position_set(il_servo_t *servo, double pos,
 		/* new set-point (0->1) */
 		cmd = IL_MC_PDS_CMD_EO;
 		r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD, NULL,
-					   cmd, 1);
+					   cmd, 1, 0);
 		if (r < 0)
 			return r;
 
@@ -1007,7 +1007,7 @@ static int il_eusb_servo_position_set(il_servo_t *servo, double pos,
 			cmd |= IL_MC_PP_CW_REL;
 
 		r = il_servo_raw_write_u16(servo, &IL_REG_CTL_WORD, NULL,
-					   cmd, 1);
+					   cmd, 1, 0);
 		if (r < 0)
 			return r;
 
@@ -1129,7 +1129,7 @@ static int il_eusb_servo_velocity_get(il_servo_t *servo, double *vel)
 
 static int il_eusb_servo_velocity_set(il_servo_t *servo, double vel)
 {
-	return il_servo_write(servo, &IL_REG_VEL_TGT, NULL, vel, 1);
+	return il_servo_write(servo, &IL_REG_VEL_TGT, NULL, vel, 1, 0);
 }
 
 static int il_eusb_servo_velocity_res_get(il_servo_t *servo, uint32_t *res)

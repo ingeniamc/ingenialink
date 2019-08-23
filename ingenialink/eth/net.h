@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef MCB_NET_H_
-#define MCB_NET_H_
+#ifndef ETH_NET_H_
+#define ETH_NET_H_
 
 #include "../net.h"
 
@@ -33,9 +33,8 @@
 
 #define _SER_NO_LEGACY_STDINT
 #include <sercomm/sercomm.h>
+#include <winsock2.h>
 
-/** Default baudrate. */
-#define BAUDRATE_DEF		115200
 
 /** Default read timeout. */
 #define READ_TIMEOUT_DEF	10000
@@ -46,27 +45,34 @@
 /** Statusword address. */
 #define STATUSWORD_ADDRESS	0x0011
 
-
-/** MCB network. */
-typedef struct il_mcb_net {
+/** ETH network. */
+typedef struct il_eth_net {
 	/** Network (parent). */
 	il_net_t net;
 	/** Reference counter. */
 	il_utils_refcnt_t *refcnt;
-	/** Serial communications channel. */
-	ser_t *ser;
-	/** Serial communications options. */
-	ser_opts_t sopts;
+	/** Slave Address */
+    const char *address_ip;
+    /** Port */
+    int port;
+	/** Port IP*/
+    int port_ip;
+	/** Server: WSAStartup() */
+	WSADATA *WSAData;
+	/** Socket */
+	SOCKET *server;
+	/** Socket address */
+	SOCKADDR_IN addr;
+    /** Stop reconnect */
+    int stop_reconnect;
 	/** Listener thread. */
 	osal_thread_t *listener;
 	/** Listener stop flag. */
 	int stop;
-	/** Synchronous transfers context. */
-	// il_eusb_net_sync_t sync;
-} il_mcb_net_t;
+} il_eth_net_t;
 
-/** MCB network device monitor */
-typedef struct il_mcb_net_dev_mon {
+/** ETH network device monitor */
+typedef struct il_eth_net_dev_mon {
 	/** Network monitor (parent). */
 	il_net_dev_mon_t mon;
 	/** Serial port monitor. */
@@ -77,12 +83,12 @@ typedef struct il_mcb_net_dev_mon {
 	il_net_dev_on_evt_t on_evt;
 	/** Context */
 	void *ctx;
-} il_mcb_net_dev_mon_t;
+} il_eth_net_dev_mon_t;
 
-/** Obtain MCB Network from parent. */
-#define to_mcb_net(ptr) container_of(ptr, struct il_mcb_net, net)
+/** Obtain ETH Network from parent. */
+#define to_eth_net(ptr) container_of(ptr, struct il_eth_net, net)
 
-/** Obtain MCB Network device monitor from parent. */
-#define to_mcb_mon(ptr) container_of(ptr, struct il_mcb_net_dev_mon, mon)
+/** Obtain ETH Network device monitor from parent. */
+#define to_eth_mon(ptr) container_of(ptr, struct il_eth_net_dev_mon, mon)
 
 #endif
