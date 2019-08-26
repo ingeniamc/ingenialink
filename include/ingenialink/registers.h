@@ -165,6 +165,8 @@ extern const il_reg_t IL_REG_MCB_STS_WORD;
 
 extern const il_reg_t IL_REG_ETH_STORE_ALL;
 
+extern const il_reg_t IL_REG_ECAT_STORE_ALL;
+
 /** Motor type. */
 extern const il_reg_t IL_REG_MOTOR_TYPE;
 

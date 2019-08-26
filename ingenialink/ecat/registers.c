@@ -1,5 +1,5 @@
-
 #include "public/ingenialink/registers.h"
+
 
 const il_reg_t IL_REG_MCB_CTL_WORD = {
 	.subnode = 1,
@@ -31,7 +31,7 @@ const il_reg_t IL_REG_MCB_STS_WORD = {
 	.enums_count = 0
 };
 
-const il_reg_t IL_REG_ETH_STORE_ALL = {
+const il_reg_t IL_REG_ECAT_STORE_ALL = {
 	.subnode = 1,
 	.address = 0x06DB,
 	.dtype = IL_REG_DTYPE_U32,
