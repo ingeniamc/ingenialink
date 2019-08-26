@@ -49,6 +49,8 @@ typedef enum {
 	IL_NET_PROT_MCB,
 	/** ETH. */
 	IL_NET_PROT_ETH,
+	/** ECAT. */
+	IL_NET_PROT_ECAT,
 	/** Virtual. */
 	IL_NET_PROT_VIRTUAL,
 } il_net_prot_t;

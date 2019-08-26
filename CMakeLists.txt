@@ -50,8 +50,9 @@ option(WITH_EXAMPLES     "Build library usage example apps"                   OF
 option(WITH_DOCS         "Build library public API documentation"             OFF)
 option(WITH_PIC          "Generate position independent code"                 OFF)
 option(WITH_PROT_EUSB    "Build with EUSB protocol support"                    ON)
-option(WITH_PROT_MCB     "Build with MCB protocol support (EXPERIMENTAL)"     ON)
-option(WITH_PROT_ETH     "Build with ETH protocol support (EXPERIMENTAL)"     ON)
+option(WITH_PROT_MCB     "Build with MCB protocol support"                     ON)
+option(WITH_PROT_ETH     "Build with ETH protocol support"                     ON)
+option(WITH_PROT_ECAT     "Build with ECAT protocol support (EXPERIMENTAL)"     ON)
 option(WITH_PROT_VIRTUAL "Build with Virtual protocol support (EXPERIMENTAL)" OFF)
 
 # Build a shared library by default
@@ -116,6 +117,14 @@ if(WITH_PROT_ETH)
   )
 endif()
 
+if(WITH_PROT_ECAT)
+  list(APPEND ingenialink_srcs
+    ingenialink/ecat/frame.c
+    ingenialink/ecat/net.c
+    ingenialink/ecat/servo.c
+  )
+endif()
+
 if(WITH_PROT_VIRTUAL)
   list(APPEND ingenialink_srcs
     ingenialink/virtual/net.c
@@ -175,6 +184,10 @@ endif()
 
 if(WITH_PROT_ETH)
   target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_ETH)
+endif()
+
+if(WITH_PROT_ECAT)
+  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_ECAT)
 endif()
 
 if(WITH_PROT_VIRTUAL)
