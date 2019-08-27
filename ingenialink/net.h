@@ -205,6 +205,12 @@ extern const il_net_dev_mon_ops_t il_eth_net_dev_mon_ops;
 il_eth_net_dev_list_t *il_eth_net_dev_list_get(void);
 #endif
 
+#ifdef IL_HAS_PROT_ECAT
+extern const il_ecat_net_ops_t il_ecat_net_ops;
+extern const il_net_dev_mon_ops_t il_ecat_net_dev_mon_ops;
+il_ecat_net_dev_list_t *il_ecat_net_dev_list_get(void);
+#endif
+
 #ifdef IL_HAS_PROT_VIRTUAL
 extern const il_net_ops_t il_virtual_net_ops;
 extern const il_net_dev_mon_ops_t il_virtual_net_dev_mon_ops;

@@ -115,6 +115,13 @@ typedef struct il_eth_net_dev_list {
 	struct il_eth_net_dev_list *next;
 } il_eth_net_dev_list_t;
 
+typedef struct il_ecat_net_dev_list {
+	/** Port. */
+	const char *address_ip;
+	/** Next device */
+	struct il_ecat_net_dev_list *next;
+} il_ecat_net_dev_list_t;
+
 
 /** network devices list. */
 typedef struct il_net_dev_list {
@@ -138,6 +145,13 @@ typedef struct il_eth_net_servos_list {
 	/** Next node. */
 	struct il_net_servos_list *next;
 } il_eth_net_servos_list_t;
+
+typedef struct il_ecat_net_servos_list {
+	/** Node id. */
+	uint8_t id;
+	/** Next node. */
+	struct il_net_servos_list *next;
+} il_ecat_net_servos_list_t;
 
 /** Node found callback. */
 typedef void (*il_net_servos_on_found_t)(void *ctx, uint8_t id);
