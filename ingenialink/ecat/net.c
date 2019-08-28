@@ -822,6 +822,16 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	return 0;
 }
 
+static int *il_ecat_net_master_startup(il_net_t *net)
+{
+
+}
+
+static int *il_ecat_net_master_stop(il_net_t *net)
+{
+
+}
+
 /** ECAT network operations. */
 const il_ecat_net_ops_t il_ecat_net_ops = {
 	/* internal */
