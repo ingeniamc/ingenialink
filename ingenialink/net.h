@@ -27,6 +27,7 @@
 
 #include "ingenialink/net.h"
 #include "ingenialink/utils.h"
+#include "ingenialink/servo.h"
 
 #include "osal/osal.h"
 

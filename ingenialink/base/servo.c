@@ -491,7 +491,7 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 
 	servo->state_subs.stop = 0;
 
-	servo->state_subs.monitor = osal_thread_create(state_subs_monitor,
+	servo->state_subs.monitor = osal_thread_create_(state_subs_monitor,
 		servo);
 	if (!servo->state_subs.monitor) {
 		ilerr__set("State change monitor could not be created");
@@ -543,7 +543,7 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 	}
 
 	servo->emcy_subs.stop = 0;
-	servo->emcy_subs.monitor = osal_thread_create(emcy_subs_monitor, servo);
+	servo->emcy_subs.monitor = osal_thread_create_(emcy_subs_monitor, servo);
 	if (!servo->emcy_subs.monitor) {
 		ilerr__set("Emergency monitor could not be created");
 		r = IL_EFAIL;

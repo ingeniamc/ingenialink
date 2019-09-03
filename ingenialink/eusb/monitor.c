@@ -392,7 +392,7 @@ int il_monitor_start(il_monitor_t *monitor)
 	monitor->acq.stop = 0;
 	monitor->acq.finished = 0;
 
-	monitor->acq.td = osal_thread_create(acquisition, monitor);
+	monitor->acq.td = osal_thread_create_(acquisition, monitor);
 	if (!monitor->acq.td) {
 		monitor->acq.finished = 1;
 

@@ -88,6 +88,22 @@ typedef struct {
 	int connect_slave;
 } il_eth_net_opts_t;
 
+/** Ethercat network initialization options. */
+typedef struct {
+	/** Address ip. */
+	const char *address_ip;
+	/** Port. */
+	const char *port;
+	/** Port. */
+	int port_ip;
+	/** Read timeout (ms). */
+	int timeout_rd;
+	/** Write timeout (ms). */
+	int timeout_wr;
+	/** Connect to slave */
+	int connect_slave;
+} il_ecat_net_opts_t;
+
 /** Default read timeout (ms). */
 #define IL_NET_TIMEOUT_RD_DEF	500
 
@@ -584,6 +600,12 @@ IL_EXPORT void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float
  * 
  */
 IL_EXPORT int il_net_close_socket(il_net_t *net);
+
+
+IL_EXPORT int il_net_master_startup(il_net_t **net);
+
+
+IL_EXPORT int il_net_master_stop(il_net_t **net);
 
 /**
  * Obtain network servos list.

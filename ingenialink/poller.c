@@ -229,7 +229,7 @@ int il_poller_start(il_poller_t *poller)
 
 	poller->stop = 0;
 
-	poller->td = osal_thread_create(poller_td, poller);
+	poller->td = osal_thread_create_(poller_td, poller);
 	if (!poller->td) {
 		ilerr__set("Poller thread creation failed");
 		return IL_EFAIL;

@@ -24,6 +24,7 @@
 
 #include "net.h"
 
+
 #include <string.h>
 
 #include "ingenialink/err.h"
@@ -292,6 +293,16 @@ void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturban
 int il_net_close_socket(il_net_t *net) 
 {
 	return il_eth_net_ops.close_socket(net);
+}
+
+int il_net_master_startup(il_net_t **net)
+{
+	return il_ecat_net_ops.master_startup(net);
+}
+
+int il_net_master_stop(il_net_t **net)
+{
+	return il_ecat_net_ops.master_stop(**net);
 }
 
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,

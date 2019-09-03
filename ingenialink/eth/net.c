@@ -531,7 +531,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	this->stop = 0;
 	this->stop_reconnect = 0;
 
-	this->listener = osal_thread_create(listener_eth, this);
+	this->listener = osal_thread_create_(listener_eth, this);
 	if (!this->listener) {
 		ilerr__set("Listener thread creation failed");
 		// goto close_ser;

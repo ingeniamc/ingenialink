@@ -590,7 +590,7 @@ static int il_eusb_net_connect(il_net_t *net)
 	/* start listener thread */
 	this->stop = 0;
 
-	this->listener = osal_thread_create(listener, this);
+	this->listener = osal_thread_create_(listener, this);
 	if (!this->listener) {
 		ilerr__set("Listener thread creation failed");
 		goto close_ser;

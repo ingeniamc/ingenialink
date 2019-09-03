@@ -53,7 +53,7 @@ static DWORD WINAPI thread_wrapper(PVOID args)
  * Public
  ******************************************************************************/
 
-osal_thread_t *osal_thread_create(osal_thread_func_t func, void *args)
+osal_thread_t *osal_thread_create_(osal_thread_func_t func, void *args)
 {
 	osal_thread_t *thread;
 

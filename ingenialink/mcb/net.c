@@ -504,7 +504,7 @@ static int il_mcb_net_connect(il_net_t *net)
 	/* start listener thread */
 	this->stop = 0;
 
-	this->listener = osal_thread_create(listener_mcb, this);
+	this->listener = osal_thread_create_(listener_mcb, this);
 	if (!this->listener) {
 		ilerr__set("Listener thread creation failed");
 		// goto close_ser;

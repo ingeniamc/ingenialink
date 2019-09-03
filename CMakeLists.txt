@@ -122,6 +122,52 @@ if(WITH_PROT_ECAT)
     ingenialink/ecat/frame.c
     ingenialink/ecat/net.c
     ingenialink/ecat/servo.c
+
+    
+
+    ingenialink/ecat/lwip.c
+		ingenialink/ecat/lwip/def.c
+		ingenialink/ecat/lwip/etharp.c
+		ingenialink/ecat/lwip/ethernet.c
+		ingenialink/ecat/lwip/inet_chksum.c
+		ingenialink/ecat/lwip/init.c
+		ingenialink/ecat/lwip/ip.c
+		ingenialink/ecat/lwip/ip4_addr.c
+		ingenialink/ecat/lwip/ip4_frag.c
+		ingenialink/ecat/lwip/ip4.c
+		ingenialink/ecat/lwip/mem.c
+		ingenialink/ecat/lwip/memp.c
+		ingenialink/ecat/lwip/netif.c
+		ingenialink/ecat/lwip/pbuf.c
+		ingenialink/ecat/lwip/stats.c
+		ingenialink/ecat/lwip/timeouts.c
+		ingenialink/ecat/lwip/udp.c
+
+    
+    ingenialink/ecat/lwipopts.h
+		ingenialink/ecat/lwip/etharp.h
+		ingenialink/ecat/lwip/prot/etharp.h
+		ingenialink/ecat/lwip/prot/ethernet.h
+		ingenialink/ecat/lwip/inet_chksum.h
+		ingenialink/ecat/lwip/init.h
+		ingenialink/ecat/lwip/ip.h
+		ingenialink/ecat/lwip/ip4_addr.h
+		ingenialink/ecat/lwip/ip4_frag.h
+		ingenialink/ecat/lwip/ip4.h
+		ingenialink/ecat/lwip/mem.h
+		ingenialink/ecat/lwip/memp.h
+		ingenialink/ecat/lwip/netif.h
+		ingenialink/ecat/lwip/pbuf.h
+		ingenialink/ecat/lwip/stats.h
+		ingenialink/ecat/lwip/timeouts.h
+		ingenialink/ecat/lwip/udp.h
+		
+		ingenialink/ecat/lwip.h
+		ingenialink/ecat/lwip/opt.h
+		ingenialink/ecat/lwip/err.h
+		ingenialink/ecat/lwip/sys.h
+
+    external/SOEM/soem/ethercatmain.h
   )
 endif()
 
@@ -183,6 +229,7 @@ if(WITH_PROT_MCB)
 endif()
 
 if(WITH_PROT_ETH)
+  include_directories(./ ./ingenialink/ecat/lwip)
   target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_ETH)
 endif()
 
@@ -202,6 +249,20 @@ find_package(LibXml2 REQUIRED)
 target_link_libraries(ingenialink PRIVATE ${LIBXML2_LIBRARIES})
 target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 
+
+target_link_libraries(ingenialink PRIVATE ../external/SOEM/build/soem)
+
+target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/soem)
+target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/osal)
+target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/osal/win32)
+
+target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/oshw/win32)
+target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/oshw/win32/wpcap/Include)
+target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/oshw/win32/wpcap/Include/pcap)
+
+target_link_libraries(ingenialink PRIVATE ../external/SOEM/oshw/win32/wpcap/Lib/wpcap)
+target_link_libraries(ingenialink PRIVATE ../external/SOEM/WinMM)
+
 if(UNIX)
   # FIX: disable TRY_RUN for pthreads when cross-compiling
   if(CMAKE_CROSSCOMPILING)
@@ -214,6 +275,7 @@ if(UNIX)
 elseif(WIN32)
   # required by: libxml2
   target_link_libraries(ingenialink PRIVATE ws2_32)
+  
 endif()
 
 #-------------------------------------------------------------------------------

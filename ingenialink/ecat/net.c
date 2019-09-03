@@ -21,8 +21,10 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
+
 #include <winsock2.h>
 #include "net.h"
+#include "servo.h"
 #include "frame.h"
 
 #include <string.h>
@@ -30,9 +32,67 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <windows.h>
+#include <inttypes.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
+
+#include "ethercat.h"
+#include "lwip/netif.h"
+#include "lwip/err.h"
+#include "lwip/init.h"
+#include "lwip/timeouts.h"
+#include "lwip/udp.h"
+#include "lwip/netif/ethernet.h"
+#include "lwip/netif/etharp.h"
+
+/*******************************************************************************
+* ECAT Master
+******************************************************************************/
+
+#define EC_TIMEOUTMON 500
+#define UDP_OPEN_PORT           (uint16_t)1061U
+
+/* Network instance */
+struct netif tNetif;
+
+/* Global reply data buffer */
+uint8_t pReplyData[1024U];
+
+ecx_contextt *context;
+
+char IOmap[4096];
+
+int expectedWKC;
+boolean needlf;
+volatile int globalwkc;
+boolean inOP;
+uint8 currentgroup = 0;
+OSAL_THREAD_HANDLE thread1;
+OSAL_THREAD_HANDLE thread2;
+uint8 txbuf[512];
+
+/** Current RX fragment number */
+uint8_t rxfragmentno = 0;
+/** Complete RX frame size of current frame */
+uint16_t rxframesize = 0;
+/** Current RX data offset in frame */
+uint16_t rxframeoffset = 0;
+/** Current RX frame number */
+uint16_t rxframeno = 0;
+uint8 rxbuf[512];
+int size_of_rx = sizeof(rxbuf);
+
+struct udp_pcb *ptUdpPcb;
+
+ip_addr_t dstaddr;
+err_t error;
+
+uint8_t frame_received[14];
+
+/*******************************************************************************/
+
+
 
 /*******************************************************************************
 * Private
@@ -185,7 +245,7 @@ int listener_ecat(void *args)
 // 	}
 // }
 
-static il_net_t *il_ecat_net_create(const il_net_opts_t *opts)
+static il_net_t *il_ecat_net_create(const il_ecat_net_opts_t *opts)
 {
 	il_ecat_net_t *this;
 	int r;
@@ -545,9 +605,9 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 
 	osal_mutex_lock(this->net.lock);
 	r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
-	if (r < 0) {
+	/*if (r < 0) {
 		goto unlock;
-	}
+	}*/
 	uint16_t *monitoring_raw_data = NULL;
 	r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
 	if (r < 0)
@@ -630,6 +690,15 @@ typedef union
 static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, const void *data,
 	size_t sz, uint16_t extended, il_net_t *net)
 {
+	// struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, 14, PBUF_RAM);
+	// memcpy(p->payload, frame1, 14);
+	// error = udp_sendto(ptUdpPcb, p, &dstaddr, 1061);
+	// wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
+	// int s32SzRead = 14;
+	// wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+	// pbuf_free(p);
+
+
 	int finished = 0;
 	uint8_t cmd;
 
@@ -704,9 +773,15 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 				return ilerr__ser(r);
 		}
 		else {
-			r = send(this->server, (const char*)&frame[0], sizeof(frame), 0);
+			int wkc = 0;
+			struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, 14, PBUF_RAM);
+			memcpy(p->payload, frame, 14);
+			error = udp_sendto(ptUdpPcb, p, &dstaddr, 1061);
+			pbuf_free(p);
+
+			// r = send(this->server, (const char*)&frame[0], sizeof(frame), 0);
 			// printf("Not extended, result of send: %i\n", r);
-			if (r < 0)
+			if (error < 0)
 				return ilerr__ser(r);
 		}
 		finished = 1;
@@ -724,6 +799,9 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
 	size_t sz, uint16_t *monitoring_raw_data, il_net_t *net)
 {
+	
+	
+	
 	int finished = 0;
 	size_t pending_sz = sz;
 
@@ -737,7 +815,15 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	Sleep(5);
 	/* read next frame */
 	int r = 0;
-	r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
+	// r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
+	int wkc = 0;
+	ec_mbxbuft MbxIn;
+	wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
+	int s32SzRead = 14;
+	wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+	
+	/* Obtain the frame received */
+	memcpy(frame, (uint8_t*)frame_received, 14);
 
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
@@ -822,14 +908,410 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	return 0;
 }
 
-static int *il_ecat_net_master_startup(il_net_t *net)
-{
+// =================================================================================================================
+// ECAT
+// =================================================================================================================
 
+uint8_t frame1[14] = {
+	0xA1,
+	0x00,
+	0x12,
+	0x01,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x00,
+	0x4B,
+	0x66 };
+
+static err_t LWIP_EthernetifOutput(struct netif *ptNetIfHnd, struct pbuf *ptBuf)
+{
+	printf("\nOUTPUT!\n");
+	err_t tErr = ERR_OK;
+
+	uint8_t frame6[60];
+	memcpy(frame6, ptBuf->payload, ptBuf->len);
+
+	printf("FRAME SENDED %d %d: %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", ptBuf->tot_len, ptBuf->len,
+		frame6[0], frame6[1], frame6[2],
+		frame6[3], frame6[4], frame6[5],
+		frame6[6], frame6[7], frame6[8],
+		frame6[9], frame6[10], frame6[11],
+		frame6[12], frame6[13]);
+
+	int i = ecx_EOEsend(context, 1, 0, ptBuf->tot_len, ptBuf->payload, EC_TIMEOUTRXM);
+
+
+
+	uint16_t u16Ret = 0;
+	if (u16Ret != (uint16_t)0U)
+	{
+		tErr = ERR_IF;
+	}
+
+	if (ptBuf != NULL)
+	{
+		pbuf_free(ptBuf);
+		ptBuf = NULL;
+	}
+
+	return tErr;
+}
+
+static err_t LWIP_EthernetifInit(struct netif *ptNetIfHnd)
+{
+	ptNetIfHnd->output = etharp_output;
+	ptNetIfHnd->linkoutput = LWIP_EthernetifOutput;
+
+	return ERR_OK;
+}
+
+void LWIP_EthernetifInp(void* pData, uint16_t u16SizeBy)
+{
+	printf("\n======================================\n");
+	printf("INPUT!\n");
+	err_t tError;
+	struct pbuf* pBuf = NULL;
+
+	/* Allocate data and copy from source */
+	pBuf = pbuf_alloc(PBUF_RAW, u16SizeBy, PBUF_POOL);
+	memcpy((void*)pBuf->payload, (const void*)pData, u16SizeBy);
+	pBuf->len = u16SizeBy;
+
+	tError = tNetif.input(pBuf, &tNetif);
+	if (tError == ERR_OK)
+	{
+		pbuf_free(pBuf);
+		pBuf = NULL;
+	}
+	printf("======================================\n");
+}
+
+static void LWIP_UdpReceiveData(void* pArg, struct udp_pcb* ptUdpPcb, struct pbuf* ptBuf,
+	const ip_addr_t* ptAddr, u16_t u16Port)
+{
+	printf("=================================================\n");
+	printf("UDP received bro!!\n");
+	memcpy(frame_received, ptBuf->payload, ptBuf->len);
+	printf("FRAME RECEIVED: %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+		frame_received[0], frame_received[1], frame_received[2], frame_received[3], frame_received[4], frame_received[5], frame_received[6],
+		frame_received[7], frame_received[8], frame_received[9], frame_received[10], frame_received[11], frame_received[12], frame_received[13]);
+	printf("=================================================\n");
+}
+
+OSAL_THREAD_FUNC mailbox_reader(void *lpParam)
+{
+	printf("mailbox_reader");
+	context = (ecx_contextt *)lpParam;
+	int wkc = 0;
+	ec_mbxbuft MbxIn;
+	ec_mbxheadert * MbxHdr = (ec_mbxheadert *)MbxIn;
+
+	IP4_ADDR(&dstaddr, 192, 168, 2, 22);
+
+	ip4_addr_t tIpAddr, tNetmask, tGwIpAddr;
+
+	/* Initilialize the LwIP stack without RTOS */
+	lwip_init();
+
+	/* IP addresses initialization */
+	IP4_ADDR(&tIpAddr, 192, 168,
+		2, 22);
+	IP4_ADDR(&tNetmask, 255, 255,
+		255, 0);
+	IP4_ADDR(&tGwIpAddr, 192, 168,
+		2, 1);
+
+	/* IP addresses initialization */
+	IP4_ADDR(&tIpAddr, 192, 168,
+		2, 22);
+	IP4_ADDR(&tNetmask, 255, 255,
+		255, 0);
+	IP4_ADDR(&tGwIpAddr, 192, 168,
+		2, 1);
+
+	/* Add the network interface */
+	netif_add(&tNetif, &tGwIpAddr, &tNetmask, &tIpAddr, NULL,
+		&LWIP_EthernetifInit, &ethernet_input);
+	netif_set_default(&tNetif);
+	netif_set_up(&tNetif);
+	tNetif.flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
+
+	/* Open the Upd port and link receive callback */
+	ptUdpPcb = udp_new();
+	/* Link UDP callback */
+	udp_recv(ptUdpPcb, LWIP_UdpReceiveData, (void*)NULL);
+	/* UDP connect */
+	error = udp_connect(ptUdpPcb, &tIpAddr, 1061);
+
+	// struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, 14, PBUF_RAM);
+	// memcpy(p->payload, frame1, 14);
+
+	// error = udp_sendto(ptUdpPcb, p, &dstaddr, 1061);
+	// wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
+	// int s32SzRead = 14;
+
+	// wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+
+	// pbuf_free(p);
+	osal_usleep(100000);
+}
+
+/** registered EoE hook */
+int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
+{
+	printf("EoE Hook!\n");
+	int wkc;
+	/* Pass received Mbx data to EoE recevive fragment function that
+	* that will start/continue fill an Ethernet frame buffer
+	*/
+	size_of_rx = sizeof(rxbuf);
+	printf("rxfragmentno: %d", rxfragmentno);
+	wkc = ecx_EOEreadfragment(eoembx,
+		&rxfragmentno,
+		&rxframesize,
+		&rxframeoffset,
+		&rxframeno,
+		&size_of_rx,
+		rxbuf);
+	int r = rxframesize;
+
+	//wkc = ecx_EOErecv(context, 1, 0, (int*)&r, rxbuf, EC_TIMEOUTRXM);
+	//wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+	printf("Read frameno %d, fragmentno %d\n", rxframeno, rxfragmentno);
+	// INTPUT
+
+	LWIP_EthernetifInp((uint16_t*)rxbuf, sizeof(rxbuf));
+	/* wkc == 1 would mean a frame is complete , last fragment flag have been set and all
+	* other checks must have past
+	*/
+	if (wkc > 0)
+	{
+		ec_etherheadert *bp = (ec_etherheadert *)rxbuf;
+		uint16 type = ntohs(bp->etype);
+		printf("Frameno %d, type 0x%x complete\n", rxframeno, type);
+		if (type == ETH_P_ECAT)
+		{
+			/* Sanity check that received buffer still is OK */
+			if (sizeof(txbuf) != size_of_rx)
+			{
+				//printf("Size differs, expected %d , received %d\n", sizeof(txbuf), size_of_rx);
+				printf("Size differs");
+			}
+			else
+			{
+				//printf("Size OK, expected %d , received %d\n", sizeof(txbuf), size_of_rx);
+				printf("Size OK");
+			}
+			/* Check that the TX and RX frames are EQ */
+			if (memcmp(rxbuf, txbuf, size_of_rx))
+			{
+				printf("memcmp result != 0\n");
+			}
+			else
+			{
+				printf("memcmp result == 0\n");
+			}
+			/* Send a new frame */
+			int ixme;
+			for (ixme = ETH_HEADERSIZE; ixme < sizeof(txbuf); ixme++)
+			{
+				txbuf[ixme] = (uint8)rand();
+			}
+			printf("Send a new frame\n");
+			ecx_EOEsend(context, 1, 0, sizeof(txbuf), txbuf, EC_TIMEOUTRXM);
+		}
+		else
+		{
+			printf("Skip type 0x%x\n", type);
+		}
+	}
+
+	/* No point in returning as unhandled */
+	return 1;
+}
+
+void init_eoe(ecx_contextt * context)
+{
+	printf("Init EoE\n");
+	/* Set the HOOK */
+	ecx_EOEdefinehook(context, eoe_hook);
+
+	eoe_param_t ipsettings, re_ipsettings;
+	memset(&ipsettings, 0, sizeof(ipsettings));
+	memset(&re_ipsettings, 0, sizeof(re_ipsettings));
+
+	printf("IP configuration\n");
+	ipsettings.ip_set = 1;
+	ipsettings.subnet_set = 1;
+	ipsettings.default_gateway_set = 1;
+
+	EOE_IP4_ADDR_TO_U32(&ipsettings.ip, 192, 168, 2, 22);
+	EOE_IP4_ADDR_TO_U32(&ipsettings.subnet, 255, 255, 255, 0);
+	EOE_IP4_ADDR_TO_U32(&ipsettings.default_gateway, 192, 168, 2, 1);
+
+	printf("IP configured\n");
+
+	/* Send a set IP request */
+	ecx_EOEsetIp(context, 1, 0, &ipsettings, EC_TIMEOUTRXM);
+
+	/* Send a get IP request, should return the expected IP back */
+	ecx_EOEgetIp(context, 1, 0, &re_ipsettings, EC_TIMEOUTRXM);
+
+	/* Create a asyncronous EoE reader */
+	osal_thread_create(&thread2, 128000, &mailbox_reader, &ecx_context);
+}
+
+int *il_ecat_net_master_startup(il_net_t **net)
+{
+	int i, oloop, iloop, chk;
+	needlf = FALSE;
+	inOP = FALSE;
+
+	il_ecat_net_opts_t opts;
+	opts.address_ip = "192.168.2.22";
+	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+	opts.connect_slave = 1;
+	opts.port_ip = 1061;
+	opts.port = "";
+
+	*net = il_ecat_net_create(&opts);
+	if (!*net) {
+		printf("FAIL");
+		return IL_EFAIL;
+	}
+
+	printf("Starting EtherCAT Master\n");
+	char *ifname = "\\Device\\NPF_{F71D9222-04B3-48C2-A311-D1E58DFFEC87}";
+	/* initialise SOEM, bind socket to ifname */
+	printf("%s", ifname);
+	/* initialise SOEM, bind socket to ifname */
+	if (ec_init(ifname))
+	{
+		printf("ec_init on %s succeeded.\n", ifname);
+		/* find and auto-config slaves */
+		if (ec_config_init(FALSE) > 0)
+		{
+			printf("%d slaves found and configured.\n", ec_slavecount);
+
+			
+
+			ec_config_map(&IOmap);
+
+			ec_configdc();
+
+			printf("Slaves mapped, state to PRE_OP.\n");
+
+			/* wait for all slaves to reach SAFE_OP state */
+			ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE * 4);
+
+			oloop = ec_slave[0].Obytes;
+			if ((oloop == 0) && (ec_slave[0].Obits > 0)) oloop = 1;
+			if (oloop > 8) oloop = 8;
+			iloop = ec_slave[0].Ibytes;
+			if ((iloop == 0) && (ec_slave[0].Ibits > 0)) iloop = 1;
+			if (iloop > 8) iloop = 8;
+
+			printf("segments : %d : %d %d %d %d\n", ec_group[0].nsegments, ec_group[0].IOsegment[0], ec_group[0].IOsegment[1], ec_group[0].IOsegment[2], ec_group[0].IOsegment[3]);
+
+			printf("Request operational state for all slaves\n");
+			expectedWKC = (ec_group[0].outputsWKC * 2) + ec_group[0].inputsWKC;
+			printf("Calculated workcounter %d\n", expectedWKC);
+			ec_slave[0].state = EC_STATE_PRE_OP;
+			/* send one valid process data to make outputs in slaves happy*/
+			ec_send_processdata();
+			ec_receive_processdata(EC_TIMEOUTRET);
+
+			/* Simple EoE test */
+			//test_eoe(&ecx_context);
+
+			/* request OP state for all slaves */
+			ec_writestate(0);
+			chk = 200;
+
+			/* wait for all slaves to reach OP state */
+			do
+			{
+				ec_send_processdata();
+				ec_receive_processdata(EC_TIMEOUTRET);
+				ec_statecheck(0, EC_STATE_PRE_OP, 50000);
+			} while (chk-- && (ec_slave[0].state != EC_STATE_PRE_OP));
+			if (ec_slave[0].state == EC_STATE_PRE_OP)
+			{
+				printf("Pre-Operational state reached for all slaves.\n");
+				globalwkc = expectedWKC;
+				inOP = TRUE;
+				/* cyclic loop */
+				for (i = 1; i <= 1000; i++)
+				{
+					ec_send_processdata();
+					globalwkc = ec_receive_processdata(EC_TIMEOUTRET * 5);
+#if PRINT_EOE_INFO_INSTEAD
+					int j;
+					if (globalwkc >= expectedWKC)
+					{
+						printf("Processdata cycle %4d, WKC %d , O:", i, globalwkc);
+						for (j = 0; j < oloop; j++)
+						{
+							printf(" %2.2x", *(ec_slave[0].outputs + j));
+						}
+						printf(" I:");
+						for (j = 0; j < iloop; j++)
+						{
+							printf(" %2.2x", *(ec_slave[0].inputs + j));
+						}
+						printf(" T:%"PRId64"\r", ec_DCtime);
+						needlf = TRUE;
+					}
+#endif
+					osal_usleep(1000);
+				}
+				inOP = FALSE;
+			}
+			else
+			{
+				printf("Not all slaves reached operational state.\n");
+				ec_readstate();
+				for (i = 1; i <= ec_slavecount; i++)
+				{
+					if (ec_slave[i].state != EC_STATE_PRE_OP)
+					{
+						printf("Slave %d State=0x%2.2x StatusCode=0x%4.4x : %s\n",
+							i, ec_slave[i].state, ec_slave[i].ALstatuscode, ec_ALstatuscode2string(ec_slave[i].ALstatuscode));
+					}
+				}
+			}
+			printf("\nRequest pre_op state for all slaves\n");
+			ec_slave[0].state = EC_STATE_PRE_OP;
+			/* request INIT state for all slaves */
+			ec_writestate(0);
+		}
+		else
+		{
+			printf("No slaves found!\n");
+		}
+
+		init_eoe(&ecx_context);
+		
+	}
+	else
+	{
+		printf("No socket connection on %s\nExcecute as root\n", ifname);
+	}
+
+	return 0;
 }
 
 static int *il_ecat_net_master_stop(il_net_t *net)
 {
-
+	printf("Closing Socket\n");
+	/* stop SOEM, close socket */
+	ec_close();
 }
 
 /** ECAT network operations. */
@@ -861,7 +1343,11 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	.read_monitoring_data = il_ecat_net_read_monitoring_data,
 	/* Disturbance */
 	.disturbance_remove_all_mapped_registers = il_ecat_net_disturbance_remove_all_mapped_registers,
-	.disturbance_set_mapped_register = il_ecat_net_disturbance_set_mapped_register
+	.disturbance_set_mapped_register = il_ecat_net_disturbance_set_mapped_register,
+	/* Master EtherCAT */
+	.master_startup = il_ecat_net_master_startup,
+	.master_stop = il_ecat_net_master_stop
+
 
 };
 

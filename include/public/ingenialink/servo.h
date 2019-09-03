@@ -231,8 +231,7 @@ typedef enum {
  * @return
  *	Servo instance (NULL if it could not be created).
  */
-IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint16_t id,
-				      const char *dict);
+IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint16_t id, const char *dict);
 
 /**
  * Destroy an IngeniaLink servo instance.

@@ -26,6 +26,7 @@
 #define INGENIALINK_NET_H_
 
 #include "public/ingenialink/net.h"
+#include "public/ingenialink/servo.h"
 
 /** Virtual network port. */
 #define EUSB_VIRTUAL_PORT "virtual"
@@ -408,6 +409,9 @@ typedef struct {
 	int (*is_slave_connected)();
 	/** Close socket */
 	int (*close_socket)();
+
+	int (*master_startup)();
+	int (*master_stop)();
 	
 } il_ecat_net_ops_t;
 
