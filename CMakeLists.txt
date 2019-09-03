@@ -250,15 +250,15 @@ target_link_libraries(ingenialink PRIVATE ${LIBXML2_LIBRARIES})
 target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 
 
-target_link_libraries(ingenialink PRIVATE ../external/SOEM/build/soem)
+target_link_libraries(ingenialink PRIVATE ../external/SOEM/_build/soem)
 
-target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/soem)
-target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/osal)
-target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/osal/win32)
+target_include_directories(ingenialink PRIVATE ./external/SOEM/soem)
+target_include_directories(ingenialink PRIVATE ./external/SOEM/osal)
+target_include_directories(ingenialink PRIVATE ./external/SOEM/osal/win32)
 
-target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/oshw/win32)
-target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/oshw/win32/wpcap/Include)
-target_include_directories(ingenialink PRIVATE C:/GitProjects/ingenialink/external/SOEM/oshw/win32/wpcap/Include/pcap)
+target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32)
+target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include)
+target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include/pcap)
 
 target_link_libraries(ingenialink PRIVATE ../external/SOEM/oshw/win32/wpcap/Lib/wpcap)
 target_link_libraries(ingenialink PRIVATE ../external/SOEM/WinMM)
