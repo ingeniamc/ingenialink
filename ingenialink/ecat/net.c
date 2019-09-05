@@ -37,7 +37,7 @@
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
 
-#include "ethercat.h"
+#include "soem/soem/ethercat.h"
 #include "lwip/netif.h"
 #include "lwip/err.h"
 #include "lwip/init.h"

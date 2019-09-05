@@ -167,7 +167,65 @@ if(WITH_PROT_ECAT)
 		ingenialink/ecat/lwip/err.h
 		ingenialink/ecat/lwip/sys.h
 
-    external/SOEM/soem/ethercatmain.h
+    ingenialink/ecat/soem/soem/ethercatbase.c
+    ingenialink/ecat/soem/soem/ethercatcoe.c
+    ingenialink/ecat/soem/soem/ethercatconfig.c
+    ingenialink/ecat/soem/soem/ethercatdc.c
+    ingenialink/ecat/soem/soem/ethercateoe.c
+    ingenialink/ecat/soem/soem/ethercatfoe.c
+    ingenialink/ecat/soem/soem/ethercatmain.c
+    ingenialink/ecat/soem/soem/ethercatprint.c
+    ingenialink/ecat/soem/soem/ethercatsoe.c
+
+    ingenialink/ecat/soem/oshw/win32/nicdrv.c
+    ingenialink/ecat/soem/oshw/win32/oshw.c
+
+    ingenialink/ecat/soem/osal/win32/osal.c
+
+
+    ingenialink/ecat/soem/soem/ethercat.h
+    ingenialink/ecat/soem/soem/ethercatbase.h
+    ingenialink/ecat/soem/soem/ethercatcoe.h
+    ingenialink/ecat/soem/soem/ethercatconfig.h
+    ingenialink/ecat/soem/soem/ethercatconfiglist.h
+    ingenialink/ecat/soem/soem/ethercatdc.h
+    ingenialink/ecat/soem/soem/ethercateoe.h
+    ingenialink/ecat/soem/soem/ethercatfoe.h
+    ingenialink/ecat/soem/soem/ethercatmain.h
+    ingenialink/ecat/soem/soem/ethercatprint.h
+    ingenialink/ecat/soem/soem/ethercatsoe.h
+    ingenialink/ecat/soem/soem/ethercattype.h
+
+    ingenialink/ecat/soem/oshw/win32/nicdrv.h
+    ingenialink/ecat/soem/oshw/win32/oshw.h
+
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/bittypes.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/ip6_misc.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/Packet32.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap-bpf.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap-namedb.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap-stdinc.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/remote-ext.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/Win32-Extensions.h
+
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/bluetooth.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/bpf.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/namedb.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/pcap.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/sll.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/usb.h
+    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/vlan.h
+
+    ingenialink/ecat/soem/osal/osal.h
+    ingenialink/ecat/soem/osal/win32/inttypes.h
+    ingenialink/ecat/soem/osal/win32/osal_defs.h
+    ingenialink/ecat/soem/osal/win32/osal_win32.h
+    ingenialink/ecat/soem/osal/win32/stdint.h
+
+
+    
+    
   )
 endif()
 
@@ -244,21 +302,22 @@ endif()
 # Dependencies
 find_package(sercomm CONFIG REQUIRED)
 target_link_libraries(ingenialink PRIVATE sercomm)
+#target_link_libraries(ingenialink PRIVATE ../external/sercomm/_build/Debug/sercomm)
 
 find_package(LibXml2 REQUIRED)
 target_link_libraries(ingenialink PRIVATE ${LIBXML2_LIBRARIES})
 target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 
 
-target_link_libraries(ingenialink PRIVATE ../external/SOEM/_build/soem)
+#target_link_libraries(ingenialink PRIVATE ../external/SOEM/_build/soem)
 
-target_include_directories(ingenialink PRIVATE ./external/SOEM/soem)
-target_include_directories(ingenialink PRIVATE ./external/SOEM/osal)
-target_include_directories(ingenialink PRIVATE ./external/SOEM/osal/win32)
+#target_include_directories(ingenialink PRIVATE ./external/SOEM/soem)
+#target_include_directories(ingenialink PRIVATE ./external/SOEM/osal)
+#target_include_directories(ingenialink PRIVATE ./external/SOEM/osal/win32)
 
-target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32)
-target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include)
-target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include/pcap)
+#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32)
+#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include)
+#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include/pcap)
 
 target_link_libraries(ingenialink PRIVATE ../external/SOEM/oshw/win32/wpcap/Lib/wpcap)
 target_link_libraries(ingenialink PRIVATE ../external/SOEM/WinMM)
