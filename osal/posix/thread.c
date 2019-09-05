@@ -55,7 +55,7 @@ static void *thread_wrapper(void *args)
  * Public
  ******************************************************************************/
 
-osal_thread_t *osal_thread_create(osal_thread_func_t func, void *args)
+osal_thread_t *osal_thread_create_(osal_thread_func_t func, void *args)
 {
 	int r;
 	osal_thread_t *thread;
