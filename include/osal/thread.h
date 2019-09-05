@@ -42,7 +42,7 @@ typedef int (*osal_thread_func_t)(void *args);
  * @return
  *	Thread (NULL if it could not be created).
  */
-osal_thread_t *osal_thread_create(osal_thread_func_t func, void *args);
+osal_thread_t *osal_thread_create_(osal_thread_func_t func, void *args);
 
 /**
  * Join a thread (and destroy it).
