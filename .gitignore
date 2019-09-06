@@ -3,7 +3,6 @@
 *.swo
 
 # VS
-Win32
 *.dir
 
 # OS
