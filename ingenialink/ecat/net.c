@@ -692,23 +692,11 @@ typedef union
 static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, const void *data,
 	size_t sz, uint16_t extended, il_net_t *net)
 {
-	// struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, 14, PBUF_RAM);
-	// memcpy(p->payload, frame1, 14);
-	// error = udp_sendto(ptUdpPcb, p, &dstaddr, 1061);
-	// wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
-	// int s32SzRead = 14;
-	// wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
-	// pbuf_free(p);
-
-
 	int finished = 0;
 	uint8_t cmd;
 
 	cmd = sz ? ECAT_MCB_CMD_WRITE : ECAT_MCB_CMD_READ;
 
-	// (void)ser_flush(this->ser, SER_QUEUE_ALL);
-	
-	// printf("Start send\n");
 	while (!finished) {
 		int r;
 		uint16_t frame[ECAT_MCB_FRAME_SZ];
@@ -716,7 +704,6 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 		size_t chunk_sz;
 
 		/* header */
-		// hdr_h = (MCB_SUBNODE_MOCO << 12) | (MCB_NODE_DFLT);
 		hdr_h = (ECAT_MCB_NODE_DFLT << 4) | (subnode);
 		*(uint16_t *)&frame[ECAT_MCB_HDR_H_POS] = hdr_h;
 		hdr_l = (address << 4) | (cmd << 1) | (extended);
@@ -801,9 +788,6 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
 	size_t sz, uint16_t *monitoring_raw_data, il_net_t *net)
 {
-	
-	
-	
 	int finished = 0;
 	size_t pending_sz = sz;
 
