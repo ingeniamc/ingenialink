@@ -104,6 +104,8 @@ il_net_t *il_net_create(il_net_prot_t prot, const il_net_opts_t *opts)
 		return il_mcb_net_ops.create(opts);
 	case IL_NET_PROT_ETH:
 		return il_eth_net_ops.create(opts);
+	case IL_NET_PROT_ECAT:
+		return il_ecat_net_ops.create(opts);
 #endif
 #ifdef IL_HAS_PROT_VIRTUAL
 	case IL_NET_PROT_VIRTUAL:
@@ -309,6 +311,7 @@ il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)
 {
+	printf("il_net_servos_list_get\n");
 	return net->ops->servos_list_get(net, on_found, ctx);
 }
 

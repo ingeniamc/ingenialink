@@ -374,12 +374,14 @@ static il_net_servos_list_t *il_ecat_net_servos_list_get(
 	uint64_t vid;
 	il_net_servos_list_t *lst;
 
+	printf("pre-read");
 	Sleep(2);
 	/* try to read the vendor id register to see if a servo is alive */
 	r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 	if (r < 0) {
 		return NULL;
 	}
+	printf("post-read");
 	/* create list with one element (id=1) */
 	lst = malloc(sizeof(*lst));
 	if (!lst) {
@@ -930,18 +932,10 @@ uint8_t frame1[14] = {
 
 static err_t LWIP_EthernetifOutput(struct netif *ptNetIfHnd, struct pbuf *ptBuf)
 {
-	printf("\nOUTPUT!\n");
 	err_t tErr = ERR_OK;
 
 	uint8_t frame6[60];
 	memcpy(frame6, ptBuf->payload, ptBuf->len);
-
-	printf("FRAME SENDED %d %d: %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", ptBuf->tot_len, ptBuf->len,
-		frame6[0], frame6[1], frame6[2],
-		frame6[3], frame6[4], frame6[5],
-		frame6[6], frame6[7], frame6[8],
-		frame6[9], frame6[10], frame6[11],
-		frame6[12], frame6[13]);
 
 	int i = ecx_EOEsend(context, 1, 0, ptBuf->tot_len, ptBuf->payload, EC_TIMEOUTRXM);
 
@@ -972,8 +966,6 @@ static err_t LWIP_EthernetifInit(struct netif *ptNetIfHnd)
 
 void LWIP_EthernetifInp(void* pData, uint16_t u16SizeBy)
 {
-	printf("\n======================================\n");
-	printf("INPUT!\n");
 	err_t tError;
 	struct pbuf* pBuf = NULL;
 
@@ -988,24 +980,16 @@ void LWIP_EthernetifInp(void* pData, uint16_t u16SizeBy)
 		pbuf_free(pBuf);
 		pBuf = NULL;
 	}
-	printf("======================================\n");
 }
 
 static void LWIP_UdpReceiveData(void* pArg, struct udp_pcb* ptUdpPcb, struct pbuf* ptBuf,
 	const ip_addr_t* ptAddr, u16_t u16Port)
 {
-	printf("=================================================\n");
-	printf("UDP received bro!!\n");
 	memcpy(frame_received, ptBuf->payload, ptBuf->len);
-	printf("FRAME RECEIVED: %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
-		frame_received[0], frame_received[1], frame_received[2], frame_received[3], frame_received[4], frame_received[5], frame_received[6],
-		frame_received[7], frame_received[8], frame_received[9], frame_received[10], frame_received[11], frame_received[12], frame_received[13]);
-	printf("=================================================\n");
 }
 
 OSAL_THREAD_FUNC mailbox_reader(void *lpParam)
 {
-	printf("mailbox_reader");
 	context = (ecx_contextt *)lpParam;
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
@@ -1048,29 +1032,19 @@ OSAL_THREAD_FUNC mailbox_reader(void *lpParam)
 	/* UDP connect */
 	error = udp_connect(ptUdpPcb, &tIpAddr, 1061);
 
-	// struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, 14, PBUF_RAM);
-	// memcpy(p->payload, frame1, 14);
-
-	// error = udp_sendto(ptUdpPcb, p, &dstaddr, 1061);
-	// wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
-	// int s32SzRead = 14;
-
-	// wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
-
-	// pbuf_free(p);
-	osal_usleep(100000);
+	//osal_usleep(100000);
 }
 
 /** registered EoE hook */
 int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 {
-	printf("EoE Hook!\n");
+	//printf("EoE Hook!\n");
 	int wkc;
 	/* Pass received Mbx data to EoE recevive fragment function that
 	* that will start/continue fill an Ethernet frame buffer
 	*/
 	size_of_rx = sizeof(rxbuf);
-	printf("rxfragmentno: %d", rxfragmentno);
+	//printf("rxfragmentno: %d", rxfragmentno);
 	wkc = ecx_EOEreadfragment(eoembx,
 		&rxfragmentno,
 		&rxframesize,
@@ -1082,7 +1056,7 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 
 	//wkc = ecx_EOErecv(context, 1, 0, (int*)&r, rxbuf, EC_TIMEOUTRXM);
 	//wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
-	printf("Read frameno %d, fragmentno %d\n", rxframeno, rxfragmentno);
+	//printf("Read frameno %d, fragmentno %d\n", rxframeno, rxfragmentno);
 	// INTPUT
 
 	LWIP_EthernetifInp((uint16_t*)rxbuf, sizeof(rxbuf));
@@ -1093,28 +1067,28 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 	{
 		ec_etherheadert *bp = (ec_etherheadert *)rxbuf;
 		uint16 type = ntohs(bp->etype);
-		printf("Frameno %d, type 0x%x complete\n", rxframeno, type);
+		//printf("Frameno %d, type 0x%x complete\n", rxframeno, type);
 		if (type == ETH_P_ECAT)
 		{
 			/* Sanity check that received buffer still is OK */
 			if (sizeof(txbuf) != size_of_rx)
 			{
 				//printf("Size differs, expected %d , received %d\n", sizeof(txbuf), size_of_rx);
-				printf("Size differs");
+				//printf("Size differs");
 			}
 			else
 			{
 				//printf("Size OK, expected %d , received %d\n", sizeof(txbuf), size_of_rx);
-				printf("Size OK");
+				//printf("Size OK");
 			}
 			/* Check that the TX and RX frames are EQ */
 			if (memcmp(rxbuf, txbuf, size_of_rx))
 			{
-				printf("memcmp result != 0\n");
+				//printf("memcmp result != 0\n");
 			}
 			else
 			{
-				printf("memcmp result == 0\n");
+				//printf("memcmp result == 0\n");
 			}
 			/* Send a new frame */
 			int ixme;
@@ -1122,12 +1096,12 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 			{
 				txbuf[ixme] = (uint8)rand();
 			}
-			printf("Send a new frame\n");
+			//printf("Send a new frame\n");
 			ecx_EOEsend(context, 1, 0, sizeof(txbuf), txbuf, EC_TIMEOUTRXM);
 		}
 		else
 		{
-			printf("Skip type 0x%x\n", type);
+			//printf("Skip type 0x%x\n", type);
 		}
 	}
 
@@ -1269,7 +1243,7 @@ int *il_ecat_net_master_startup(il_net_t **net)
 						needlf = TRUE;
 					}
 #endif
-					osal_usleep(1000);
+					//osal_usleep(1000);
 				}
 				inOP = FALSE;
 			}
