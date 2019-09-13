@@ -88,7 +88,7 @@ struct udp_pcb *ptUdpPcb;
 ip_addr_t dstaddr;
 err_t error;
 
-uint8_t frame_received[14];
+uint8_t frame_received[1024];
 
 /*******************************************************************************/
 
@@ -755,9 +755,13 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 
 			memcpy(&extended_frame[0], frame, frame_size);
 			memcpy(&extended_frame[frame_size], pData, 1024 - frame_size);
-			
-			r = send(this->server, (const char*)&extended_frame[0], net->disturbance_data_size + frame_size, 0);
-			// r = send(this->server, (const char*)&extended_frame[0],	1010 + frame_size, 0);
+
+			int wkc = 0;
+			struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, net->disturbance_data_size + frame_size, PBUF_RAM);
+			memcpy(p->payload, extended_frame, net->disturbance_data_size + frame_size);
+			error = udp_sendto(ptUdpPcb, p, &dstaddr, 1061);
+			pbuf_free(p);
+
 			if (r < 0)
 				return ilerr__ser(r);
 		}
@@ -792,7 +796,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	size_t pending_sz = sz;
 
 	/*while (!finished) {*/
-	uint16_t frame[7];
+	uint16_t frame[1024];
 	size_t block_sz = 0;
 	uint16_t crc, hdr_l;
 	uint8_t *pBuf = (uint8_t*)&frame;
@@ -805,11 +809,11 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
 	wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
-	int s32SzRead = 14;
+	int s32SzRead = 1024;
 	wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
 	
 	/* Obtain the frame received */
-	memcpy(frame, (uint8_t*)frame_received, 14);
+	memcpy(frame, (uint8_t*)frame_received, 1024);
 
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
@@ -840,8 +844,8 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 			/* Read size of data */
 			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			/*uint8_t *pBufMonitoring = (uint8_t*)net->monitoring_raw_data;*/
-			r = recv(this->server, (uint8_t*)net->monitoring_raw_data, size, 0);
+			memcpy(net->monitoring_raw_data, (uint8_t*)&frame_received[14], size);
+
 			net->monitoring_data_size = size;
 			int num_mapped = net->monitoring_number_mapped_registers;
 			int bytes_per_block = net->monitoring_bytes_per_block;
@@ -884,7 +888,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 		else {
 			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			r = recv(this->server, net->extended_buff, size, 0);
+			memcpy(net->extended_buff, (char*)&frame_received[14], size);
 		}
 	}
 	else {
