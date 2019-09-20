@@ -1094,7 +1094,7 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 	}
 
 	/* No point in returning as unhandled */
-	return 1;
+	return ec_slavecount;
 }
 
 void init_eoe(ecx_contextt * context)
@@ -1160,8 +1160,6 @@ int *il_ecat_net_master_startup(il_net_t **net)
 		if (ec_config_init(FALSE) > 0)
 		{
 			printf("%d slaves found and configured.\n", ec_slavecount);
-
-			
 
 			ec_config_map(&IOmap);
 
@@ -1266,7 +1264,7 @@ int *il_ecat_net_master_startup(il_net_t **net)
 		printf("No socket connection on %s\nExcecute as root\n", ifname);
 	}
 
-	return 0;
+	return ec_slavecount;
 }
 
 static int *il_ecat_net_master_stop(il_net_t *net)
