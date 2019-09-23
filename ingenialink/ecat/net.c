@@ -1274,6 +1274,15 @@ static int *il_ecat_net_master_stop(il_net_t *net)
 	ec_close();
 }
 
+/**
+ * Update Firmware using FoE
+*/
+static int *il_ecat_net_update_firmware(char *ifname, uint16 slave, char *filename) 
+{
+
+
+}
+
 /** ECAT network operations. */
 const il_ecat_net_ops_t il_ecat_net_ops = {
 	/* internal */
