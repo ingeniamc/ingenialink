@@ -1128,7 +1128,7 @@ void init_eoe(ecx_contextt * context)
 	osal_thread_create(&thread2, 128000, &mailbox_reader, &ecx_context);
 }
 
-int *il_ecat_net_master_startup(il_net_t **net)
+int *il_ecat_net_master_startup(il_net_t **net, char *ifname)
 {
 	int i, oloop, iloop, chk;
 	needlf = FALSE;
@@ -1149,9 +1149,7 @@ int *il_ecat_net_master_startup(il_net_t **net)
 	}
 
 	printf("Starting EtherCAT Master\n");
-	char *ifname = "\\Device\\NPF_{F71D9222-04B3-48C2-A311-D1E58DFFEC87}";
-	/* initialise SOEM, bind socket to ifname */
-	printf("%s", ifname);
+	// char *ifname = "\\Device\\NPF_{F71D9222-04B3-48C2-A311-D1E58DFFEC87}";
 	/* initialise SOEM, bind socket to ifname */
 	if (ec_init(ifname))
 	{

@@ -297,9 +297,9 @@ int il_net_close_socket(il_net_t *net)
 	return il_eth_net_ops.close_socket(net);
 }
 
-int il_net_master_startup(il_net_t **net)
+int il_net_master_startup(il_net_t **net, char *ifname)
 {
-	return il_ecat_net_ops.master_startup(net);
+	return il_ecat_net_ops.master_startup(net, ifname);
 }
 
 int il_net_master_stop(il_net_t **net)
