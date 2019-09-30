@@ -612,7 +612,7 @@ cleanup_labels:
  * @return
  *	0 on success, error code otherwise.
  */
-static int parse_reg(xmlNodePtr node, il_dict_t *dict)
+static int parse_reg(xmlNodePtr node, il_dict_t *dict, int subnode)
 {
 	int r, absent;
 	khint_t k;
@@ -626,7 +626,7 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 		return IL_EFAIL;
 	}
 
-	k = kh_put(reg_id, dict->h_regs, (char *)id, &absent);
+	k = kh_put(reg_id, dict->h_regs[subnode], (char *)id, &absent);
 	if (!absent) {
 		ilerr__set("Found duplicated register: %s", id);
 		xmlFree(id);
@@ -634,10 +634,10 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 	}
 
 	/* store XML node (for later editions) */
-	kh_val(dict->h_regs, k).xml_node = node;
+	kh_val(dict->h_regs[subnode], k).xml_node = node;
 
 	/* initialize register */
-	reg = &kh_val(dict->h_regs, k).reg;
+	reg = &kh_val(dict->h_regs[subnode], k).reg;
 	reg->labels = NULL;
 	reg->cat_id = NULL;
 	reg->identifier = (char *)id;
@@ -795,12 +795,12 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict)
 
 il_dict_t *il_dict_create(const char *dict_f)
 {
-	int r = 0, i;
+	int r = 0, i, j;
 
 	il_dict_t *dict;
 
 	xmlXPathContextPtr xpath;
-	xmlXPathObjectPtr obj_cats, obj_regs;
+	xmlXPathObjectPtr obj_cats, obj_regs, obj_axes;
 	xmlNodePtr root;
 
 	khint_t k;
@@ -817,13 +817,6 @@ il_dict_t *il_dict_create(const char *dict_f)
 		ilerr__set("Categories hash table allocation failed");
 		r = IL_EFAIL;
 		goto cleanup_dict;
-	}
-
-	dict->h_regs = kh_init(reg_id);
-	if (!dict->h_regs) {
-		ilerr__set("Registers hash table allocation failed");
-		r = IL_EFAIL;
-		goto cleanup_h_cats;
 	}
 
 	/* set library error function (to prevent stdout/stderr garbage) */
@@ -880,6 +873,42 @@ il_dict_t *il_dict_create(const char *dict_f)
 			goto cleanup_h_cats_entries;
 	}
 
+	/* evaluate XPath for axes */
+	obj_axes = xmlXPathEvalExpression((const xmlChar *)XPATH_AXES, xpath);
+	if (!obj_axes) {
+		ilerr__set("xml: %s",
+			   xmlCtxtGetLastError(dict->xml_ctxt)->message);
+		r = IL_EFAIL;
+		goto cleanup_h_axes;
+	}
+
+	xmlNode *cur_node = NULL;
+
+	/* parse each axis */
+	for (i = 0; i < obj_axes->nodesetval->nodeNr; i++) {
+		dict->h_regs[i] = kh_init(reg_id);
+		if (!dict->h_regs[i]) {
+			ilerr__set("Registers hash table allocation failed");
+			r = IL_EFAIL;
+			goto cleanup_h_cats;
+		}
+
+		xmlNodePtr axis_node = obj_axes->nodesetval->nodeTab[i];
+		xmlNodePtr registers_node = axis_node->children->next->children;
+
+		for (cur_node = registers_node; cur_node; cur_node = cur_node->next) {
+			if (cur_node->type == XML_ELEMENT_NODE) {
+				printf("node type: Element, name: %s\n", cur_node->name);
+				r = parse_reg(cur_node, dict, i);
+				if (r < 0)
+					goto cleanup_h_regs_entries;
+			}
+		}
+		printf("holi %i\n", i);
+	}
+
+
+
 	/* evaluate XPath for registers */
 	obj_regs = xmlXPathEvalExpression((const xmlChar *)XPATH_REGS, xpath);
 	if (!obj_regs) {
@@ -890,13 +919,13 @@ il_dict_t *il_dict_create(const char *dict_f)
 	}
 
 	/* parse each register */
-	for (i = 0; i < obj_regs->nodesetval->nodeNr; i++) {
-		xmlNodePtr node = obj_regs->nodesetval->nodeTab[i];
+	// for (i = 0; i < obj_regs->nodesetval->nodeNr; i++) {
+	// 	xmlNodePtr node = obj_regs->nodesetval->nodeTab[i];
 
-		r = parse_reg(node, dict);
-		if (r < 0)
-			goto cleanup_h_regs_entries;
-	}
+	// 	r = parse_reg(node, dict);
+	// 	if (r < 0)
+	// 		goto cleanup_h_regs_entries;
+	// }
 
 	xmlXPathFreeObject(obj_regs);
 	xmlXPathFreeObject(obj_cats);
@@ -904,11 +933,11 @@ il_dict_t *il_dict_create(const char *dict_f)
 	goto cleanup_xpath;
 
 cleanup_h_regs_entries:
-	for (k = 0; k < kh_end(dict->h_regs); ++k) {
-		if (kh_exist(dict->h_regs, k)) {
+	for (k = 0; k < kh_end(dict->h_regs[0]); ++k) {
+		if (kh_exist(dict->h_regs[0], k)) {
 			il_reg_t *reg;
 
-			reg = &kh_value(dict->h_regs, k).reg;
+			reg = &kh_value(dict->h_regs[0], k).reg;
 			if (reg->cat_id)
 				free((char *)reg->cat_id);
 			if (reg->scat_id)
@@ -916,7 +945,7 @@ cleanup_h_regs_entries:
 			if (reg->labels)
 				il_dict_labels_destroy(reg->labels);
 
-			xmlFree((char *)kh_key(dict->h_regs, k));
+			xmlFree((char *)kh_key(dict->h_regs[0], k));
 		}
 	}
 
@@ -979,6 +1008,8 @@ cleanup_h_cats:
 	if (r < 0)
 		kh_destroy(cat_id, dict->h_cats);
 
+cleanup_h_axes:
+
 cleanup_dict:
 	if (r < 0) {
 		free(dict);
@@ -992,11 +1023,11 @@ void il_dict_destroy(il_dict_t *dict)
 {
 	khint_t k;
 
-	for (k = 0; k < kh_end(dict->h_regs); ++k) {
-		if (kh_exist(dict->h_regs, k)) {
+	for (k = 0; k < kh_end(dict->h_regs[0]); ++k) {
+		if (kh_exist(dict->h_regs[0], k)) {
 			il_reg_t *reg;
 
-			reg = &kh_value(dict->h_regs, k).reg;
+			reg = &kh_value(dict->h_regs[0], k).reg;
 			if (reg->cat_id)
 				free((char *)reg->cat_id);
 			if (reg->scat_id)
@@ -1004,11 +1035,11 @@ void il_dict_destroy(il_dict_t *dict)
 			if (reg->labels)
 				il_dict_labels_destroy(reg->labels);
 
-			xmlFree((char *)kh_key(dict->h_regs, k));
+			xmlFree((char *)kh_key(dict->h_regs[0], k));
 		}
 	}
 
-	kh_destroy(reg_id, dict->h_regs);
+	kh_destroy(reg_id, dict->h_regs[0]);
 
 	for (k = 0; k < kh_end(dict->h_cats); ++k) {
 		il_dict_labels_t *labels;
@@ -1202,20 +1233,20 @@ int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
 {
 	khint_t k;
 
-	k = kh_get(reg_id, dict->h_regs, id);
-	if (k == kh_end(dict->h_regs)) {
+	k = kh_get(reg_id, dict->h_regs[0], id);
+	if (k == kh_end(dict->h_regs[0])) {
 		ilerr__set("Register not found (%s)", id);
 		return IL_EFAIL;
 	}
 
-	*reg = (const il_reg_t *)&kh_value(dict->h_regs, k).reg;
+	*reg = (const il_reg_t *)&kh_value(dict->h_regs[0], k).reg;
 
 	return 0;
 }
 
 size_t il_dict_reg_cnt(il_dict_t *dict)
 {
-	return (size_t)kh_size(dict->h_regs);
+	return (size_t)kh_size(dict->h_regs[0]);
 }
 
 int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
@@ -1226,14 +1257,14 @@ int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
 	il_reg_t *reg;
 	xmlNodePtr node;
 
-	k = kh_get(reg_id, dict->h_regs, id);
-	if (k == kh_end(dict->h_regs)) {
+	k = kh_get(reg_id, dict->h_regs[0], id);
+	if (k == kh_end(dict->h_regs[0])) {
 		ilerr__set("Register not found (%s)", id);
 		return IL_EFAIL;
 	}
 
 	/* update register */
-	reg = &kh_value(dict->h_regs, k).reg;
+	reg = &kh_value(dict->h_regs[0], k).reg;
 	reg->storage = storage;
 	reg->storage_valid = 1;
 
@@ -1270,14 +1301,14 @@ int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
 		break;
 	}
 
-	node = kh_value(dict->h_regs, k).xml_node;
+	node = kh_value(dict->h_regs[0], k).xml_node;
 	(void)xmlSetProp(node, (const xmlChar *)"storage",
 			 (const xmlChar *)value);
 
 	return 0;
 }
 
-const char **il_dict_reg_ids_get(il_dict_t *dict)
+const char **il_dict_reg_ids_get(il_dict_t *dict, int subnode)
 {
 	const char **ids;
 	size_t i;
@@ -1291,9 +1322,9 @@ const char **il_dict_reg_ids_get(il_dict_t *dict)
 	}
 
 	/* assign keys, null-terminate */
-	for (i = 0, k = 0; k < kh_end(dict->h_regs); ++k) {
-		if (kh_exist(dict->h_regs, k)) {
-			ids[i] = (const char *)kh_key(dict->h_regs, k);
+	for (i = 0, k = 0; k < kh_end(dict->h_regs[subnode]); ++k) {
+		if (kh_exist(dict->h_regs[0], k)) {
+			ids[i] = (const char *)kh_key(dict->h_regs[subnode], k);
 			i++;
 		}
 	}

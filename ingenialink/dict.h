@@ -70,6 +70,9 @@ KHASH_MAP_INIT_STR(cat_id, il_dict_cat_t)
 /** XPath for registers. */
 #define XPATH_REGS	"//Registers/Register"
 
+/** XPath for axis. */
+#define XPATH_AXES	"//Axes/Axis"
+
 /** Data type mapping. */
 typedef struct {
 	/** Name. */
@@ -103,7 +106,9 @@ struct il_dict {
 	/** Categories hash table. */
 	khash_t(cat_id) * h_cats;
 	/** Registers hash table. */
-	khash_t(reg_id) * h_regs;
+	khash_t(reg_id) * h_regs[3];
 };
+typedef struct il_dict il_dict_t;
+il_dict_t il_dicts[3];
 
 #endif
