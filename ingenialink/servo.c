@@ -745,11 +745,9 @@ int il_servo_connect_ecat(il_net_prot_t prot, il_net_t **net, il_servo_t **servo
 		return IL_EFAIL;
 	}
 
-	printf("2\n");
 	/* Create as much servos as slaves found */
 	servo_ids = il_net_servos_list_get(*net, NULL, NULL);
 
-	printf("3\n");
 	/* Create servo */
 	il_net_servos_list_foreach(servo_id, servo_ids) {
 		*servo = il_servo_create(*net, servo_id->id, dict);
@@ -759,7 +757,7 @@ int il_servo_connect_ecat(il_net_prot_t prot, il_net_t **net, il_servo_t **servo
 			return 0;
 		}
 	}
-	printf("4\n");
+
 	ilerr__set("No connected servos found");
 	return IL_EFAIL;
 }

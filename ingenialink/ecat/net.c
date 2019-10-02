@@ -374,14 +374,17 @@ static il_net_servos_list_t *il_ecat_net_servos_list_get(
 	uint64_t vid;
 	il_net_servos_list_t *lst;
 
-	printf("pre-read");
-	Sleep(2);
 	/* try to read the vendor id register to see if a servo is alive */
 	r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 	if (r < 0) {
-		return NULL;
+		printf("First try fail\n");
+		r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
+		if (r < 0) {
+			printf("Second try fail\n");
+			return NULL;
+		}
 	}
-	printf("post-read");
+	
 	/* create list with one element (id=1) */
 	lst = malloc(sizeof(*lst));
 	if (!lst) {
@@ -762,8 +765,8 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 			error = udp_sendto(ptUdpPcb, p, &dstaddr, 1061);
 			pbuf_free(p);
 
-			if (r < 0)
-				return ilerr__ser(r);
+			if (error < 0)
+				return ilerr__ser(error);
 		}
 		else {
 			int wkc = 0;
@@ -775,7 +778,7 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 			// r = send(this->server, (const char*)&frame[0], sizeof(frame), 0);
 			// printf("Not extended, result of send: %i\n", r);
 			if (error < 0)
-				return ilerr__ser(r);
+				return ilerr__ser(error);
 		}
 		finished = 1;
 		/*if (extended == 1) {
@@ -811,7 +814,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
 	int s32SzRead = 1024;
 	wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
-	
+
 	/* Obtain the frame received */
 	memcpy(frame, (uint8_t*)frame_received, 1024);
 
@@ -1128,7 +1131,7 @@ void init_eoe(ecx_contextt * context)
 	osal_thread_create(&thread2, 128000, &mailbox_reader, &ecx_context);
 }
 
-int *il_ecat_net_master_startup(il_net_t **net)
+int *il_ecat_net_master_startup(il_net_t **net, char *ifname)
 {
 	int i, oloop, iloop, chk;
 	needlf = FALSE;
@@ -1149,9 +1152,7 @@ int *il_ecat_net_master_startup(il_net_t **net)
 	}
 
 	printf("Starting EtherCAT Master\n");
-	char *ifname = "\\Device\\NPF_{F71D9222-04B3-48C2-A311-D1E58DFFEC87}";
-	/* initialise SOEM, bind socket to ifname */
-	printf("%s", ifname);
+	// char *ifname = "\\Device\\NPF_{F71D9222-04B3-48C2-A311-D1E58DFFEC87}";
 	/* initialise SOEM, bind socket to ifname */
 	if (ec_init(ifname))
 	{

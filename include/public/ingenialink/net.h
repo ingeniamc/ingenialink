@@ -602,7 +602,7 @@ IL_EXPORT void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float
 IL_EXPORT int il_net_close_socket(il_net_t *net);
 
 
-IL_EXPORT int il_net_master_startup(il_net_t **net);
+IL_EXPORT int il_net_master_startup(il_net_t **net, char *ifname);
 
 
 IL_EXPORT int il_net_master_stop(il_net_t **net);
