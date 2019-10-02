@@ -85,7 +85,7 @@ static int get_reg(il_servo_t *servo, const il_reg_t *reg_pdef,
 			return IL_EFAIL;
 		}
 
-		r = il_dict_reg_get(dict, id, reg);
+		r = il_dict_reg_get(dict, id, reg, DEFAULT_SUBNODE_VALUE);
 		if (r < 0)
 			return r;
 	}

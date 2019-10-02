@@ -43,6 +43,8 @@
 /** Availability wait time (ms) */
 #define AVAILABLE_WAIT_TIME	100
 
+#define DEFAULT_SUBNODE_VALUE 0
+
 /** Acquisition context. */
 typedef struct {
 	/** Acquisition (uses double buffering mechanism). */

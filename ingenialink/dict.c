@@ -1229,42 +1229,43 @@ void il_dict_scat_ids_destroy(const char **ids)
 	free((char **)ids);
 }
 
-int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg)
+int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg, uint8_t subnode)
 {
 	khint_t k;
 
-	k = kh_get(reg_id, dict->h_regs[0], id);
-	if (k == kh_end(dict->h_regs[0])) {
+	// TODO: compatibility with multislave
+	k = kh_get(reg_id, dict->h_regs[subnode], id);
+	if (k == kh_end(dict->h_regs[subnode])) {
 		ilerr__set("Register not found (%s)", id);
 		return IL_EFAIL;
 	}
 
-	*reg = (const il_reg_t *)&kh_value(dict->h_regs[0], k).reg;
+	*reg = (const il_reg_t *)&kh_value(dict->h_regs[subnode], k).reg;
 
 	return 0;
 }
 
-size_t il_dict_reg_cnt(il_dict_t *dict)
+size_t il_dict_reg_cnt(il_dict_t *dict, uint8_t subnode)
 {
-	return (size_t)kh_size(dict->h_regs[0]);
+	return (size_t)kh_size(dict->h_regs[subnode]);
 }
 
 int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
-			       il_reg_value_t storage)
+			       il_reg_value_t storage, uint8_t subnode)
 {
 	khint_t k;
 	char value[NUM_STR_LEN];
 	il_reg_t *reg;
 	xmlNodePtr node;
 
-	k = kh_get(reg_id, dict->h_regs[0], id);
-	if (k == kh_end(dict->h_regs[0])) {
+	k = kh_get(reg_id, dict->h_regs[subnode], id);
+	if (k == kh_end(dict->h_regs[subnode])) {
 		ilerr__set("Register not found (%s)", id);
 		return IL_EFAIL;
 	}
 
 	/* update register */
-	reg = &kh_value(dict->h_regs[0], k).reg;
+	reg = &kh_value(dict->h_regs[subnode], k).reg;
 	reg->storage = storage;
 	reg->storage_valid = 1;
 
@@ -1301,21 +1302,21 @@ int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
 		break;
 	}
 
-	node = kh_value(dict->h_regs[0], k).xml_node;
+	node = kh_value(dict->h_regs[subnode], k).xml_node;
 	(void)xmlSetProp(node, (const xmlChar *)"storage",
 			 (const xmlChar *)value);
 
 	return 0;
 }
 
-const char **il_dict_reg_ids_get(il_dict_t *dict, int subnode)
+const char **il_dict_reg_ids_get(il_dict_t *dict, uint8_t subnode)
 {
 	const char **ids;
 	size_t i;
 	khint_t k;
 
 	/* allocate array for register keys */
-	ids = malloc(sizeof(const char *) * (il_dict_reg_cnt(dict) + 1));
+	ids = malloc(sizeof(const char *) * (il_dict_reg_cnt(dict, subnode) + 1));
 	if (!ids) {
 		ilerr__set("Registers array allocation failed");
 		return NULL;
@@ -1323,7 +1324,7 @@ const char **il_dict_reg_ids_get(il_dict_t *dict, int subnode)
 
 	/* assign keys, null-terminate */
 	for (i = 0, k = 0; k < kh_end(dict->h_regs[subnode]); ++k) {
-		if (kh_exist(dict->h_regs[0], k)) {
+		if (kh_exist(dict->h_regs[subnode], k)) {
 			ids[i] = (const char *)kh_key(dict->h_regs[subnode], k);
 			i++;
 		}

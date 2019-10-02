@@ -29,6 +29,9 @@
 
 #include "osal/osal.h"
 
+
+#define DEFAULT_SUBNODE_VALUE 0
+
 /** IngeniaLink register poller. */
 struct il_poller {
 	/** Associated servo. */

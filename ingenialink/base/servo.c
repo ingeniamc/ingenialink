@@ -47,7 +47,7 @@
  *	0 on success, error code otherwise.
  */
 static int get_reg(il_dict_t *dict, const il_reg_t *reg_pdef,
-		   const char *id, const il_reg_t **reg)
+		   const char *id, const il_reg_t **reg, uint8_t subnode)
 {
 	int r;
 
@@ -60,7 +60,7 @@ static int get_reg(il_dict_t *dict, const il_reg_t *reg_pdef,
 			return IL_EFAIL;
 		}
 
-		r = il_dict_reg_get(dict, id, reg);
+		r = il_dict_reg_get(dict, id, reg, subnode);
 		if (r < 0)
 			return r;
 	}
@@ -88,13 +88,13 @@ static int get_reg(il_dict_t *dict, const il_reg_t *reg_pdef,
  *	0 on success, error code otherwise.
  */
 static int raw_read(il_servo_t *servo, const il_reg_t *reg_pdef,
-		    const char *id, il_reg_dtype_t dtype, void *buf, size_t sz)
+		    const char *id, il_reg_dtype_t dtype, void *buf, size_t sz, uint8_t subnode)
 {
 	int r;
 	const il_reg_t *reg;
 
 	/* obtain register (predefined or from dictionary) */
-	r = get_reg(servo->dict, reg_pdef, id, &reg);
+	r = get_reg(servo->dict, reg_pdef, id, &reg, subnode);
 	if (r < 0)
 		return r;
 
@@ -845,23 +845,23 @@ void il_servo_base__units_acc_set(il_servo_t *servo, il_units_acc_t units)
 }
 
 int il_servo_base__raw_read_u8(il_servo_t *servo, const il_reg_t *reg,
-			       const char *id, uint8_t *buf)
+			       const char *id, uint8_t *buf, uint8_t subnode)
 {
-	return raw_read(servo, reg, id, IL_REG_DTYPE_U8, buf, sizeof(*buf));
+	return raw_read(servo, reg, id, IL_REG_DTYPE_U8, buf, sizeof(*buf), subnode);
 }
 
 int il_servo_base__raw_read_s8(il_servo_t *servo, const il_reg_t *reg,
-			       const char *id, int8_t *buf)
+			       const char *id, int8_t *buf, uint8_t subnode)
 {
-	return raw_read(servo, reg, id, IL_REG_DTYPE_S8, buf, sizeof(*buf));
+	return raw_read(servo, reg, id, IL_REG_DTYPE_S8, buf, sizeof(*buf), subnode);
 }
 
 int il_servo_base__raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
-				const char *id, uint16_t *buf)
+				const char *id, uint16_t *buf, uint8_t subnode)
 {
 	int r;
 	// printf("before read \n");
-	r = raw_read(servo, reg, id, IL_REG_DTYPE_U16, buf, sizeof(*buf));
+	r = raw_read(servo, reg, id, IL_REG_DTYPE_U16, buf, sizeof(*buf), subnode);
 	if (r == 0)
 		*buf = __swap_be_16(*buf);
 
@@ -871,11 +871,11 @@ int il_servo_base__raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
 }
 
 int il_servo_base__raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
-				const char *id, int16_t *buf)
+				const char *id, int16_t *buf, uint8_t subnode)
 {
 	int r;
 
-	r = raw_read(servo, reg, id, IL_REG_DTYPE_S16, buf, sizeof(*buf));
+	r = raw_read(servo, reg, id, IL_REG_DTYPE_S16, buf, sizeof(*buf), subnode);
 	if (r == 0)
 		*buf = (int16_t)__swap_be_16(*buf);
 
@@ -883,11 +883,11 @@ int il_servo_base__raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
 }
 
 int il_servo_base__raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
-				const char *id, uint32_t *buf)
+				const char *id, uint32_t *buf, uint8_t subnode)
 {
 	int r;
 
-	r = raw_read(servo, reg, id, IL_REG_DTYPE_U32, buf, sizeof(*buf));
+	r = raw_read(servo, reg, id, IL_REG_DTYPE_U32, buf, sizeof(*buf), subnode);
 	if (r == 0)
 		*buf = __swap_be_32(*buf);
 
@@ -895,11 +895,11 @@ int il_servo_base__raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
 }
 
 int il_servo_base__raw_read_str(il_servo_t *servo, const il_reg_t *reg,
-				const char *id, uint32_t *buf)
+				const char *id, uint32_t *buf, uint8_t subnode)
 {
 	int r;
 
-	r = raw_read(servo, reg, id, IL_REG_DTYPE_STR, buf, sizeof(*buf));
+	r = raw_read(servo, reg, id, IL_REG_DTYPE_STR, buf, sizeof(*buf), subnode);
 	if (r == 0)
 		*buf = __swap_be_32(*buf);
 
@@ -907,11 +907,11 @@ int il_servo_base__raw_read_str(il_servo_t *servo, const il_reg_t *reg,
 }
 
 int il_servo_base__raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
-				const char *id, int32_t *buf)
+				const char *id, int32_t *buf, uint8_t subnode)
 {
 	int r;
 
-	r = raw_read(servo, reg, id, IL_REG_DTYPE_S32, buf, sizeof(*buf));
+	r = raw_read(servo, reg, id, IL_REG_DTYPE_S32, buf, sizeof(*buf), subnode);
 	if (r == 0)
 		*buf = (int32_t)__swap_be_32(*buf);
 
@@ -919,11 +919,11 @@ int il_servo_base__raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
 }
 
 int il_servo_base__raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
-				const char *id, uint64_t *buf)
+				const char *id, uint64_t *buf, uint8_t subnode)
 {
 	int r;
 
-	r = raw_read(servo, reg, id, IL_REG_DTYPE_U64, buf, sizeof(*buf));
+	r = raw_read(servo, reg, id, IL_REG_DTYPE_U64, buf, sizeof(*buf), subnode);
 	if (r == 0)
 		*buf = __swap_be_64(*buf);
 
@@ -931,11 +931,11 @@ int il_servo_base__raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
 }
 
 int il_servo_base__raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
-				const char *id, int64_t *buf)
+				const char *id, int64_t *buf, uint8_t subnode)
 {
 	int r;
 
-	r = raw_read(servo, reg, id, IL_REG_DTYPE_S64, buf, sizeof(*buf));
+	r = raw_read(servo, reg, id, IL_REG_DTYPE_S64, buf, sizeof(*buf), subnode);
 	if (r == 0)
 		*buf = (int64_t)__swap_be_64(*buf);
 
@@ -943,11 +943,11 @@ int il_servo_base__raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
 }
 
 int il_servo_base__raw_read_float(il_servo_t *servo, const il_reg_t *reg,
-				  const char *id, float *buf)
+				  const char *id, float *buf, uint8_t subnode)
 {
 	int r;
 
-	r = raw_read(servo, reg, id, IL_REG_DTYPE_FLOAT, buf, sizeof(*buf));
+	r = raw_read(servo, reg, id, IL_REG_DTYPE_FLOAT, buf, sizeof(*buf), subnode);
 	if (r == 0)
 		*buf = __swap_be_float(*buf);
 
@@ -955,7 +955,7 @@ int il_servo_base__raw_read_float(il_servo_t *servo, const il_reg_t *reg,
 }
 
 int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
-			double *buf)
+			double *buf, uint8_t subnode)
 {
 	int r;
 
@@ -975,50 +975,50 @@ int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	double buf_;
 
 	/* obtain register (predefined or from dictionary) */
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 
 	/* read */
 	switch (reg_->dtype) {
 	case IL_REG_DTYPE_U8:
-		r = il_servo_raw_read_u8(servo, reg_, NULL, &u8_v);
+		r = il_servo_raw_read_u8(servo, reg_, NULL, &u8_v, subnode);
 		buf_ = (float)u8_v;
 		break;
 	case IL_REG_DTYPE_S8:
-		r = il_servo_raw_read_s8(servo, reg_, NULL, &s8_v);
+		r = il_servo_raw_read_s8(servo, reg_, NULL, &s8_v, subnode);
 		buf_ = (float)s8_v;
 		break;
 	case IL_REG_DTYPE_U16:
-		r = il_servo_raw_read_u16(servo, reg_, NULL, &u16_v);
+		r = il_servo_raw_read_u16(servo, reg_, NULL, &u16_v, subnode);
 		buf_ = (float)u16_v;
 		break;
 	case IL_REG_DTYPE_S16:
-		r = il_servo_raw_read_s16(servo, reg_, NULL, &s16_v);
+		r = il_servo_raw_read_s16(servo, reg_, NULL, &s16_v, subnode);
 		buf_ = (float)s16_v;
 		break;
 	case IL_REG_DTYPE_U32:
-		r = il_servo_raw_read_u32(servo, reg_, NULL, &u32_v);
+		r = il_servo_raw_read_u32(servo, reg_, NULL, &u32_v, subnode);
 		buf_ = (float)u32_v;
 		break;
 	case IL_REG_DTYPE_S32:
-		r = il_servo_raw_read_s32(servo, reg_, NULL, &s32_v);
+		r = il_servo_raw_read_s32(servo, reg_, NULL, &s32_v, subnode);
 		buf_ = (float)s32_v;
 		break;
 	case IL_REG_DTYPE_U64:
-		r = il_servo_raw_read_u64(servo, reg_, NULL, &u64_v);
+		r = il_servo_raw_read_u64(servo, reg_, NULL, &u64_v, subnode);
 		buf_ = (float)u64_v;
 		break;
 	case IL_REG_DTYPE_S64:
-		r = il_servo_raw_read_s64(servo, reg_, NULL, &s64_v);
+		r = il_servo_raw_read_s64(servo, reg_, NULL, &s64_v, subnode);
 		buf_ = (float)s64_v;
 		break;
 	case IL_REG_DTYPE_FLOAT:
-		r = il_servo_raw_read_float(servo, reg_, NULL, &float_v);
+		r = il_servo_raw_read_float(servo, reg_, NULL, &float_v, subnode);
 		buf_ = (double)float_v;
 		break;
 	case IL_REG_DTYPE_STR:
-		r = il_servo_raw_read_str(servo, reg_, NULL, &u32_str_v);
+		r = il_servo_raw_read_str(servo, reg_, NULL, &u32_str_v, subnode);
 		buf_ = (float)u32_str_v;
 		break;
 	default:
@@ -1037,12 +1037,12 @@ int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 }
 
 int il_servo_base__raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
-				const char *id, uint8_t val, int confirm, uint16_t extended)
+				const char *id, uint8_t val, int confirm, uint16_t extended, uint8_t subnode)
 {
 	int r;
 	const il_reg_t *reg_;
 
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 
@@ -1054,16 +1054,16 @@ int il_servo_base__raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
 	}
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U8, &val, sizeof(val),
-			 confirm, extended);
+			 confirm, extended, subnode);
 }
 
 int il_servo_base__raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
-				const char *id, int8_t val, int confirm, uint16_t extended)
+				const char *id, int8_t val, int confirm, uint16_t extended, uint8_t subnode)
 {
 	int r;
 	const il_reg_t *reg_;
 
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 
@@ -1075,17 +1075,17 @@ int il_servo_base__raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
 	}
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S8, &val, sizeof(val),
-			 confirm, extended);
+			 confirm, extended, subnode);
 }
 
 int il_servo_base__raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, uint16_t val, int confirm, uint16_t extended)
+				 const char *id, uint16_t val, int confirm, uint16_t extended, uint8_t subnode)
 {
 	int r;
 	uint16_t val_;
 	const il_reg_t *reg_;
 
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 
@@ -1100,17 +1100,17 @@ int il_servo_base__raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_16(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U16, &val_, sizeof(val_),
-			 confirm, extended);
+			 confirm, extended, subnode);
 }
 
 int il_servo_base__raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, int16_t val, int confirm, uint16_t extended)
+				 const char *id, int16_t val, int confirm, uint16_t extended, uint8_t subnode)
 {
 	int r;
 	int16_t val_;
 	const il_reg_t *reg_;
 
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 
@@ -1124,17 +1124,17 @@ int il_servo_base__raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
 	val_ = (int16_t)__swap_be_16(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S16, &val_, sizeof(val_),
-			 confirm, extended);
+			 confirm, extended, subnode);
 }
 
 int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, uint32_t val, int confirm, uint16_t extended)
+				 const char *id, uint32_t val, int confirm, uint16_t extended, uint8_t subnode)
 {
 	int r;
 	uint32_t val_;
 	const il_reg_t *reg_;
 
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 
@@ -1148,17 +1148,17 @@ int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_32(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U32, &val_, sizeof(val_),
-			 confirm, extended);
+			 confirm, extended, subnode);
 }
 
 int il_servo_base__raw_wait_write_u32(il_servo_t *servo, const il_reg_t *reg,
-	const char *id, uint32_t val, int confirm, uint16_t extended)
+	const char *id, uint32_t val, int confirm, uint16_t extended, uint8_t subnode)
 {
 	int r;
 	uint32_t val_;
 	const il_reg_t *reg_;
 
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 
@@ -1172,17 +1172,17 @@ int il_servo_base__raw_wait_write_u32(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_32(val);
 
 	return raw_wait_write(servo, reg_, IL_REG_DTYPE_U32, &val_, sizeof(val_),
-		confirm, extended);
+		confirm, extended, subnode);
 }
 
 int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, int32_t val, int confirm, uint16_t extended)
+				 const char *id, int32_t val, int confirm, uint16_t extended, uint8_t subnode)
 {
 	int r;
 	int32_t val_;
 	const il_reg_t *reg_;
 
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 
@@ -1196,17 +1196,17 @@ int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
 	val_ = (int32_t)__swap_be_32(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S32, &val_, sizeof(val_),
-			 confirm, extended);
+			 confirm, extended, subnode);
 }
 
 int il_servo_base__raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, uint64_t val, int confirm, uint16_t extended)
+				 const char *id, uint64_t val, int confirm, uint16_t extended, uint8_t subnode)
 {
 	int r;
 	uint64_t val_;
 	const il_reg_t *reg_;
 
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 
@@ -1220,17 +1220,17 @@ int il_servo_base__raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_64(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U64, &val_, sizeof(val_),
-			 confirm, extended);
+			 confirm, extended, subnode);
 }
 
 int il_servo_base__raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
-				 const char *id, int64_t val, int confirm, uint16_t extended)
+				 const char *id, int64_t val, int confirm, uint16_t extended, uint8_t subnode)
 {
 	int r;
 	int64_t val_;
 	const il_reg_t *reg_;
 
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 
@@ -1244,28 +1244,28 @@ int il_servo_base__raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
 	val_ = (int64_t)__swap_be_64(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S64, &val_, sizeof(val_),
-			 confirm, extended);
+			 confirm, extended, subnode);
 }
 
 int il_servo_base__raw_write_float(il_servo_t *servo, const il_reg_t *reg,
-				   const char *id, float val, int confirm, uint16_t extended)
+				   const char *id, float val, int confirm, uint16_t extended, uint8_t subnode)
 {
 	int r;
 	float val_;
 	const il_reg_t *reg_;
 
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 
 	val_ = __swap_be_float(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_FLOAT, &val_,
-			 sizeof(val_), confirm, extended);
+			 sizeof(val_), confirm, extended, subnode);
 }
 
 int il_servo_base__write(il_servo_t *servo, const il_reg_t *reg, const char *id,
-			 double val, int confirm, uint16_t extended)
+			 double val, int confirm, uint16_t extended, uint8_t subnode)
 {
 	int r;
 
@@ -1273,7 +1273,7 @@ int il_servo_base__write(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	double val_;
 
 	/* obtain register (predefined or from dictionary) */
-	r = get_reg(servo->dict, reg, id, &reg_);
+	r = get_reg(servo->dict, reg, id, &reg_, subnode);
 	if (r < 0)
 		return r;
 

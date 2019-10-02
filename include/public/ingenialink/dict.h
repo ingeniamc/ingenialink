@@ -196,7 +196,7 @@ IL_EXPORT void il_dict_scat_ids_destroy(const char **scat_ids);
  *	0 on success, IL_EFAIL if the register does not exist.
  */
 IL_EXPORT int il_dict_reg_get(il_dict_t *dict, const char *id,
-			      const il_reg_t **reg);
+			      const il_reg_t **reg, uint8_t subnode);
 
 /**
  * Obtain number of registers in the dictionary.
@@ -207,7 +207,7 @@ IL_EXPORT int il_dict_reg_get(il_dict_t *dict, const char *id,
  * @return
  *	Number of registers in the dictionary.
  */
-IL_EXPORT size_t il_dict_reg_cnt(il_dict_t *dict);
+IL_EXPORT size_t il_dict_reg_cnt(il_dict_t *dict, uint8_t subnode);
 
 /**
  * Update storage value of a certain register.
@@ -223,7 +223,7 @@ IL_EXPORT size_t il_dict_reg_cnt(il_dict_t *dict);
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
-					 il_reg_value_t storage);
+					 il_reg_value_t storage, uint8_t subnode);
 /**
  * Obtain the list of register IDs.
  *
@@ -236,7 +236,7 @@ IL_EXPORT int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
  * @see
  *	il_dict_reg_ids_destroy
  */
-IL_EXPORT const char **il_dict_reg_ids_get(il_dict_t *dict);
+IL_EXPORT const char **il_dict_reg_ids_get(il_dict_t *dict, uint8_t subnode);
 
 /**
  * Destroy the list of obtained register IDs.
