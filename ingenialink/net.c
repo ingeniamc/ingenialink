@@ -307,6 +307,11 @@ int il_net_master_stop(il_net_t **net)
 	return il_ecat_net_ops.master_stop(**net);
 }
 
+int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename) 
+{
+	return il_ecat_net_ops.update_firmware(net, ifname, slave, filename);
+}
+
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)

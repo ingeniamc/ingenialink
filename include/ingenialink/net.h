@@ -412,6 +412,7 @@ typedef struct {
 
 	int (*master_startup)();
 	int (*master_stop)();
+	int (*update_firmware)();
 	
 } il_ecat_net_ops_t;
 

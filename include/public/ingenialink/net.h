@@ -607,6 +607,8 @@ IL_EXPORT int il_net_master_startup(il_net_t **net, char *ifname);
 
 IL_EXPORT int il_net_master_stop(il_net_t **net);
 
+IL_EXPORT int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename);
+
 /**
  * Obtain network servos list.
  *
