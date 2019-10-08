@@ -727,7 +727,6 @@ int il_servo_is_connected(il_net_t **net, const char *address_ip)
 int il_servo_connect_ecat(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		   const char *dict, const char *address_ip, int port_ip)
 {
-	printf("1\n");
 	il_net_servos_list_t *servo_ids, *servo_id;
 
 	il_ecat_net_opts_t opts;

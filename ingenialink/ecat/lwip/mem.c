@@ -649,83 +649,87 @@ mem_malloc(mem_size_t size)
         break;
       }
 #endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */
+	  if (mem != NULL) {
+		  if ((!mem->used) &&
+			  (mem->next - (ptr + SIZEOF_STRUCT_MEM)) >= size) {
+			/* mem is not used and at least perfect fit is possible:
+			 * mem->next - (ptr + SIZEOF_STRUCT_MEM) gives us the 'user data size' of mem */
 
-      if ((!mem->used) &&
-          (mem->next - (ptr + SIZEOF_STRUCT_MEM)) >= size) {
-        /* mem is not used and at least perfect fit is possible:
-         * mem->next - (ptr + SIZEOF_STRUCT_MEM) gives us the 'user data size' of mem */
+			if (mem->next - (ptr + SIZEOF_STRUCT_MEM) >= (size + SIZEOF_STRUCT_MEM + MIN_SIZE_ALIGNED)) {
+			  /* (in addition to the above, we test if another struct mem (SIZEOF_STRUCT_MEM) containing
+			   * at least MIN_SIZE_ALIGNED of data also fits in the 'user data space' of 'mem')
+			   * -> split large block, create empty remainder,
+			   * remainder must be large enough to contain MIN_SIZE_ALIGNED data: if
+			   * mem->next - (ptr + (2*SIZEOF_STRUCT_MEM)) == size,
+			   * struct mem would fit in but no data between mem2 and mem2->next
+			   * @todo we could leave out MIN_SIZE_ALIGNED. We would create an empty
+			   *       region that couldn't hold data, but when mem->next gets freed,
+			   *       the 2 regions would be combined, resulting in more free memory
+			   */
+			  ptr2 = ptr + SIZEOF_STRUCT_MEM + size;
+			  /* create mem2 struct */
+			  mem2 = (struct mem *)(void *)&ram[ptr2];
+			  mem2->used = 0;
+			  mem2->next = mem->next;
+			  mem2->prev = ptr;
+			  /* and insert it between mem and mem->next */
+			  mem->next = ptr2;
+			  mem->used = 1;
 
-        if (mem->next - (ptr + SIZEOF_STRUCT_MEM) >= (size + SIZEOF_STRUCT_MEM + MIN_SIZE_ALIGNED)) {
-          /* (in addition to the above, we test if another struct mem (SIZEOF_STRUCT_MEM) containing
-           * at least MIN_SIZE_ALIGNED of data also fits in the 'user data space' of 'mem')
-           * -> split large block, create empty remainder,
-           * remainder must be large enough to contain MIN_SIZE_ALIGNED data: if
-           * mem->next - (ptr + (2*SIZEOF_STRUCT_MEM)) == size,
-           * struct mem would fit in but no data between mem2 and mem2->next
-           * @todo we could leave out MIN_SIZE_ALIGNED. We would create an empty
-           *       region that couldn't hold data, but when mem->next gets freed,
-           *       the 2 regions would be combined, resulting in more free memory
-           */
-          ptr2 = ptr + SIZEOF_STRUCT_MEM + size;
-          /* create mem2 struct */
-          mem2 = (struct mem *)(void *)&ram[ptr2];
-          mem2->used = 0;
-          mem2->next = mem->next;
-          mem2->prev = ptr;
-          /* and insert it between mem and mem->next */
-          mem->next = ptr2;
-          mem->used = 1;
+			  if (mem2->next != MEM_SIZE_ALIGNED) {
+				((struct mem *)(void *)&ram[mem2->next])->prev = ptr2;
+			  }
+			  MEM_STATS_INC_USED(used, (size + SIZEOF_STRUCT_MEM));
+			} else {
+			  /* (a mem2 struct does no fit into the user data space of mem and mem->next will always
+			   * be used at this point: if not we have 2 unused structs in a row, plug_holes should have
+			   * take care of this).
+			   * -> near fit or exact fit: do not split, no mem2 creation
+			   * also can't move mem->next directly behind mem, since mem->next
+			   * will always be used at this point!
+			   */
+			  mem->used = 1;
+			  MEM_STATS_INC_USED(used, mem->next - (mem_size_t)((u8_t *)mem - ram));
+			}
+	#if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT
+	mem_malloc_adjust_lfree:
+	#endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */
+			if (mem == lfree) {
+			  struct mem *cur = lfree;
+			  /* Find next free block after mem and update lowest free pointer */
+			  while (cur->used && cur != ram_end) {
+	#if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT
+				mem_free_count = 0;
+				LWIP_MEM_ALLOC_UNPROTECT();
+				/* prevent high interrupt latency... */
+				LWIP_MEM_ALLOC_PROTECT();
+				if (mem_free_count != 0) {
+				  /* If mem_free or mem_trim have run, we have to restart since they
+					 could have altered our current struct mem or lfree. */
+				  goto mem_malloc_adjust_lfree;
+				}
+	#endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */
+				cur = (struct mem *)(void *)&ram[cur->next];
+			  }
+			  lfree = cur;
+			  LWIP_ASSERT("mem_malloc: !lfree->used", ((lfree == ram_end) || (!lfree->used)));
+			}
+			LWIP_MEM_ALLOC_UNPROTECT();
+			sys_mutex_unlock(&mem_mutex);
+			LWIP_ASSERT("mem_malloc: allocated memory not above ram_end.",
+			 (mem_ptr_t)mem + SIZEOF_STRUCT_MEM + size <= (mem_ptr_t)ram_end);
+			LWIP_ASSERT("mem_malloc: allocated memory properly aligned.",
+			 ((mem_ptr_t)mem + SIZEOF_STRUCT_MEM) % MEM_ALIGNMENT == 0);
+			LWIP_ASSERT("mem_malloc: sanity check alignment",
+			  (((mem_ptr_t)mem) & (MEM_ALIGNMENT-1)) == 0);
 
-          if (mem2->next != MEM_SIZE_ALIGNED) {
-            ((struct mem *)(void *)&ram[mem2->next])->prev = ptr2;
-          }
-          MEM_STATS_INC_USED(used, (size + SIZEOF_STRUCT_MEM));
-        } else {
-          /* (a mem2 struct does no fit into the user data space of mem and mem->next will always
-           * be used at this point: if not we have 2 unused structs in a row, plug_holes should have
-           * take care of this).
-           * -> near fit or exact fit: do not split, no mem2 creation
-           * also can't move mem->next directly behind mem, since mem->next
-           * will always be used at this point!
-           */
-          mem->used = 1;
-          MEM_STATS_INC_USED(used, mem->next - (mem_size_t)((u8_t *)mem - ram));
-        }
-#if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT
-mem_malloc_adjust_lfree:
-#endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */
-        if (mem == lfree) {
-          struct mem *cur = lfree;
-          /* Find next free block after mem and update lowest free pointer */
-          while (cur->used && cur != ram_end) {
-#if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT
-            mem_free_count = 0;
-            LWIP_MEM_ALLOC_UNPROTECT();
-            /* prevent high interrupt latency... */
-            LWIP_MEM_ALLOC_PROTECT();
-            if (mem_free_count != 0) {
-              /* If mem_free or mem_trim have run, we have to restart since they
-                 could have altered our current struct mem or lfree. */
-              goto mem_malloc_adjust_lfree;
-            }
-#endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */
-            cur = (struct mem *)(void *)&ram[cur->next];
-          }
-          lfree = cur;
-          LWIP_ASSERT("mem_malloc: !lfree->used", ((lfree == ram_end) || (!lfree->used)));
-        }
-        LWIP_MEM_ALLOC_UNPROTECT();
-        sys_mutex_unlock(&mem_mutex);
-        LWIP_ASSERT("mem_malloc: allocated memory not above ram_end.",
-         (mem_ptr_t)mem + SIZEOF_STRUCT_MEM + size <= (mem_ptr_t)ram_end);
-        LWIP_ASSERT("mem_malloc: allocated memory properly aligned.",
-         ((mem_ptr_t)mem + SIZEOF_STRUCT_MEM) % MEM_ALIGNMENT == 0);
-        LWIP_ASSERT("mem_malloc: sanity check alignment",
-          (((mem_ptr_t)mem) & (MEM_ALIGNMENT-1)) == 0);
-
-        return (u8_t *)mem + SIZEOF_STRUCT_MEM;
-      }
-    }
+			return (u8_t *)mem + SIZEOF_STRUCT_MEM;
+		  }
+	  }
+	  else {
+		  break;
+	  }
+	}
 #if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT
     /* if we got interrupted by a mem_free, try again */
   } while (local_mem_free_count != 0);

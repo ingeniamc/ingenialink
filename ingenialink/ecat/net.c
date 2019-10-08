@@ -621,9 +621,9 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 
 	osal_mutex_lock(this->net.lock);
 	r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
-	/*if (r < 0) {
+	if (r < 0) {
 		goto unlock;
-	}*/
+	}
 	uint16_t *monitoring_raw_data = NULL;
 	r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
 	if (r < 0)
@@ -781,9 +781,12 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 		}
 		else {
 			int wkc = 0;
+			error = -1;
 			struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, 14, PBUF_RAM);
-			memcpy(p->payload, frame, 14);
-			error = udp_sendto(ptUdpPcb, p, &dstaddr, 1061);
+			if (p != NULL) {
+				memcpy(p->payload, frame, 14);
+				error = udp_sendto(ptUdpPcb, p, &dstaddr, 1061);
+			}
 			pbuf_free(p);
 
 			// r = send(this->server, (const char*)&frame[0], sizeof(frame), 0);
