@@ -385,27 +385,33 @@ static il_net_servos_list_t *il_ecat_net_servos_list_get(
 	uint64_t vid;
 	il_net_servos_list_t *lst;
 
-	/* try to read the vendor id register to see if a servo is alive */
-	r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
-	if (r < 0) {
-		printf("First try fail\n");
+	/* Check if there are slave in the network*/
+	if (ec_slavecount > 0) {
+		/* try to read the vendor id register to see if a servo is alive */
 		r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 		if (r < 0) {
-			printf("Second try fail\n");
+			printf("First try fail\n");
+			r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
+			if (r < 0) {
+				printf("Second try fail\n");
+				return NULL;
+			}
+		}
+
+		/* create list with one element (id=1) */
+		lst = malloc(sizeof(*lst));
+		if (!lst) {
 			return NULL;
 		}
-	}
-	
-	/* create list with one element (id=1) */
-	lst = malloc(sizeof(*lst));
-	if (!lst) {
-		return NULL;
-	}
-	lst->next = NULL;
-	lst->id = 1;
+		lst->next = NULL;
+		lst->id = 1;
 
-	if (on_found) {
-		on_found(ctx, 1);
+		if (on_found) {
+			on_found(ctx, 1);
+		}
+	}
+	else {
+		return NULL;
 	}
 
 	return lst;
@@ -1287,6 +1293,7 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname)
 static int *il_ecat_net_master_stop(il_net_t *net)
 {
 	printf("Closing Socket\n");
+	ec_slavecount = 0;
 	/* stop SOEM, close socket */
 	ec_close();
 }
