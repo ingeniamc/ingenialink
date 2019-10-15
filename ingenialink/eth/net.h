@@ -36,9 +36,6 @@
 #include <winsock2.h>
 
 
-/** Confirmed write. */
-#define CONFIRMED_WRITE		1
-
 /** Default read timeout. */
 #define READ_TIMEOUT_DEF	10000
 

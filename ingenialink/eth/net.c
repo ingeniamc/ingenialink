@@ -846,13 +846,9 @@ static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 	if (r < 0)
 		goto unlock;
 
-	if (confirmed == CONFIRMED_WRITE) 
-	{
-		r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
-		if (r < 0)
-			goto unlock;
-	}
-	
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
+	if (r < 0)
+		goto unlock;
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -879,12 +875,9 @@ static int il_eth_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, u
 
 	Sleep(1000);
 
-	if (confirmed == CONFIRMED_WRITE) 
-	{
-		r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
-		if (r < 0)
-			goto unlock;
-	}
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
+	if (r < 0)
+		goto unlock;
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
