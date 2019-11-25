@@ -407,7 +407,7 @@ static int il_eusb_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
 				     &info->revision);
 }
 
-static int il_eusb_servo_store_all(il_servo_t *servo)
+static int il_eusb_servo_store_all(il_servo_t *servo, int subnode)
 {
 	return il_servo_raw_write_u32(servo, &IL_REG_STORE_ALL, NULL,
 				      ILK_SIGNATURE_STORE, 0, 0);

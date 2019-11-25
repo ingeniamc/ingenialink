@@ -321,7 +321,7 @@ static int il_mcb_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
 	return 0;
 }
 
-static int il_mcb_servo_store_all(il_servo_t *servo)
+static int il_mcb_servo_store_all(il_servo_t *servo, int subnode)
 {
 	int r;
 

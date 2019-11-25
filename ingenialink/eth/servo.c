@@ -514,15 +514,19 @@ static int il_eth_servo_fault_reset(il_servo_t *servo)
 	return 0;
 }
 
-static int il_eth_servo_store_all(il_servo_t *servo)
+static int il_eth_servo_store_all(il_servo_t *servo, int subnode)
 {
-	int r;
+	int r = 0;
 
-	r = il_servo_raw_wait_write_u32(servo, &IL_REG_ETH_STORE_ALL,
+	// Set subnode in store all register
+	il_reg_t il_reg_store_all = IL_REG_ETH_STORE_ALL;
+	il_reg_store_all.subnode = subnode;
+
+	r = il_servo_raw_wait_write_u32(servo, &il_reg_store_all,
 						   NULL, 0x65766173, 1, 0);
 
 	printf("Store finished!");
-	r = 0;
+
 	return r;
 }
 
