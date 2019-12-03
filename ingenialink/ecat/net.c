@@ -919,22 +919,6 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 // ECAT
 // =================================================================================================================
 
-uint8_t frame1[14] = {
-	0xA1,
-	0x00,
-	0x12,
-	0x01,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x00,
-	0x4B,
-	0x66 };
-
 static err_t LWIP_EthernetifOutput(struct netif *ptNetIfHnd, struct pbuf *ptBuf)
 {
 	err_t tErr = ERR_OK;
@@ -1047,8 +1031,9 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 {
 	//printf("EoE Hook!\n");
 	int wkc;
-	/* Pass received Mbx data to EoE recevive fragment function that
-	* that will start/continue fill an Ethernet frame buffer
+	/* 
+	* 	Pass received Mbx data to EoE recevive fragment function that
+	* 	that will start/continue fill an Ethernet frame buffer
 	*/
 	size_of_rx = sizeof(rxbuf);
 	//printf("rxfragmentno: %d", rxfragmentno);
@@ -1061,11 +1046,6 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 		rxbuf);
 	int r = rxframesize;
 
-	//wkc = ecx_EOErecv(context, 1, 0, (int*)&r, rxbuf, EC_TIMEOUTRXM);
-	//wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
-	//printf("Read frameno %d, fragmentno %d\n", rxframeno, rxfragmentno);
-	// INTPUT
-
 	LWIP_EthernetifInp((uint16_t*)rxbuf, sizeof(rxbuf));
 	/* wkc == 1 would mean a frame is complete , last fragment flag have been set and all
 	* other checks must have past
@@ -1074,20 +1054,8 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 	{
 		ec_etherheadert *bp = (ec_etherheadert *)rxbuf;
 		uint16 type = ntohs(bp->etype);
-		//printf("Frameno %d, type 0x%x complete\n", rxframeno, type);
 		if (type == ETH_P_ECAT)
 		{
-			/* Sanity check that received buffer still is OK */
-			if (sizeof(txbuf) != size_of_rx)
-			{
-				//printf("Size differs, expected %d , received %d\n", sizeof(txbuf), size_of_rx);
-				//printf("Size differs");
-			}
-			else
-			{
-				//printf("Size OK, expected %d , received %d\n", sizeof(txbuf), size_of_rx);
-				//printf("Size OK");
-			}
 			/* Check that the TX and RX frames are EQ */
 			if (memcmp(rxbuf, txbuf, size_of_rx))
 			{
@@ -1103,7 +1071,7 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 			{
 				txbuf[ixme] = (uint8)rand();
 			}
-			//printf("Send a new frame\n");
+
 			ecx_EOEsend(context, 1, 0, sizeof(txbuf), txbuf, EC_TIMEOUTRXM);
 		}
 		else
@@ -1168,7 +1136,6 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname)
 	}
 
 	printf("Starting EtherCAT Master\n");
-	// char *ifname = "\\Device\\NPF_{F71D9222-04B3-48C2-A311-D1E58DFFEC87}";
 	/* initialise SOEM, bind socket to ifname */
 	if (ec_init(ifname))
 	{
@@ -1178,34 +1145,12 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname)
 		{
 			printf("%d slaves found and configured.\n", ec_slavecount);
 
-			ec_config_map(&IOmap);
-
-			ec_configdc();
-
 			printf("Slaves mapped, state to PRE_OP.\n");
-
 			/* wait for all slaves to reach SAFE_OP state */
 			ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE * 4);
 
-			oloop = ec_slave[0].Obytes;
-			if ((oloop == 0) && (ec_slave[0].Obits > 0)) oloop = 1;
-			if (oloop > 8) oloop = 8;
-			iloop = ec_slave[0].Ibytes;
-			if ((iloop == 0) && (ec_slave[0].Ibits > 0)) iloop = 1;
-			if (iloop > 8) iloop = 8;
-
-			printf("segments : %d : %d %d %d %d\n", ec_group[0].nsegments, ec_group[0].IOsegment[0], ec_group[0].IOsegment[1], ec_group[0].IOsegment[2], ec_group[0].IOsegment[3]);
-
-			printf("Request operational state for all slaves\n");
-			expectedWKC = (ec_group[0].outputsWKC * 2) + ec_group[0].inputsWKC;
 			printf("Calculated workcounter %d\n", expectedWKC);
 			ec_slave[0].state = EC_STATE_PRE_OP;
-			/* send one valid process data to make outputs in slaves happy*/
-			ec_send_processdata();
-			ec_receive_processdata(EC_TIMEOUTRET);
-
-			/* Simple EoE test */
-			//test_eoe(&ecx_context);
 
 			/* request OP state for all slaves */
 			ec_writestate(0);
@@ -1214,43 +1159,12 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname)
 			/* wait for all slaves to reach OP state */
 			do
 			{
-				ec_send_processdata();
-				ec_receive_processdata(EC_TIMEOUTRET);
 				ec_statecheck(0, EC_STATE_PRE_OP, 50000);
 			} while (chk-- && (ec_slave[0].state != EC_STATE_PRE_OP));
 			if (ec_slave[0].state == EC_STATE_PRE_OP)
 			{
 				printf("Pre-Operational state reached for all slaves.\n");
-				globalwkc = expectedWKC;
-				inOP = TRUE;
-				/* cyclic loop */
-				for (i = 1; i <= 1000; i++)
-				{
-					ec_send_processdata();
-					globalwkc = ec_receive_processdata(EC_TIMEOUTRET * 5);
-#if PRINT_EOE_INFO_INSTEAD
-					int j;
-					if (globalwkc >= expectedWKC)
-					{
-						printf("Processdata cycle %4d, WKC %d , O:", i, globalwkc);
-						for (j = 0; j < oloop; j++)
-						{
-							printf(" %2.2x", *(ec_slave[0].outputs + j));
-						}
-						printf(" I:");
-						for (j = 0; j < iloop; j++)
-						{
-							printf(" %2.2x", *(ec_slave[0].inputs + j));
-						}
-						printf(" T:%"PRId64"\r", ec_DCtime);
-						needlf = TRUE;
-					}
-#endif
-					//osal_usleep(1000);
-				}
-				inOP = FALSE;
-			}
-			else
+			} else
 			{
 				printf("Not all slaves reached operational state.\n");
 				ec_readstate();
@@ -1258,15 +1172,11 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname)
 				{
 					if (ec_slave[i].state != EC_STATE_PRE_OP)
 					{
-						printf("Slave %d State=0x%2.2x StatusCode=0x%4.4x : %s\n",
-							i, ec_slave[i].state, ec_slave[i].ALstatuscode, ec_ALstatuscode2string(ec_slave[i].ALstatuscode));
+						printf("Not all slaves are in PRE-OP\n");
+						return -1;
 					}
 				}
 			}
-			printf("\nRequest pre_op state for all slaves\n");
-			ec_slave[0].state = EC_STATE_PRE_OP;
-			/* request INIT state for all slaves */
-			ec_writestate(0);
 		}
 		else
 		{
