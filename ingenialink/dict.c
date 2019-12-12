@@ -802,7 +802,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 	il_dict_t *dict;
 
 	xmlXPathContextPtr xpath;
-	xmlXPathObjectPtr obj_cats, obj_regs;
+	xmlXPathObjectPtr obj_cats, obj_regs, obj_ver;
 	xmlNodePtr root;
 
 	khint_t k;
@@ -864,6 +864,17 @@ il_dict_t *il_dict_create(const char *dict_f)
 		goto cleanup_xml_doc;
 	}
 
+	obj_ver = xmlXPathEvalExpression((const xmlChar *)XPATH_VERSION, xpath);
+	if (!obj_ver) {
+		ilerr__set("xml: %s",
+			   xmlCtxtGetLastError(dict->xml_ctxt)->message);
+		r = IL_EFAIL;
+		goto cleanup_xpath;
+	}
+	
+	xmlNodePtr node_ver = obj_ver->nodesetval->nodeTab[0];
+	dict->version = node_ver->children[0].content;
+
 	/* evaluate XPath for categories */
 	obj_cats = xmlXPathEvalExpression((const xmlChar *)XPATH_CATS, xpath);
 	if (!obj_cats) {
@@ -902,6 +913,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 
 	xmlXPathFreeObject(obj_regs);
 	xmlXPathFreeObject(obj_cats);
+	xmlXPathFreeObject(obj_ver);
 
 	goto cleanup_xpath;
 
@@ -1308,4 +1320,9 @@ const char **il_dict_reg_ids_get(il_dict_t *dict)
 void il_dict_reg_ids_destroy(const char **ids)
 {
 	free((char **)ids);
+}
+
+const char *il_dict_version_get(il_dict_t *dict) 
+{
+	return dict->version;
 }
