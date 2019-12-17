@@ -1116,7 +1116,7 @@ void init_eoe(ecx_contextt * context)
 	osal_thread_create(&thread2, 128000, &mailbox_reader, &ecx_context);
 }
 
-int *il_ecat_net_master_startup(il_net_t **net, char *ifname)
+int *il_ecat_net_master_startup(il_net_t **net, char *ifname, const char *if_address_ip)
 {
 	int i, oloop, iloop, chk;
 	needlf = FALSE;
