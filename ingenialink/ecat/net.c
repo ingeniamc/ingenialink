@@ -235,39 +235,40 @@ int listener_ecat(void *args)
 	return 0;
 }
 
-// void SignalHandler(int signal)
-// {
-// 	if (signal == SIGINT || signal == SIGTERM || signal == SIGABRT) {
-// 		// abort signal handler code
-// 		il_ecat_net_t *this;
-// 		this = calloc(1, sizeof(*this));
-// 		if (!this) {
-// 			ilerr__set("Network allocation failed");
-// 			return NULL;
-// 		}
-// 		int r = il_net_close_socket(&this->net);
-// 		printf("Unexpected termination: %i\n", signal);
+void SignalHandlerECAT(int signal)
+{
+	if (signal == SIGINT || signal == SIGTERM || signal == SIGABRT) {
+		// abort signal handler code
+		il_ecat_net_t *this;
+		this = calloc(1, sizeof(*this));
+		if (!this) {
+			ilerr__set("Network allocation failed");
+			return NULL;
+		}
+		int r = il_net_master_stop(&this->net);
+		r = il_net_ecat_close_socket(&this->net);
+		printf("Unexpected termination: %i\n", signal);
 
-// 		exit(-1);
-// 	}
-// 	else {
-// 		// ...  
-// 		printf("Unhandled signal exception: %i\n", signal);
-// 	}
-// }
+		exit(-1);
+	}
+	else {
+		// ...  
+		printf("Unhandled signal exception: %i\n", signal);
+	}
+}
 
 static il_net_t *il_ecat_net_create(const il_ecat_net_opts_t *opts)
 {
 	il_ecat_net_t *this;
 	int r;
 
-	// typedef void(*SignalHandlerPointer)(int);
+	typedef void(*SignalHandlerPointer)(int);
 
-	// /* Adding signal to catch exceptions */
-	// SignalHandlerPointer exc_handler_sigint, exc_handler_sigterm, exc_handler_sigabrt;
-	// exc_handler_sigint = signal(SIGINT, SignalHandler);
-	// exc_handler_sigterm = signal(SIGTERM, SignalHandler);
-	// exc_handler_sigabrt = signal(SIGABRT, SignalHandler);
+	/* Adding signal to catch exceptions */
+	SignalHandlerPointer exc_handler_sigint, exc_handler_sigterm, exc_handler_sigabrt;
+	exc_handler_sigint = signal(SIGINT, SignalHandlerECAT);
+	exc_handler_sigterm = signal(SIGTERM, SignalHandlerECAT);
+	exc_handler_sigabrt = signal(SIGABRT, SignalHandlerECAT);
 
 	this = calloc(1, sizeof(*this));
 	if (!this) {
