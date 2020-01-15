@@ -30,6 +30,7 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <windows.h>
+#include <fcntl.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
@@ -164,9 +165,9 @@ int listener_eth(void *args)
 restart:
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
-	while (error_count < 10 && this != NULL && this->stop_reconnect == 0) {
+	while (error_count < 10 && this != NULL && this->stop_reconnect == 0 ) {
 		uint16_t sw;
-
+		
 		/* try to read the status word register to see if a servo is alive */
 		if (this != NULL) {
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
@@ -294,7 +295,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	}
 	else printf("Server: WSAStartup() is OK.\n");
 	if (this != NULL) {
-		this->server = socket(AF_INET, SOCK_DGRAM, 0);
+		this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 		this->addr.sin_addr.s_addr = inet_addr(this->address_ip);
 		this->addr.sin_family = AF_INET;
 		this->addr.sin_port = htons(this->port_ip);
@@ -374,10 +375,11 @@ static int il_net_reconnect(il_net_t *net)
 	il_eth_net_t *this = to_eth_net(net);
 	this->stop = 1;
 	int r = -1;
+	printf("RECONNECTION!\n");
 	while (r < 0 && this->stop_reconnect == 0)
 	{
 		printf("Reconnecting...\n");
-		this->server = socket(AF_INET, SOCK_DGRAM, 0);
+		this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 		//set the socket in non-blocking
 		unsigned long iMode = 1;
@@ -449,7 +451,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		return -1;
 	}
 	else printf("Server: WSAStartup() is OK.\n");
-	this->server = socket(AF_INET, SOCK_DGRAM, 0);
+	this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	this->addr.sin_addr.s_addr = inet_addr(this->address_ip);
 	this->addr.sin_family = AF_INET;
 	this->addr.sin_port = htons(this->port_ip);
@@ -999,8 +1001,35 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	uint8_t extended_bit = 0;
 
 	Sleep(5);
-	/* read next frame */
 	int r = 0;
+	// GAS
+	fd_set fds;
+	int n;
+	struct timeval tv;
+
+	// Set up the file descriptor set.
+	FD_ZERO(&fds);
+	FD_SET(this->server, &fds);
+
+	// Set up the struct timeval for the timeout.
+	tv.tv_sec = 0;
+	tv.tv_usec = 100000;
+
+	// Wait until timeout or data received.
+	n = select(this->server, &fds, NULL, NULL, &tv);
+	if (n == 0)
+	{
+		printf("Timeout..\n");
+		closesocket(this->server);
+		return -1;
+	}
+	else if (n == -1)
+	{
+		printf("Error..\n");
+		return -1;
+	}
+	
+	/* read next frame */
 	r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
 
 	/* process frame: validate CRC, address, ACK */
