@@ -139,7 +139,8 @@ static void process_statusword(il_mcb_net_t *this, uint8_t subnode, uint16_t dat
 int listener_mcb(void *args)
 {
 	int r;
-	uint16_t buf;
+	uint16_t buf = 0;
+
 
 	il_mcb_net_t *this = to_mcb_net(args);
 	while(1) {

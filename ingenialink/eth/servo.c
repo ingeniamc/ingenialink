@@ -32,10 +32,10 @@ static int not_supported(void)
  * @return
  *	Statusword value.
  */
-static uint16_t sw_get(il_servo_t *servo)
+static uint16_t sw_get(il_servo_t *servo, uint8_t subnode)
 {
 	double sw;
-
+	IL_REG_MCB_STS_WORD.subnode = subnode;
 	osal_mutex_lock(servo->sw.lock);
 	(void)il_servo_read(servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
 	if (servo->sw.value != sw) {
@@ -60,7 +60,7 @@ static uint16_t sw_get(il_servo_t *servo)
  * @return
  *	0 on success, error code otherwise.
  */
-static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
+static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout, uint8_t subnode)
 {
 	int r = 0;
 	uint16_t buff;
@@ -75,6 +75,7 @@ static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
 	}
 	double time_s = 0;
 	time_s = (double) *timeout / 1000;
+	IL_REG_MCB_STS_WORD.subnode = subnode;
 	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &buff);
 	while (buff == sw) {
 		osal_clock_gettime(&diff);
@@ -329,14 +330,14 @@ static double il_eth_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 	return not_supported();
 }
 
-static int il_eth_servo_disable(il_servo_t *servo)
+static int il_eth_servo_disable(il_servo_t *servo, uint8_t subnode)
 {
 	int r;
 	uint16_t sw;
 	il_servo_state_t state;
 	int timeout = PDS_TIMEOUT;
 
-	sw = sw_get(servo);
+	sw = sw_get(servo, subnode);
 	
 	do {
 		servo->ops->_state_decode(sw, &state, NULL);
@@ -344,11 +345,11 @@ static int il_eth_servo_disable(il_servo_t *servo)
 		/* try fault reset if faulty */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_servo_fault_reset(servo);
+			r = il_servo_fault_reset(servo, subnode);
 			if (r < 0)
 				return r;
 
-			sw = sw_get(servo);
+			sw = sw_get(servo, subnode);
 		/* check state and command action to reach disabled */
 		} else if (state != IL_SERVO_STATE_DISABLED) {
 			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
@@ -357,7 +358,7 @@ static int il_eth_servo_disable(il_servo_t *servo)
 				return r;
 
 			/* wait until statusword changes */
-			r = sw_wait_change(servo, &sw, &timeout);
+			r = sw_wait_change(servo, &sw, &timeout, subnode);
 			if (r < 0)
 				return r;
 		}
@@ -366,14 +367,14 @@ static int il_eth_servo_disable(il_servo_t *servo)
 	return 0;
 }
 
-static int il_eth_servo_switch_on(il_servo_t *servo, int timeout)
+static int il_eth_servo_switch_on(il_servo_t *servo, int timeout, uint8_t subnode)
 {
 	int r;
 	uint16_t sw, cmd;
 	il_servo_state_t state;
 	int timeout_ = timeout;
 
-	sw = sw_get(servo);
+	sw = sw_get(servo, subnode);
 
 	do {
 		servo->ops->_state_decode(sw, &state, NULL);
@@ -381,11 +382,11 @@ static int il_eth_servo_switch_on(il_servo_t *servo, int timeout)
 		/* try fault reset if faulty */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_servo_fault_reset(servo);
+			r = il_servo_fault_reset(servo, subnode);
 			if (r < 0)
 				return r;
 
-			sw = sw_get(servo);
+			sw = sw_get(servo, subnode);
 		/* check state and command action to reach switch on */
 		} else if (state != IL_SERVO_STATE_ON) {
 			if (state == IL_SERVO_STATE_FAULT)
@@ -407,7 +408,7 @@ static int il_eth_servo_switch_on(il_servo_t *servo, int timeout)
 				return r;
 
 			/* wait for state change */
-			r = sw_wait_change(servo, &sw, &timeout_);
+			r = sw_wait_change(servo, &sw, &timeout_, subnode);
 			if (r < 0)
 				return r;
 		}
@@ -416,29 +417,29 @@ static int il_eth_servo_switch_on(il_servo_t *servo, int timeout)
 	return 0;
 }
 
-static int il_eth_servo_enable(il_servo_t *servo, int timeout)
+static int il_eth_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode)
 {
 	int r;
 	uint16_t sw, cmd;
 	il_servo_state_t state;
 	int timeout_ = timeout;
 
-	sw = sw_get(servo);
+	sw = sw_get(servo, subnode);
 
 	servo->ops->_state_decode(sw, &state, NULL);
 
 	/* try fault reset if faulty */
 	if ((state == IL_SERVO_STATE_FAULT) ||
 		(state == IL_SERVO_STATE_FAULTR)) {
-		r = il_servo_fault_reset(servo);
+		r = il_servo_fault_reset(servo, subnode);
 		if (r < 0)
 			return r;
 
-		sw = sw_get(servo);
+		sw = sw_get(servo, subnode);
 	}
 
-	sw = sw_get(servo);
-
+	sw = sw_get(servo, subnode);
+	IL_REG_MCB_CTL_WORD.subnode = subnode;
 	do {
 		servo->ops->_state_decode(sw, &state, NULL);
 
@@ -461,7 +462,7 @@ static int il_eth_servo_enable(il_servo_t *servo, int timeout)
 				return r;
 
 			/* wait for state change */
-			r = sw_wait_change(servo, &sw, &timeout_);
+			r = sw_wait_change(servo, &sw, &timeout_, subnode);
 			if (r < 0)
 				return r;
 	
@@ -471,7 +472,7 @@ static int il_eth_servo_enable(il_servo_t *servo, int timeout)
 	return 0;
 }
 
-static int il_eth_servo_fault_reset(il_servo_t *servo)
+static int il_eth_servo_fault_reset(il_servo_t *servo, uint8_t subnode)
 {
 	int r;
 	uint16_t sw;
@@ -479,7 +480,7 @@ static int il_eth_servo_fault_reset(il_servo_t *servo)
 	int timeout = PDS_TIMEOUT;
 	int retries = 0;
 
-	sw = sw_get(servo);
+	sw = sw_get(servo, subnode);
 
 	do {
 		servo->ops->_state_decode(sw, &state, NULL);
@@ -502,7 +503,7 @@ static int il_eth_servo_fault_reset(il_servo_t *servo)
 				return r;
 
 			/* wait until statusword changes */
-			r = sw_wait_change(servo, &sw, &timeout);
+			r = sw_wait_change(servo, &sw, &timeout, subnode);
 			if (r < 0)
 				return r;
 

@@ -439,6 +439,8 @@ IL_EXPORT int il_servo_store_all(il_servo_t *servo, int subnode);
  *
  * @param [in] servo
  *	IngeniaLink servo instance.
+ * @param [in] subnode
+ *	Subnode.
  *
  * @return
  *	0 on success, error code otherwise.
@@ -985,7 +987,7 @@ IL_EXPORT int il_servo_write(il_servo_t *servo, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_disable(il_servo_t *servo);
+IL_EXPORT int il_servo_disable(il_servo_t *servo, uint8_t subnode);
 
 /**
  * Switch on servo PDS.
@@ -995,13 +997,13 @@ IL_EXPORT int il_servo_disable(il_servo_t *servo);
  *
  * @param [in] servo
  *	IngeniaLink servo.
- * @param [in] timeout
- *	Timeout (ms).
+ * @param [in] subnode
+ *	Subnode.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_switch_on(il_servo_t *servo, int timeout);
+IL_EXPORT int il_servo_switch_on(il_servo_t *servo, int timeout, uint8_t subnode);
 
 /**
  * Enable servo PDS.
@@ -1013,22 +1015,28 @@ IL_EXPORT int il_servo_switch_on(il_servo_t *servo, int timeout);
  *	IngeniaLink servo.
  * @param [in] timeout
  *	Timeout (ms).
+ * @param [in] subnode
+ *	Subnode.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_enable(il_servo_t *servo, int timeout);
+IL_EXPORT int il_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode);
 
 /**
  * Reset the drive fault state.
  *
  * @param [in] servo
  *	IngeniaLink servo.
+ * @param [in] timeout
+ *	Timeout (ms).
+ * @param [in] subnode
+ *	Subnode.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_fault_reset(il_servo_t *servo);
+IL_EXPORT int il_servo_fault_reset(il_servo_t *servo, uint8_t subnode);
 
 /**
  * Get the servo operation mode.
@@ -1037,6 +1045,8 @@ IL_EXPORT int il_servo_fault_reset(il_servo_t *servo);
  *	IngeniaLink servo.
  * @param [out] mode
  *	Where mode will be stored.
+ * @param [in] subnode
+ *	Subnode.
  *
  * @return
  *	0 on success, error code otherwise.
