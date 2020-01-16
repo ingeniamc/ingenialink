@@ -249,6 +249,20 @@ IL_EXPORT const char **il_dict_reg_ids_get(il_dict_t *dict, uint8_t subnode);
  */
 IL_EXPORT void il_dict_reg_ids_destroy(const char **regs);
 
+
+/**
+ * Obtain the version of the dictionary.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ *
+ * @return
+ *	Dictionary Version.
+ *
+ */
+IL_EXPORT const char *il_dict_version_get(il_dict_t *dict);
+
+
 /** @} */
 
 IL_END_DECL
