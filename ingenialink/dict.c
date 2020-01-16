@@ -802,11 +802,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 	il_dict_t *dict;
 
 	xmlXPathContextPtr xpath;
-<<<<<<< HEAD
-	xmlXPathObjectPtr obj_cats, obj_regs, obj_axes;
-=======
-	xmlXPathObjectPtr obj_cats, obj_regs, obj_ver;
->>>>>>> next
+	xmlXPathObjectPtr obj_cats, obj_regs, obj_axes, obj_ver;
 	xmlNodePtr root;
 
 	khint_t k;
