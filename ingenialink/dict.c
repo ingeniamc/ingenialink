@@ -911,13 +911,11 @@ il_dict_t *il_dict_create(const char *dict_f)
 
 		for (cur_node = registers_node; cur_node; cur_node = cur_node->next) {
 			if (cur_node->type == XML_ELEMENT_NODE) {
-				printf("node type: Element, name: %s\n", cur_node->name);
 				r = parse_reg(cur_node, dict, i);
 				if (r < 0)
 					goto cleanup_h_regs_entries;
 			}
 		}
-		printf("holi %i\n", i);
 	}
 
 

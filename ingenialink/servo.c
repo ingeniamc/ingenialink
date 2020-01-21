@@ -138,7 +138,7 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 	}
 
 	// TODO: compatibility with multislave 
-	for (int j = 0; j < 3; j++) {
+	for (int j = 0; j < 4; j++) {
 		ids = il_dict_reg_ids_get(servo->dict, j);
 		if (!ids)
 			return IL_EFAIL;
@@ -221,7 +221,7 @@ int il_servo_dict_storage_write(il_servo_t *servo)
 	}
 
 	// TODO: compatibility with multislave
-	for (int j = 0; j < 3; j++) {
+	for (int j = 0; j < 4; j++) {
 		ids = il_dict_reg_ids_get(servo->dict, j);
 		if (!ids)
 			return IL_EFAIL;
