@@ -1116,14 +1116,14 @@ void init_eoe(ecx_contextt * context)
 	osal_thread_create(&thread2, 128000, &mailbox_reader, &ecx_context);
 }
 
-int *il_ecat_net_master_startup(il_net_t **net, char *ifname, const char *if_address_ip)
+int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_ip)
 {
 	int i, oloop, iloop, chk;
 	needlf = FALSE;
 	inOP = FALSE;
 
 	il_ecat_net_opts_t opts;
-	opts.address_ip = "192.168.2.22";
+	opts.address_ip = if_address_ip;
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
 	opts.connect_slave = 1;
