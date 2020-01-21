@@ -45,3 +45,18 @@ il_reg_t IL_REG_ETH_STORE_ALL = {
 	.enums = NULL,
 	.enums_count = 0
 };
+
+const il_reg_t IL_REG_ETH_NUMBER_AXIS = {
+	.subnode = 0,
+	.address = 0x00A0,
+	.dtype = IL_REG_DTYPE_U16,
+	.access = IL_REG_ACCESS_RO,
+	.phy = IL_REG_PHY_NONE,
+	.range = {
+		.min.u16 = 0,
+		.max.u16 = UINT16_MAX
+	},
+	.labels = NULL,
+	.enums = NULL,
+	.enums_count = 0
+};

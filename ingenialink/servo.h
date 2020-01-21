@@ -156,6 +156,8 @@ struct il_servo {
 	il_net_t *net;
 	/** ID. */
 	uint16_t id;
+	/** Subnodes. */
+	uint16_t subnodes;
 	/** Dictionary. */
 	il_dict_t *dict;
 	/** Units. */

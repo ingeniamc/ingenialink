@@ -124,7 +124,7 @@ typedef enum {
 
 /** State updates subcriber callback. */
 typedef void (*il_servo_state_subscriber_cb_t)(
-		void *ctx, il_servo_state_t state, int flags);
+		void *ctx, il_servo_state_t state, int flags, uint8_t subnode);
 
 /** Servo operation modes. */
 typedef enum {
@@ -1298,6 +1298,18 @@ IL_EXPORT int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net,
 			     il_servo_t **servo, const char *dict, const char *address_ip, int port_ip);
 
 IL_EXPORT int il_servo_is_connected(il_net_t **net, const char *address_ip);
+
+/**
+ * Obtain the number of axis of the servo.
+ *
+ * @param [in] servo
+ *	Servo instance.
+ *
+ * @return
+ *	Number of axis available.
+ *
+ */
+IL_EXPORT const uint16_t *il_servo_subnodes_get(il_servo_t *servo);
 
 /** @} */
 

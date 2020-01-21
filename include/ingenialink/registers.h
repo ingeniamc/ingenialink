@@ -165,6 +165,9 @@ extern il_reg_t IL_REG_MCB_STS_WORD;
 
 extern il_reg_t IL_REG_ETH_STORE_ALL;
 
+/** Number of axis. */
+extern const il_reg_t IL_REG_ETH_NUMBER_AXIS;
+
 /** Motor type. */
 extern const il_reg_t IL_REG_MOTOR_TYPE;
 

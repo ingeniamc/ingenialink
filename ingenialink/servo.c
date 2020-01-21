@@ -714,3 +714,8 @@ int il_servo_is_connected(il_net_t **net, const char *address_ip)
 	il_net_destroy(*net);
 	return r;
 }
+
+const uint16_t *il_servo_subnodes_get(il_servo_t *servo) 
+{
+	return servo->subnodes;
+}
