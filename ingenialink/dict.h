@@ -109,11 +109,11 @@ struct il_dict {
 	/** Categories hash table. */
 	khash_t(cat_id) * h_cats;
 	/** Registers hash table. */
-	khash_t(reg_id) * h_regs[3];
+	khash_t(reg_id) * h_regs[4];
 	/** Dictionary version. */
 	const char *version;
 };
 typedef struct il_dict il_dict_t;
-il_dict_t il_dicts[3];
+il_dict_t il_dicts[4];
 
 #endif

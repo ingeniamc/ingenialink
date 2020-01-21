@@ -317,7 +317,6 @@ static int state_subs_monitor(void *args)
 				osal_cond_broadcast(servo->sw.changed);
 			}
 			osal_mutex_unlock(servo->sw.lock);
-			printf("\nSubnode %i %f\n", subnode, sw);
 			/* obtain state/flags */
 			il_servo_state_t current_state;
 			int flags;
