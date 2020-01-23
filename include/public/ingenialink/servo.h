@@ -265,10 +265,12 @@ IL_EXPORT int il_servo_reset(il_servo_t *servo);
  *	Servo state.
  * @param [out] flags
  *	Servo flags.
+ * @param [in] subnode
+ *	Subnode.
  */
 
 IL_EXPORT void il_servo_state_get(il_servo_t *servo, il_servo_state_t *state,
-				  int *flags);
+				  int *flags, uint8_t subnode);
 
 /**
  * Subscribe to state changes (and operation flags).

@@ -81,9 +81,9 @@ int il_servo_reset(il_servo_t *servo)
 	return servo->ops->reset(servo);
 }
 
-void il_servo_state_get(il_servo_t *servo, il_servo_state_t *state, int *flags)
+void il_servo_state_get(il_servo_t *servo, il_servo_state_t *state, int *flags, uint8_t subnode)
 {
-	servo->ops->state_get(servo, state, flags);
+	servo->ops->state_get(servo, state, flags, subnode);
 }
 
 int il_servo_state_subscribe(il_servo_t *servo,

@@ -981,7 +981,7 @@ static int il_eusb_servo_position_set(il_servo_t *servo, double pos,
 		return r;
 
 	/* wait for SP ack if enabled and in PP */
-	il_servo_state_get(servo, &state, &flags);
+	il_servo_state_get(servo, &state, &flags, 1);
 
 	if ((state == IL_SERVO_STATE_ENABLED) &&
 	    (servo->mode == IL_SERVO_MODE_PP)) {

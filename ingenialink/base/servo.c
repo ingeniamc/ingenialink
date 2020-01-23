@@ -650,14 +650,27 @@ void il_servo_base__deinit(il_servo_t *servo)
 }
 
 void il_servo_base__state_get(il_servo_t *servo, il_servo_state_t *state,
-			      int *flags)
+			      int *flags, uint8_t subnode)
 {
 	uint16_t sw;
-
+	il_reg_t status_word_register = {
+		.subnode = subnode,
+		.address = 0x0011,
+		.dtype = IL_REG_DTYPE_U16,
+		.access = IL_REG_ACCESS_RW,
+		.phy = IL_REG_PHY_NONE,
+		.range = {
+			.min.u16 = 0,
+			.max.u16 = UINT16_MAX
+		},
+		.labels = NULL,
+		.enums = NULL,
+		.enums_count = 0
+	};
 	osal_mutex_lock(servo->sw.lock);
-	sw = servo->sw.value;
+	int r = il_servo_raw_read_u16(servo, &status_word_register, NULL, &sw);
 	osal_mutex_unlock(servo->sw.lock);
-
+	
 	servo->ops->_state_decode(sw, state, flags);
 }
 
