@@ -413,6 +413,7 @@ typedef struct {
 	int (*master_startup)();
 	int (*master_stop)();
 	int (*update_firmware)();
+	int (*eeprom_tool)();
 	
 } il_ecat_net_ops_t;
 

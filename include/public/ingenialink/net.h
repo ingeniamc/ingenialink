@@ -601,12 +601,16 @@ IL_EXPORT void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float
  */
 IL_EXPORT int il_net_close_socket(il_net_t *net);
 
-
+/**
+	SOEM
+*/
 IL_EXPORT int il_net_master_startup(il_net_t **net, char *ifname, const char *if_address_ip);
 
 IL_EXPORT int il_net_master_stop(il_net_t **net);
 
 IL_EXPORT int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename);
+
+IL_EXPORT int il_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *fname);
 
 /**
  * Obtain network servos list.

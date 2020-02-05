@@ -317,6 +317,11 @@ int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *f
 	return il_ecat_net_ops.update_firmware(net, ifname, slave, filename);
 }
 
+int il_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *fname) 
+{
+	return il_ecat_net_ops.eeprom_tool(net, ifname, slave, mode, fname);
+}
+
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)
