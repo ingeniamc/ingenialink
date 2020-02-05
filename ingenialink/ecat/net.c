@@ -1664,6 +1664,7 @@ int eeprom_writealias(int slave, int alias, uint16 crc)
 static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *fname) 
 {
 	int w, rc = 0, estart, esize;
+	int r = 0;
 	uint16 *wbuf;
 
 	/* initialise SOEM, bind socket to ifname */
@@ -1740,6 +1741,7 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 				}
 				else
 					printf("Error reading file, abort.\n");
+					r = -1;
 				}
 				if (mode == MODE_WRITEALIAS)
 				{
@@ -1770,6 +1772,7 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 		else
 		{
 			printf("No slaves found!\n");
+			r = -1;
 		}
 		printf("End, close socket\n");
 		/* stop SOEM, close socket */
@@ -1779,7 +1782,7 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 	{
 		printf("No socket connection on %s\nExcecute as root\n",ifname);
 	}
-	return 0;
+	return r;
 }
 
 /** ECAT network operations. */
