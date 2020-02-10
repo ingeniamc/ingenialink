@@ -35,6 +35,8 @@
 
 /** Number string length (enough to fit all numbers). */
 #define NUM_STR_LEN	25
+/** Number of subnodes by default. */
+#define INITIAL_SUBNODES 1
 
 /** Register container. */
 typedef struct {
@@ -107,13 +109,12 @@ struct il_dict {
 	/** XML document. */
 	xmlDocPtr xml_doc;
 	/** Categories hash table. */
-	khash_t(cat_id) * h_cats;
+	khash_t(cat_id) *h_cats;
 	/** Registers hash table. */
-	khash_t(reg_id) * h_regs[4];
+	khash_t(reg_id) **h_regs;
 	/** Dictionary version. */
 	const char *version;
 };
 typedef struct il_dict il_dict_t;
-il_dict_t il_dicts[4];
 
 #endif

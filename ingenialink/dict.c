@@ -807,6 +807,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 
 	khint_t k;
 
+
 	dict = malloc(sizeof(*dict));
 	if (!dict) {
 		ilerr__set("Dictionary allocation failed");
@@ -888,37 +889,46 @@ il_dict_t *il_dict_create(const char *dict_f)
 
 	/* evaluate XPath for axes */
 	obj_axes = xmlXPathEvalExpression((const xmlChar *)XPATH_AXES, xpath);
-	if (!obj_axes) {
-		ilerr__set("xml: %s",
-			   xmlCtxtGetLastError(dict->xml_ctxt)->message);
-		r = IL_EFAIL;
-		goto cleanup_h_axes;
-	}
-
-	xmlNode *cur_node = NULL;
-
-	/* parse each axis */
-	for (i = 0; i < obj_axes->nodesetval->nodeNr; i++) {
-		dict->h_regs[i] = kh_init(reg_id);
-		if (!dict->h_regs[i]) {
+	if (!obj_axes || obj_axes->nodesetval->nodeNr == 0) {
+		// single-axis device
+		khash_t(cat_id) *h_regs;
+		dict->h_regs = malloc(INITIAL_SUBNODES * sizeof(h_regs));
+		dict->h_regs = kh_init(reg_id);
+		if (!dict->h_regs) {
 			ilerr__set("Registers hash table allocation failed");
 			r = IL_EFAIL;
 			goto cleanup_h_cats;
 		}
+	}
+	else {
+		// multiaxis device
+		xmlNode *cur_node = NULL;
 
-		xmlNodePtr axis_node = obj_axes->nodesetval->nodeTab[i];
-		xmlNodePtr registers_node = axis_node->children->next->children;
+		/* allocate each axis */
+		khash_t(cat_id) *h_regs;
+		uint8_t num_axis = obj_axes->nodesetval->nodeNr;
+		dict->h_regs = malloc(num_axis * sizeof(h_regs));
+		/* parse each axis */
+		for (i = 0; i < num_axis; i++) {
+			dict->h_regs[i] = kh_init(reg_id);
+			if (!dict->h_regs[i]) {
+				ilerr__set("Registers hash table allocation failed");
+				r = IL_EFAIL;
+				goto cleanup_h_cats;
+			}
 
-		for (cur_node = registers_node; cur_node; cur_node = cur_node->next) {
-			if (cur_node->type == XML_ELEMENT_NODE) {
-				r = parse_reg(cur_node, dict, i);
-				if (r < 0)
-					goto cleanup_h_regs_entries;
+			xmlNodePtr axis_node = obj_axes->nodesetval->nodeTab[i];
+			xmlNodePtr registers_node = axis_node->children->next->children;
+
+			for (cur_node = registers_node; cur_node; cur_node = cur_node->next) {
+				if (cur_node->type == XML_ELEMENT_NODE) {
+					r = parse_reg(cur_node, dict, i);
+					if (r < 0)
+						goto cleanup_h_regs_entries;
+				}
 			}
 		}
 	}
-
-
 
 	/* evaluate XPath for registers */
 	obj_regs = xmlXPathEvalExpression((const xmlChar *)XPATH_REGS, xpath);
@@ -928,15 +938,6 @@ il_dict_t *il_dict_create(const char *dict_f)
 		r = IL_EFAIL;
 		goto cleanup_h_cats;
 	}
-
-	/* parse each register */
-	// for (i = 0; i < obj_regs->nodesetval->nodeNr; i++) {
-	// 	xmlNodePtr node = obj_regs->nodesetval->nodeTab[i];
-
-	// 	r = parse_reg(node, dict);
-	// 	if (r < 0)
-	// 		goto cleanup_h_regs_entries;
-	// }
 
 	xmlXPathFreeObject(obj_regs);
 	xmlXPathFreeObject(obj_cats);
