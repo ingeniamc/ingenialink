@@ -375,7 +375,7 @@ static int il_net_reconnect(il_net_t *net)
 	il_eth_net_t *this = to_eth_net(net);
 	this->stop = 1;
 	int r = -1;
-	printf("RECONNECTION!\n");
+	uint16_t sw;
 	while (r < 0 && this->stop_reconnect == 0)
 	{
 		printf("Reconnecting...\n");
@@ -424,7 +424,15 @@ static int il_net_reconnect(il_net_t *net)
 		}
 		else {
 			printf("Connected to the Server\n");
-			this->stop = 0;
+			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
+			if (r < 0) 
+			{
+				printf("Fail connecting to server\n");
+			}
+			else 
+			{
+				this->stop = 0;
+			}
 		}
 		iMode = 0;
 		r = ioctlsocket(this->server, FIONBIO, &iMode);
