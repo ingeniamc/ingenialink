@@ -244,6 +244,7 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 	this->net.prot = IL_NET_PROT_ETH;
 	this->address_ip = opts->address_ip;
 	this->port_ip = opts->port_ip;
+	this->protocol = opts->protocol;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(eth_net_destroy, this);
@@ -295,7 +296,14 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	}
 	else printf("Server: WSAStartup() is OK.\n");
 	if (this != NULL) {
-		this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		if (this->protocol == 1) 
+		{
+        	this->server = socket(AF_INET, SOCK_STREAM, 0);
+		}
+		else 
+		{
+			this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		}
 		this->addr.sin_addr.s_addr = inet_addr(this->address_ip);
 		this->addr.sin_family = AF_INET;
 		this->addr.sin_port = htons(this->port_ip);
@@ -379,7 +387,13 @@ static int il_net_reconnect(il_net_t *net)
 	while (r < 0 && this->stop_reconnect == 0)
 	{
 		printf("Reconnecting...\n");
-		this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		if (this->protocol == 1) 
+		{
+        	this->server = socket(AF_INET, SOCK_STREAM, 0);
+		}
+		else {
+			this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		}
 
 		//set the socket in non-blocking
 		unsigned long iMode = 1;
@@ -459,7 +473,16 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		return -1;
 	}
 	else printf("Server: WSAStartup() is OK.\n");
-	this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	int gas = this->protocol;
+	// Initialize socket with the protocol choosen
+	if (this->protocol == 1) 
+	{
+        this->server = socket(AF_INET, SOCK_STREAM, 0);
+	}
+	else 
+	{
+		this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	}
 	this->addr.sin_addr.s_addr = inet_addr(this->address_ip);
 	this->addr.sin_family = AF_INET;
 	this->addr.sin_port = htons(this->port_ip);

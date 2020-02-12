@@ -69,6 +69,8 @@ typedef struct {
 	int timeout_wr;
 	/** Connect to slave */
 	int connect_slave;
+	/** Connect to slave */
+	int protocol;
 } il_net_opts_t;
 
 
@@ -86,6 +88,8 @@ typedef struct {
 	int timeout_wr;
 	/** Connect to slave */
 	int connect_slave;
+	/** Protocol. */
+	int protocol;
 } il_eth_net_opts_t;
 
 /** Ethercat network initialization options. */
@@ -102,6 +106,8 @@ typedef struct {
 	int timeout_wr;
 	/** Connect to slave */
 	int connect_slave;
+	/** Protocol. */
+	int protocol;
 } il_ecat_net_opts_t;
 
 /** Default read timeout (ms). */

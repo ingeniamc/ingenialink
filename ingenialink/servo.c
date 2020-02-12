@@ -658,7 +658,7 @@ int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 }
 
 int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
-		   const char *dict, const char *address_ip, int port_ip)
+		   const char *dict, const char *address_ip, int port_ip, int protocol)
 {	
 	il_eth_net_dev_list_t *dev;
 	il_net_servos_list_t *servo_ids, *servo_id;
@@ -673,6 +673,7 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 	opts.connect_slave = 1;
 	opts.port_ip = port_ip;
 	opts.port = "";
+	opts.protocol = protocol;
 
 	printf("before connect");
 	*net = il_net_create(prot, &opts);

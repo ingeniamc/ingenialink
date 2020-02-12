@@ -1284,7 +1284,7 @@ IL_EXPORT int il_servo_lucky(il_net_prot_t prot, il_net_t **net,
 			     il_servo_t **servo, const char *dict);
 
 IL_EXPORT int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net,
-			     il_servo_t **servo, const char *dict, const char *address_ip, int port_ip);
+			     il_servo_t **servo, const char *dict, const char *address_ip, int port_ip, int protocol);
 
 IL_EXPORT int il_servo_is_connected(il_net_t **net, const char *address_ip);
 
