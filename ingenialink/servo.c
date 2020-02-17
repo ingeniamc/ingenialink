@@ -137,8 +137,9 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 		return IL_EFAIL;
 	}
 
-	// TODO: compatibility with multislave 
-	for (int j = 0; j < 4; j++) {
+	// Subnodes = axis available at servo + 1 subnode of general parameters
+	int subnodes = servo->subnodes + 1;
+	for (int j = 0; j < subnodes; j++) {
 		ids = il_dict_reg_ids_get(servo->dict, j);
 		if (!ids)
 			return IL_EFAIL;
@@ -153,43 +154,43 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 
 			switch (reg->dtype) {
 			case IL_REG_DTYPE_U8:
-				r = il_servo_raw_read_u8(servo, NULL, ids[i],
+				r = il_servo_raw_read_u8(servo, reg, ids[i],
 							&storage.u8);
 				break;
 			case IL_REG_DTYPE_S8:
-				r = il_servo_raw_read_s8(servo, NULL, ids[i],
+				r = il_servo_raw_read_s8(servo, reg, ids[i],
 							&storage.s8);
 				break;
 			case IL_REG_DTYPE_U16:
-				r = il_servo_raw_read_u16(servo, NULL, ids[i],
+				r = il_servo_raw_read_u16(servo, reg, ids[i],
 							&storage.u16);
 				break;
 			case IL_REG_DTYPE_S16:
-				r = il_servo_raw_read_s16(servo, NULL, ids[i],
+				r = il_servo_raw_read_s16(servo, reg, ids[i],
 							&storage.s16);
 				break;
 			case IL_REG_DTYPE_U32:
-				r = il_servo_raw_read_u32(servo, NULL, ids[i],
+				r = il_servo_raw_read_u32(servo, reg, ids[i],
 							&storage.u32);
 				break;
 			case IL_REG_DTYPE_STR:
-				r = il_servo_raw_read_str(servo, NULL, ids[i],
+				r = il_servo_raw_read_str(servo, reg, ids[i],
 							&storage.u32);
 				break;
 			case IL_REG_DTYPE_S32:
-				r = il_servo_raw_read_s32(servo, NULL, ids[i],
+				r = il_servo_raw_read_s32(servo, reg, ids[i],
 							&storage.s32);
 				break;
 			case IL_REG_DTYPE_U64:
-				r = il_servo_raw_read_u64(servo, NULL, ids[i],
+				r = il_servo_raw_read_u64(servo, reg, ids[i],
 							&storage.u64);
 				break;
 			case IL_REG_DTYPE_S64:
-				r = il_servo_raw_read_s64(servo, NULL, ids[i],
+				r = il_servo_raw_read_s64(servo, reg, ids[i],
 							&storage.s64);
 				break;
 			case IL_REG_DTYPE_FLOAT:
-				r = il_servo_raw_read_float(servo, NULL, ids[i],
+				r = il_servo_raw_read_float(servo, reg, ids[i],
 								&storage.flt);
 				break;
 			default:
@@ -220,8 +221,9 @@ int il_servo_dict_storage_write(il_servo_t *servo)
 		return IL_EFAIL;
 	}
 
-	// TODO: compatibility with multislave
-	for (int j = 0; j < 4; j++) {
+	// Subnodes = axis available at servo + 1 subnode of general parameters
+	int subnodes = servo->subnodes + 1;
+	for (int j = 0; j < subnodes; j++) {
 		ids = il_dict_reg_ids_get(servo->dict, j);
 		if (!ids)
 			return IL_EFAIL;
@@ -236,39 +238,39 @@ int il_servo_dict_storage_write(il_servo_t *servo)
 
 			switch (reg->dtype) {
 			case IL_REG_DTYPE_U8:
-				r = il_servo_raw_write_u8(servo, NULL, ids[i],
+				r = il_servo_raw_write_u8(servo, reg, ids[i],
 							reg->storage.u8, 1, 0);
 				break;
 			case IL_REG_DTYPE_S8:
-				r = il_servo_raw_write_s8(servo, NULL, ids[i],
+				r = il_servo_raw_write_s8(servo, reg, ids[i],
 							reg->storage.s8, 1, 0);
 				break;
 			case IL_REG_DTYPE_U16:
-				r = il_servo_raw_write_u16(servo, NULL, ids[i],
+				r = il_servo_raw_write_u16(servo, reg, ids[i],
 							reg->storage.u16, 1, 0);
 				break;
 			case IL_REG_DTYPE_S16:
-				r = il_servo_raw_write_s16(servo, NULL, ids[i],
+				r = il_servo_raw_write_s16(servo, reg, ids[i],
 							reg->storage.s16, 1, 0);
 				break;
 			case IL_REG_DTYPE_U32:
-				r = il_servo_raw_write_u32(servo, NULL, ids[i],
+				r = il_servo_raw_write_u32(servo, reg, ids[i],
 							reg->storage.u32, 1, 0);
 				break;
 			case IL_REG_DTYPE_S32:
-				r = il_servo_raw_write_s32(servo, NULL, ids[i],
+				r = il_servo_raw_write_s32(servo, reg, ids[i],
 							reg->storage.s32, 1, 0);
 				break;
 			case IL_REG_DTYPE_U64:
-				r = il_servo_raw_write_u64(servo, NULL, ids[i],
+				r = il_servo_raw_write_u64(servo, reg, ids[i],
 							reg->storage.u64, 1, 0);
 				break;
 			case IL_REG_DTYPE_S64:
-				r = il_servo_raw_write_s64(servo, NULL, ids[i],
+				r = il_servo_raw_write_s64(servo, reg, ids[i],
 							reg->storage.s64, 1, 0);
 				break;
 			case IL_REG_DTYPE_FLOAT:
-				r = il_servo_raw_write_float(servo, NULL, ids[i],
+				r = il_servo_raw_write_float(servo, reg, ids[i],
 								reg->storage.flt, 1, 0);
 				break;
 			default:
