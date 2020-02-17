@@ -49,6 +49,8 @@ typedef enum {
 	IL_NET_PROT_MCB,
 	/** ETH. */
 	IL_NET_PROT_ETH,
+	/** ECAT. */
+	IL_NET_PROT_ECAT,
 	/** Virtual. */
 	IL_NET_PROT_VIRTUAL,
 } il_net_prot_t;
@@ -67,6 +69,8 @@ typedef struct {
 	int timeout_wr;
 	/** Connect to slave */
 	int connect_slave;
+	/** Connect to slave */
+	int protocol;
 } il_net_opts_t;
 
 
@@ -84,7 +88,27 @@ typedef struct {
 	int timeout_wr;
 	/** Connect to slave */
 	int connect_slave;
+	/** Protocol. */
+	int protocol;
 } il_eth_net_opts_t;
+
+/** Ethercat network initialization options. */
+typedef struct {
+	/** Address ip. */
+	const char *address_ip;
+	/** Port. */
+	const char *port;
+	/** Port. */
+	int port_ip;
+	/** Read timeout (ms). */
+	int timeout_rd;
+	/** Write timeout (ms). */
+	int timeout_wr;
+	/** Connect to slave */
+	int connect_slave;
+	/** Protocol. */
+	int protocol;
+} il_ecat_net_opts_t;
 
 /** Default read timeout (ms). */
 #define IL_NET_TIMEOUT_RD_DEF	500
@@ -113,6 +137,13 @@ typedef struct il_eth_net_dev_list {
 	struct il_eth_net_dev_list *next;
 } il_eth_net_dev_list_t;
 
+typedef struct il_ecat_net_dev_list {
+	/** Port. */
+	const char *address_ip;
+	/** Next device */
+	struct il_ecat_net_dev_list *next;
+} il_ecat_net_dev_list_t;
+
 
 /** network devices list. */
 typedef struct il_net_dev_list {
@@ -136,6 +167,13 @@ typedef struct il_eth_net_servos_list {
 	/** Next node. */
 	struct il_net_servos_list *next;
 } il_eth_net_servos_list_t;
+
+typedef struct il_ecat_net_servos_list {
+	/** Node id. */
+	uint8_t id;
+	/** Next node. */
+	struct il_net_servos_list *next;
+} il_ecat_net_servos_list_t;
 
 /** Node found callback. */
 typedef void (*il_net_servos_on_found_t)(void *ctx, uint8_t id);
@@ -568,6 +606,17 @@ IL_EXPORT void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float
  * 
  */
 IL_EXPORT int il_net_close_socket(il_net_t *net);
+
+/**
+	SOEM
+*/
+IL_EXPORT int il_net_master_startup(il_net_t **net, char *ifname, const char *if_address_ip);
+
+IL_EXPORT int il_net_master_stop(il_net_t **net);
+
+IL_EXPORT int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename);
+
+IL_EXPORT int il_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *fname);
 
 /**
  * Obtain network servos list.

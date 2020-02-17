@@ -24,6 +24,7 @@
 
 #include "net.h"
 
+
 #include <string.h>
 
 #include "ingenialink/err.h"
@@ -103,6 +104,8 @@ il_net_t *il_net_create(il_net_prot_t prot, const il_net_opts_t *opts)
 		return il_mcb_net_ops.create(opts);
 	case IL_NET_PROT_ETH:
 		return il_eth_net_ops.create(opts);
+	case IL_NET_PROT_ECAT:
+		return il_ecat_net_ops.create(opts);
 #endif
 #ifdef IL_HAS_PROT_VIRTUAL
 	case IL_NET_PROT_VIRTUAL:
@@ -294,10 +297,36 @@ int il_net_close_socket(il_net_t *net)
 	return il_eth_net_ops.close_socket(net);
 }
 
+int il_net_ecat_close_socket(il_net_t *net) 
+{
+	return il_ecat_net_ops.close_socket(net);
+}
+
+int il_net_master_startup(il_net_t **net, char *ifname, const char *if_address_ip)
+{
+	return il_ecat_net_ops.master_startup(net, ifname, if_address_ip);
+}
+
+int il_net_master_stop(il_net_t **net)
+{
+	return il_ecat_net_ops.master_stop(**net);
+}
+
+int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename) 
+{
+	return il_ecat_net_ops.update_firmware(net, ifname, slave, filename);
+}
+
+int il_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *fname) 
+{
+	return il_ecat_net_ops.eeprom_tool(net, ifname, slave, mode, fname);
+}
+
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)
 {
+	printf("il_net_servos_list_get\n");
 	return net->ops->servos_list_get(net, on_found, ctx);
 }
 

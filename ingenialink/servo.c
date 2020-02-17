@@ -26,6 +26,12 @@
 
 #include "ingenialink/err.h"
 
+#include <string.h>
+#include <stdio.h>
+#include <signal.h>
+#include <stdbool.h>
+#include <windows.h>
+#include <inttypes.h>
 /*******************************************************************************
  * Internal
  ******************************************************************************/
@@ -60,6 +66,12 @@ il_servo_t *il_servo_create(il_net_t *net, uint16_t id, const char *dict)
 	case IL_NET_PROT_ETH:
 		return il_eth_servo_ops.create(net, id, dict);
 #endif
+
+#ifdef IL_HAS_PROT_ECAT
+	case IL_NET_PROT_ECAT:
+		return il_ecat_servo_ops.create(net, id, dict);
+#endif
+
 
 #ifdef IL_HAS_PROT_VIRTUAL
 	case IL_NET_PROT_VIRTUAL:
@@ -655,7 +667,7 @@ int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 }
 
 int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
-		   const char *dict, const char *address_ip, int port_ip)
+		   const char *dict, const char *address_ip, int port_ip, int protocol)
 {	
 	il_eth_net_dev_list_t *dev;
 	il_net_servos_list_t *servo_ids, *servo_id;
@@ -670,6 +682,7 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 	opts.connect_slave = 1;
 	opts.port_ip = port_ip;
 	opts.port = "";
+	opts.protocol = protocol;
 
 	printf("before connect");
 	*net = il_net_create(prot, &opts);
@@ -679,6 +692,9 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 	}
 	/* try to connect to any available servo */
 	servo_ids = il_net_servos_list_get(*net, NULL, NULL);
+	
+
+
 	il_net_servos_list_foreach(servo_id, servo_ids) {
 		*servo = il_servo_create(*net, servo_id->id, dict);
 		/* found */
@@ -720,4 +736,41 @@ int il_servo_is_connected(il_net_t **net, const char *address_ip)
 const uint16_t *il_servo_subnodes_get(il_servo_t *servo) 
 {
 	return servo->subnodes;
+}
+
+int il_servo_connect_ecat(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
+		   const char *dict, const char *address_ip, int port_ip)
+{
+	il_net_servos_list_t *servo_ids, *servo_id;
+
+	il_ecat_net_opts_t opts;
+
+	opts.address_ip = address_ip;
+	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+	opts.connect_slave = 1;
+	opts.port_ip = port_ip;
+	opts.port = "";
+	
+	*net = il_net_create(prot, &opts);
+	if (!*net) {
+		printf("FAIL");
+		return IL_EFAIL;
+	}
+
+	/* Create as much servos as slaves found */
+	servo_ids = il_net_servos_list_get(*net, NULL, NULL);
+
+	/* Create servo */
+	il_net_servos_list_foreach(servo_id, servo_ids) {
+		*servo = il_servo_create(*net, servo_id->id, dict);
+		/* found */
+		if (servo) {
+			il_net_servos_list_destroy(servo_ids);
+			return 0;
+		}
+	}
+
+	ilerr__set("No connected servos found");
+	return IL_EFAIL;
 }

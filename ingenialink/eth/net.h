@@ -69,6 +69,9 @@ typedef struct il_eth_net {
 	osal_thread_t *listener;
 	/** Listener stop flag. */
 	int stop;
+	/** Protocol. */
+	int protocol;
+
 } il_eth_net_t;
 
 /** ETH network device monitor */
