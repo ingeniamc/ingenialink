@@ -343,7 +343,7 @@ static int il_ecat_servo_disable(il_servo_t *servo)
 		/* try fault reset if faulty */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_servo_fault_reset(servo);
+			r = il_ecat_servo_fault_reset(servo);
 			if (r < 0)
 				return r;
 
@@ -380,7 +380,7 @@ static int il_ecat_servo_switch_on(il_servo_t *servo, int timeout)
 		/* try fault reset if faulty */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_servo_fault_reset(servo);
+			r = il_ecat_servo_fault_reset(servo);
 			if (r < 0)
 				return r;
 
@@ -429,7 +429,7 @@ static int il_ecat_servo_enable(il_servo_t *servo, int timeout)
 	/* try fault reset if faulty */
 	if ((state == IL_SERVO_STATE_FAULT) ||
 		(state == IL_SERVO_STATE_FAULTR)) {
-		r = il_servo_fault_reset(servo);
+		r = il_ecat_servo_fault_reset(servo);
 		if (r < 0)
 			return r;
 
