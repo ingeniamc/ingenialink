@@ -80,7 +80,7 @@ static int get_reg(il_dict_t *dict, const il_reg_t *reg_pdef,
 			return IL_EFAIL;
 		}
 
-		r = il_dict_reg_get(dict, id, reg);
+		r = il_dict_reg_get(dict, id, reg, DFLT_SUBNODE);
 		if (r < 0)
 			return r;
 	}

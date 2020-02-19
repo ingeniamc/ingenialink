@@ -27,14 +27,17 @@
 
 #include "../servo.h"
 
+/** Default subnode */
+#define DFLT_SUBNODE		1
+
 /** Randomness factor (% of amplitude). */
 #define RANDOM_FACTOR		0.05
 
 /** Temperature (mC). */
-#define TEMPERATURE		30000
+#define TEMPERATURE			30000
 
 /** Voltage (mV). */
-#define DC_VOLTAGE		24000
+#define DC_VOLTAGE			24000
 
 /** Registers that can be queried by address. */
 #define ADDR_POS_ACT		0x6064
