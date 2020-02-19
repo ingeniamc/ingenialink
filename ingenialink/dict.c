@@ -899,6 +899,14 @@ il_dict_t *il_dict_create(const char *dict_f)
 			r = IL_EFAIL;
 			goto cleanup_h_cats;
 		}
+		/* parse each register */
+		obj_regs = xmlXPathEvalExpression((const xmlChar *)XPATH_REGS, xpath);
+		for (i = 0; i < obj_regs->nodesetval->nodeNr; i++) {
+			xmlNodePtr node = obj_regs->nodesetval->nodeTab[i];
+			r = parse_reg(node, dict, 0);
+			if (r < 0)
+				goto cleanup_h_regs_entries;
+		}
 	}
 	else {
 		// multiaxis device
