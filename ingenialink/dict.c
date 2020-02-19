@@ -1254,14 +1254,20 @@ int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg, uint8
 {
 	khint_t k;
 
-	// TODO: compatibility with multislave
-	k = kh_get(reg_id, dict->h_regs[subnode], id);
-	if (k == kh_end(dict->h_regs[subnode])) {
+	uint8_t subnode_idx = subnode;
+	khash_t(cat_id) *h_regs;
+	int total_subnodes = sizeof(dict->h_regs) / sizeof(h_regs);
+	if (subnode >= total_subnodes) {
+		subnode_idx = total_subnodes - 1;
+	}
+
+	k = kh_get(reg_id, dict->h_regs[subnode_idx], id);
+	if (k == kh_end(dict->h_regs[subnode_idx])) {
 		ilerr__set("Register not found (%s)", id);
 		return IL_EFAIL;
 	}
 
-	*reg = (const il_reg_t *)&kh_value(dict->h_regs[subnode], k).reg;
+	*reg = (const il_reg_t *)&kh_value(dict->h_regs[subnode_idx], k).reg;
 
 	return 0;
 }
