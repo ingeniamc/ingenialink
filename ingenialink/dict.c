@@ -1328,17 +1328,24 @@ const char **il_dict_reg_ids_get(il_dict_t *dict, uint8_t subnode)
 	size_t i;
 	khint_t k;
 
+	uint8_t subnode_idx = subnode;
+	khash_t(cat_id) *h_regs;
+	int total_subnodes = sizeof(dict->h_regs) / sizeof(h_regs);
+	if (subnode >= total_subnodes) {
+		subnode_idx = total_subnodes - 1;
+	}
+
 	/* allocate array for register keys */
-	ids = malloc(sizeof(const char *) * (il_dict_reg_cnt(dict, subnode) + 1));
+	ids = malloc(sizeof(const char *) * (il_dict_reg_cnt(dict, subnode_idx) + 1));
 	if (!ids) {
 		ilerr__set("Registers array allocation failed");
 		return NULL;
 	}
 
 	/* assign keys, null-terminate */
-	for (i = 0, k = 0; k < kh_end(dict->h_regs[subnode]); ++k) {
-		if (kh_exist(dict->h_regs[subnode], k)) {
-			ids[i] = (const char *)kh_key(dict->h_regs[subnode], k);
+	for (i = 0, k = 0; k < kh_end(dict->h_regs[subnode_idx]); ++k) {
+		if (kh_exist(dict->h_regs[subnode_idx], k)) {
+			ids[i] = (const char *)kh_key(dict->h_regs[subnode_idx], k);
 			i++;
 		}
 	}
