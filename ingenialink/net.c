@@ -326,7 +326,6 @@ il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)
 {
-	printf("il_net_servos_list_get\n");
 	return net->ops->servos_list_get(net, on_found, ctx);
 }
 

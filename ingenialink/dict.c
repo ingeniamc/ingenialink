@@ -893,7 +893,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 		// single-axis device
 		khash_t(cat_id) *h_regs;
 		dict->h_regs = malloc(INITIAL_SUBNODES * sizeof(h_regs));
-		dict->h_regs = kh_init(reg_id);
+		dict->h_regs[0] = kh_init(reg_id);
 		if (!dict->h_regs) {
 			ilerr__set("Registers hash table allocation failed");
 			r = IL_EFAIL;
