@@ -114,6 +114,8 @@ struct il_dict {
 	khash_t(reg_id) **h_regs;
 	/** Dictionary version. */
 	const char *version;
+	/** Dictionary subnodes. */
+	int subnodes;
 };
 typedef struct il_dict il_dict_t;
 

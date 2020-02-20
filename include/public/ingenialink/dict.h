@@ -262,6 +262,18 @@ IL_EXPORT void il_dict_reg_ids_destroy(const char **regs);
  */
 IL_EXPORT const char *il_dict_version_get(il_dict_t *dict);
 
+/**
+ * Obtain the subnodes defined in the dictionary.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ *
+ * @return
+ *	Subnodes defined.
+ *
+ */
+IL_EXPORT int il_dict_subnodes_get(il_dict_t *dict);
+
 
 /** @} */
 

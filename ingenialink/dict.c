@@ -892,6 +892,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 	if (!obj_axes || obj_axes->nodesetval->nodeNr == 0) {
 		// single-axis device
 		khash_t(cat_id) *h_regs;
+		dict->subnodes = INITIAL_SUBNODES;
 		dict->h_regs = malloc(INITIAL_SUBNODES * sizeof(h_regs));
 		dict->h_regs[0] = kh_init(reg_id);
 		if (!dict->h_regs) {
@@ -915,6 +916,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 		/* allocate each axis */
 		khash_t(cat_id) *h_regs;
 		uint8_t num_axis = obj_axes->nodesetval->nodeNr;
+		dict->subnodes = num_axis;
 		dict->h_regs = malloc(num_axis * sizeof(h_regs));
 		/* parse each axis */
 		for (i = 0; i < num_axis; i++) {
@@ -1363,4 +1365,9 @@ void il_dict_reg_ids_destroy(const char **ids)
 const char *il_dict_version_get(il_dict_t *dict) 
 {
 	return dict->version;
+}
+
+int il_dict_subnodes_get(il_dict_t *dict)
+{
+	return dict->subnodes;
 }
