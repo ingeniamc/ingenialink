@@ -626,6 +626,15 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict, int subnode)
 		return IL_EFAIL;
 	}
 
+	/* parse: subnode */
+	param = xmlGetProp(node, (const xmlChar *)"subnode");
+	if (!param) {
+		subnode = 1;
+	}
+	else {
+		subnode = strtoul((char *)param, NULL, 4);
+	}
+
 	k = kh_put(reg_id, dict->h_regs[subnode], (char *)id, &absent);
 	if (!absent) {
 		ilerr__set("Found duplicated register: %s", id);
@@ -641,21 +650,12 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict, int subnode)
 	reg->labels = NULL;
 	reg->cat_id = NULL;
 	reg->identifier = (char *)id;
+	reg->subnode = subnode;
 
 	/* parse: units */
 	xmlChar *units;
 	units = xmlGetProp(node, (const xmlChar *)"units");
 	reg->units = (char *)units;
-
-	/* parse: subnode */
-	param = xmlGetProp(node, (const xmlChar *)"subnode");
-	if (!param) {
-		reg->subnode = 1;
-	}
-
-	else {
-		reg->subnode = strtoul((char *)param, NULL, 4);
-	}
 
 	/* parse: cyclic */
 	xmlChar *cyclic;
@@ -894,17 +894,21 @@ il_dict_t *il_dict_create(const char *dict_f)
 		khash_t(cat_id) *h_regs;
 		dict->subnodes = INITIAL_SUBNODES;
 		dict->h_regs = malloc(INITIAL_SUBNODES * sizeof(h_regs));
-		dict->h_regs[0] = kh_init(reg_id);
-		if (!dict->h_regs) {
-			ilerr__set("Registers hash table allocation failed");
-			r = IL_EFAIL;
-			goto cleanup_h_cats;
+		/* parse each axis */
+		for (i = 0; i < INITIAL_SUBNODES; i++) {
+			dict->h_regs[i] = kh_init(reg_id);
+			if (!dict->h_regs[i]) {
+				ilerr__set("Registers hash table allocation failed");
+				r = IL_EFAIL;
+				goto cleanup_h_cats;
+			}
 		}
 		/* parse each register */
 		obj_regs = xmlXPathEvalExpression((const xmlChar *)XPATH_REGS, xpath);
 		for (i = 0; i < obj_regs->nodesetval->nodeNr; i++) {
 			xmlNodePtr node = obj_regs->nodesetval->nodeTab[i];
-			r = parse_reg(node, dict, 0);
+			int subnode = 1;
+			r = parse_reg(node, dict, &subnode);
 			if (r < 0)
 				goto cleanup_h_regs_entries;
 		}
@@ -931,8 +935,9 @@ il_dict_t *il_dict_create(const char *dict_f)
 			xmlNodePtr registers_node = axis_node->children->next->children;
 
 			for (cur_node = registers_node; cur_node; cur_node = cur_node->next) {
-				if (cur_node->type == XML_ELEMENT_NODE) {
-					r = parse_reg(cur_node, dict, i);
+				if (cur_node->type == XML_ELEMENT_NODE) {			
+					int subnode = 1;
+					r = parse_reg(cur_node, dict, &subnode);
 					if (r < 0)
 						goto cleanup_h_regs_entries;
 				}
