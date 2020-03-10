@@ -712,7 +712,7 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 }
 
 
-int il_servo_is_connected(il_net_t **net, const char *address_ip) 
+int il_servo_is_connected(il_net_t **net, const char *address_ip, int port_ip, int protocol) 
 {
 	il_eth_net_opts_t opts;
 
@@ -720,6 +720,9 @@ int il_servo_is_connected(il_net_t **net, const char *address_ip)
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
 	opts.connect_slave = 0;
+	opts.port_ip = port_ip;
+	opts.port = "";
+	opts.protocol = protocol;
 
 	*net = il_net_create(IL_NET_PROT_ETH, &opts);
 	if (!*net) {

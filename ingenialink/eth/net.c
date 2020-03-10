@@ -287,6 +287,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	il_eth_net_t *this = to_eth_net(net);
 	int r = 0;
 	int result = 0;
+	uint16_t sw;
 
 	if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
 	{
@@ -356,9 +357,19 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 			}
 
 		}
-		else {
+		else 
+		{
 			printf("Connected to the Server\n");
-			result = 1;
+			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
+			if (r < 0) 
+			{
+				printf("Fail connecting to server\n");
+				result = 0;
+			}
+			else 
+			{
+				result = 1;
+			}
 		}
 
 
