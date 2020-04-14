@@ -1798,6 +1798,79 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 	return r;
 }
 
+int *il_ecat_net_force_error(il_net_t **net, char *ifname, char *if_address_ip)
+{
+	int i, j, oloop, iloop, wkc_count, chk, slc;
+    UINT mmResult;
+
+    needlf = FALSE;
+    inOP = FALSE;
+
+   	printf("Slave force error\n");
+
+	/* initialise SOEM, bind socket to ifname */
+   	if (ec_init(ifname)) 
+	{
+		printf("ec_init on %s succeeded.\n",ifname);
+      	/* find and auto-config slaves */
+
+		if ( ec_config_init(FALSE) > 0 )
+      	{
+
+			printf("%d slaves found and configured.\n",ec_slavecount);
+			if (ec_slavecount > 0) 
+			{
+				int slave = 1;
+				ec_slave[slave].PO2SOconfig = &Everestsetup;
+
+				ec_config_map(&IOmap);
+						
+				ec_configdc();
+				ec_slave[slave].state = EC_STATE_PRE_OP;
+
+				/* request PRE-OP state for all slaves */
+				ec_writestate(slave);
+				chk = 200;
+				/* wait for all slaves to reach OP state */
+				do
+				{
+					ec_statecheck(slave, EC_STATE_PRE_OP, 50000);
+				}
+				while (chk-- && (ec_slave[slave].state != EC_STATE_PRE_OP));
+				Sleep(2000);
+				int retval = 0;
+				
+				uint16_t objectValue = 0x10;
+				retval += ec_SDOwrite(slave, 0x1600, 0x00, FALSE, sizeof(objectValue), &objectValue, EC_TIMEOUTSAFE);
+				printf("retval = %i\n", retval);
+				Sleep(1000);
+				ec_slave[slave].state = EC_STATE_SAFE_OP;
+				/* request SAFE_OP state for all slaves */
+				int r = ec_writestate(slave);
+				Sleep(1000);
+				objectValue = 0x04;
+				retval += ec_SDOwrite(slave, 0x1600, 0x00, FALSE, sizeof(objectValue), &objectValue, EC_TIMEOUTSAFE);
+
+			}
+			else 
+			{
+				// No slaves found!
+				return -2;
+			}
+		}
+		else 
+		{
+			return -1;
+		}
+	}
+	else 
+	{
+		return -1;
+	}
+	return 0;
+}
+
+
 /** ECAT network operations. */
 const il_ecat_net_ops_t il_ecat_net_ops = {
 	/* internal */
@@ -1832,9 +1905,9 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	.master_startup = il_ecat_net_master_startup,
 	.master_stop = il_ecat_net_master_stop,
 	.update_firmware = il_ecat_net_update_firmware,
-	.eeprom_tool = il_ecat_net_eeprom_tool
+	.eeprom_tool = il_ecat_net_eeprom_tool,
 
-
+	.force_error = il_ecat_net_force_error
 };
 
 /** MCB network device monitor operations. */
