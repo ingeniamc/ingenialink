@@ -414,6 +414,8 @@ typedef struct {
 	int (*master_stop)();
 	int (*update_firmware)();
 	int (*eeprom_tool)();
+
+	int (*force_error)();
 	
 } il_ecat_net_ops_t;
 

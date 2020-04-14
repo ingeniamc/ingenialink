@@ -618,6 +618,8 @@ IL_EXPORT int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slav
 
 IL_EXPORT int il_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *fname);
 
+IL_EXPORT int il_net_force_error(il_net_t **net, char *ifname, char *if_address_ip);
+
 /**
  * Obtain network servos list.
  *

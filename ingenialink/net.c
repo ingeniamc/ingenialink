@@ -322,6 +322,11 @@ int il_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *
 	return il_ecat_net_ops.eeprom_tool(net, ifname, slave, mode, fname);
 }
 
+int il_net_force_error(il_net_t **net, char *ifname, char *if_address_ip) 
+{
+	return il_ecat_net_ops.force_error(net, ifname, if_address_ip);
+}
+
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)

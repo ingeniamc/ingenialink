@@ -1798,6 +1798,118 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 	return r;
 }
 
+int Everestsetup(uint16 slave)
+{
+	int retval;
+	uint8 u8val;
+	uint16 u16val;
+	int8 i8val;
+
+	retval = 0;
+
+	/*u8val = 0;
+	retval += ec_SDOwrite(slave, 0x1600, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+	uint32 u32Map = 0x60400010;
+	retval += ec_SDOwrite(slave, 0x1600, 0x01, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u32Map = 0x607A0020;
+	retval += ec_SDOwrite(slave, 0x1600, 0x02, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u8val = 2;
+	retval += ec_SDOwrite(slave, 0x1600, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+
+	u8val = 0;
+	retval += ec_SDOwrite(slave, 0x1A00, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+	u32Map = 0x60410010;
+	retval += ec_SDOwrite(slave, 0x1A00, 0x01, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u32Map = 0x60640020;
+	retval += ec_SDOwrite(slave, 0x1A00, 0x02, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u32Map = 0x20780020;
+	retval += ec_SDOwrite(slave, 0x1A00, 0x03, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u8val = 3;
+	retval += ec_SDOwrite(slave, 0x1A00, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+
+	u8val = 0;
+	retval += ec_SDOwrite(slave, 0x1601, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+	u32Map = 0x60400010;
+	retval += ec_SDOwrite(slave, 0x1601, 0x01, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u32Map = 0x607A0020;
+	retval += ec_SDOwrite(slave, 0x1601, 0x02, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u8val = 2;
+	retval += ec_SDOwrite(slave, 0x1601, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+
+	u8val = 0;
+	retval += ec_SDOwrite(slave, 0x1A01, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+	u32Map = 0x60410010;
+	retval += ec_SDOwrite(slave, 0x1A01, 0x01, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u32Map = 0x60640020;
+	retval += ec_SDOwrite(slave, 0x1A01, 0x02, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u32Map = 0x20780020;
+	retval += ec_SDOwrite(slave, 0x1A01, 0x03, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u8val = 3;
+	retval += ec_SDOwrite(slave, 0x1A01, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+
+	u8val = 0;
+	retval += ec_SDOwrite(slave, 0x1602, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+	u32Map = 0x60400010;
+	retval += ec_SDOwrite(slave, 0x1602, 0x01, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u32Map = 0x607A0020;
+	retval += ec_SDOwrite(slave, 0x1602, 0x02, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u8val = 2;
+	retval += ec_SDOwrite(slave, 0x1602, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+
+	u8val = 0;
+	retval += ec_SDOwrite(slave, 0x1A02, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+	u32Map = 0x60410010;
+	retval += ec_SDOwrite(slave, 0x1A02, 0x01, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u32Map = 0x60640020;
+	retval += ec_SDOwrite(slave, 0x1A02, 0x02, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u32Map = 0x20780020;
+	retval += ec_SDOwrite(slave, 0x1A02, 0x03, FALSE, sizeof(u32Map), &u32Map, EC_TIMEOUTRXM);
+	u8val = 3;
+	retval += ec_SDOwrite(slave, 0x1A02, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);*/
+
+	u8val = 0;
+	retval += ec_SDOwrite(slave, 0x1c12, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+	//printf("Set reg 0x1c1200 to 0 = %d\n", retval);
+	u16val = 0x1600;
+	retval += ec_SDOwrite(slave, 0x1c12, 0x01, FALSE, sizeof(u16val), &u16val, EC_TIMEOUTRXM);
+	//printf("Set reg 0x1c1201 to 0x1600 = %d\n", retval);
+	u8val = 1;
+	retval += ec_SDOwrite(slave, 0x1c12, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+	//printf("Set reg 0x1c1200 to 1 = %d\n", retval);
+
+	u8val = 0;
+	retval += ec_SDOwrite(slave, 0x1c13, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+	//printf("Set reg 0x1c1300 to 0 = %d\n", retval);
+	u16val = 0x1a00;
+	retval += ec_SDOwrite(slave, 0x1c13, 0x01, FALSE, sizeof(u16val), &u16val, EC_TIMEOUTRXM);
+	//printf("Set reg 0x1c1301 to 0x1a00 = %d\n", retval);
+	u8val = 1;
+	retval += ec_SDOwrite(slave, 0x1c13, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+	//printf("Set reg 0x1c1300 to 1 = %d\n", retval);
+
+
+	//u8val = 8;
+	//retval += ec_SDOwrite(slave, 0x6060, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+	//i8val = -4;
+	//retval += ec_SDOwrite(slave, 0x60C2, 0x01, FALSE, sizeof(u8val), &i8val, EC_TIMEOUTRXM);
+	//u8val = 5;
+	//retval += ec_SDOwrite(slave, 0x60C2, 0x02, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
+
+	// set some motor parameters, just as example
+	//u16val = 1200; // max motor current in mA
+	//    retval += ec_SDOwrite(slave, 0x8010, 0x01, FALSE, sizeof(u16val), &u16val, EC_TIMEOUTSAFE);
+	//u16val = 150; // motor coil resistance in 0.01ohm
+	//    retval += ec_SDOwrite(slave, 0x8010, 0x04, FALSE, sizeof(u16val), &u16val, EC_TIMEOUTSAFE);
+
+	// set other nescessary parameters as needed
+	// .....
+
+	while (EcatError) printf("%s", ec_elist2string());
+
+	printf("Everest slave %d set, retval = %d\n", slave, retval);
+	return 1;
+}
+
 int *il_ecat_net_force_error(il_net_t **net, char *ifname, char *if_address_ip)
 {
 	int i, j, oloop, iloop, wkc_count, chk, slc;
