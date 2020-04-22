@@ -1328,6 +1328,10 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 					{
 						printf("Slave %d state to BOOT.\n", slave);
 
+						ec_eeprom2pdi(slave);
+
+						Sleep(1000);
+
 						if (input_bin(filename, &filesize))
 						{
 							printf("File read OK, %d bytes.\n", filesize);
