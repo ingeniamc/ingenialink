@@ -234,6 +234,16 @@ static il_servo_t *il_ecat_servo_create(il_net_t *net, uint16_t id,
 		
 	this->servo.ops = &il_ecat_servo_ops;
 
+	/* Configure the number of axis if the register is defined */
+	uint16_t subnodes;
+	r = il_servo_raw_read_u16(&this->servo, &IL_REG_ETH_NUMBER_AXIS, NULL, &subnodes);
+	if (r < 0) {
+		this->servo.subnodes = 1;
+	}
+	else {
+		this->servo.subnodes = subnodes;
+	}
+
 	/* initialize, setup refcnt */
 	this->refcnt = il_utils__refcnt_create(servo_destroy, this);
 
