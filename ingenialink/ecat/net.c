@@ -1274,11 +1274,20 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			/* program SM1 mailbox out for slave */
 			ec_FPWR(ec_slave[slave].configadr, ECT_REG_SM1, sizeof(ec_smt), &ec_slave[slave].SM[1], EC_TIMEOUTRET);
 
+			/*printf("Writing password\n");
+			int retval;
+			uint32 u32val;
+			retval = 0;
+			u32val = 0x424F4F54;
+			retval += ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTRXM);
+			
+			Sleep(1000);
+			printf("===============================\n");*/
+
 			printf("Request BOOT state for slave %d\n", slave);
 			ec_slave[slave].state = EC_STATE_BOOT;
 			ec_writestate(slave);
 
-			Sleep(10000);
 
 			if (ec_init(ifname))
 			{
