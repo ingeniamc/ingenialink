@@ -69,9 +69,9 @@ extern "C"
 /** timeout value in us for EEPROM access */
 #define EC_TIMEOUTEEP      20000
 /** timeout value in us for tx mailbox cycle */
-#define EC_TIMEOUTTXM      20000
+#define EC_TIMEOUTTXM      700000
 /** timeout value in us for rx mailbox cycle */
-#define EC_TIMEOUTRXM      20000		// 700000
+#define EC_TIMEOUTRXM      700000		// 700000
 /** timeout value in us for check statechange */
 #define EC_TIMEOUTSTATE    2000000
 /** size of EEPROM bitmap cache */
