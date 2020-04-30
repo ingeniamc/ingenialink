@@ -1281,13 +1281,14 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			u32val = 0x424F4F54;
 			retval += ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTRXM);
 			
-			Sleep(1000);
+			
 			printf("===============================\n");*/
 
 			printf("Request BOOT state for slave %d\n", slave);
 			ec_slave[slave].state = EC_STATE_BOOT;
 			ec_writestate(slave);
 
+			Sleep(5000);
 
 			if (ec_init(ifname))
 			{
