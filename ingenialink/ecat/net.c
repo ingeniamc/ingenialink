@@ -1235,9 +1235,12 @@ enum update_error
 
 int *il_ecat_net_change_state(uint16_t slave, ec_state state) 
 {
-	ec_slave[slave].state = EC_STATE_INIT;
+	ec_slave[slave].state = state;
 	ec_writestate(slave);
 	
+	if (ec_statecheck(slave, state, EC_TIMEOUTSTATE) != state) {
+		return UP_STATEMACHINE_ERROR;
+	}
 	return UP_NOERROR;
 }
 
@@ -1260,22 +1263,15 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			printf("%d slaves found and configured.\n", ec_slavecount);
 
 			printf("Request init state for slave %d\n", slave);
-			ec_slave[slave].state = EC_STATE_INIT;
-			ec_writestate(slave);
-
-			/* wait for slave to reach INIT state */
-			if (ec_statecheck(slave, EC_STATE_INIT, EC_TIMEOUTSTATE) != EC_STATE_INIT) {
+			if (il_ecat_net_change_state(slave, EC_STATE_INIT) != UP_NOERROR) {
 				printf("Slave %d cannot enter into state INIT.\n", slave);
 				return UP_STATEMACHINE_ERROR;
 			}
+
 			printf("Slave %d state to INIT.\n", slave);
 
 			printf("Request pre-op state for slave %d\n", slave);
-			ec_slave[slave].state = EC_STATE_PRE_OP;
-			ec_writestate(slave);
-
-			/* wait for slave to reach PRE-OP state */
-			if (ec_statecheck(slave, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
+			if (il_ecat_net_change_state(slave, EC_STATE_PRE_OP) != UP_NOERROR) {
 				printf("Slave %d cannot enter into state PRE-OP.\n", slave);
 				printf("Application not detected. Trying Bootloader process..\n");
 			}
@@ -1290,22 +1286,14 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				}
 
 				printf("Request init state for slave %d\n", slave);
-				ec_slave[slave].state = EC_STATE_INIT;
-				ec_writestate(slave);
-
-				/* wait for slave to reach INIT state */
-				if (ec_statecheck(slave, EC_STATE_INIT, EC_TIMEOUTSTATE) != EC_STATE_INIT) {
+				if (il_ecat_net_change_state(slave, EC_STATE_INIT) != UP_NOERROR) {
 					printf("Slave %d cannot enter into state INIT.\n", slave);
 					return UP_STATEMACHINE_ERROR;
 				}
 				printf("Slave %d state to INIT.\n", slave);
 
 				printf("Request BOOT state for slave %d\n", slave);
-				ec_slave[slave].state = EC_STATE_BOOT;
-				ec_writestate(slave);
-
-				if (ec_statecheck(slave, EC_STATE_BOOT, EC_TIMEOUTSTATE) == EC_STATE_BOOT)
-				{
+				if (il_ecat_net_change_state(slave, EC_STATE_BOOT) == UP_NOERROR) {
 					printf("Slave %d entered into state BOOT. \n", slave);
 					printf("Force COCO Boot not applied correctly.\n");
 					return UP_STATEMACHINE_ERROR;
@@ -1318,11 +1306,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			}
 			
 			printf("Request init state for slave %d\n", slave);
-			ec_slave[slave].state = EC_STATE_INIT;
-			ec_writestate(slave);
-
-			/* wait for slave to reach INIT state */
-			if (ec_statecheck(slave, EC_STATE_INIT, EC_TIMEOUTSTATE) != EC_STATE_INIT) {
+			if (il_ecat_net_change_state(slave, EC_STATE_INIT) != UP_NOERROR) {
 				printf("Slave %d cannot enter into state INIT.\n", slave);
 				return UP_STATEMACHINE_ERROR;
 			}
@@ -1357,11 +1341,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			ec_FPWR(ec_slave[slave].configadr, ECT_REG_SM1, sizeof(ec_smt), &ec_slave[slave].SM[1], EC_TIMEOUTRET);
 
 			printf("Request BOOT state for slave %d\n", slave);
-			ec_slave[slave].state = EC_STATE_BOOT;
-			ec_writestate(slave);
-			
-			if (ec_statecheck(slave, EC_STATE_BOOT, EC_TIMEOUTSTATE) != EC_STATE_BOOT)
-			{
+			if (il_ecat_net_change_state(slave, EC_STATE_BOOT) != UP_NOERROR) {
 				printf("Slave %d cannot enter into state BOOT.\n", slave);
 				return UP_STATEMACHINE_ERROR;
 			}
@@ -1381,11 +1361,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				printf("FOE write result %d.\n", r);
 				
 				printf("Request init state for slave %d\n", slave);
-				ec_slave[slave].state = EC_STATE_INIT;
-				ec_writestate(slave);
-
-				if (ec_statecheck(slave, EC_STATE_BOOT, EC_TIMEOUTSTATE) != EC_STATE_INIT)
-				{
+				if (il_ecat_net_change_state(slave, EC_STATE_INIT) != UP_NOERROR) {
 					printf("Slave %d cannot enter into state INIT.\n", slave);
 					return UP_STATEMACHINE_ERROR;
 				}
