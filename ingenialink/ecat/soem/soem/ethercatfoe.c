@@ -348,6 +348,10 @@ int ecx_FOEwrite(ecx_contextt *context, uint16 slave, char *filename, uint32 pas
          }
       } while (worktodo);
    }
+   else 
+   {
+      printf("FoE request to slave failed\n");
+   }
 
    return wkc;
 }

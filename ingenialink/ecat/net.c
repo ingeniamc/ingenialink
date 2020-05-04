@@ -1220,6 +1220,27 @@ int input_bin(char *fname, int *length)
 	return 1;
 }
 
+
+enum update_error
+{
+	UP_NOERROR = 0,
+	UP_STATEMACHINE_ERROR = -2,
+	UP_NOT_IN_BOOT_ERROR = -3,
+	UP_EEPROM_PDI_ERROR = -4,
+	UP_EEPROM_FILE_ERROR = -6,
+	UP_NOT_FOUND_ERROR = -7,
+	UP_NO_SOCKET = -8,
+	UP_FORCE_BOOT_ERROR = -9
+};
+
+int *il_ecat_net_change_state(uint16_t slave, ec_state state) 
+{
+	ec_slave[slave].state = EC_STATE_INIT;
+	ec_writestate(slave);
+	
+	return UP_NOERROR;
+}
+
 /**
  * Update Firmware using FoE
 */
@@ -1234,7 +1255,6 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 		printf("ec_init on %s succeeded.\n", ifname);
 		/* find and auto-config slaves */
 
-
 		if (ec_config_init(FALSE) > 0)
 		{
 			printf("%d slaves found and configured.\n", ec_slavecount);
@@ -1244,9 +1264,71 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			ec_writestate(slave);
 
 			/* wait for slave to reach INIT state */
-			ec_statecheck(slave, EC_STATE_INIT, EC_TIMEOUTSTATE * 4);
+			if (ec_statecheck(slave, EC_STATE_INIT, EC_TIMEOUTSTATE) != EC_STATE_INIT) {
+				printf("Slave %d cannot enter into state INIT.\n", slave);
+				return UP_STATEMACHINE_ERROR;
+			}
 			printf("Slave %d state to INIT.\n", slave);
 
+			printf("Request pre-op state for slave %d\n", slave);
+			ec_slave[slave].state = EC_STATE_PRE_OP;
+			ec_writestate(slave);
+
+			/* wait for slave to reach PRE-OP state */
+			if (ec_statecheck(slave, EC_STATE_PRE_OP, EC_TIMEOUTSTATE) != EC_STATE_PRE_OP) {
+				printf("Slave %d cannot enter into state PRE-OP.\n", slave);
+				printf("Application not detected. Trying Bootloader process..\n");
+			}
+			else
+			{
+				printf("Writing COCO FORCE BOOT password through SDO\n");
+				uint32 u32val = 0x424F4F54;
+				if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) 
+				{
+					printf("Force Boot error\n");
+					return UP_FORCE_BOOT_ERROR;
+				}
+
+				printf("Request init state for slave %d\n", slave);
+				ec_slave[slave].state = EC_STATE_INIT;
+				ec_writestate(slave);
+
+				/* wait for slave to reach INIT state */
+				if (ec_statecheck(slave, EC_STATE_INIT, EC_TIMEOUTSTATE) != EC_STATE_INIT) {
+					printf("Slave %d cannot enter into state INIT.\n", slave);
+					return UP_STATEMACHINE_ERROR;
+				}
+				printf("Slave %d state to INIT.\n", slave);
+
+				printf("Request BOOT state for slave %d\n", slave);
+				ec_slave[slave].state = EC_STATE_BOOT;
+				ec_writestate(slave);
+
+				if (ec_statecheck(slave, EC_STATE_BOOT, EC_TIMEOUTSTATE) == EC_STATE_BOOT)
+				{
+					printf("Slave %d entered into state BOOT. \n", slave);
+					printf("Force COCO Boot not applied correctly.\n");
+					return UP_STATEMACHINE_ERROR;
+				}
+				printf("As expected, Slave %d cannot enter into state BOOT the first time.\n", slave);
+
+				ec_close();
+				ec_init(ifname);
+				ec_config_init(FALSE);
+			}
+			
+			printf("Request init state for slave %d\n", slave);
+			ec_slave[slave].state = EC_STATE_INIT;
+			ec_writestate(slave);
+
+			/* wait for slave to reach INIT state */
+			if (ec_statecheck(slave, EC_STATE_INIT, EC_TIMEOUTSTATE) != EC_STATE_INIT) {
+				printf("Slave %d cannot enter into state INIT.\n", slave);
+				return UP_STATEMACHINE_ERROR;
+			}
+			printf("Slave %d state to INIT.\n", slave);
+			
+			// MAGIC
 			/* read BOOT mailbox data, master -> slave */
 			data = ec_readeeprom(slave, ECT_SII_BOOTRXMBX, EC_TIMEOUTEEP);
 			ec_slave[slave].SM[0].StartAddr = (uint16)LO_WORD(data);
@@ -1274,118 +1356,63 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			/* program SM1 mailbox out for slave */
 			ec_FPWR(ec_slave[slave].configadr, ECT_REG_SM1, sizeof(ec_smt), &ec_slave[slave].SM[1], EC_TIMEOUTRET);
 
-			/*printf("Writing password\n");
-			int retval;
-			uint32 u32val;
-			retval = 0;
-			u32val = 0x424F4F54;
-			retval += ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTRXM);
-			
-			
-			printf("===============================\n");*/
-
 			printf("Request BOOT state for slave %d\n", slave);
 			ec_slave[slave].state = EC_STATE_BOOT;
 			ec_writestate(slave);
-
-			Sleep(5000);
-
-			if (ec_init(ifname))
+			
+			if (ec_statecheck(slave, EC_STATE_BOOT, EC_TIMEOUTSTATE) != EC_STATE_BOOT)
 			{
-				printf("ec_init on %s succeeded.\n", ifname);
-				/* find and auto-config slaves */
-				if (ec_config_init(FALSE) > 0)
-				{
-					printf("Request init state for slave %d\n", slave);
-					ec_slave[slave].state = EC_STATE_INIT;
-					ec_writestate(slave);
-
-					printf("Request BOOT state for slave %d\n", slave);
-					/* read BOOT mailbox data, master -> slave */
-					data = ec_readeeprom(slave, ECT_SII_BOOTRXMBX, EC_TIMEOUTEEP);
-					ec_slave[slave].SM[0].StartAddr = (uint16)LO_WORD(data);
-					ec_slave[slave].SM[0].SMlength = (uint16)HI_WORD(data);
-					/* store boot write mailbox address */
-					ec_slave[slave].mbx_wo = (uint16)LO_WORD(data);
-					/* store boot write mailbox size */
-					ec_slave[slave].mbx_l = (uint16)HI_WORD(data);
-
-					/* read BOOT mailbox data, slave -> master */
-					data = ec_readeeprom(slave, ECT_SII_BOOTTXMBX, EC_TIMEOUTEEP);
-					ec_slave[slave].SM[1].StartAddr = (uint16)LO_WORD(data);
-					ec_slave[slave].SM[1].SMlength = (uint16)HI_WORD(data);
-					/* store boot read mailbox address */
-					ec_slave[slave].mbx_ro = (uint16)LO_WORD(data);
-					/* store boot read mailbox size */
-					ec_slave[slave].mbx_rl = (uint16)HI_WORD(data);
-
-					printf(" SM0 A:%4.4x L:%4d F:%8.8x\n", ec_slave[slave].SM[0].StartAddr, ec_slave[slave].SM[0].SMlength,
-						(int)ec_slave[slave].SM[0].SMflags);
-					printf(" SM1 A:%4.4x L:%4d F:%8.8x\n", ec_slave[slave].SM[1].StartAddr, ec_slave[slave].SM[1].SMlength,
-						(int)ec_slave[slave].SM[1].SMflags);
-					/* program SM0 mailbox in for slave */
-					ec_FPWR(ec_slave[slave].configadr, ECT_REG_SM0, sizeof(ec_smt), &ec_slave[slave].SM[0], EC_TIMEOUTRET);
-					/* program SM1 mailbox out for slave */
-					ec_FPWR(ec_slave[slave].configadr, ECT_REG_SM1, sizeof(ec_smt), &ec_slave[slave].SM[1], EC_TIMEOUTRET);
-
-					printf("Request BOOT state for slave %d\n", slave);
-					ec_slave[slave].state = EC_STATE_BOOT;
-					ec_writestate(slave);
-
-					printf("Wait until BOOT state\n");
-					/* wait for slave to reach BOOT state */
-					if (ec_statecheck(slave, EC_STATE_BOOT, EC_TIMEOUTSTATE * 10) == EC_STATE_BOOT)
-					{
-						printf("Slave %d state to BOOT.\n", slave);
-
-						ec_eeprom2pdi(slave);
-
-						Sleep(1000);
-
-						if (input_bin(filename, &filesize))
-						{
-							printf("File read OK, %d bytes.\n", filesize);
-							printf("FoE write....");
-							j = ec_FOEwrite(slave, filename, 0x70636675, filesize, &filebuffer, EC_TIMEOUTSTATE);
-							printf("result %d.\n", j);
-							r = j;
-							printf("Request init state for slave %d\n", slave);
-							ec_slave[slave].state = EC_STATE_INIT;
-							ec_writestate(slave);
-
-							/* wait for slave to reach INIT state */
-							ec_statecheck(slave, EC_STATE_INIT, EC_TIMEOUTSTATE * 4);
-							printf("Slave %d state to INIT.\n", slave);
-						}
-						else 
-						{
-							printf("File not read OK.\n");
-							r = -1;
-						}	
-					}
-					else 
-					{
-						printf("BOOT state not reached.\n");
-						r = -1;
-					}
-				}
+				printf("Slave %d cannot enter into state BOOT.\n", slave);
+				return UP_STATEMACHINE_ERROR;
 			}
+			printf("Slave %d state to BOOT.\n", slave);
+
+			if (ec_eeprom2pdi(slave) <= 0) 
+			{
+				return UP_EEPROM_PDI_ERROR;
+			}
+			printf("Slave %d EEPROM set to PDI.\n", slave);
+
+			if (input_bin(filename, &filesize))
+			{
+				printf("File read OK, %d bytes.\n", filesize);
+				printf("FoE write....");
+				r = ec_FOEwrite(slave, filename, 0x70636675, filesize, &filebuffer, EC_TIMEOUTSTATE);
+				printf("FOE write result %d.\n", r);
+				
+				printf("Request init state for slave %d\n", slave);
+				ec_slave[slave].state = EC_STATE_INIT;
+				ec_writestate(slave);
+
+				if (ec_statecheck(slave, EC_STATE_BOOT, EC_TIMEOUTSTATE) != EC_STATE_INIT)
+				{
+					printf("Slave %d cannot enter into state INIT.\n", slave);
+					return UP_STATEMACHINE_ERROR;
+				}
+				printf("FOE Process finished succesfully!!.\n");
+			}
+			else
+			{
+				printf("File not read OK.\n");
+				return UP_EEPROM_FILE_ERROR;
+			}
+			
 		}
 		else
 		{
 			printf("No slaves found!\n");
-			r = -1;
+			return UP_NOT_FOUND_ERROR;
 		}
-		printf("End firmware update example, close socket\n");
+		printf("End firmware update, close socket\n");
 		/* stop SOEM, close socket */
 		ec_close();
 	}
 	else
 	{
-		printf("No socket connection on %s\nExcecute as root\n",ifname);
-		r = -1;
+		printf("No socket connection on %s\nExecute as root\n",ifname);
+		return UP_NO_SOCKET;
 	}
-	return r;
+	return UP_NOERROR;
 }
 
 /**
