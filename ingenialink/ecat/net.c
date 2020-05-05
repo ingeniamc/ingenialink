@@ -1361,10 +1361,12 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				printf("FOE write result %d.\n", r);
 				
 				printf("Request init state for slave %d\n", slave);
-				if (il_ecat_net_change_state(slave, EC_STATE_INIT) != UP_NOERROR) {
-					printf("Slave %d cannot enter into state INIT.\n", slave);
-					return UP_STATEMACHINE_ERROR;
-				}
+				ec_slave[slave].state = EC_STATE_INIT;
+				ec_writestate(slave);
+
+				printf("Wait for drive to reset...\n");
+				Sleep(4000);
+
 				printf("FOE Process finished succesfully!!.\n");
 			}
 			else
