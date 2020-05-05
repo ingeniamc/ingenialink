@@ -1195,7 +1195,7 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_i
 	return ec_slavecount;
 }
 
-static int *il_ecat_net_master_stop(il_net_t *net)
+static int *il_ecat_net_master_stop(il_net_t **net)
 {
 	printf("Closing Socket\n");
 	ec_slavecount = 0;

@@ -309,7 +309,7 @@ int il_net_master_startup(il_net_t **net, char *ifname, const char *if_address_i
 
 int il_net_master_stop(il_net_t **net)
 {
-	return il_ecat_net_ops.master_stop(**net);
+	return il_ecat_net_ops.master_stop(net);
 }
 
 int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename) 
