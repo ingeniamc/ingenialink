@@ -1359,15 +1359,23 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				printf("FoE write....");
 				r = ec_FOEwrite(slave, filename, 0x70636675, filesize, &filebuffer, EC_TIMEOUTSTATE);
 				printf("FOE write result %d.\n", r);
+				if (r > 0) 
+				{
+					printf("Request init state for slave %d\n", slave);
+					ec_slave[slave].state = EC_STATE_INIT;
+					ec_writestate(slave);
+
+					printf("Wait for drive to reset...\n");
+					Sleep(4000);
+
+					printf("FOE Process finished succesfully!!.\n");
+				}
+				else 
+				{
+					printf("Error during FoE process...");
+					return r;
+				}
 				
-				printf("Request init state for slave %d\n", slave);
-				ec_slave[slave].state = EC_STATE_INIT;
-				ec_writestate(slave);
-
-				printf("Wait for drive to reset...\n");
-				Sleep(4000);
-
-				printf("FOE Process finished succesfully!!.\n");
 			}
 			else
 			{
@@ -1381,15 +1389,16 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			printf("No slaves found!\n");
 			return UP_NOT_FOUND_ERROR;
 		}
-		printf("End firmware update, close socket\n");
-		/* stop SOEM, close socket */
-		ec_close();
+		
 	}
 	else
 	{
 		printf("No socket connection on %s\nExecute as root\n",ifname);
 		return UP_NO_SOCKET;
 	}
+	printf("End firmware update, close socket\n");
+	/* stop SOEM, close socket */
+	ec_close();
 	return UP_NOERROR;
 }
 
