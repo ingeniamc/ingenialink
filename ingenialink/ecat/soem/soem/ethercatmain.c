@@ -1066,8 +1066,8 @@ int ecx_mbxreceive(ecx_contextt *context, uint16 slave, ec_mbxbuft *mbx, int tim
                      if (context->EOEhook(context, slave, eoembx) > 0)
                      {
                         /* Fragment handled by EoE hook */
-                        //wkc = 0;
-                  wkc2 = 0;
+                        wkc = 0;
+						wkc2 = 0;
                      }
                   }
                }
