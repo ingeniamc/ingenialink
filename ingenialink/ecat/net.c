@@ -70,7 +70,7 @@ boolean inOP;
 uint8 currentgroup = 0;
 OSAL_THREAD_HANDLE thread1;
 OSAL_THREAD_HANDLE thread2;
-uint8 txbuf[512];
+uint8 txbuf[1024];
 
 /** Current RX fragment number */
 uint8_t rxfragmentno = 0;
@@ -80,7 +80,7 @@ uint16_t rxframesize = 0;
 uint16_t rxframeoffset = 0;
 /** Current RX frame number */
 uint16_t rxframeno = 0;
-uint8 rxbuf[512];
+uint8 rxbuf[1024];
 int size_of_rx = sizeof(rxbuf);
 
 struct udp_pcb *ptUdpPcb;
