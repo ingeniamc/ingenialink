@@ -924,7 +924,7 @@ static err_t LWIP_EthernetifOutput(struct netif *ptNetIfHnd, struct pbuf *ptBuf)
 {
 	err_t tErr = ERR_OK;
 
-	uint8_t frame6[60];
+	uint8_t frame6[1024];
 	memcpy(frame6, ptBuf->payload, ptBuf->len);
 
 	int i = ecx_EOEsend(context, 1, 0, ptBuf->tot_len, ptBuf->payload, EC_TIMEOUTRXM);
