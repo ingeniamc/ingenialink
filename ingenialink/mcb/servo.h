@@ -33,6 +33,9 @@
 /** Flags position offset in statusword. */
 #define FLAGS_SW_POS		10
 
+/** Number of retries to reset fault state **/
+#define FAULT_RESET_RETRIES		20
+
 
 /** IngeniaLink servo. */
 typedef struct il_mcb_servo {

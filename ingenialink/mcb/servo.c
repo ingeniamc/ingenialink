@@ -432,7 +432,9 @@ static int il_mcb_servo_switch_on(il_servo_t *servo, int timeout)
 			sw = sw_get(servo);
 		/* check state and command action to reach switch on */
 		} else if (state != IL_SERVO_STATE_ON) {
-			if (state == IL_SERVO_STATE_NRDY)
+			if (state == IL_SERVO_STATE_FAULT)
+				return IL_ESTATE;
+			else if (state == IL_SERVO_STATE_NRDY)
 				cmd = IL_MC_PDS_CMD_DV;
 			else if (state == IL_SERVO_STATE_DISABLED)
 				cmd = IL_MC_PDS_CMD_SD;
@@ -479,9 +481,10 @@ static int il_mcb_servo_enable(il_servo_t *servo, int timeout)
 
 			sw = sw_get(servo);
 		/* check state and command action to reach enabled */
-		} else if ((state != IL_SERVO_STATE_ENABLED) ||
-			   !(sw & IL_MC_SW_IANGLE)) {
-			if (state == IL_SERVO_STATE_NRDY)
+		} else if ((state != IL_SERVO_STATE_ENABLED)) {
+			if (state == IL_SERVO_STATE_FAULT)
+				return IL_ESTATE;
+			else if (state == IL_SERVO_STATE_NRDY)
 				cmd = IL_MC_PDS_CMD_DV;
 			else if (state == IL_SERVO_STATE_DISABLED)
 				cmd = IL_MC_PDS_CMD_SD;
@@ -511,6 +514,7 @@ static int il_mcb_servo_fault_reset(il_servo_t *servo)
 	uint16_t sw;
 	il_servo_state_t state;
 	int timeout = PDS_TIMEOUT;
+	int retries = 0;
 
 	sw = sw_get(servo);
 
@@ -520,6 +524,9 @@ static int il_mcb_servo_fault_reset(il_servo_t *servo)
 		/* check if faulty, if so try to reset (0->1) */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
+			if (retries == FAULT_RESET_RETRIES) {
+				return IL_ESTATE;
+			}
 			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
 						   NULL, 0, 1, 0);
 			if (r < 0)
@@ -534,6 +541,8 @@ static int il_mcb_servo_fault_reset(il_servo_t *servo)
 			r = sw_wait_change(servo, &sw, &timeout);
 			if (r < 0)
 				return r;
+			
+			++retries;
 		}
 	} while ((state == IL_SERVO_STATE_FAULT) ||
 		 (state == IL_SERVO_STATE_FAULTR));
