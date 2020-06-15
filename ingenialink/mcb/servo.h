@@ -34,7 +34,7 @@
 #define FLAGS_SW_POS		10
 
 /** Number of retries to reset fault state **/
-#define FAULT_RESET_RETRIES		20
+#define FAULT_RESET_RETRIES		1
 
 
 /** IngeniaLink servo. */

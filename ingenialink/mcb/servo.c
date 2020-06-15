@@ -109,7 +109,7 @@ static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
 	}
 
 	servo->sw.value = buff;
-	*sw = servo->sw.value;
+	*sw = buff;
 
 out:	
 
@@ -141,7 +141,7 @@ static int sw_wait_value(il_servo_t *servo, uint16_t msk, uint16_t val,
 	uint16_t result;
 
 	/* wait until the flag changes to the requested state */
-	osal_mutex_lock(servo->sw.lock);
+	// osal_mutex_lock(servo->sw.lock);
 
 	do {
 		result = servo->sw.value & msk;
@@ -158,11 +158,10 @@ static int sw_wait_value(il_servo_t *servo, uint16_t msk, uint16_t val,
 		}
 	} while ((result != val) && (r == 0));
 
-	osal_mutex_unlock(servo->sw.lock);
+	// osal_mutex_unlock(servo->sw.lock);
 
 	return r;
 }
-
 
 /**
  * Destroy servo instance.
@@ -252,12 +251,12 @@ static il_servo_t *il_mcb_servo_create(il_net_t *net, uint16_t id,
 	}
 
 	r = il_servo_base__init(&this->servo, net, id, dict);
-	if (r < 0)
+	if (r < 0) {
 		goto cleanup_servo;
+	}
 
 	this->servo.ops = &il_mcb_servo_ops;
 
-	
 	/* Configure the number of axis if the register is defined */
 	uint16_t subnodes;
 	r = il_servo_raw_read_u16(&this->servo, &IL_REG_ETH_NUMBER_AXIS, NULL, &subnodes);
@@ -469,30 +468,45 @@ static int il_mcb_servo_enable(il_servo_t *servo, int timeout)
 
 	sw = sw_get(servo);
 
+	servo->ops->_state_decode(sw, &state, NULL);
+
+	/* try fault reset if faulty */
+	if ((state == IL_SERVO_STATE_FAULT) ||
+		(state == IL_SERVO_STATE_FAULTR)) {
+		r = il_mcb_servo_fault_reset(servo);
+		if (r < 0)
+			return r;
+
+		sw = sw_get(servo);
+	}
+	
+	sw = sw_get(servo);
 	do {
+		
 		servo->ops->_state_decode(sw, &state, NULL);
 
-		/* try fault reset if faulty */
-		if ((state == IL_SERVO_STATE_FAULT) ||
-		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_mcb_servo_fault_reset(servo);
-			if (r < 0)
-				return r;
-
-			sw = sw_get(servo);
 		/* check state and command action to reach enabled */
-		} else if ((state != IL_SERVO_STATE_ENABLED)) {
-			if (state == IL_SERVO_STATE_FAULT)
+		if ((state != IL_SERVO_STATE_ENABLED)) {
+			if (state == IL_SERVO_STATE_FAULT) {
+				printf("FAULT State : %i\n", sw);
 				return IL_ESTATE;
-			else if (state == IL_SERVO_STATE_NRDY)
+			}
+			else if (state == IL_SERVO_STATE_NRDY) {
+				printf("NRDY State : %i\n", sw);
 				cmd = IL_MC_PDS_CMD_DV;
-			else if (state == IL_SERVO_STATE_DISABLED)
+			}	
+			else if (state == IL_SERVO_STATE_DISABLED) {
+				printf("DISABLED State : %i\n", sw);
 				cmd = IL_MC_PDS_CMD_SD;
-			else if (state == IL_SERVO_STATE_RDY)
+			}		
+			else if (state == IL_SERVO_STATE_RDY) {
+				printf("RDY State : %i\n", sw);
 				cmd = IL_MC_PDS_CMD_SOEO;
-			else
+			}		
+			else {
+				printf("OTHER State : %i\n", sw);
 				cmd = IL_MC_PDS_CMD_EO;
-
+			}
 			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
 						   NULL, cmd, 1, 0);
 			if (r < 0)
@@ -503,7 +517,7 @@ static int il_mcb_servo_enable(il_servo_t *servo, int timeout)
 			if (r < 0)
 				return r;
 		}
-	} while ((state != IL_SERVO_STATE_ENABLED) || !(sw & IL_MC_SW_IANGLE));
+	} while ((state != IL_SERVO_STATE_ENABLED));
 
 	return 0;
 }
