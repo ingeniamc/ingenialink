@@ -258,8 +258,8 @@ static il_servo_t *il_ecat_servo_create(il_net_t *net, uint16_t id,
 		goto cleanup_servo;
 	}
 
-	this->servo.state_subs.stop = 1;
-    (void)osal_thread_join(this->servo.state_subs.monitor, NULL);
+	// this->servo.state_subs.stop = 1;
+    // (void)osal_thread_join(this->servo.state_subs.monitor, NULL);
 		
 	this->servo.ops = &il_ecat_servo_ops;
 
