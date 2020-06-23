@@ -1264,12 +1264,17 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_i
 
 static int *il_ecat_net_master_stop(il_net_t **net)
 {
-	printf("Closing Socket\n");
-	ec_slavecount = 0;
-	/* stop SOEM, close socket */
+    printf("Closing Socket\n");
+    ec_slavecount = 0;
+
+	/* Disconnecting and removing udp interface */
+	udp_disconnect(ptUdpPcb);
+	udp_remove(ptUdpPcb);
+    
+	/* Remove the network interface */
+	netif_remove(&tNetif);
 	ec_close();
 }
-
 
 int input_bin(char *fname, int *length)
 {
