@@ -469,6 +469,10 @@ static void parse_reg_range(xmlNodePtr node, il_reg_t *reg)
 			reg->range.min.s64 = (int64_t)strtoll(
 				(const char *)val, NULL, 0);
 			break;
+		case IL_REG_DTYPE_FLOAT:
+			reg->range.min.flt = (float)strtoll(
+				(const char *)val, NULL, 0);
+			break;
 		default:
 			break;
 		}
@@ -509,6 +513,10 @@ static void parse_reg_range(xmlNodePtr node, il_reg_t *reg)
 			break;
 		case IL_REG_DTYPE_S64:
 			reg->range.max.s64 = (int64_t)strtoll(
+				(const char *)val, NULL, 0);
+			break;
+		case IL_REG_DTYPE_FLOAT:
+			reg->range.max.flt = (float)strtoll(
 				(const char *)val, NULL, 0);
 			break;
 		default:
