@@ -791,6 +791,10 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict, int subnode)
 		reg->range.min.s64 = INT64_MIN;
 		reg->range.max.s64 = INT64_MAX;
 		break;
+	case IL_REG_DTYPE_FLOAT:
+		reg->range.min.flt = INT32_MIN;
+		reg->range.max.flt = INT32_MAX;
+		break;
 	default:
 		break;
 	}
