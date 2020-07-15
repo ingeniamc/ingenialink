@@ -887,8 +887,11 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	
 	if (r < 0) 
 	{
-		printf("Drive disconnected. Closing socket ...\n");
-		closesocket(this->server);
+		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
+		{
+			printf("Drive disconnected. Closing socket ...\n");
+			closesocket(this->server);
+		}
 		goto unlock;
 	}
 
@@ -931,8 +934,11 @@ static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 	
 	if (r < 0) 
 	{
-		printf("Drive disconnected. Closing socket ...\n");
-		closesocket(this->server);
+		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
+		{
+			printf("Drive disconnected. Closing socket ...\n");
+			closesocket(this->server);
+		}
 		goto unlock;
 	}
 
@@ -977,8 +983,11 @@ static int il_eth_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, u
 	
 	if (r < 0) 
 	{
-		printf("Drive disconnected. Closing socket ...\n");
-		closesocket(this->server);
+		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
+		{
+			printf("Drive disconnected. Closing socket ...\n");
+			closesocket(this->server);
+		}
 		goto unlock;
 	}
 
