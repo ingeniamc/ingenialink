@@ -170,8 +170,6 @@ int listener_mcb(void *args)
  	return IL_EFAIL;
 }
 
-
-
 typedef union
 {
 	uint64_t u64;

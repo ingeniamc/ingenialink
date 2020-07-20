@@ -192,7 +192,9 @@ restart:
 
 err:
 	if(this != NULL) {
+		printf("DEVICE DISCONNECTED\n");
 		ilerr__set("Device at %s disconnected\n", this->address_ip);
+		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
 		r = il_net_reconnect(this);
 		if (r == 0) goto restart;
 	}
@@ -462,6 +464,9 @@ static int il_net_reconnect(il_net_t *net)
 			else 
 			{
 				this->stop = 0;
+				this->stop_reconnect = 0;
+				printf("DEVICE RECONNECTED");
+				il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 			}
 		}
 		iMode = 0;
@@ -574,7 +579,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 
 
 	printf("Connected to the Server!\n");
-	// il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 
 	/* start listener thread */
 	this->stop = 0;
@@ -1267,6 +1272,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	// .devs_list_get = il_eth_net_dev_list_get,
 	.servos_list_get = il_eth_net_servos_list_get,
 	.status_get = il_eth_status_get,
+	._state_set = il_net_base__state_set,
 	.mon_stop = il_eth_mon_stop,
 	/* Monitornig */
 	.remove_all_mapped_registers = il_eth_net_remove_all_mapped_registers,

@@ -372,8 +372,8 @@ il_net_dev_mon_t *il_net_dev_mon_create(il_net_prot_t prot)
 #ifdef IL_HAS_PROT_MCB
 	case IL_NET_PROT_MCB:
 		return il_mcb_net_dev_mon_ops.create();
-	// case IL_NET_PROT_ETH:
-	// 	return il_eth_net_dev_mon_ops.create(opts);
+	 case IL_NET_PROT_ETH:
+	 	return il_eth_net_dev_mon_ops.create();
 #endif
 	default:
 		ilerr__set("Unsupported network protocol");
