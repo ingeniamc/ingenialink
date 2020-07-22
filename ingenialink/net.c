@@ -312,9 +312,9 @@ int il_net_master_stop(il_net_t **net)
 	return il_ecat_net_ops.master_stop(net);
 }
 
-int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename) 
+int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename, bool is_summit) 
 {
-	return il_ecat_net_ops.update_firmware(net, ifname, slave, filename);
+	return il_ecat_net_ops.update_firmware(net, ifname, slave, filename, is_summit);
 }
 
 int il_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *fname) 

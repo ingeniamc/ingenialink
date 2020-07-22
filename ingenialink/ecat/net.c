@@ -1247,7 +1247,7 @@ int *il_ecat_net_change_state(uint16_t slave, ec_state state)
 /**
  * Update Firmware using FoE
 */
-static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename) 
+static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename, bool is_summit) 
 {
 	printf(filename);
 	printf("Starting firmware update example\n");
@@ -1277,12 +1277,15 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			}
 			else
 			{
-				printf("Writing COCO FORCE BOOT password through SDO\n");
-				uint32 u32val = 0x424F4F54;
-				if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) 
+				if (!is_summit) 
 				{
-					printf("Force Boot error\n");
-					return UP_FORCE_BOOT_ERROR;
+					printf("Writing COCO FORCE BOOT password through SDO\n");
+					uint32 u32val = 0x424F4F54;
+					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) 
+					{
+						printf("Force Boot error\n");
+						return UP_FORCE_BOOT_ERROR;
+					}
 				}
 
 				printf("Request init state for slave %d\n", slave);
@@ -1293,7 +1296,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				printf("Slave %d state to INIT.\n", slave);
 
 				printf("Request BOOT state for slave %d\n", slave);
-				if (il_ecat_net_change_state(slave, EC_STATE_BOOT) == UP_NOERROR) {
+				if (il_ecat_net_change_state(slave, EC_STATE_BOOT) == UP_NOERROR && !is_summit) {
 					printf("Slave %d entered into state BOOT. \n", slave);
 					printf("Force COCO Boot not applied correctly.\n");
 					return UP_STATEMACHINE_ERROR;

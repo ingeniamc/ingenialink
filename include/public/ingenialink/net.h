@@ -25,6 +25,8 @@
 #ifndef PUBLIC_INGENIALINK_NET_H_
 #define PUBLIC_INGENIALINK_NET_H_
 
+#include <stdbool.h>
+
 #include "common.h"
 #include "registers.h"
 
@@ -614,7 +616,7 @@ IL_EXPORT int il_net_master_startup(il_net_t **net, char *ifname, const char *if
 
 IL_EXPORT int il_net_master_stop(il_net_t **net);
 
-IL_EXPORT int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename);
+IL_EXPORT int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename, bool is_summit);
 
 IL_EXPORT int il_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *fname);
 
