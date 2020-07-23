@@ -1376,7 +1376,6 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				else 
 				{
 					printf("Error during FoE process...");
-					return r;
 				}
 				
 			}
@@ -1402,7 +1401,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 	printf("End firmware update, close socket\n");
 	/* stop SOEM, close socket */
 	ec_close();
-	return UP_NOERROR;
+	return r;
 }
 
 /**
