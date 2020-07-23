@@ -35,6 +35,9 @@
 #include <sercomm/sercomm.h>
 #include <winsock2.h>
 
+/** Number of retries while waiting to receive a frame. */
+#define NUMBER_OP_RETRIES	3
+
 /** Default read timeout. */
 #define READ_TIMEOUT_DEF	10000
 
