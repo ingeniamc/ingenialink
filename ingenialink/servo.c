@@ -152,6 +152,7 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 	// Subnodes = axis available at servo + 1 subnode of general parameters
 	int subnodes = servo->subnodes + 1;
 	for (int j = 0; j < subnodes; j++) {
+		uint16_t actual_crc_value = 0x0000;
 		ids = il_dict_reg_ids_get(servo->dict, j);
 		if (!ids)
 			return IL_EFAIL;
@@ -213,10 +214,18 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 				continue;
 
 			(void)il_dict_reg_storage_update(servo->dict, ids[i], storage, j);
+			if (subnodes > 2) 
+			{
+				if (strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0)
+				{
+					actual_crc_value = il_dict_crc_update(servo->dict, ids[i], storage, j);
+					(void)il_dict_set_crc_input(servo->dict, j, actual_crc_value);
+				}
+			}	
 		}
 	}
+	printf("END\n");
 	
-
 cleanup_ids:
 	il_dict_reg_ids_destroy(ids);
 

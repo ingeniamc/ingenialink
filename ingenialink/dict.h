@@ -116,6 +116,14 @@ struct il_dict {
 	const char *version;
 	/** Dictionary subnodes. */
 	int subnodes;
+	/** CRC input communication core **/
+	uint16_t crc_communication_core;
+	/** CRC input motion core 1 **/
+	uint16_t crc_motion_core_1;
+	/** CRC input motion core 2 **/
+	uint16_t crc_motion_core_2;
+	/** CRC input motion core 3 **/
+	uint16_t crc_motion_core_3;
 };
 typedef struct il_dict il_dict_t;
 

@@ -25,6 +25,7 @@
 #include "dict.h"
 
 #include <inttypes.h>
+#include <stdbool.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/utils.h"
@@ -32,6 +33,78 @@
 /*******************************************************************************
  * Private
  ******************************************************************************/
+
+/** CRC input CCITT XMODEM **/
+bool crc_tabccitt_init_dict = false;
+uint16_t crc_tabccitt_dict[256];
+
+/**
+* Compute CRC of the given buffer.
+*
+* @param [in] buf
+*	Buffer.
+* @param [in] sz
+*	Buffer size (bytes).
+*
+* @return
+*	CRC.
+*/
+static void init_crcccitt_tab_dict(void) {
+
+	uint16_t i;
+	uint16_t j;
+	uint16_t crc;
+	uint16_t c;
+
+	for (i = 0; i<256; i++) {
+		crc = 0;
+		c = i << 8;
+		for (j = 0; j<8; j++) {
+			if ((crc ^ c) & 0x8000) crc = (crc << 1) ^ 0x1021;
+			else crc = crc << 1;
+			c = c << 1;
+		}
+		crc_tabccitt_dict[i] = crc;
+	}
+	crc_tabccitt_init_dict = true;
+}
+
+static uint16_t update_crc_ccitt_dict(uint16_t crc, unsigned char c) {
+
+	if (!crc_tabccitt_init_dict) init_crcccitt_tab_dict();
+	return (crc << 8) ^ crc_tabccitt_dict[((crc >> 8) ^ (uint16_t)c) & 0x00FF];
+
+}
+
+static uint16_t crc_calc_dict(const uint16_t *buf, uint16_t u16Sz, il_dict_t *dict, uint16_t subnode)
+{
+
+	uint16_t crc = 0x0000;
+	switch(subnode) 
+	{
+		case 0:
+			crc = dict->crc_communication_core;
+			break;
+		case 1:
+			crc = dict->crc_motion_core_1;
+			break;
+		case 2:
+			crc = dict->crc_motion_core_2;
+			break;
+		case 3:
+			crc = dict->crc_motion_core_3;
+			break;
+	}
+
+	uint8_t* pu8In = (uint8_t*)buf;
+
+	for (uint16_t u16Idx = 0; u16Idx < u16Sz * 2; u16Idx++)
+	{
+		crc = update_crc_ccitt_dict(crc, pu8In[u16Idx]);
+	}
+	return crc;
+}
+
 
 /** Dummy libxml2 error function (so that no garbage is put to stderr/stdout) */
 static void xml_error(void *ctx, const char *msg, ...)
@@ -682,6 +755,15 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict, int subnode)
 
 	xmlFree(param);
 
+	/* parse: address_type */
+	xmlChar *address_type;
+	address_type = xmlGetProp(node, (const xmlChar *)"address_type");
+	if (!address_type) {
+		reg->address_type = "";
+	}
+	else reg->address_type = (char *)address_type;
+
+
 	/* parse: dtype */
 	param = xmlGetProp(node, (const xmlChar *)"dtype");
 	if (!param) {
@@ -899,6 +981,12 @@ il_dict_t *il_dict_create(const char *dict_f)
 			goto cleanup_h_cats_entries;
 	}
 
+	/* Init crc inputs variables */
+	dict->crc_communication_core = 0;
+	dict->crc_motion_core_1 = 0;
+	dict->crc_motion_core_2 = 0;
+	dict->crc_motion_core_3 = 0;
+
 	/* evaluate XPath for axes */
 	obj_axes = xmlXPathEvalExpression((const xmlChar *)XPATH_AXES, xpath);
 	if (!obj_axes || obj_axes->nodesetval->nodeNr == 0) {
@@ -932,6 +1020,14 @@ il_dict_t *il_dict_create(const char *dict_f)
 		/* allocate each axis */
 		khash_t(cat_id) *h_regs;
 		uint8_t num_axis = obj_axes->nodesetval->nodeNr;
+
+		if (node->nodesetval == "crc") {
+			node->nodeattr["crc"] = dict->crc_communication_core;
+		}
+
+
+
+
 		dict->subnodes = num_axis;
 		dict->h_regs = malloc(num_axis * sizeof(h_regs));
 		/* parse each axis */
@@ -1345,6 +1441,112 @@ int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
 	(void)xmlSetProp(node, (const xmlChar *)"storage",
 			 (const xmlChar *)value);
 
+	return 0;
+}
+
+typedef union
+{
+	uint32_t u32;
+	uint16_t u16[4];
+} UINT_UNION_T;
+
+uint16_t il_dict_crc_update(il_dict_t *dict, const char *id,
+			       il_reg_value_t storage, uint8_t subnode)
+{
+	printf("il_dict_crc_update\n");
+	khint_t k;
+	char value[NUM_STR_LEN];
+	il_reg_t *reg;
+	xmlNodePtr node;
+
+	k = kh_get(reg_id, dict->h_regs[subnode], id);
+	if (k == kh_end(dict->h_regs[subnode])) {
+		ilerr__set("Register not found (%s)", id);
+		return IL_EFAIL;
+	}
+
+	/* obtain register */
+	reg = &kh_value(dict->h_regs[subnode], k).reg;
+
+	uint16_t *st;
+	uint16_t stBuf[4]; // in bytes
+	size_t sz;
+	uint64_t data;
+
+	switch (reg->dtype) {
+	case IL_REG_DTYPE_U8:
+		data = storage.u8;
+		sz = 1;
+		break;
+	case IL_REG_DTYPE_S8:
+		data = storage.s8;
+		sz = 1;
+		break;
+	case IL_REG_DTYPE_U16:
+		data = storage.u16;
+		sz = 2;
+		break;
+	case IL_REG_DTYPE_S16:
+		data = storage.s16;
+		sz = 2;
+		break;
+	case IL_REG_DTYPE_U32:
+		data = storage.u32;
+		sz = 4;
+		break;
+	case IL_REG_DTYPE_S32:
+		data = storage.s32;
+		sz = 4;
+		break;
+	case IL_REG_DTYPE_U64:
+		data = storage.u64;
+		sz = 4;
+		break;
+	case IL_REG_DTYPE_S64:
+		data = storage.s64;
+		sz = 4;
+		break;
+	case IL_REG_DTYPE_FLOAT:
+		data = storage.flt;
+		sz = 4;
+		break;
+	default:
+		break;
+	}
+
+	/* cfg_data */
+	// uint64_t d = 0;	
+	// memcpy(&d, data, sz);
+	
+	UINT_UNION_T u = { .u32 = data };
+	memcpy(&stBuf[0], &u.u16[0], 8);
+
+	uint16_t crc = crc_calc_dict(stBuf, 4, dict, subnode);
+	return crc;
+}
+
+int il_dict_set_crc_input(il_dict_t *dict, uint8_t subnode, uint16_t crc) 
+{
+	printf("il_dict_set_crc_input\n");
+	switch(subnode) 
+	{
+		case 0:
+			// Set dict->crc_communication_core
+			dict->crc_communication_core = crc;
+			break;
+		case 1:
+			// Set dict->crc_motion_core_1
+			dict->crc_motion_core_1 = crc;
+			break;
+		case 2:
+			// Set dict->crc_motion_core_2
+			dict->crc_motion_core_2 = crc;
+			break;
+		case 3:
+			// Set dict->crc_motion_core_3
+			dict->crc_motion_core_3 = crc;
+			break;
+	}
 	return 0;
 }
 
