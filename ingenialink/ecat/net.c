@@ -1456,7 +1456,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 						printf("Wait for drive to reset...\n");
 						Sleep(60000);
 					}
-					printf("FOE Process finished succesfully!!.\n");
+					printf("FOE Process finished succesfully!!!.\n");
 				}
 				else 
 				{
