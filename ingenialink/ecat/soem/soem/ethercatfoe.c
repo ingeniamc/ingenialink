@@ -292,6 +292,7 @@ int ecx_FOEwrite(ecx_contextt *context, uint16 slave, char *filename, uint32 pas
                            wkc = ecx_mbxsend(context, slave, (ec_mbxbuft *)&MbxOut, EC_TIMEOUTTXM);
                            if (wkc <= 0)
                            {
+							  printf("Error sending/receiving frame\n");
                               worktodo = FALSE;
                            }
                         }

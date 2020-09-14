@@ -1268,8 +1268,11 @@ static int *il_ecat_net_master_stop(il_net_t **net)
     ec_slavecount = 0;
 
 	/* Disconnecting and removing udp interface */
-	udp_disconnect(ptUdpPcb);
-	udp_remove(ptUdpPcb);
+	if (ptUdpPcb != NULL) {
+		udp_disconnect(ptUdpPcb);
+		udp_remove(ptUdpPcb);
+	}
+	
     
 	/* Remove the network interface */
 	netif_remove(&tNetif);
@@ -1437,12 +1440,22 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				if (r > 0) 
 				{
 					printf("Request init state for slave %d\n", slave);
-					ec_slave[slave].state = EC_STATE_INIT;
-					ec_writestate(slave);
+					if (!is_summit) 
+					{
+						ec_slave[slave].state = EC_STATE_INIT;
+						ec_writestate(slave);
 
-					printf("Wait for drive to reset...\n");
-					Sleep(4000);
+						printf("Wait for drive to reset...\n");
+						Sleep(4000);
+					}
+					else 
+					{
+						ec_slave[slave].state = EC_STATE_INIT;
+						ec_writestate(slave);
 
+						printf("Wait for drive to reset...\n");
+						Sleep(60000);
+					}
 					printf("FOE Process finished succesfully!!.\n");
 				}
 				else 
