@@ -1262,40 +1262,6 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_i
 	return ec_slavecount;
 }
 
-static int *il_ecat_net_master_stop(il_net_t **net)
-{
-    printf("Closing Socket\n");
-    ec_slavecount = 0;
-
-	/* Disconnecting and removing udp interface */
-	if (ptUdpPcb != NULL) {
-		udp_disconnect(ptUdpPcb);
-		udp_remove(ptUdpPcb);
-	}
-	
-    
-	/* Remove the network interface */
-	netif_remove(&tNetif);
-	ec_close();
-}
-
-int input_bin(char *fname, int *length)
-{
-    FILE *fp;
-
-	int cc = 0, c;
-
-    fp = fopen(fname, "rb");
-    if(fp == NULL)
-        return 0;
-	while (((c = fgetc(fp)) != EOF) && (cc < FWBUFSIZE))
-		filebuffer[cc++] = (uint8)c;
-	*length = cc;
-	fclose(fp);
-	return 1;
-}
-
-
 enum update_error
 {
 	UP_NOERROR = 0,
@@ -1318,6 +1284,45 @@ int *il_ecat_net_change_state(uint16_t slave, ec_state state)
 	}
 	return UP_NOERROR;
 }
+
+static int *il_ecat_net_master_stop(il_net_t **net)
+{
+    printf("Closing Socket\n");
+    printf("Setting state to INIT\n");
+	if (il_ecat_net_change_state(0, EC_STATE_INIT) != UP_NOERROR) {
+		printf("Slave %d cannot enter into state INIT.\n", 0);
+	}
+	printf("Disconnecting interface\n");
+	ec_slavecount = 0;
+	/* Disconnecting and removing udp interface */
+	if (ptUdpPcb != NULL) {
+		udp_disconnect(ptUdpPcb);
+		udp_remove(ptUdpPcb);
+	}
+	
+	/* Remove the network interface */
+	netif_remove(&tNetif);
+	ec_close();
+}
+
+int input_bin(char *fname, int *length)
+{
+    FILE *fp;
+
+	int cc = 0, c;
+
+    fp = fopen(fname, "rb");
+    if(fp == NULL)
+        return 0;
+	while (((c = fgetc(fp)) != EOF) && (cc < FWBUFSIZE))
+		filebuffer[cc++] = (uint8)c;
+	*length = cc;
+	fclose(fp);
+	return 1;
+}
+
+
+
 
 /**
  * Update Firmware using FoE
