@@ -163,19 +163,19 @@ int ecx_closenic(ecx_portt *port)
 {
    timeEndPeriod(15);
 
-   if (port->sockhandle != NULL)
-   {
-      DeleteCriticalSection(&(port->getindex_mutex));
-      DeleteCriticalSection(&(port->tx_mutex));
-      DeleteCriticalSection(&(port->rx_mutex));
-      pcap_close(port->sockhandle);
-      port->sockhandle = NULL;
-   }
+   DeleteCriticalSection(&(port->getindex_mutex));
+   DeleteCriticalSection(&(port->tx_mutex));
+   DeleteCriticalSection(&(port->rx_mutex));
+   pcap_close(port->sockhandle);
+   port->sockhandle = NULL;
+
    if ((port->redport) && (port->redport->sockhandle != NULL))
    {
       pcap_close(port->redport->sockhandle);
       port->redport->sockhandle = NULL;
    }
+   
+   port = NULL;
 
    return 0;
 }
