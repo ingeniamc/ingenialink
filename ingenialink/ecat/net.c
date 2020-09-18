@@ -90,6 +90,8 @@ err_t error;
 
 uint8_t frame_received[1024];
 
+boolean isFirstTime = true;
+
 /*******************************************************************************/
 
 // FoE
@@ -395,6 +397,7 @@ static il_net_servos_list_t *il_ecat_net_servos_list_get(
 			r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 			if (r < 0) {
 				printf("Second try fail\n");
+				il_net_master_stop(net);
 				return NULL;
 			}
 		}
@@ -646,10 +649,8 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 		{
 			break;
 		}
-
 	}
-	
-	
+
 	if (r < 0) 
 	{
 		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
@@ -1098,7 +1099,19 @@ OSAL_THREAD_FUNC mailbox_reader(void *lpParam)
 int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 {
 	//printf("EoE Hook!\n");
+	// osal_mutex_lock(this->net.lock);
 	int wkc;
+
+	/*il_ecat_net_t *this;
+	this = calloc(1, sizeof(*this));
+	if (!this) {
+		ilerr__set("Network allocation failed");
+		return NULL;
+	}
+	osal_mutex_lock(this->net.lock);
+	printf("EHHHH!\n");*/
+	
+	
 	/* 
 	* 	Pass received Mbx data to EoE recevive fragment function that
 	* 	that will start/continue fill an Ethernet frame buffer
@@ -1152,7 +1165,7 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 	return ec_slavecount;
 }
 
-void init_eoe(ecx_contextt * context)
+void init_eoe(il_net_t *net, ecx_contextt * context)
 {
 	printf("Init EoE\n");
 	/* Set the HOOK */
@@ -1197,11 +1210,16 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_i
 	opts.port_ip = 1061;
 	opts.port = "";
 
-	*net = il_ecat_net_create(&opts);
-	if (!*net) {
-		printf("FAIL");
-		return IL_EFAIL;
+	if (isFirstTime) 
+	{
+		*net = il_ecat_net_create(&opts);
+		if (!*net) {
+			printf("FAIL");
+			return IL_EFAIL;
+		}
+		isFirstTime = false;
 	}
+	
 
 	printf("Starting EtherCAT Master\n");
 	/* initialise SOEM, bind socket to ifname */
@@ -1251,7 +1269,7 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_i
 			printf("No slaves found!\n");
 		}
 
-		init_eoe(&ecx_context);
+		init_eoe(net, &ecx_context);
 		
 	}
 	else
@@ -1288,6 +1306,7 @@ int *il_ecat_net_change_state(uint16_t slave, ec_state state)
 static int *il_ecat_net_master_stop(il_net_t **net)
 {
     printf("Closing Socket\n");
+	
     printf("Setting state to INIT\n");
 	if (il_ecat_net_change_state(0, EC_STATE_INIT) != UP_NOERROR) {
 		printf("Slave %d cannot enter into state INIT.\n", 0);
@@ -1302,6 +1321,15 @@ static int *il_ecat_net_master_stop(il_net_t **net)
 	
 	/* Remove the network interface */
 	netif_remove(&tNetif);
+
+	ec_mbxempty(0, 100000);
+	// context = NULL;
+	/* Join all mailbox threads */
+	// osal_thread_join(&thread1, NULL);
+	// osal_thread_join(&thread2, NULL);
+	context->EOEhook = NULL;
+	// il_ecat_net_dev_mon_destroy(&net->mon);
+	/* Close EtherCAT interface */
 	ec_close();
 }
 
