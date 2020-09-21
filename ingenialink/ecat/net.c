@@ -395,6 +395,7 @@ static il_net_servos_list_t *il_ecat_net_servos_list_get(
 			r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 			if (r < 0) {
 				printf("Second try fail\n");
+				il_net_master_stop(net);
 				return NULL;
 			}
 		}
