@@ -1210,16 +1210,12 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_i
 	opts.port_ip = 1061;
 	opts.port = "";
 
-	if (isFirstTime) 
-	{
-		*net = il_ecat_net_create(&opts);
-		if (!*net) {
-			printf("FAIL");
-			return IL_EFAIL;
-		}
-		isFirstTime = false;
-	}
-	
+
+	/**net = il_ecat_net_create(&opts);
+	if (!*net) {
+		printf("FAIL");
+		return IL_EFAIL;
+	}*/
 
 	printf("Starting EtherCAT Master\n");
 	/* initialise SOEM, bind socket to ifname */
