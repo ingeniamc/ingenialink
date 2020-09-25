@@ -887,6 +887,11 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
 	wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
+	if (wkc < 0) 
+	{
+		return IL_EFAIL;	
+	}
+
 	int s32SzRead = 1024;
 	wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
 
