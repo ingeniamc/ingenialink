@@ -374,10 +374,12 @@ static int il_ecat_net_is_slave_connected(il_net_t *net, const char *ip) {
 static int il_ecat_net_reconnect(il_net_t *net)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
-	this->stop = 1;
-	int r = -1;
+
+	int r = 0;
+	// this->stop = 1;
+	// int r = -1;
     
-	r = this->stop_reconnect;
+	// r = this->stop_reconnect;
 	return r;
 }
 
