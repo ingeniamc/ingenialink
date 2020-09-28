@@ -376,7 +376,25 @@ static int il_ecat_net_reconnect(il_net_t *net)
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop = 1;
 	int r = -1;
-    
+	uint16_t sw;
+    while (r < 0 && this->stop_reconnect == 0)
+	{
+		// Try to read 
+		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
+		if (r < 0) 
+		{
+			printf("Fail connecting to server\n");
+		}
+		else 
+		{
+			this->stop = 0;
+			this->stop_reconnect = 0;
+			printf("DEVICE RECONNECTED");
+			il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+		}
+		Sleep(2000);
+	}
+
 	r = this->stop_reconnect;
 	return r;
 }
