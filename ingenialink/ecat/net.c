@@ -92,6 +92,10 @@ uint8_t frame_received[1024];
 
 boolean isFirstTime = true;
 
+char *Ifname;
+char *If_address_ip;
+
+
 /*******************************************************************************/
 
 // FoE
@@ -376,26 +380,34 @@ static int il_ecat_net_reconnect(il_net_t *net)
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop = 1;
 	int r = -1;
+	int r2 = 0;
 	uint16_t sw;
     while (r < 0 && this->stop_reconnect == 0)
 	{
-		// Try to read 
-		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
-		if (r < 0) 
+		r2 = il_net_master_stop(&this->net);
+		r2 = il_net_master_startup(&this->net, Ifname, If_address_ip);
+		
+		if (r2 > 0)
 		{
-			printf("Fail connecting to server\n");
-		}
-		else 
-		{
-			this->stop = 0;
-			this->stop_reconnect = 0;
-			printf("DEVICE RECONNECTED");
-			il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+			// Try to read 
+			Sleep(2000);
+			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
+			if (r < 0) {
+
+			}
+			else {
+				this->stop = 0;
+				this->stop_reconnect = 0;
+				printf("DEVICE RECONNECTED");
+				il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+			}
 		}
 		Sleep(2000);
 	}
 
 	r = this->stop_reconnect;
+	this->stop = 0;
+	this->stop_reconnect = 0;
 	return r;
 }
 
@@ -1271,6 +1283,10 @@ void init_eoe(il_net_t *net, ecx_contextt * context)
 
 int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_ip)
 {
+	// Store ifname and if_address_ip 
+	Ifname = ifname;
+	If_address_ip = if_address_ip;
+
 	int i, oloop, iloop, chk;
 	needlf = FALSE;
 	inOP = FALSE;
@@ -1392,8 +1408,6 @@ static int *il_ecat_net_master_stop(il_net_t **net)
 	netif_remove(&tNetif);
 	ec_mbxempty(0, 100000);
 	context->EOEhook = NULL;
-
-	il_ecat_mon_stop(net);
 
 	/* Close EtherCAT interface */
 	ec_close();
