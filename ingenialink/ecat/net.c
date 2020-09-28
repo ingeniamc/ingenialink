@@ -234,8 +234,46 @@ int listener_ecat(void *args)
 	int r;
 	uint64_t buf;
 
+restart:
+	int error_count = 0;
+	il_ecat_net_t *this = to_ecat_net(args);
+	while (error_count < 10 && this != NULL && this->stop_reconnect == 0 ) {
+		uint16_t sw;
+		
+		/* try to read the status word register to see if a servo is alive */
+		if (this != NULL) {
+			osal_mutex_lock(this->net.lock);
+			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
+			osal_mutex_unlock(this->net.lock);
+			if (r < 0) {
+				error_count = error_count + 1;
+			}
+			else {
+				error_count = 0;
+				this->stop = 0;
+				process_statusword(this, 1, sw);
+			}
+			
+		}
+		Sleep(100);
+	}
+	if (error_count == 10 && this != NULL && this->stop_reconnect == 0) {
+		goto err;
+	}
+	return 0;
+
+err:
+	if(this != NULL) {
+		printf("DEVICE DISCONNECTED\n");
+		ilerr__set("Device at %s disconnected\n", this->address_ip);
+		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
+		r = il_ecat_net_reconnect(this);
+		if (r == 0) goto restart;
+	}
 	return 0;
 }
+
+
 
 void SignalHandlerECAT(int signal)
 {
@@ -348,6 +386,18 @@ static int il_ecat_net_connect(il_net_t *net, const char *ip)
 	il_ecat_net_t *this = to_ecat_net(net);
 
 	int r = 0;
+
+
+	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+	/* start listener thread */
+	this->stop = 0;
+	this->stop_reconnect = 0;
+
+	this->listener = osal_thread_create_(listener_ecat, this);
+	if (!this->listener) {
+		ilerr__set("Listener thread creation failed");
+		// goto close_ser;
+	}
 
 	return 0;
 }
@@ -1322,14 +1372,11 @@ static int *il_ecat_net_master_stop(il_net_t **net)
 	
 	/* Remove the network interface */
 	netif_remove(&tNetif);
-
 	ec_mbxempty(0, 100000);
-	// context = NULL;
-	/* Join all mailbox threads */
-	// osal_thread_join(&thread1, NULL);
-	// osal_thread_join(&thread2, NULL);
 	context->EOEhook = NULL;
-	// il_ecat_net_dev_mon_destroy(&net->mon);
+
+	il_ecat_mon_stop(net);
+
 	/* Close EtherCAT interface */
 	ec_close();
 }
@@ -2152,6 +2199,7 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	// .devs_list_get = il_eth_net_dev_list_get,
 	.servos_list_get = il_ecat_net_servos_list_get,
 	.status_get = il_ecat_status_get,
+	._state_set = il_net_base__state_set,
 	.mon_stop = il_ecat_mon_stop,
 	/* Monitornig */
 	.remove_all_mapped_registers = il_ecat_net_remove_all_mapped_registers,
