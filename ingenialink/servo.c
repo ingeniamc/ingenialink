@@ -741,7 +741,7 @@ const uint16_t *il_servo_subnodes_get(il_servo_t *servo)
 	return servo->subnodes;
 }
 
-int il_servo_connect_ecat(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
+int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, char *if_address_ip, il_net_t **net, il_servo_t **servo,
 		   const char *dict, const char *address_ip, int port_ip)
 {
 	il_net_servos_list_t *servo_ids, *servo_id;
@@ -760,6 +760,12 @@ int il_servo_connect_ecat(il_net_prot_t prot, il_net_t **net, il_servo_t **servo
 		printf("FAIL");
 		return IL_EFAIL;
 	}
+
+	// Initialization of the EtherCAT master
+	il_net_master_startup(net, ifname, if_address_ip);
+	
+	// Wait until slaves are initialized
+	Sleep(2000);
 
 	/* Create as much servos as slaves found */
 	servo_ids = il_net_servos_list_get(*net, NULL, NULL);
