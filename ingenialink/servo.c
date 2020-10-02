@@ -778,11 +778,11 @@ int il_servo_connect_ecat(il_net_prot_t prot, const char *ifname, const char *if
 			/* found */
 			if (servo) {
 				il_net_servos_list_destroy(servo_ids);
-				return 0;
+				return r;
 			}
 		}
 	}
 	printf("No connected servos found\n");
-	ilerr__set("No connected servos found");
-	return IL_EFAIL;
+	// ilerr__set("No connected servos found");
+	return 0;
 }
