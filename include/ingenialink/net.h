@@ -416,6 +416,8 @@ typedef struct {
 	int (*eeprom_tool)();
 
 	int (*force_error)();
+
+	int (*set_if_params)();
 	
 } il_ecat_net_ops_t;
 

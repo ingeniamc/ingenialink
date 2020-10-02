@@ -1281,11 +1281,14 @@ void init_eoe(il_net_t *net, ecx_contextt * context)
 	osal_thread_create(&thread2, 128000, &mailbox_reader, &ecx_context);
 }
 
-int *il_ecat_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip)
-{
-	// Store ifname and if_address_ip 
+int *il_ecat_net_set_if_params(il_net_t *net, const char *ifname, const char *if_address_ip) {
+
 	Ifname = ifname;
 	If_address_ip = if_address_ip;
+}
+
+int *il_ecat_net_master_startup(il_net_t *net, const char *ifname, const char *if_address_ip)
+{
 
 	int i, oloop, iloop, chk;
 	needlf = FALSE;
@@ -1298,7 +1301,6 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip
 	opts.connect_slave = 1;
 	opts.port_ip = 1061;
 	opts.port = "";
-
 
 	/**net = il_ecat_net_create(&opts);
 	if (!*net) {
@@ -1428,8 +1430,6 @@ int input_bin(char *fname, int *length)
 	fclose(fp);
 	return 1;
 }
-
-
 
 
 /**
@@ -2248,7 +2248,9 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	.update_firmware = il_ecat_net_update_firmware,
 	.eeprom_tool = il_ecat_net_eeprom_tool,
 
-	.force_error = il_ecat_net_force_error
+	.force_error = il_ecat_net_force_error,
+
+	.set_if_params = il_ecat_net_set_if_params
 };
 
 /** MCB network device monitor operations. */

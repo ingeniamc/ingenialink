@@ -741,7 +741,7 @@ const uint16_t *il_servo_subnodes_get(il_servo_t *servo)
 	return servo->subnodes;
 }
 
-int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, char *if_address_ip, il_net_t **net, il_servo_t **servo,
+int il_servo_connect_ecat(il_net_prot_t prot, const char *ifname, const char *if_address_ip, il_net_t **net, il_servo_t **servo,
 		   const char *dict, const char *address_ip, int port_ip)
 {
 	il_net_servos_list_t *servo_ids, *servo_id;
@@ -762,24 +762,25 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, char *if_address_ip,
 	}
 
 	// Initialization of the EtherCAT master
-	il_net_master_startup(net, ifname, if_address_ip);
-	
-	// Wait until slaves are initialized
-	Sleep(2000);
+	int r = il_net_master_startup(net, ifname, if_address_ip);
+	if (r > 0) {
+		// Wait until slaves are initialized
+		Sleep(2000);
 
-	/* Create as much servos as slaves found */
-	servo_ids = il_net_servos_list_get(*net, NULL, NULL);
+		/* Create as much servos as slaves found */
+		servo_ids = il_net_servos_list_get(*net, NULL, NULL);
 
-	/* Create servo */
-	il_net_servos_list_foreach(servo_id, servo_ids) {
-		*servo = il_servo_create(*net, servo_id->id, dict);
-		/* found */
-		if (servo) {
-			il_net_servos_list_destroy(servo_ids);
-			return 0;
+		/* Create servo */
+		il_net_servos_list_foreach(servo_id, servo_ids) {
+			*servo = il_servo_create(*net, servo_id->id, dict);
+			/* found */
+			if (servo) {
+				il_net_servos_list_destroy(servo_ids);
+				return 0;
+			}
 		}
 	}
-
+	
 	ilerr__set("No connected servos found");
 	return IL_EFAIL;
 }
