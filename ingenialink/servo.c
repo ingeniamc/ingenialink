@@ -762,7 +762,8 @@ int il_servo_connect_ecat(il_net_prot_t prot, const char *ifname, const char *if
 	}
 
 	// Initialization of the EtherCAT master
-	int r = il_net_master_startup(net, ifname, if_address_ip);
+	int r = 0;
+	// int r = il_net_master_startup(net, ifname, if_address_ip);
 	printf("master_startup result: %i\n", r);
 	if (r > 0) {
 		printf("Servos found!\n");
