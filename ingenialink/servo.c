@@ -755,20 +755,19 @@ int il_servo_connect_ecat(il_net_prot_t prot, const char *ifname, const char *if
 	opts.port_ip = port_ip;
 	opts.port = "";
 	
-	*net = il_net_create(prot, &opts);
-	if (!*net) {
-		printf("FAIL");
-		return IL_EFAIL;
-	}
-
 	// Initialization of the EtherCAT master
-	int r = 0;
-	// int r = il_net_master_startup(net, ifname, if_address_ip);
+	int r = il_net_master_startup(net, ifname, if_address_ip);
 	printf("master_startup result: %i\n", r);
 	if (r > 0) {
 		printf("Servos found!\n");
 		// Wait until slaves are initialized
 		Sleep(2000);
+
+		*net = il_net_create(prot, &opts);
+		if (!*net) {
+			printf("FAIL");
+			return IL_EFAIL;
+		}
 
 		/* Create as much servos as slaves found */
 		servo_ids = il_net_servos_list_get(*net, NULL, NULL);
