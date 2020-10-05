@@ -328,6 +328,8 @@ static il_net_t *il_ecat_net_create(const il_ecat_net_opts_t *opts)
 	this->net.prot = IL_NET_PROT_ECAT;
 	this->address_ip = opts->address_ip;
 	this->port_ip = opts->port_ip;
+	this->ifname = opts->ifname;
+	this->if_address_ip = opts->if_address_ip;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(ecat_net_destroy, this);
@@ -385,7 +387,7 @@ static int il_ecat_net_reconnect(il_net_t *net)
     while (r < 0 && this->stop_reconnect == 0)
 	{
 		r2 = il_net_master_stop(&this->net);
-		r2 = il_net_master_startup(&this->net, Ifname, If_address_ip);
+		r2 = il_net_master_startup(&this->net, this->ifname, this->if_address_ip);
 		
 		if (r2 > 0)
 		{
@@ -1301,12 +1303,9 @@ int *il_ecat_net_master_startup(il_net_t *net, const char *ifname, const char *i
 	opts.connect_slave = 1;
 	opts.port_ip = 1061;
 	opts.port = "";
+	opts.ifname = ifname;
+	opts.if_address_ip = if_address_ip;
 
-	/**net = il_ecat_net_create(&opts);
-	if (!*net) {
-		printf("FAIL");
-		return IL_EFAIL;
-	}*/
 
 	printf("Starting EtherCAT Master\n");
 	/* initialise SOEM, bind socket to ifname */

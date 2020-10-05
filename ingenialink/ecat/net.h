@@ -71,6 +71,10 @@ typedef struct il_ecat_net {
 	osal_thread_t *listener;
 	/** Listener stop flag. */
 	int stop;
+
+	const char *ifname;
+	const char *if_address_ip;
+
 } il_ecat_net_t;
 
 /** ECAT network device monitor */

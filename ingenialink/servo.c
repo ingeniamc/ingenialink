@@ -754,6 +754,8 @@ int il_servo_connect_ecat(il_net_prot_t prot, const char *ifname, const char *if
 	opts.connect_slave = 1;
 	opts.port_ip = port_ip;
 	opts.port = "";
+	opts.ifname = ifname;
+	opts.if_address_ip = if_address_ip;
 	
 	// Initialization of the EtherCAT master
 	int r = il_net_master_startup(net, ifname, if_address_ip);
@@ -784,5 +786,5 @@ int il_servo_connect_ecat(il_net_prot_t prot, const char *ifname, const char *if
 	}
 	printf("No connected servos found\n");
 	// ilerr__set("No connected servos found");
-	return 0;
+	return r;
 }

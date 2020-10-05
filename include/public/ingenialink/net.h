@@ -111,6 +111,8 @@ typedef struct {
 	/** Protocol. */
 	int protocol;
 
+	const char *ifname;
+	const char *if_address_ip;
 } il_ecat_net_opts_t;
 
 /** Default read timeout (ms). */
