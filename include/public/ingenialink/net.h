@@ -111,8 +111,8 @@ typedef struct {
 	/** Protocol. */
 	int protocol;
 
-	const char *ifname;
-	const char *if_address_ip;
+	char *ifname;
+	char *if_address_ip;
 } il_ecat_net_opts_t;
 
 /** Default read timeout (ms). */
@@ -615,9 +615,9 @@ IL_EXPORT int il_net_close_socket(il_net_t *net);
 /**
 	SOEM
 */
-IL_EXPORT int il_net_master_startup(il_net_t **net, const char *ifname, const char *if_address_ip);
+IL_EXPORT int il_net_master_startup(il_net_t **net, char *ifname, char *if_address_ip);
 
-IL_EXPORT int il_net_set_if_params(il_net_t *net, const char *ifname, const char *if_address_ip);
+IL_EXPORT int il_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip);
 
 IL_EXPORT int il_net_master_stop(il_net_t **net);
 

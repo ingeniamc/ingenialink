@@ -302,7 +302,7 @@ int il_net_ecat_close_socket(il_net_t *net)
 	return il_ecat_net_ops.close_socket(net);
 }
 
-int il_net_master_startup(il_net_t *net, const char *ifname, const char *if_address_ip)
+int il_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip)
 {
 	return il_ecat_net_ops.master_startup(net, ifname, if_address_ip);
 }
@@ -312,7 +312,7 @@ int il_net_master_stop(il_net_t **net)
 	return il_ecat_net_ops.master_stop(net);
 }
 
-int il_net_set_if_params(il_net_t *net, const char *ifname, const char *if_address_ip) 
+int il_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip) 
 {
 	return il_ecat_net_ops.set_if_params(net, ifname, if_address_ip);
 }

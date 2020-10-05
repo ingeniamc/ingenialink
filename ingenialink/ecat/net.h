@@ -72,8 +72,8 @@ typedef struct il_ecat_net {
 	/** Listener stop flag. */
 	int stop;
 
-	const char *ifname;
-	const char *if_address_ip;
+	char *ifname;
+	char *if_address_ip;
 
 } il_ecat_net_t;
 
