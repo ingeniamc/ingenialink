@@ -98,7 +98,7 @@ static uint16_t crc_calc_dict(const uint16_t *buf, uint16_t u16Sz, il_dict_t *di
 
 	uint8_t* pu8In = (uint8_t*)buf;
 
-	for (uint16_t u16Idx = 0; u16Idx < u16Sz * 2; u16Idx++)
+	for (uint16_t u16Idx = 0; u16Idx < u16Sz; u16Idx++)
 	{
 		crc = update_crc_ccitt_dict(crc, pu8In[u16Idx]);
 	}
@@ -1021,12 +1021,9 @@ il_dict_t *il_dict_create(const char *dict_f)
 		khash_t(cat_id) *h_regs;
 		uint8_t num_axis = obj_axes->nodesetval->nodeNr;
 
-		if (node->nodesetval == "crc") {
-			node->nodeattr["crc"] = dict->crc_communication_core;
-		}
-
-
-
+		// if (node->nodesetval == "crc") {
+		// 	node->nodeattr["crc"] = dict->crc_communication_core;
+		// }
 
 		dict->subnodes = num_axis;
 		dict->h_regs = malloc(num_axis * sizeof(h_regs));
@@ -1507,8 +1504,10 @@ uint16_t il_dict_crc_update(il_dict_t *dict, const char *id,
 		sz = 4;
 		break;
 	case IL_REG_DTYPE_FLOAT:
-		data = storage.flt;
+		/*data = storage.flt;*/
 		sz = 4;
+		memcpy(&data, &storage.flt, sz);
+		
 		break;
 	default:
 		break;
@@ -1517,11 +1516,13 @@ uint16_t il_dict_crc_update(il_dict_t *dict, const char *id,
 	/* cfg_data */
 	// uint64_t d = 0;	
 	// memcpy(&d, data, sz);
-	
-	UINT_UNION_T u = { .u32 = data };
-	memcpy(&stBuf[0], &u.u16[0], 8);
+	//uint8_t *p = (uint8_t*)&data;
 
-	uint16_t crc = crc_calc_dict(stBuf, 4, dict, subnode);
+	//UINT_UNION_T u = { .u32 = data };
+	//memcpy(&stBuf[0], &u.u16[0], 8);
+
+	uint16_t crc = crc_calc_dict((uint16_t*)&data, sz, dict, subnode);
+	dict->crc_communication_core = crc;
 	return crc;
 }
 
