@@ -233,7 +233,7 @@ int ecx_FOEwrite(ecx_contextt *context, uint16 slave, char *filename, uint32 pas
    /* copy filename in mailbox */
    memcpy(&FOEp->FileName[0], filename, fnsize);
    /* send FoE request to slave */
-   wkc = ecx_mbxsend(context, slave, (ec_mbxbuft *)&MbxOut, EC_TIMEOUTTXM);
+   wkc = ecx_mbxsend(context, slave, (ec_mbxbuft *)&MbxOut, EC_TIMEOUTSAFE);
    if (wkc > 0) /* succeeded to place mailbox in slave ? */
    {
       do
@@ -289,9 +289,10 @@ int ecx_FOEwrite(ecx_contextt *context, uint16 slave, char *filename, uint32 pas
                            memcpy(&FOEp->Data[0], p, segmentdata);
                            p = (uint8 *)p + segmentdata;
                            /* send FoE data to slave */
-                           wkc = ecx_mbxsend(context, slave, (ec_mbxbuft *)&MbxOut, EC_TIMEOUTTXM);
+                           wkc = ecx_mbxsend(context, slave, (ec_mbxbuft *)&MbxOut, EC_TIMEOUTSAFE);
                            if (wkc <= 0)
                            {
+							  printf("Error sending/receiving frame\n");
                               worktodo = FALSE;
                            }
                         }

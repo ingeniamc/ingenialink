@@ -302,7 +302,7 @@ int il_net_ecat_close_socket(il_net_t *net)
 	return il_ecat_net_ops.close_socket(net);
 }
 
-int il_net_master_startup(il_net_t **net, char *ifname, const char *if_address_ip)
+int il_net_master_startup(il_net_t *net, const char *ifname, const char *if_address_ip)
 {
 	return il_ecat_net_ops.master_startup(net, ifname, if_address_ip);
 }
@@ -310,6 +310,11 @@ int il_net_master_startup(il_net_t **net, char *ifname, const char *if_address_i
 int il_net_master_stop(il_net_t **net)
 {
 	return il_ecat_net_ops.master_stop(net);
+}
+
+int il_net_set_if_params(il_net_t *net, const char *ifname, const char *if_address_ip) 
+{
+	return il_ecat_net_ops.set_if_params(net, ifname, if_address_ip);
 }
 
 int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename, bool is_summit) 
@@ -374,6 +379,8 @@ il_net_dev_mon_t *il_net_dev_mon_create(il_net_prot_t prot)
 		return il_mcb_net_dev_mon_ops.create();
 	 case IL_NET_PROT_ETH:
 	 	return il_eth_net_dev_mon_ops.create();
+	 case IL_NET_PROT_ECAT:
+		 return il_ecat_net_dev_mon_ops.create();
 #endif
 	default:
 		ilerr__set("Unsupported network protocol");

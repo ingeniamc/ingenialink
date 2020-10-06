@@ -90,6 +90,12 @@ err_t error;
 
 uint8_t frame_received[1024];
 
+boolean isFirstTime = true;
+
+char *Ifname;
+char *If_address_ip;
+
+
 /*******************************************************************************/
 
 // FoE
@@ -232,8 +238,46 @@ int listener_ecat(void *args)
 	int r;
 	uint64_t buf;
 
+restart:
+	int error_count = 0;
+	il_ecat_net_t *this = to_ecat_net(args);
+	while (error_count < 10 && this != NULL && this->stop_reconnect == 0 ) {
+		uint16_t sw;
+		
+		/* try to read the status word register to see if a servo is alive */
+		if (this != NULL) {
+			osal_mutex_lock(this->net.lock);
+			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
+			osal_mutex_unlock(this->net.lock);
+			if (r < 0) {
+				error_count = error_count + 1;
+			}
+			else {
+				error_count = 0;
+				this->stop = 0;
+				process_statusword(this, 1, sw);
+			}
+			
+		}
+		Sleep(100);
+	}
+	if (error_count == 10 && this != NULL && this->stop_reconnect == 0) {
+		goto err;
+	}
+	return 0;
+
+err:
+	if(this != NULL) {
+		printf("DEVICE DISCONNECTED\n");
+		ilerr__set("Device at %s disconnected\n", this->address_ip);
+		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
+		r = il_ecat_net_reconnect(this);
+		if (r == 0) goto restart;
+	}
 	return 0;
 }
+
+
 
 void SignalHandlerECAT(int signal)
 {
@@ -336,8 +380,34 @@ static int il_ecat_net_reconnect(il_net_t *net)
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop = 1;
 	int r = -1;
-    
+	int r2 = 0;
+	uint16_t sw;
+    while (r < 0 && this->stop_reconnect == 0)
+	{
+		r2 = il_net_master_stop(&this->net);
+		r2 = il_net_master_startup(&this->net, Ifname, If_address_ip);
+		
+		if (r2 > 0)
+		{
+			// Try to read 
+			Sleep(2000);
+			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
+			if (r < 0) {
+
+			}
+			else {
+				this->stop = 0;
+				this->stop_reconnect = 0;
+				printf("DEVICE RECONNECTED");
+				il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+			}
+		}
+		Sleep(2000);
+	}
+
 	r = this->stop_reconnect;
+	this->stop = 0;
+	this->stop_reconnect = 0;
 	return r;
 }
 
@@ -346,6 +416,18 @@ static int il_ecat_net_connect(il_net_t *net, const char *ip)
 	il_ecat_net_t *this = to_ecat_net(net);
 
 	int r = 0;
+
+
+	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+	/* start listener thread */
+	this->stop = 0;
+	this->stop_reconnect = 0;
+
+	this->listener = osal_thread_create_(listener_ecat, this);
+	if (!this->listener) {
+		ilerr__set("Listener thread creation failed");
+		// goto close_ser;
+	}
 
 	return 0;
 }
@@ -395,6 +477,7 @@ static il_net_servos_list_t *il_ecat_net_servos_list_get(
 			r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 			if (r < 0) {
 				printf("Second try fail\n");
+				il_net_master_stop(net);
 				return NULL;
 			}
 		}
@@ -646,10 +729,8 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 		{
 			break;
 		}
-
 	}
-	
-	
+
 	if (r < 0) 
 	{
 		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
@@ -886,6 +967,11 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
 	wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
+	if (wkc < 0) 
+	{
+		return IL_EFAIL;	
+	}
+
 	int s32SzRead = 1024;
 	wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
 
@@ -1098,7 +1184,19 @@ OSAL_THREAD_FUNC mailbox_reader(void *lpParam)
 int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 {
 	//printf("EoE Hook!\n");
+	// osal_mutex_lock(this->net.lock);
 	int wkc;
+
+	/*il_ecat_net_t *this;
+	this = calloc(1, sizeof(*this));
+	if (!this) {
+		ilerr__set("Network allocation failed");
+		return NULL;
+	}
+	osal_mutex_lock(this->net.lock);
+	printf("EHHHH!\n");*/
+	
+	
 	/* 
 	* 	Pass received Mbx data to EoE recevive fragment function that
 	* 	that will start/continue fill an Ethernet frame buffer
@@ -1152,7 +1250,7 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 	return ec_slavecount;
 }
 
-void init_eoe(ecx_contextt * context)
+void init_eoe(il_net_t *net, ecx_contextt * context)
 {
 	printf("Init EoE\n");
 	/* Set the HOOK */
@@ -1183,8 +1281,15 @@ void init_eoe(ecx_contextt * context)
 	osal_thread_create(&thread2, 128000, &mailbox_reader, &ecx_context);
 }
 
-int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_ip)
+int *il_ecat_net_set_if_params(il_net_t *net, const char *ifname, const char *if_address_ip) {
+
+	Ifname = ifname;
+	If_address_ip = if_address_ip;
+}
+
+int *il_ecat_net_master_startup(il_net_t *net, const char *ifname, const char *if_address_ip)
 {
+
 	int i, oloop, iloop, chk;
 	needlf = FALSE;
 	inOP = FALSE;
@@ -1197,11 +1302,11 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_i
 	opts.port_ip = 1061;
 	opts.port = "";
 
-	*net = il_ecat_net_create(&opts);
+	/**net = il_ecat_net_create(&opts);
 	if (!*net) {
 		printf("FAIL");
 		return IL_EFAIL;
-	}
+	}*/
 
 	printf("Starting EtherCAT Master\n");
 	/* initialise SOEM, bind socket to ifname */
@@ -1251,7 +1356,7 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_i
 			printf("No slaves found!\n");
 		}
 
-		init_eoe(&ecx_context);
+		init_eoe(net, &ecx_context);
 		
 	}
 	else
@@ -1261,37 +1366,6 @@ int *il_ecat_net_master_startup(il_net_t **net, char *ifname, char *if_address_i
 
 	return ec_slavecount;
 }
-
-static int *il_ecat_net_master_stop(il_net_t **net)
-{
-    printf("Closing Socket\n");
-    ec_slavecount = 0;
-
-	/* Disconnecting and removing udp interface */
-	udp_disconnect(ptUdpPcb);
-	udp_remove(ptUdpPcb);
-    
-	/* Remove the network interface */
-	netif_remove(&tNetif);
-	ec_close();
-}
-
-int input_bin(char *fname, int *length)
-{
-    FILE *fp;
-
-	int cc = 0, c;
-
-    fp = fopen(fname, "rb");
-    if(fp == NULL)
-        return 0;
-	while (((c = fgetc(fp)) != EOF) && (cc < FWBUFSIZE))
-		filebuffer[cc++] = (uint8)c;
-	*length = cc;
-	fclose(fp);
-	return 1;
-}
-
 
 enum update_error
 {
@@ -1315,6 +1389,48 @@ int *il_ecat_net_change_state(uint16_t slave, ec_state state)
 	}
 	return UP_NOERROR;
 }
+
+static int *il_ecat_net_master_stop(il_net_t **net)
+{
+    printf("Closing Socket\n");
+	
+    printf("Setting state to INIT\n");
+	if (il_ecat_net_change_state(0, EC_STATE_INIT) != UP_NOERROR) {
+		printf("Slave %d cannot enter into state INIT.\n", 0);
+	}
+	printf("Disconnecting interface\n");
+	ec_slavecount = 0;
+	/* Disconnecting and removing udp interface */
+	if (ptUdpPcb != NULL) {
+		udp_disconnect(ptUdpPcb);
+		udp_remove(ptUdpPcb);
+	}
+	
+	/* Remove the network interface */
+	netif_remove(&tNetif);
+	ec_mbxempty(0, 100000);
+	context->EOEhook = NULL;
+
+	/* Close EtherCAT interface */
+	ec_close();
+}
+
+int input_bin(char *fname, int *length)
+{
+    FILE *fp;
+
+	int cc = 0, c;
+
+    fp = fopen(fname, "rb");
+    if(fp == NULL)
+        return 0;
+	while (((c = fgetc(fp)) != EOF) && (cc < FWBUFSIZE))
+		filebuffer[cc++] = (uint8)c;
+	*length = cc;
+	fclose(fp);
+	return 1;
+}
+
 
 /**
  * Update Firmware using FoE
@@ -1437,13 +1553,23 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				if (r > 0) 
 				{
 					printf("Request init state for slave %d\n", slave);
-					ec_slave[slave].state = EC_STATE_INIT;
-					ec_writestate(slave);
+					if (!is_summit) 
+					{
+						ec_slave[slave].state = EC_STATE_INIT;
+						ec_writestate(slave);
 
-					printf("Wait for drive to reset...\n");
-					Sleep(4000);
+						printf("Wait for drive to reset...\n");
+						Sleep(4000);
+					}
+					else 
+					{
+						ec_slave[slave].state = EC_STATE_INIT;
+						ec_writestate(slave);
 
-					printf("FOE Process finished succesfully!!.\n");
+						printf("Wait for drive to reset...\n");
+						Sleep(60000);
+					}
+					printf("FOE Process finished succesfully!!!.\n");
 				}
 				else 
 				{
@@ -2105,6 +2231,7 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	// .devs_list_get = il_eth_net_dev_list_get,
 	.servos_list_get = il_ecat_net_servos_list_get,
 	.status_get = il_ecat_status_get,
+	._state_set = il_net_base__state_set,
 	.mon_stop = il_ecat_mon_stop,
 	/* Monitornig */
 	.remove_all_mapped_registers = il_ecat_net_remove_all_mapped_registers,
@@ -2121,7 +2248,9 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	.update_firmware = il_ecat_net_update_firmware,
 	.eeprom_tool = il_ecat_net_eeprom_tool,
 
-	.force_error = il_ecat_net_force_error
+	.force_error = il_ecat_net_force_error,
+
+	.set_if_params = il_ecat_net_set_if_params
 };
 
 /** MCB network device monitor operations. */

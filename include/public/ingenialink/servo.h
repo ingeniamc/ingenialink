@@ -1312,7 +1312,7 @@ IL_EXPORT int il_servo_is_connected(il_net_t **net, const char *address_ip, int 
  */
 IL_EXPORT const uint16_t *il_servo_subnodes_get(il_servo_t *servo);
 
-IL_EXPORT int il_servo_connect_ecat(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
+IL_EXPORT int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, char *if_address_ip, il_net_t **net, il_servo_t **servo,
 		   const char *dict, const char *address_ip, int port_ip);
 
 IL_END_DECL
