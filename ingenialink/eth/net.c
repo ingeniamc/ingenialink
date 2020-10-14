@@ -863,33 +863,14 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	(void)id;
 
 	osal_mutex_lock(this->net.lock);
-
-	int num_retries = 0;
-	while (num_retries < NUMBER_OP_RETRIES) 
-	{
-		r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
-		if (r < 0) {
-			goto unlock;
-		}
-		
-		uint16_t *monitoring_raw_data = NULL;
-		r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
-		if (r == IL_ETIMEDOUT) 
-		{
-			++num_retries;
-		}
-		else 
-		{
-			break;
-		}
-	}
-	
-	if (r < 0) 
-	{
-		printf("Drive disconnected. Closing socket ...");
-		closesocket(this->server);
+	r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
+	if (r < 0) {
 		goto unlock;
 	}
+	uint16_t *monitoring_raw_data = NULL;
+	r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
+	if (r < 0)
+		goto unlock;
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -909,30 +890,14 @@ static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 
 	osal_mutex_lock(this->net.lock);
 
-	int num_retries = 0;
-	while (num_retries < NUMBER_OP_RETRIES) 
-	{
-		r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
-		if (r < 0)
-			goto unlock;
 
-		r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
-		if (r == IL_ETIMEDOUT) 
-		{
-			++num_retries;
-		}
-		else 
-		{
-			break;
-		}
-	}
-	
-	if (r < 0) 
-	{
-		printf("Drive disconnected. Closing socket ...");
-		closesocket(this->server);
+	r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
+	if (r < 0)
 		goto unlock;
-	}
+
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
+	if (r < 0)
+		goto unlock;
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -952,32 +917,16 @@ static int il_eth_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, u
 
 	osal_mutex_lock(this->net.lock);
 
-	int num_retries = 0;
-	while (num_retries < NUMBER_OP_RETRIES) 
-	{
-		r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
-		if (r < 0)
-			goto unlock;
 
-		Sleep(1000);
-
-		r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
-		if (r == IL_ETIMEDOUT) 
-		{
-			++num_retries;
-		}
-		else
-		{
-			break;
-		}
-	}
-	
-	if (r < 0) 
-	{
-		printf("Drive disconnected. Closing socket ...");
-		closesocket(this->server);
+	r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
+	if (r < 0)
 		goto unlock;
-	}
+
+	Sleep(1000);
+
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
+	if (r < 0)
+		goto unlock;
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -1118,6 +1067,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	if (n == 0)
 	{
 		printf("Timeout..\n");
+		closesocket(this->server);
 		return -1;
 	}
 	else if (n == -1)
