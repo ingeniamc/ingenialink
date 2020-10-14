@@ -61,8 +61,6 @@ IL_BEGIN_DECL
 #define IL_EIO		-9
 /** Not supported. */
 #define IL_ENOTSUP	-10
-/** Wrong Register. */
-#define IL_EWRONGREG	-11
 
 /**
  * Obtain library last error details.
