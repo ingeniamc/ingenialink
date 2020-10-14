@@ -890,7 +890,6 @@ static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 
 	osal_mutex_lock(this->net.lock);
 
-
 	r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
 	if (r < 0)
 		goto unlock;
