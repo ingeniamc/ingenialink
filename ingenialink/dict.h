@@ -112,6 +112,8 @@ struct il_dict {
 	khash_t(cat_id) *h_cats;
 	/** Registers hash table. */
 	khash_t(reg_id) **h_regs;
+	/** Registers ids. */
+	const char **ids;
 	/** Dictionary version. */
 	const char *version;
 	/** Dictionary subnodes. */

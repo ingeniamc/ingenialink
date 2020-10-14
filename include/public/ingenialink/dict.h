@@ -237,7 +237,7 @@ IL_EXPORT int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
  *	il_dict_reg_ids_destroy
  */
 IL_EXPORT const char **il_dict_reg_ids_get(il_dict_t *dict, uint8_t subnode);
-
+IL_EXPORT const char **il_dict_reg_ids_get_ordered(il_dict_t *dict, uint8_t subnode);
 /**
  * Destroy the list of obtained register IDs.
  *

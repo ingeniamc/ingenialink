@@ -693,7 +693,7 @@ cleanup_labels:
  * @return
  *	0 on success, error code otherwise.
  */
-static int parse_reg(xmlNodePtr node, il_dict_t *dict, int subnode)
+static int parse_reg(xmlNodePtr node, il_dict_t *dict, int subnode, int index)
 {
 	int r, absent;
 	khint_t k;
@@ -716,6 +716,7 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict, int subnode)
 		subnode = strtoul((char *)param, NULL, 4);
 	}
 
+	//dict->ids[index] = (const char*) id;
 	k = kh_put(reg_id, dict->h_regs[subnode], (char *)id, &absent);
 	if (!absent) {
 		ilerr__set("Found duplicated register: %s", id);
@@ -732,7 +733,7 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict, int subnode)
 	reg->cat_id = NULL;
 	reg->identifier = (char *)id;
 	reg->subnode = subnode;
-
+	
 	/* parse: units */
 	xmlChar *units;
 	units = xmlGetProp(node, (const xmlChar *)"units");
@@ -1008,7 +1009,7 @@ il_dict_t *il_dict_create(const char *dict_f)
 		for (i = 0; i < obj_regs->nodesetval->nodeNr; i++) {
 			xmlNodePtr node = obj_regs->nodesetval->nodeTab[i];
 			int subnode = 1;
-			r = parse_reg(node, dict, &subnode);
+			r = parse_reg(node, dict, &subnode, i);
 			if (r < 0)
 				goto cleanup_h_regs_entries;
 		}
@@ -1039,14 +1040,22 @@ il_dict_t *il_dict_create(const char *dict_f)
 			xmlNodePtr axis_node = obj_axes->nodesetval->nodeTab[i];
 			xmlNodePtr registers_node = axis_node->children->next->children;
 
+			int index = 0;
+			dict->ids = malloc(sizeof(const char *) * (il_dict_reg_cnt(dict, i) + 1));
+			if (!dict->ids) {
+				ilerr__set("Registers array allocation failed");
+				return NULL;
+			}
 			for (cur_node = registers_node; cur_node; cur_node = cur_node->next) {
 				if (cur_node->type == XML_ELEMENT_NODE) {			
 					int subnode = 1;
-					r = parse_reg(cur_node, dict, &subnode);
+					r = parse_reg(cur_node, dict, &subnode, index);
+					++index;
 					if (r < 0)
 						goto cleanup_h_regs_entries;
 				}
 			}
+			//dict->ids[index] = NULL;
 		}
 	}
 
@@ -1450,7 +1459,6 @@ typedef union
 uint16_t il_dict_crc_update(il_dict_t *dict, const char *id,
 			       il_reg_value_t storage, uint8_t subnode)
 {
-	printf("il_dict_crc_update\n");
 	khint_t k;
 	char value[NUM_STR_LEN];
 	il_reg_t *reg;
@@ -1571,10 +1579,16 @@ const char **il_dict_reg_ids_get(il_dict_t *dict, uint8_t subnode)
 			i++;
 		}
 	}
-
+	/*int n = i;
+	selectionSort(ids, n);*/
 	ids[i] = NULL;
-
 	return ids;
+}
+
+
+const char **il_dict_reg_ids_get_ordered(il_dict_t *dict, uint8_t subnode) 
+{
+	return dict->ids;
 }
 
 void il_dict_reg_ids_destroy(const char **ids)
