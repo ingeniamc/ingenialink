@@ -1059,7 +1059,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 
 	// Set up the struct timeval for the timeout.
 	tv.tv_sec = 0;
-	tv.tv_usec = 100000;
+	tv.tv_usec = 1000000;
 
 	// Wait until timeout or data received.
 	n = select(this->server, &fds, NULL, NULL, &tv);
