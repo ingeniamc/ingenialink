@@ -1374,7 +1374,7 @@ void il_dict_scat_ids_destroy(const char **ids)
 int il_dict_reg_get(il_dict_t *dict, const char *id, const il_reg_t **reg, uint8_t subnode)
 {
 	khint_t k;
-
+	
 	k = kh_get(reg_id, dict->h_regs[subnode], id);
 	if (k == kh_end(dict->h_regs[subnode])) {
 		ilerr__set("Register not found (%s)", id);
@@ -1530,7 +1530,21 @@ uint16_t il_dict_crc_update(il_dict_t *dict, const char *id,
 	//memcpy(&stBuf[0], &u.u16[0], 8);
 
 	uint16_t crc = crc_calc_dict((uint16_t*)&data, sz, dict, subnode);
-	dict->crc_communication_core = crc;
+	switch(subnode) 
+	{
+		case 0:
+			dict->crc_communication_core = crc;
+			break;
+		case 1:
+			dict->crc_motion_core_1 = crc;
+			break;
+		case 2:
+			dict->crc_motion_core_2 = crc;
+			break;
+		case 3:
+			dict->crc_motion_core_3 = crc;
+			break;
+	}
 	return crc;
 }
 
@@ -1585,10 +1599,41 @@ const char **il_dict_reg_ids_get(il_dict_t *dict, uint8_t subnode)
 	return ids;
 }
 
-
 const char **il_dict_reg_ids_get_ordered(il_dict_t *dict, uint8_t subnode) 
 {
-	return dict->ids;
+	const char **ids;
+	const char *swap_id;
+	uint32_t *keys;
+	uint32_t swap_key;
+	size_t i;
+	int elements_count;
+	elements_count = il_dict_reg_cnt(dict, subnode);
+	/* Get the list of unordered ids */
+	ids = il_dict_reg_ids_get(dict, subnode);
+	if (!ids)
+		return IL_EFAIL;
+	/* Generate the list of the corresponding keys */
+	keys = malloc(sizeof(uint32_t *) * (elements_count + 1));
+	for (i = 0; ids[i]; i++) {
+		const il_reg_t *reg;
+		(void)il_dict_reg_get(dict, ids[i], &reg, subnode);
+		keys[i] = (uint32_t *)reg->address;
+	}
+	keys[i] = NULL;
+	/* Sort the both lists */
+	for (int j = 0; j < elements_count - 1; j++) {
+		for (int k = 0; k < elements_count - j - 1; k++) {
+			if (keys[k] > keys[k+1]) {
+				swap_key = keys[k];
+				keys[k] = keys[k+1];
+				keys[k+1] = swap_key;
+				swap_id = ids[k];
+				ids[k] = ids[k+1];
+				ids[k+1] = swap_id;
+			}
+		}
+  	}
+	return ids;
 }
 
 void il_dict_reg_ids_destroy(const char **ids)

@@ -225,7 +225,7 @@ cleanup_ids:
 	return r;
 }
 
-int il_servo_dict_storage_write(il_servo_t *servo)
+int il_servo_dict_crc_check(il_servo_t *servo)
 {
 	int r = 0;
 	const char **ids;
@@ -238,12 +238,60 @@ int il_servo_dict_storage_write(il_servo_t *servo)
 	// Subnodes = axis available at servo + 1 subnode of general parameters
 	int subnodes = servo->subnodes + 1;
 	for (int j = 0; j < subnodes; j++) {
-		//ids = il_dict_reg_ids_get(servo->dict, j);
 		ids = il_dict_reg_ids_get_ordered(servo->dict, j);
 		if (!ids)
 			return IL_EFAIL;
 
 		uint16_t actual_crc_value = 0x0000;
+		int count = 1;
+		for (size_t i = 0; ids[i]; i++) {
+			const il_reg_t *reg;
+
+			(void)il_dict_reg_get(servo->dict, ids[i], &reg, j);
+			
+			if (reg->access != IL_REG_ACCESS_RW)
+				continue;
+			
+			if (
+				(strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0) && 
+				((strcmp(ids[i], "DRV_CRC_COCO_IN") != 0) && (strcmp(ids[i], "DRV_CRC_MOCO_IN") != 0))
+			)
+			{
+				actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
+				printf("%i => id %i : %s 0x%x => CRC (int)%i (hex)0x%x\n", count, i, ids[i], reg->address, actual_crc_value, actual_crc_value);
+				++count;
+			}	
+		}
+		(void)il_dict_set_crc_input(servo->dict, j, actual_crc_value);
+		/* TODO: check crc status */
+	}
+	return r;
+}
+
+int il_servo_dict_storage_write(il_servo_t *servo, bool crc_check)
+{
+	int r = 0;
+	const char **ids;
+
+	if (!servo->dict) {
+		ilerr__set("No dictionary loaded");
+		return IL_EFAIL;
+	}
+
+	if (crc_check)
+		r = il_servo_dict_crc_check(servo);
+	
+	if (r < 0) {
+		printf("CRC check failed");
+		return IL_EFAIL;
+	}
+
+	// Subnodes = axis available at servo + 1 subnode of general parameters
+	int subnodes = servo->subnodes + 1;
+	for (int j = 0; j < subnodes; j++) {
+		ids = il_dict_reg_ids_get(servo->dict, j);
+		if (!ids)
+			return IL_EFAIL;
 
 		for (size_t i = 0; ids[i]; i++) {
 			const il_reg_t *reg;
@@ -254,85 +302,39 @@ int il_servo_dict_storage_write(il_servo_t *servo)
 				continue;
 
 			switch (reg->dtype) {
-			case IL_REG_DTYPE_U8:
-				if (strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0)
-				{
-					actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
-					printf("id %i : %s 0x%x\n", i, ids[i], reg->address);
-				}			
+			case IL_REG_DTYPE_U8:	
 				r = il_servo_raw_write_u8(servo, reg, ids[i],
 							reg->storage.u8, 1, 0);
 				break;
 			case IL_REG_DTYPE_S8:
-				if (strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0)
-				{
-					actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
-					printf("id %i : %s 0x%x\n", i, ids[i], reg->address);
-				}
 				r = il_servo_raw_write_s8(servo, reg, ids[i],
 							reg->storage.s8, 1, 0);
 				break;
 			case IL_REG_DTYPE_U16:
-				if ((strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0) && 
-					((strcmp(ids[i], "DRV_CRC_COCO_IN") != 0) && (strcmp(ids[i], "DRV_CRC_MOCO_IN") != 0)))
-				{
-					actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
-					printf("id %i : %s 0x%x\n", i, ids[i], reg->address);
-				}
 				r = il_servo_raw_write_u16(servo, reg, ids[i],
 							reg->storage.u16, 1, 0);
 				break;
 			case IL_REG_DTYPE_S16:
-				if (strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0)
-				{
-					actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
-					printf("id %i : %s 0x%x\n", i, ids[i], reg->address);
-				}
 				r = il_servo_raw_write_s16(servo, reg, ids[i],
 							reg->storage.s16, 1, 0);
 				break;
 			case IL_REG_DTYPE_U32:
-				if (strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0)
-				{
-					actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
-					printf("id %i : %s 0x%x\n", i, ids[i], reg->address);
-				}
 				r = il_servo_raw_write_u32(servo, reg, ids[i],
 							reg->storage.u32, 1, 0);
 				break;
 			case IL_REG_DTYPE_S32:
-				if (strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0)
-				{
-					actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
-					printf("id %i : %s 0x%x\n", i, ids[i], reg->address);
-				}
 				r = il_servo_raw_write_s32(servo, reg, ids[i],
 							reg->storage.s32, 1, 0);
 				break;
 			case IL_REG_DTYPE_U64:
-				if (strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0)
-				{
-					actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
-					printf("id %i : %s 0x%x\n", i, ids[i], reg->address);
-				}
 				r = il_servo_raw_write_u64(servo, reg, ids[i],
 							reg->storage.u64, 1, 0);
 				break;
 			case IL_REG_DTYPE_S64:
-				if (strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0)
-				{
-					actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
-					printf("id %i : %s 0x%x\n", i, ids[i], reg->address);
-				}
 				r = il_servo_raw_write_s64(servo, reg, ids[i],
 							reg->storage.s64, 1, 0);
 				break;
 			case IL_REG_DTYPE_FLOAT:
-				if (strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0)
-				{
-					actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
-					printf("id %i : %s 0x%x\n", i, ids[i], reg->address);
-				}
 				r = il_servo_raw_write_float(servo, reg, ids[i], reg->storage.flt, 1, 0);
 				break;
 			default:
@@ -343,7 +345,6 @@ int il_servo_dict_storage_write(il_servo_t *servo)
 				continue;
 
 		}
-		(void)il_dict_set_crc_input(servo->dict, j, actual_crc_value);
 	}
 
 cleanup_ids:
