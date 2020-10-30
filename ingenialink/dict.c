@@ -764,7 +764,6 @@ static int parse_reg(xmlNodePtr node, il_dict_t *dict, int subnode, int index)
 	}
 	else reg->address_type = (char *)address_type;
 
-
 	/* parse: dtype */
 	param = xmlGetProp(node, (const xmlChar *)"dtype");
 	if (!param) {

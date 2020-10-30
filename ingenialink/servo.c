@@ -263,7 +263,16 @@ int il_servo_dict_crc_check(il_servo_t *servo)
 			}	
 		}
 		(void)il_dict_set_crc_input(servo->dict, j, actual_crc_value);
-		/* TODO: check crc status */
+		// Write the crc value
+      	il_reg_t reg;
+		reg.address = 0x06D0;
+		reg.subnode = j;
+		reg.dtype = IL_REG_DTYPE_U16;
+		reg.access = IL_REG_ACCESS_RW;
+		reg.phy = IL_REG_PHY_NONE;
+		reg.range.max.u16 = 70000;
+		reg.range.min.u16 = 0;
+		r = il_servo_raw_write_u16(servo, &reg, "", actual_crc_value, 1, 0);
 	}
 	return r;
 }
@@ -278,8 +287,9 @@ int il_servo_dict_storage_write(il_servo_t *servo, bool crc_check)
 		return IL_EFAIL;
 	}
 
-	if (crc_check)
+	if (crc_check) {
 		r = il_servo_dict_crc_check(servo);
+	}
 	
 	if (r < 0) {
 		printf("CRC check failed");
