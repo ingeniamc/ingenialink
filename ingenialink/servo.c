@@ -272,7 +272,7 @@ int il_servo_dict_crc_check(il_servo_t *servo)
 		reg.phy = IL_REG_PHY_NONE;
 		reg.range.max.u16 = 65535;
 		reg.range.min.u16 = 0;
-		printf("Subnode %i, the CRC value is: (int)%i (hex)0x%x\n", actual_crc_value, actual_crc_value);
+		printf("Subnode %i, the CRC value is: (int)%i (hex)0x%x\n", j, actual_crc_value, actual_crc_value);
 		r = il_servo_raw_write_u16(servo, &reg, "", actual_crc_value, 1, 0);
 	}
 	return r;
