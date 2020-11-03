@@ -75,6 +75,9 @@ KHASH_MAP_INIT_STR(cat_id, il_dict_cat_t)
 /** XPath for axis. */
 #define XPATH_AXES	"//Axes/Axis"
 
+/** XPath for device. */
+#define XPATH_DEVICE	"//Body/Device"
+
 /** XPath for version. */
 #define XPATH_VERSION	"//Header/Version"
 

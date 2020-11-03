@@ -140,7 +140,49 @@ int il_servo_dict_load(il_servo_t *servo, const char *dict)
 	return 0;
 }
 
-int il_servo_dict_storage_read(il_servo_t *servo)
+int il_servo_dict_crc_read(il_servo_t *servo)
+{
+	int r = 0;
+	const char **ids;
+
+	if (!servo->dict) {
+		ilerr__set("No dictionary loaded");
+		return IL_EFAIL;
+	}
+
+	// Subnodes = axis available at servo + 1 subnode of general parameters
+	int subnodes = servo->subnodes + 1;
+	for (int j = 0; j < subnodes; j++) {
+		ids = il_dict_reg_ids_get_ordered(servo->dict, j);
+		if (!ids)
+			return IL_EFAIL;
+
+		uint16_t actual_crc_value = 0x0000;
+		int count = 1;
+		for (size_t i = 0; ids[i]; i++) {
+			const il_reg_t *reg;
+
+			(void)il_dict_reg_get(servo->dict, ids[i], &reg, j);
+			
+			if (reg->access != IL_REG_ACCESS_RW)
+				continue;
+			
+			if (
+				(strcmp(reg->address_type, "NVM_CFG") == 0 || strcmp(reg->address_type, "NVM") == 0) && 
+				((strcmp(ids[i], "DRV_CRC_COCO_IN") != 0) && (strcmp(ids[i], "DRV_CRC_MOCO_IN") != 0))
+			)
+			{
+				actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
+				++count;
+			}	
+		}
+		(void)il_dict_set_crc_input(servo->dict, j, actual_crc_value);
+	}
+	(void)il_dict_crc_node_update(servo->dict);
+	return r;
+}
+
+int il_servo_dict_storage_read(il_servo_t *servo, bool crc_check)
 {
 	int r = 0;
 	const char **ids;
@@ -217,7 +259,15 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 			(void)il_dict_reg_storage_update(servo->dict, ids[i], storage, j);	
 		}
 	}
-	printf("END\n");
+
+	if (crc_check) {
+		printf("CRC read\n");
+		r = il_servo_dict_crc_read(servo);
+	}
+	
+	if (r < 0) {
+		return IL_EFAIL;
+	}
 	
 cleanup_ids:
 	il_dict_reg_ids_destroy(ids);

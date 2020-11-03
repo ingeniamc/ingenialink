@@ -1021,10 +1021,6 @@ il_dict_t *il_dict_create(const char *dict_f)
 		khash_t(cat_id) *h_regs;
 		uint8_t num_axis = obj_axes->nodesetval->nodeNr;
 
-		// if (node->nodesetval == "crc") {
-		// 	node->nodeattr["crc"] = dict->crc_communication_core;
-		// }
-
 		dict->subnodes = num_axis;
 		dict->h_regs = malloc(num_axis * sizeof(h_regs));
 		/* parse each axis */
@@ -1227,7 +1223,7 @@ void il_dict_destroy(il_dict_t *dict)
 
 int il_dict_save(il_dict_t *dict, const char *fname)
 {
-	if (xmlSaveFile(fname, dict->xml_doc) < 0) {
+	if (xmlSaveFile(fname, dict->xml_doc, NULL) < 0) {
 		ilerr__set("xml: %s",
 			   xmlCtxtGetLastError(dict->xml_ctxt)->message);
 		return IL_EFAIL;
@@ -1570,6 +1566,66 @@ int il_dict_set_crc_input(il_dict_t *dict, uint8_t subnode, uint16_t crc)
 			break;
 	}
 	return 0;
+}
+
+int il_dict_crc_node_update(il_dict_t *dict)
+{
+	int r = 0;
+	xmlXPathContextPtr xpath;
+	xmlXPathObjectPtr obj_device;
+
+	/* create a new XPath context */
+	xpath = xmlXPathNewContext(dict->xml_doc);
+	if (!xpath) {
+		ilerr__set("xml: %s", xmlCtxtGetLastError(dict->xml_ctxt)->message);
+		r = IL_EFAIL;
+		goto cleanup_xml_doc;
+	}
+
+	obj_device = xmlXPathEvalExpression((const xmlChar *)XPATH_DEVICE, xpath);
+	if (!obj_device) {
+		ilerr__set("xml: %s", xmlCtxtGetLastError(dict->xml_ctxt)->message);
+		r = IL_EFAIL;
+		goto cleanup_xpath;
+	}
+	
+	xmlNodePtr node_device = obj_device->nodesetval->nodeTab[0];
+	xmlNodePtr node_crc = xmlNewNode(NULL, BAD_CAST "CRC");
+	for(uint8_t i = 0; i < dict->subnodes; ++i) {
+		char subnode[NUM_STR_LEN];
+		itoa(i, subnode, 10);
+		xmlNodePtr node_subnode = xmlNewChild(node_crc, NULL, BAD_CAST "Subnode", NULL);
+		xmlSetProp(node_subnode, BAD_CAST "number", (const xmlChar *)subnode);
+		int crc_int_value;
+		switch(i) 
+		{
+			case 0:
+				crc_int_value = (int)dict->crc_communication_core;
+				break;
+			case 1:
+				crc_int_value = (int)dict->crc_motion_core_1;
+				break;
+			case 2:
+				crc_int_value = (int)dict->crc_motion_core_2;
+				break;
+			case 3:
+				crc_int_value = (int)dict->crc_motion_core_3;
+				break;
+		}
+		char crc_value[NUM_STR_LEN];
+		itoa(crc_int_value, crc_value, 10);
+		xmlSetProp(node_subnode, BAD_CAST "crc_value", (const xmlChar *)crc_value);
+		xmlAddChild(node_crc, node_subnode);
+	}
+	xmlAddChild(node_device, node_crc);
+	printf("Testing\n");
+
+cleanup_xpath:
+	xmlXPathFreeContext(xpath);
+
+cleanup_xml_doc:
+	if (r < 0)
+		xmlFreeDoc(dict->xml_doc);
 }
 
 const char **il_dict_reg_ids_get(il_dict_t *dict, uint8_t subnode)
