@@ -173,7 +173,6 @@ int il_servo_dict_crc_write(il_servo_t *servo)
 			)
 			{
 				actual_crc_value = il_dict_crc_update(servo->dict, ids[i], reg->storage, j);
-				printf("id %i : %s 0x%x => CRC value: (int)%i (hex)0x%x\n", i, ids[i], reg->address, actual_crc_value, actual_crc_value);
 				++count;
 			}	
 		}
@@ -187,7 +186,6 @@ int il_servo_dict_crc_write(il_servo_t *servo)
 		reg.phy = IL_REG_PHY_NONE;
 		reg.range.max.u16 = 65535;
 		reg.range.min.u16 = 0;
-		printf("\nSubnode %i, the CRC value is: (int)%i (hex)0x%x\n\n", j, actual_crc_value, actual_crc_value);
 		r = il_servo_raw_write_u16(servo, &reg, "", actual_crc_value, 1, 0);
 	}
 	// (void)il_dict_add_integrity(servo->dict);
@@ -275,9 +273,7 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 		}
 	}
 
-	crc_write = true;
 	if (crc_write) {
-		printf("Write CRC\n");
 		r = il_servo_dict_crc_write(servo);
 	}
 	
@@ -345,7 +341,6 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 			(void)il_dict_reg_storage_update(servo->dict, ids[i], storage, j);	
 		}
 	}
-	printf("End read\n");
 	
 	if (r < 0) {
 		return IL_EFAIL;

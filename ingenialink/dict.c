@@ -99,20 +99,12 @@ static uint16_t crc_calc_dict(const uint16_t *buf, uint16_t u16Sz, il_dict_t *di
 	uint16_t u16Idx = 0;
 	uint8_t* pu8Data = (uint8_t*)buf;
 
-    while (u16Idx < u16Sz)
-	{
-		if ((u16Idx + (uint16_t)1U) == u16Sz)
-		{
-			crc = update_crc_ccitt_dict(crc, pu8Data[u16Idx]);
-		}
-        else
-        {
-            crc = update_crc_ccitt_dict(crc, pu8Data[u16Idx + (uint16_t)1U]);
-            crc = update_crc_ccitt_dict(crc, pu8Data[u16Idx]);
-            u16Idx++;
-		}
-        u16Idx++;
-	}
+	while (u16Idx < u16Sz)
+    {
+        crc = update_crc_ccitt_dict(crc, pu8Data[u16Idx + (uint16_t)1U]);
+        crc = update_crc_ccitt_dict(crc, pu8Data[u16Idx]);
+        u16Idx += 2U;
+    }
 	return crc;
 }
 
