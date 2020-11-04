@@ -357,23 +357,6 @@ cleanup_ids:
 	return r;
 }
 
-int il_servo_crc_check(il_servo_t *servo)
-{
-	int r = 0;
-	il_reg_t crc_status_reg;
-	uint16_t crc_status;
-	crc_status_reg.address = 0x06D2;
-	crc_status_reg.dtype = IL_REG_DTYPE_U16;
-	crc_status_reg.access = IL_REG_ACCESS_RW;
-	int subnodes = (int)il_servo_subnodes_get(servo);
-	for (int j = 0; j < subnodes; ++j) {
-		crc_status_reg.subnode = j;
-		r = il_servo_raw_read_u16(servo, &crc_status_reg, NULL, &crc_status);
-		printf("CRC Status subnode %i: (int)%i => (hex)0x%x", j, crc_status, crc_status);
-	}
-	return r;
-}
-
 int il_servo_dict_storage_write(il_servo_t *servo)
 {
 	int r = 0;
@@ -449,11 +432,6 @@ int il_servo_dict_storage_write(il_servo_t *servo)
 				continue;
 
 		}
-	}
-
-	r = il_servo_crc_check(servo);
-	if (r < 0) {
-		printf("CRC check failed");
 	}
 
 cleanup_ids:
