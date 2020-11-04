@@ -95,12 +95,23 @@ static uint16_t crc_calc_dict(const uint16_t *buf, uint16_t u16Sz, il_dict_t *di
 			crc = dict->crc_motion_core_3;
 			break;
 	}
+    
+	uint16_t u16Idx = 0;
+	uint8_t* pu8Data = (uint8_t*)buf;
 
-	uint8_t* pu8In = (uint8_t*)buf;
-
-	for (uint16_t u16Idx = 0; u16Idx < u16Sz; u16Idx++)
+    while (u16Idx < u16Sz)
 	{
-		crc = update_crc_ccitt_dict(crc, pu8In[u16Idx]);
+		if ((u16Idx + (uint16_t)1U) == u16Sz)
+		{
+			crc = update_crc_ccitt_dict(crc, pu8Data[u16Idx]);
+		}
+        else
+        {
+            crc = update_crc_ccitt_dict(crc, pu8Data[u16Idx + (uint16_t)1U]);
+            crc = update_crc_ccitt_dict(crc, pu8Data[u16Idx]);
+            u16Idx++;
+		}
+        u16Idx++;
 	}
 	return crc;
 }
@@ -1568,57 +1579,35 @@ int il_dict_set_crc_input(il_dict_t *dict, uint8_t subnode, uint16_t crc)
 	return 0;
 }
 
-int il_dict_crc_node_update(il_dict_t *dict)
+int il_dict_add_integrity(il_dict_t *dict)
 {
 	int r = 0;
-	xmlXPathContextPtr xpath;
-	xmlXPathObjectPtr obj_device;
+	xmlChar *xmlbuff;
+    int buffersize;
+    xmlXPathContextPtr xpath;
+    xmlXPathObjectPtr obj_body;
 
-	/* create a new XPath context */
-	xpath = xmlXPathNewContext(dict->xml_doc);
-	if (!xpath) {
-		ilerr__set("xml: %s", xmlCtxtGetLastError(dict->xml_ctxt)->message);
-		r = IL_EFAIL;
-		goto cleanup_xml_doc;
-	}
+    /* create a new XPath context */
+    xpath = xmlXPathNewContext(dict->xml_doc);
+    if (!xpath) {
+        ilerr__set("xml: %s", xmlCtxtGetLastError(dict->xml_ctxt)->message);
+        r = IL_EFAIL;
+        goto cleanup_xml_doc;
+    }
 
-	obj_device = xmlXPathEvalExpression((const xmlChar *)XPATH_DEVICE, xpath);
-	if (!obj_device) {
-		ilerr__set("xml: %s", xmlCtxtGetLastError(dict->xml_ctxt)->message);
-		r = IL_EFAIL;
-		goto cleanup_xpath;
-	}
-	
-	xmlNodePtr node_device = obj_device->nodesetval->nodeTab[0];
-	xmlNodePtr node_crc = xmlNewNode(NULL, BAD_CAST "CRC");
-	for(uint8_t i = 0; i < dict->subnodes; ++i) {
-		char subnode[NUM_STR_LEN];
-		itoa(i, subnode, 10);
-		xmlNodePtr node_subnode = xmlNewChild(node_crc, NULL, BAD_CAST "Subnode", NULL);
-		xmlSetProp(node_subnode, BAD_CAST "number", (const xmlChar *)subnode);
-		int crc_int_value;
-		switch(i) 
-		{
-			case 0:
-				crc_int_value = (int)dict->crc_communication_core;
-				break;
-			case 1:
-				crc_int_value = (int)dict->crc_motion_core_1;
-				break;
-			case 2:
-				crc_int_value = (int)dict->crc_motion_core_2;
-				break;
-			case 3:
-				crc_int_value = (int)dict->crc_motion_core_3;
-				break;
-		}
-		char crc_value[NUM_STR_LEN];
-		itoa(crc_int_value, crc_value, 10);
-		xmlSetProp(node_subnode, BAD_CAST "crc_value", (const xmlChar *)crc_value);
-		xmlAddChild(node_crc, node_subnode);
-	}
-	xmlAddChild(node_device, node_crc);
-	printf("Testing\n");
+    obj_body = xmlXPathEvalExpression((const xmlChar *)XPATH_BODY, xpath);
+    if (!obj_body) {
+        ilerr__set("xml: %s", xmlCtxtGetLastError(dict->xml_ctxt)->message);
+        r = IL_EFAIL;
+        goto cleanup_xpath;
+    }
+    
+    xmlNodePtr node_body = obj_body->nodesetval->nodeTab[0];
+	xmlNodeDump(&xmlbuff, dict->xml_doc, node_body, NULL, 0);
+	printf("%s", (char *) xmlbuff);
+
+	xmlSetProp(node_body, BAD_CAST "integrity", (const xmlChar *)xmlbuff);
+	printf("Integrity added\n");
 
 cleanup_xpath:
 	xmlXPathFreeContext(xpath);

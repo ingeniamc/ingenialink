@@ -66,6 +66,9 @@ KHASH_MAP_INIT_STR(cat_id, il_dict_cat_t)
 /** Dictionary root name. */
 #define ROOT_NAME	"IngeniaDictionary"
 
+/** XPath for body. */
+#define XPATH_BODY	"//Body"
+
 /** XPath for categories. */
 #define XPATH_CATS	"//Categories/Category"
 
@@ -74,9 +77,6 @@ KHASH_MAP_INIT_STR(cat_id, il_dict_cat_t)
 
 /** XPath for axis. */
 #define XPATH_AXES	"//Axes/Axis"
-
-/** XPath for device. */
-#define XPATH_DEVICE	"//Body/Device"
 
 /** XPath for version. */
 #define XPATH_VERSION	"//Header/Version"

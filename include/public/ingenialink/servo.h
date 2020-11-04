@@ -381,7 +381,7 @@ IL_EXPORT int il_servo_dict_storage_read(il_servo_t *servo);
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_dict_storage_write(il_servo_t *servo, bool crc_check);
+IL_EXPORT int il_servo_dict_storage_write(il_servo_t *servo);
 
 /**
  * Obtain servo name.
