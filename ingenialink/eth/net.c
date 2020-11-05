@@ -170,9 +170,7 @@ restart:
 		
 		/* try to read the status word register to see if a servo is alive */
 		if (this != NULL) {
-			osal_mutex_lock(this->net.lock);
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
-			osal_mutex_unlock(this->net.lock);
 			if (r < 0) {
 				error_count = error_count + 1;
 			}
@@ -181,7 +179,6 @@ restart:
 				this->stop = 0;
 				process_statusword(this, 1, sw);
 			}
-			
 		}
 		Sleep(100);
 	}
@@ -454,9 +451,7 @@ static int il_net_reconnect(il_net_t *net)
 		}
 		else {
 			printf("Connected to the Server\n");
-			osal_mutex_lock(this->net.lock);
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
-			osal_mutex_unlock(this->net.lock);
 			if (r < 0) 
 			{
 				printf("Fail connecting to server\n");
@@ -868,37 +863,14 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	(void)id;
 
 	osal_mutex_lock(this->net.lock);
-
-	
 	r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
 	if (r < 0) {
 		goto unlock;
 	}
-	int num_retries = 0;
-	while (num_retries < NUMBER_OP_RETRIES)
-	{
-		uint16_t *monitoring_raw_data = NULL;
-		r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
-		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG) 
-		{
-			++num_retries;
-			printf("Frame lost, retry %i\n", num_retries);
-		}
-		else 
-		{
-			break;
-		}
-	}
-	
-	if (r < 0) 
-	{
-		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
-		{
-			printf("Drive disconnected. Closing socket ...\n");
-			closesocket(this->server);
-		}
+	uint16_t *monitoring_raw_data = NULL;
+	r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
+	if (r < 0)
 		goto unlock;
-	}
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -918,34 +890,13 @@ static int il_eth_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 
 	osal_mutex_lock(this->net.lock);
 
-	int num_retries = 0;
-	while (num_retries < NUMBER_OP_RETRIES) 
-	{
-		r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
-		if (r < 0)
-			goto unlock;
-
-		r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
-		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG) 
-		{
-			++num_retries;
-			printf("Frame lost, retry %i\n", num_retries);
-		}
-		else 
-		{
-			break;
-		}
-	}
-	
-	if (r < 0) 
-	{
-		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
-		{
-			printf("Drive disconnected. Closing socket ...\n");
-			closesocket(this->server);
-		}
+	r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
+	if (r < 0)
 		goto unlock;
-	}
+
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
+	if (r < 0)
+		goto unlock;
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -965,36 +916,16 @@ static int il_eth_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, u
 
 	osal_mutex_lock(this->net.lock);
 
-	int num_retries = 0;
-	while (num_retries < NUMBER_OP_RETRIES) 
-	{
-		r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
-		if (r < 0)
-			goto unlock;
 
-		Sleep(1000);
-
-		r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
-		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG) 
-		{
-			++num_retries;
-			printf("Frame lost, retry %i\n", num_retries);
-		}
-		else
-		{
-			break;
-		}
-	}
-	
-	if (r < 0) 
-	{
-		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
-		{
-			printf("Drive disconnected. Closing socket ...\n");
-			closesocket(this->server);
-		}
+	r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
+	if (r < 0)
 		goto unlock;
-	}
+
+	Sleep(1000);
+
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
+	if (r < 0)
+		goto unlock;
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -1128,15 +1059,15 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 
 	// Set up the struct timeval for the timeout.
 	tv.tv_sec = 0;
-	tv.tv_usec = 100000;
+	tv.tv_usec = 1000000;
 
 	// Wait until timeout or data received.
 	n = select(this->server, &fds, NULL, NULL, &tv);
 	if (n == 0)
 	{
 		printf("Timeout..\n");
-		
-		return IL_ETIMEDOUT;
+		closesocket(this->server);
+		return -1;
 	}
 	else if (n == -1)
 	{
@@ -1156,7 +1087,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	}
 
 	/* TODO: Check subnode */
-	
+
 	/* Check ACK */
 	hdr_l = *(uint16_t *)&frame[ETH_MCB_HDR_L_POS];
 	int cmd = (hdr_l & ETH_MCB_CMD_MSK) >> ETH_MCB_CMD_POS;
@@ -1168,25 +1099,6 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		ilerr__set("Communications error (NACK -> %08x)", err);
 		return IL_EIO;
 	}
-
-	/* Check if register received is the same that we asked for.  */
-	if ((hdr_l >> 4) != address) 
-	{
-		//set the socket in non-blocking
-		unsigned long iMode = 1;
-		r = ioctlsocket(this->server, FIONBIO, &iMode);
-
-		do {
-			r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
-			if (r < 0 && errno == EINTR) continue;
-		} while (r > 0);
-		printf("Wrong register!\n");
-		//set the socket in non-blocking
-		iMode = 0;
-		r = ioctlsocket(this->server, FIONBIO, &iMode);
-		return IL_EWRONGREG;
-	}
-
 	extended_bit = (hdr_l & ETH_MCB_PENDING_MSK) >> ETH_MCB_PENDING_POS;
 	if (extended_bit == 1) {
 		/* Check if we are reading monitoring data */
