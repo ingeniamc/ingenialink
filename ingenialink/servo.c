@@ -188,7 +188,6 @@ int il_servo_dict_crc_write(il_servo_t *servo)
 		reg.range.min.u16 = 0;
 		r = il_servo_raw_write_u16(servo, &reg, "", actual_crc_value, 1, 0);
 	}
-	// (void)il_dict_add_integrity(servo->dict);
 	return r;
 }
 
@@ -278,67 +277,20 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 	}
 	
 	for (int j = 0; j < subnodes; j++) {
-		uint16_t actual_crc_value = 0x0000;
 		ids = il_dict_reg_ids_get(servo->dict, j);
 		if (!ids)
 			return IL_EFAIL;
-			
+	
 		for (size_t i = 0; ids[i]; i++) {
-			const il_reg_t *reg;
-			il_reg_value_t storage;
-			(void)il_dict_reg_get(servo->dict, ids[i], &reg, j);
-			if (reg->access != IL_REG_ACCESS_RW)
-				continue;
-
-			switch (reg->dtype) {
-			case IL_REG_DTYPE_U8:
-				r = il_servo_raw_read_u8(servo, reg, ids[i],
-							&storage.u8);
-				break;
-			case IL_REG_DTYPE_S8:
-				r = il_servo_raw_read_s8(servo, reg, ids[i],
-							&storage.s8);
-				break;
-			case IL_REG_DTYPE_U16:
-				r = il_servo_raw_read_u16(servo, reg, ids[i],
-							&storage.u16);
-				break;
-			case IL_REG_DTYPE_S16:
-				r = il_servo_raw_read_s16(servo, reg, ids[i],
-							&storage.s16);
-				break;
-			case IL_REG_DTYPE_U32:
-				r = il_servo_raw_read_u32(servo, reg, ids[i],
-							&storage.u32);
-				break;
-			case IL_REG_DTYPE_STR:
-				r = il_servo_raw_read_str(servo, reg, ids[i],
-							&storage.u32);
-				break;
-			case IL_REG_DTYPE_S32:
-				r = il_servo_raw_read_s32(servo, reg, ids[i],
-							&storage.s32);
-				break;
-			case IL_REG_DTYPE_U64:
-				r = il_servo_raw_read_u64(servo, reg, ids[i],
-							&storage.u64);
-				break;
-			case IL_REG_DTYPE_S64:
-				r = il_servo_raw_read_s64(servo, reg, ids[i],
-							&storage.s64);
-				break;
-			case IL_REG_DTYPE_FLOAT:
-				r = il_servo_raw_read_float(servo, reg, ids[i],
-								&storage.flt);
-				break;
-			default:
-				continue;
+			if ((strcmp(ids[i], "DRV_CRC_COCO_IN") == 0) || (strcmp(ids[i], "DRV_CRC_MOCO_IN") == 0)) {
+				const il_reg_t *reg;
+				il_reg_value_t storage;
+				(void)il_dict_reg_get(servo->dict, ids[i], &reg, j);
+				r = il_servo_raw_read_u16(servo, reg, ids[i], &storage.u16);
+				if (r < 0)
+					continue;
+				(void)il_dict_reg_storage_update(servo->dict, ids[i], storage, j);
 			}
-
-			if (r < 0)
-				continue;
-
-			(void)il_dict_reg_storage_update(servo->dict, ids[i], storage, j);	
 		}
 	}
 	
@@ -361,12 +313,6 @@ int il_servo_dict_storage_write(il_servo_t *servo)
 		ilerr__set("No dictionary loaded");
 		return IL_EFAIL;
 	}
-
-	// r = il_dict_integrity_check(servo->dict);
-	// if (r < 0) {
-	// 	printf("Integrity check failed");
-	// 	return IL_EFAIL;
-	// }
 
 	// Subnodes = axis available at servo + 1 subnode of general parameters
 	int subnodes = servo->subnodes + 1;
