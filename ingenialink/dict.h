@@ -27,10 +27,27 @@
 
 #include "public/ingenialink/dict.h"
 
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+#include <libxml/xpath.h>
+
 #include "klib/khash.h"
 
+/** Number string length (enough to fit all numbers). */
+#define NUM_STR_LEN	25
+/** Number of subnodes by default. */
+#define INITIAL_SUBNODES 2
+
+/** Register container. */
+typedef struct {
+	/** Register. */
+	il_reg_t reg;
+	/** XML node. */
+	xmlNodePtr xml_node;
+} il_dict_reg_t;
+
 /** khash type for reg_id<->register dictionary. */
-KHASH_MAP_INIT_STR(reg_id, il_reg_t)
+KHASH_MAP_INIT_STR(reg_id, il_dict_reg_t)
 
 /** khash type for scat_id<->labels dictionary. */
 KHASH_MAP_INIT_STR(scat_id, il_dict_labels_t *)
@@ -54,6 +71,12 @@ KHASH_MAP_INIT_STR(cat_id, il_dict_cat_t)
 
 /** XPath for registers. */
 #define XPATH_REGS	"//Registers/Register"
+
+/** XPath for axis. */
+#define XPATH_AXES	"//Axes/Axis"
+
+/** XPath for version. */
+#define XPATH_VERSION	"//Header/Version"
 
 /** Data type mapping. */
 typedef struct {
@@ -81,10 +104,19 @@ typedef struct {
 
 /** IngeniaLink dictionary. */
 struct il_dict {
+	/** XML parser context. */
+	xmlParserCtxtPtr xml_ctxt;
+	/** XML document. */
+	xmlDocPtr xml_doc;
 	/** Categories hash table. */
-	khash_t(cat_id) * h_cats;
+	khash_t(cat_id) *h_cats;
 	/** Registers hash table. */
-	khash_t(reg_id) * h_regs;
+	khash_t(reg_id) **h_regs;
+	/** Dictionary version. */
+	const char *version;
+	/** Dictionary subnodes. */
+	int subnodes;
 };
+typedef struct il_dict il_dict_t;
 
 #endif

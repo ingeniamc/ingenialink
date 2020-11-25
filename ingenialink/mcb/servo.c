@@ -23,11 +23,16 @@
  */
 
 #include "servo.h"
+#include "mc.h"
 
 #include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <windows.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/servo.h"
+#include "ingenialink/registers.h"
 
 /*******************************************************************************
  * Private
@@ -38,6 +43,124 @@ static int not_supported(void)
 	ilerr__set("Functionality not supported");
 
 	return IL_ENOTSUP;
+}
+
+/**
+ * Obtain the current statusword value.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ *
+ * @return
+ *	Statusword value.
+ */
+static uint16_t sw_get(il_servo_t *servo)
+{
+	uint16_t sw;
+
+	osal_mutex_lock(servo->sw.lock);
+	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
+	if (servo->sw.value != sw) {
+		servo->sw.value = sw;
+		osal_cond_broadcast(servo->sw.changed);
+	}
+	osal_mutex_unlock(servo->sw.lock);
+
+	return sw;
+}
+
+/**
+ * Wait until the statusword changes its value.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [in, out] sw
+ *	Current statusword value, where next value will be stored.
+ * @param [in, out] timeout
+ *	Timeout (ms), if positive will be updated with remaining ms.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout)
+{
+	int r = 0;
+	uint16_t buff;
+	osal_timespec_t start = { 0, 0 }, end, diff;
+
+	/* obtain start time */
+	if (*timeout > 0) {
+		if (osal_clock_gettime(&start) < 0) {
+			ilerr__set("Could not obtain system time");
+			return IL_EFAIL;
+		}
+	}
+	double time_s = 0;
+	time_s = (double) *timeout / 1000;
+	(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &buff);
+	while (buff == *sw) {
+		osal_clock_gettime(&diff);
+		if (diff.s > start.s + time_s) {
+			ilerr__set("Operation timed out");
+ 			r = IL_ETIMEDOUT;
+ 			goto unlock;
+		}
+		(void)il_servo_raw_read_u16(servo, &IL_REG_MCB_STS_WORD, NULL, &buff);
+	}
+
+	servo->sw.value = buff;
+	*sw = buff;
+
+out:	
+
+unlock:
+	osal_mutex_unlock(servo->sw.lock);
+
+	return r;
+}
+
+/**
+ * Wait until the statusword has the requested value
+ *
+ * @note
+ *	The timeout is not an absolute timeout, but an interval timeout.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [in] msk
+ *	Statusword mask.
+ * @param [in] val
+ *	Statusword value.
+ * @param [in] timeout
+ *	Timeout (ms).
+ */
+static int sw_wait_value(il_servo_t *servo, uint16_t msk, uint16_t val,
+			 int timeout)
+{
+	int r = 0;
+	uint16_t result;
+
+	/* wait until the flag changes to the requested state */
+	// osal_mutex_lock(servo->sw.lock);
+
+	do {
+		result = servo->sw.value & msk;
+		if (result != val) {
+			r = osal_cond_wait(servo->sw.changed, servo->sw.lock,
+					   timeout);
+			if (r == OSAL_ETIMEDOUT) {
+				ilerr__set("Operation timed out");
+				r = IL_ETIMEDOUT;
+			} else if (r < 0) {
+				ilerr__set("Statusword wait change failed");
+				r = IL_EFAIL;
+			}
+		}
+	} while ((result != val) && (r == 0));
+
+	// osal_mutex_unlock(servo->sw.lock);
+
+	return r;
 }
 
 /**
@@ -85,9 +208,27 @@ void il_mcb_servo__release(il_servo_t *servo)
 void il_mcb_servo__state_decode(uint16_t sw, il_servo_state_t *state,
 				int *flags)
 {
-	(void)sw;
-	(void)state;
-	(void)flags;
+	if ((sw & IL_MC_PDS_STA_NRTSO_MSK) == IL_MC_PDS_STA_NRTSO)
+		*state = IL_SERVO_STATE_NRDY;
+	else if ((sw & IL_MC_PDS_STA_SOD_MSK) == IL_MC_PDS_STA_SOD)
+		*state = IL_SERVO_STATE_DISABLED;
+	else if ((sw & IL_MC_PDS_STA_RTSO_MSK) == IL_MC_PDS_STA_RTSO)
+		*state = IL_SERVO_STATE_RDY;
+	else if ((sw & IL_MC_PDS_STA_SO_MSK) == IL_MC_PDS_STA_SO)
+		*state = IL_SERVO_STATE_ON;
+	else if ((sw & IL_MC_PDS_STA_OE_MSK) == IL_MC_PDS_STA_OE)
+		*state = IL_SERVO_STATE_ENABLED;
+	else if ((sw & IL_MC_PDS_STA_QSA_MSK) == IL_MC_PDS_STA_QSA)
+		*state = IL_SERVO_STATE_QSTOP;
+	else if ((sw & IL_MC_PDS_STA_FRA_MSK) == IL_MC_PDS_STA_FRA)
+		*state = IL_SERVO_STATE_FAULTR;
+	else if ((sw & IL_MC_PDS_STA_F_MSK) == IL_MC_PDS_STA_F)
+		*state = IL_SERVO_STATE_FAULT;
+	else
+		*state = IL_SERVO_STATE_NRDY;
+
+	if (flags)
+		*flags = (int)(sw >> FLAGS_SW_POS);
 }
 
 /*******************************************************************************
@@ -100,6 +241,7 @@ static il_servo_t *il_mcb_servo_create(il_net_t *net, uint16_t id,
 	int r;
 
 	il_mcb_servo_t *this;
+	uint16_t sw;
 
 	/* allocate servo */
 	this = malloc(sizeof(*this));
@@ -109,15 +251,29 @@ static il_servo_t *il_mcb_servo_create(il_net_t *net, uint16_t id,
 	}
 
 	r = il_servo_base__init(&this->servo, net, id, dict);
-	if (r < 0)
+	if (r < 0) {
 		goto cleanup_servo;
+	}
 
 	this->servo.ops = &il_mcb_servo_ops;
+
+	/* Configure the number of axis if the register is defined */
+	uint16_t subnodes;
+	r = il_servo_raw_read_u16(&this->servo, &IL_REG_ETH_NUMBER_AXIS, NULL, &subnodes);
+	if (r < 0) {
+		this->servo.subnodes = 1;
+	}
+	else {
+		this->servo.subnodes = subnodes;
+	}
 
 	/* initialize, setup refcnt */
 	this->refcnt = il_utils__refcnt_create(servo_destroy, this);
 	if (!this->refcnt)
 		goto cleanup_base;
+
+	/* trigger status update (with manual read) */
+	(void)il_servo_raw_read_u16(&this->servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
 
 	return &this->servo;
 
@@ -175,11 +331,16 @@ static int il_mcb_servo_info_get(il_servo_t *servo, il_servo_info_t *info)
 	return 0;
 }
 
-static int il_mcb_servo_store_all(il_servo_t *servo)
+static int il_mcb_servo_store_all(il_servo_t *servo, int subnode)
 {
-	(void)servo;
+	int r;
 
-	return not_supported();
+	r = il_servo_raw_wait_write_u32(servo, &IL_REG_ETH_STORE_ALL,
+						   NULL, 0x65766173, 1, 0);
+
+	printf("Store finished!");
+	r = 0;
+	return r;
 }
 
 static int il_mcb_servo_store_comm(il_servo_t *servo)
@@ -213,32 +374,194 @@ static double il_mcb_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 
 static int il_mcb_servo_disable(il_servo_t *servo)
 {
-	(void)servo;
+	int r;
+	uint16_t sw;
+	il_servo_state_t state;
+	int timeout = PDS_TIMEOUT;
 
-	return not_supported();
+	sw = sw_get(servo);
+
+	do {
+		servo->ops->_state_decode(sw, &state, NULL);
+
+		/* try fault reset if faulty */
+		if ((state == IL_SERVO_STATE_FAULT) ||
+		    (state == IL_SERVO_STATE_FAULTR)) {
+			r = il_mcb_servo_fault_reset(servo);
+			if (r < 0)
+				return r;
+
+			sw = sw_get(servo);
+		/* check state and command action to reach disabled */
+		} else if (state != IL_SERVO_STATE_DISABLED) {
+			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
+						   NULL, IL_MC_PDS_CMD_DV, 1, 0);
+			if (r < 0)
+				return r;
+
+			/* wait until statusword changes */
+			r = sw_wait_change(servo, &sw, &timeout);
+			if (r < 0)
+				return r;
+		}
+	} while (state != IL_SERVO_STATE_DISABLED);
+
+	return 0;
 }
 
 static int il_mcb_servo_switch_on(il_servo_t *servo, int timeout)
 {
-	(void)servo;
-	(void)timeout;
+	int r;
+	uint16_t sw, cmd;
+	il_servo_state_t state;
+	int timeout_ = timeout;
 
-	return not_supported();
+	sw = sw_get(servo);
+
+	do {
+		servo->ops->_state_decode(sw, &state, NULL);
+
+		/* try fault reset if faulty */
+		if ((state == IL_SERVO_STATE_FAULT) ||
+		    (state == IL_SERVO_STATE_FAULTR)) {
+			r = il_mcb_servo_fault_reset(servo);
+			if (r < 0)
+				return r;
+
+			sw = sw_get(servo);
+		/* check state and command action to reach switch on */
+		} else if (state != IL_SERVO_STATE_ON) {
+			if (state == IL_SERVO_STATE_FAULT)
+				return IL_ESTATE;
+			else if (state == IL_SERVO_STATE_NRDY)
+				cmd = IL_MC_PDS_CMD_DV;
+			else if (state == IL_SERVO_STATE_DISABLED)
+				cmd = IL_MC_PDS_CMD_SD;
+			else if (state == IL_SERVO_STATE_RDY)
+				cmd = IL_MC_PDS_CMD_SO;
+			else if (state == IL_SERVO_STATE_ENABLED)
+				cmd = IL_MC_PDS_CMD_DO;
+			else
+				cmd = IL_MC_PDS_CMD_DV;
+
+			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
+						   NULL, cmd, 1, 0);
+			if (r < 0)
+				return r;
+
+			/* wait for state change */
+			r = sw_wait_change(servo, &sw, &timeout_);
+			if (r < 0)
+				return r;
+		}
+	} while (state != IL_SERVO_STATE_ON);
+
+	return 0;
 }
 
 static int il_mcb_servo_enable(il_servo_t *servo, int timeout)
 {
-	(void)servo;
-	(void)timeout;
+	int r;
+	uint16_t sw, cmd;
+	il_servo_state_t state;
+	int timeout_ = timeout;
 
-	return not_supported();
+	sw = sw_get(servo);
+
+	servo->ops->_state_decode(sw, &state, NULL);
+
+	/* try fault reset if faulty */
+	if ((state == IL_SERVO_STATE_FAULT) ||
+		(state == IL_SERVO_STATE_FAULTR)) {
+		r = il_mcb_servo_fault_reset(servo);
+		if (r < 0)
+			return r;
+
+		sw = sw_get(servo);
+	}
+	
+	sw = sw_get(servo);
+	do {
+		
+		servo->ops->_state_decode(sw, &state, NULL);
+
+		/* check state and command action to reach enabled */
+		if ((state != IL_SERVO_STATE_ENABLED)) {
+			if (state == IL_SERVO_STATE_FAULT) {
+				printf("FAULT State : %i\n", sw);
+				return IL_ESTATE;
+			}
+			else if (state == IL_SERVO_STATE_NRDY) {
+				printf("NRDY State : %i\n", sw);
+				cmd = IL_MC_PDS_CMD_DV;
+			}	
+			else if (state == IL_SERVO_STATE_DISABLED) {
+				printf("DISABLED State : %i\n", sw);
+				cmd = IL_MC_PDS_CMD_SD;
+			}		
+			else if (state == IL_SERVO_STATE_RDY) {
+				printf("RDY State : %i\n", sw);
+				cmd = IL_MC_PDS_CMD_SOEO;
+			}		
+			else {
+				printf("OTHER State : %i\n", sw);
+				cmd = IL_MC_PDS_CMD_EO;
+			}
+			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
+						   NULL, cmd, 1, 0);
+			if (r < 0)
+				return r;
+
+			/* wait for state change */
+			r = sw_wait_change(servo, &sw, &timeout_);
+			if (r < 0)
+				return r;
+		}
+	} while ((state != IL_SERVO_STATE_ENABLED));
+
+	return 0;
 }
 
 static int il_mcb_servo_fault_reset(il_servo_t *servo)
 {
-	(void)servo;
+	int r;
+	uint16_t sw;
+	il_servo_state_t state;
+	int timeout = PDS_TIMEOUT;
+	int retries = 0;
 
-	return not_supported();
+	sw = sw_get(servo);
+
+	do {
+		servo->ops->_state_decode(sw, &state, NULL);
+
+		/* check if faulty, if so try to reset (0->1) */
+		if ((state == IL_SERVO_STATE_FAULT) ||
+		    (state == IL_SERVO_STATE_FAULTR)) {
+			if (retries == FAULT_RESET_RETRIES) {
+				return IL_ESTATE;
+			}
+			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
+						   NULL, 0, 1, 0);
+			if (r < 0)
+				return r;
+
+			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
+						   NULL, IL_MC_PDS_CMD_FR, 1, 0);
+			if (r < 0)
+				return r;
+
+			/* wait until statusword changes */
+			r = sw_wait_change(servo, &sw, &timeout);
+			if (r < 0)
+				return r;
+			
+			++retries;
+		}
+	} while ((state == IL_SERVO_STATE_FAULT) ||
+		 (state == IL_SERVO_STATE_FAULTR));
+
+	return 0;
 }
 
 static int il_mcb_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode)
@@ -375,10 +698,7 @@ static int il_mcb_servo_velocity_res_get(il_servo_t *servo, uint32_t *res)
 
 static int il_mcb_servo_wait_reached(il_servo_t *servo, int timeout)
 {
-	(void)servo;
-	(void)timeout;
-
-	return not_supported();
+	return sw_wait_value(servo, IL_MC_SW_TR, IL_MC_SW_TR, timeout);
 }
 
 /** E-USB servo operations. */
@@ -429,6 +749,7 @@ const il_servo_ops_t il_mcb_servo_ops = {
 	.raw_write_u16 = il_servo_base__raw_write_u16,
 	.raw_write_s16 = il_servo_base__raw_write_s16,
 	.raw_write_u32 = il_servo_base__raw_write_u32,
+	.raw_wait_write_u32 = il_servo_base__raw_wait_write_u32,
 	.raw_write_s32 = il_servo_base__raw_write_s32,
 	.raw_write_u64 = il_servo_base__raw_write_u64,
 	.raw_write_s64 = il_servo_base__raw_write_s64,

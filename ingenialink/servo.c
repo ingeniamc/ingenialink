@@ -26,6 +26,12 @@
 
 #include "ingenialink/err.h"
 
+#include <string.h>
+#include <stdio.h>
+#include <signal.h>
+#include <stdbool.h>
+#include <windows.h>
+#include <inttypes.h>
 /*******************************************************************************
  * Internal
  ******************************************************************************/
@@ -55,6 +61,22 @@ il_servo_t *il_servo_create(il_net_t *net, uint16_t id, const char *dict)
 	case IL_NET_PROT_MCB:
 		return il_mcb_servo_ops.create(net, id, dict);
 #endif
+
+#ifdef IL_HAS_PROT_ETH
+	case IL_NET_PROT_ETH:
+		return il_eth_servo_ops.create(net, id, dict);
+#endif
+
+#ifdef IL_HAS_PROT_ECAT
+	case IL_NET_PROT_ECAT:
+		return il_ecat_servo_ops.create(net, id, dict);
+#endif
+
+
+#ifdef IL_HAS_PROT_VIRTUAL
+	case IL_NET_PROT_VIRTUAL:
+		return il_virtual_servo_ops.create(net, id, dict);
+#endif
 	default:
 		ilerr__set("Unsupported network protocol");
 		return NULL;
@@ -71,9 +93,9 @@ int il_servo_reset(il_servo_t *servo)
 	return servo->ops->reset(servo);
 }
 
-void il_servo_state_get(il_servo_t *servo, il_servo_state_t *state, int *flags)
+void il_servo_state_get(il_servo_t *servo, il_servo_state_t *state, int *flags, uint8_t subnode)
 {
-	servo->ops->state_get(servo, state, flags);
+	servo->ops->state_get(servo, state, flags, subnode);
 }
 
 int il_servo_state_subscribe(il_servo_t *servo,
@@ -106,8 +128,8 @@ il_dict_t *il_servo_dict_get(il_servo_t *servo)
 int il_servo_dict_load(il_servo_t *servo, const char *dict)
 {
 	if (servo->dict) {
-		ilerr__set("Dictionary already loaded");
-		return IL_EALREADY;
+		il_dict_destroy(servo->dict);
+		servo->dict = NULL;
 	}
 
 	servo->dict = il_dict_create(dict);
@@ -115,6 +137,167 @@ int il_servo_dict_load(il_servo_t *servo, const char *dict)
 		return IL_EFAIL;
 
 	return 0;
+}
+
+int il_servo_dict_storage_read(il_servo_t *servo)
+{
+	int r = 0;
+	const char **ids;
+
+	if (!servo->dict) {
+		ilerr__set("No dictionary loaded");
+		return IL_EFAIL;
+	}
+
+	// Subnodes = axis available at servo + 1 subnode of general parameters
+	int subnodes = servo->subnodes + 1;
+	for (int j = 0; j < subnodes; j++) {
+		ids = il_dict_reg_ids_get(servo->dict, j);
+		if (!ids)
+			return IL_EFAIL;
+			
+		for (size_t i = 0; i < ids[i]; i++) {
+			const il_reg_t *reg;
+			il_reg_value_t storage;
+			(void)il_dict_reg_get(servo->dict, ids[i], &reg, j);
+
+			if (reg->access != IL_REG_ACCESS_RW)
+				continue;
+
+			switch (reg->dtype) {
+			case IL_REG_DTYPE_U8:
+				r = il_servo_raw_read_u8(servo, reg, ids[i],
+							&storage.u8);
+				break;
+			case IL_REG_DTYPE_S8:
+				r = il_servo_raw_read_s8(servo, reg, ids[i],
+							&storage.s8);
+				break;
+			case IL_REG_DTYPE_U16:
+				r = il_servo_raw_read_u16(servo, reg, ids[i],
+							&storage.u16);
+				break;
+			case IL_REG_DTYPE_S16:
+				r = il_servo_raw_read_s16(servo, reg, ids[i],
+							&storage.s16);
+				break;
+			case IL_REG_DTYPE_U32:
+				r = il_servo_raw_read_u32(servo, reg, ids[i],
+							&storage.u32);
+				break;
+			case IL_REG_DTYPE_STR:
+				r = il_servo_raw_read_str(servo, reg, ids[i],
+							&storage.u32);
+				break;
+			case IL_REG_DTYPE_S32:
+				r = il_servo_raw_read_s32(servo, reg, ids[i],
+							&storage.s32);
+				break;
+			case IL_REG_DTYPE_U64:
+				r = il_servo_raw_read_u64(servo, reg, ids[i],
+							&storage.u64);
+				break;
+			case IL_REG_DTYPE_S64:
+				r = il_servo_raw_read_s64(servo, reg, ids[i],
+							&storage.s64);
+				break;
+			case IL_REG_DTYPE_FLOAT:
+				r = il_servo_raw_read_float(servo, reg, ids[i],
+								&storage.flt);
+				break;
+			default:
+				continue;
+			}
+
+			if (r < 0)
+				continue;
+
+			(void)il_dict_reg_storage_update(servo->dict, ids[i], storage, j);
+		}
+	}
+	
+
+cleanup_ids:
+	il_dict_reg_ids_destroy(ids);
+
+	return r;
+}
+
+int il_servo_dict_storage_write(il_servo_t *servo)
+{
+	int r = 0;
+	const char **ids;
+
+	if (!servo->dict) {
+		ilerr__set("No dictionary loaded");
+		return IL_EFAIL;
+	}
+
+	// Subnodes = axis available at servo + 1 subnode of general parameters
+	int subnodes = servo->subnodes + 1;
+	for (int j = 0; j < subnodes; j++) {
+		ids = il_dict_reg_ids_get(servo->dict, j);
+		if (!ids)
+			return IL_EFAIL;
+
+		for (size_t i = 0; ids[i]; i++) {
+			const il_reg_t *reg;
+
+			(void)il_dict_reg_get(servo->dict, ids[i], &reg, j);
+
+			if (reg->access != IL_REG_ACCESS_RW)
+				continue;
+
+			switch (reg->dtype) {
+			case IL_REG_DTYPE_U8:
+				r = il_servo_raw_write_u8(servo, reg, ids[i],
+							reg->storage.u8, 1, 0);
+				break;
+			case IL_REG_DTYPE_S8:
+				r = il_servo_raw_write_s8(servo, reg, ids[i],
+							reg->storage.s8, 1, 0);
+				break;
+			case IL_REG_DTYPE_U16:
+				r = il_servo_raw_write_u16(servo, reg, ids[i],
+							reg->storage.u16, 1, 0);
+				break;
+			case IL_REG_DTYPE_S16:
+				r = il_servo_raw_write_s16(servo, reg, ids[i],
+							reg->storage.s16, 1, 0);
+				break;
+			case IL_REG_DTYPE_U32:
+				r = il_servo_raw_write_u32(servo, reg, ids[i],
+							reg->storage.u32, 1, 0);
+				break;
+			case IL_REG_DTYPE_S32:
+				r = il_servo_raw_write_s32(servo, reg, ids[i],
+							reg->storage.s32, 1, 0);
+				break;
+			case IL_REG_DTYPE_U64:
+				r = il_servo_raw_write_u64(servo, reg, ids[i],
+							reg->storage.u64, 1, 0);
+				break;
+			case IL_REG_DTYPE_S64:
+				r = il_servo_raw_write_s64(servo, reg, ids[i],
+							reg->storage.s64, 1, 0);
+				break;
+			case IL_REG_DTYPE_FLOAT:
+				r = il_servo_raw_write_float(servo, reg, ids[i],
+								reg->storage.flt, 1, 0);
+				break;
+			default:
+				continue;
+			}
+
+			if (r < 0)
+				continue;
+		}
+	}
+
+cleanup_ids:
+	il_dict_reg_ids_destroy(ids);
+
+	return r;
 }
 
 int il_servo_name_get(il_servo_t *servo, char *name, size_t sz)
@@ -227,6 +410,12 @@ int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
 	return servo->ops->raw_read_u32(servo, reg, id, buf);
 }
 
+int il_servo_raw_read_str(il_servo_t *servo, const il_reg_t *reg,
+			  const char *id, uint32_t *buf)
+{
+	return servo->ops->raw_read_str(servo, reg, id, buf);
+}
+
 int il_servo_raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
 			  const char *id, int32_t *buf)
 {
@@ -258,68 +447,74 @@ int il_servo_read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 }
 
 int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, uint8_t val, int confirm)
+			  const char *id, uint8_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_u8(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_u8(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
-			  const char *id, int8_t val, int confirm)
+			  const char *id, int8_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_s8(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_s8(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, uint16_t val, int confirm)
+			   const char *id, uint16_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_u16(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_u16(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, int16_t val, int confirm)
+			   const char *id, int16_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_s16(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_s16(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, uint32_t val, int confirm)
+			   const char *id, uint32_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_u32(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_u32(servo, reg, id, val, confirm, extended);
+}
+
+int il_servo_raw_wait_write_u32(il_servo_t *servo, const il_reg_t *reg,
+	const char *id, uint32_t val, int confirm, uint16_t extended)
+{
+	return servo->ops->raw_wait_write_u32(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, int32_t val, int confirm)
+			   const char *id, int32_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_s32(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_s32(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, uint64_t val, int confirm)
+			   const char *id, uint64_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_u64(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_u64(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
-			   const char *id, int64_t val, int confirm)
+			   const char *id, int64_t val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_s64(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_s64(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_raw_write_float(il_servo_t *servo, const il_reg_t *reg,
-			     const char *id, float val, int confirm)
+			     const char *id, float val, int confirm, uint16_t extended)
 {
-	return servo->ops->raw_write_float(servo, reg, id, val, confirm);
+	return servo->ops->raw_write_float(servo, reg, id, val, confirm, extended);
 }
 
 int il_servo_write(il_servo_t *servo, const il_reg_t *reg, const char *id,
-		   double val, int confirm)
+		   double val, int confirm, uint16_t extended)
 {
-	return servo->ops->write(servo, reg, id, val, confirm);
+	return servo->ops->write(servo, reg, id, val, confirm, extended);
 }
 
-int il_servo_disable(il_servo_t *servo)
+int il_servo_disable(il_servo_t *servo, uint8_t subnode)
 {
-	return servo->ops->disable(servo);
+	return servo->ops->disable(servo, subnode);
 }
 
 int il_servo_switch_on(il_servo_t *servo, int timeout)
@@ -327,14 +522,14 @@ int il_servo_switch_on(il_servo_t *servo, int timeout)
 	return servo->ops->switch_on(servo, timeout);
 }
 
-int il_servo_enable(il_servo_t *servo, int timeout)
+int il_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode)
 {
-	return servo->ops->enable(servo, timeout);
+	return servo->ops->enable(servo, timeout, subnode);
 }
 
-int il_servo_fault_reset(il_servo_t *servo)
+int il_servo_fault_reset(il_servo_t *servo, uint8_t subnode)
 {
-	return servo->ops->fault_reset(servo);
+	return servo->ops->fault_reset(servo, subnode);
 }
 
 int il_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode)
@@ -424,11 +619,15 @@ int il_servo_wait_reached(il_servo_t *servo, int timeout)
 	return servo->ops->wait_reached(servo, timeout);
 }
 
+void il_servo_fake_destroy(il_servo_t *servo) {}
+
 int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		   const char *dict)
-{
+{	
+
 	il_net_dev_list_t *devs, *dev;
 	il_net_servos_list_t *servo_ids, *servo_id;
+
 
 	/* scan all available network devices */
 	devs = il_net_dev_list_get(prot);
@@ -438,6 +637,7 @@ int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		opts.port = dev->port;
 		opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 		opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+		opts.connect_slave = 1;
 
 		*net = il_net_create(prot, &opts);
 		if (!*net)
@@ -464,4 +664,127 @@ int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 
 	ilerr__set("No connected servos found");
 	return IL_EFAIL;
+}
+
+int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
+		   const char *dict, const char *address_ip, int port_ip, int protocol)
+{	
+	il_eth_net_dev_list_t *dev;
+	il_net_servos_list_t *servo_ids, *servo_id;
+
+	/* scan all available network devices */
+	dev = il_net_dev_list_get(prot);
+	il_eth_net_opts_t opts;
+
+	opts.address_ip = address_ip;
+	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+	opts.connect_slave = 1;
+	opts.port_ip = port_ip;
+	opts.port = "";
+	opts.protocol = protocol;
+
+	printf("before connect");
+	*net = il_net_create(prot, &opts);
+	if (!*net) {
+		printf("FAIL");
+		return IL_EFAIL;
+	}
+	/* try to connect to any available servo */
+	servo_ids = il_net_servos_list_get(*net, NULL, NULL);
+	
+
+
+	il_net_servos_list_foreach(servo_id, servo_ids) {
+		*servo = il_servo_create(*net, servo_id->id, dict);
+		/* found */
+		if (*servo) {
+			il_net_servos_list_destroy(servo_ids);
+
+			return 0;
+		}
+	}
+	il_net_servos_list_destroy(servo_ids);
+	il_net_destroy(*net);
+	
+	ilerr__set("No connected servos found");
+	return IL_EFAIL;
+}
+
+
+int il_servo_is_connected(il_net_t **net, const char *address_ip, int port_ip, int protocol) 
+{
+	il_eth_net_opts_t opts;
+
+	opts.address_ip = address_ip;
+	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+	opts.connect_slave = 0;
+	opts.port_ip = port_ip;
+	opts.port = "";
+	opts.protocol = protocol;
+
+	*net = il_net_create(IL_NET_PROT_ETH, &opts);
+	if (!*net) {
+		printf("FAIL");
+		return IL_EFAIL;
+	}
+	int r = 0;
+	il_net_close_socket(*net);
+	r = il_net_is_slave_connected(*net, address_ip);
+	il_net_destroy(*net);
+	return r;
+}
+
+const uint16_t *il_servo_subnodes_get(il_servo_t *servo) 
+{
+	return servo->subnodes;
+}
+
+int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, char *if_address_ip, il_net_t **net, il_servo_t **servo,
+		   const char *dict, const char *address_ip, int port_ip)
+{
+	il_net_servos_list_t *servo_ids, *servo_id;
+
+	il_ecat_net_opts_t opts;
+
+	opts.address_ip = address_ip;
+	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
+	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
+	opts.connect_slave = 1;
+	opts.port_ip = port_ip;
+	opts.port = "";
+	opts.ifname = ifname;
+	opts.if_address_ip = if_address_ip;
+	
+	// Initialization of the EtherCAT master
+	int r = il_net_master_startup(net, ifname, if_address_ip);
+	printf("master_startup result: %i\n", r);
+	if (r > 0) {
+		printf("Servos found!\n");
+		// Wait until slaves are initialized
+		Sleep(2000);
+
+		*net = il_net_create(prot, &opts);
+		if (!*net) {
+			printf("FAIL");
+			return IL_EFAIL;
+		}
+
+		/* Create as much servos as slaves found */
+		servo_ids = il_net_servos_list_get(*net, NULL, NULL);
+
+		/* Create servo */
+		il_net_servos_list_foreach(servo_id, servo_ids) {
+			*servo = il_servo_create(*net, servo_id->id, dict);
+			/* found */
+			if (servo) {
+				il_net_servos_list_destroy(servo_ids);
+				return r;
+			}
+		}
+	}
+	printf("No connected servos found\n");
+	// ilerr__set("No connected servos found");
+	return r;
 }

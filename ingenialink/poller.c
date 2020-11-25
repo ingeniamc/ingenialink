@@ -63,11 +63,11 @@ int poller_td(void *args)
 			acq->t[acq->cnt] = t;
 
 			for (ch = 0; ch < poller->n_ch; ch++) {
-				if (!poller->mappings[ch])
+				if (!poller->mappings_valid[ch])
 					continue;
 
 				(void)il_servo_read(poller->servo,
-						    poller->mappings[ch],
+						    &poller->mappings[ch],
 						    NULL,
 						    &acq->d[ch][acq->cnt]);
 			}
@@ -123,10 +123,16 @@ il_poller_t *il_poller_create(il_servo_t *servo, size_t n_ch)
 		goto cleanup_lock;
 	}
 
+	poller->mappings_valid = calloc(n_ch, sizeof(*poller->mappings_valid));
+	if (!poller->mappings_valid) {
+		ilerr__set("Poller mappings valid allocation failed");
+		goto cleanup_mappings;
+	}
+
 	poller->acq[0].d = calloc(n_ch, sizeof(*poller->acq[0].d));
 	if (!poller->acq[0].d) {
 		ilerr__set("Poller acquisition data allocation failed");
-		goto cleanup_mappings;
+		goto cleanup_mappings_valid;
 	}
 
 	poller->acq[1].d = calloc(n_ch, sizeof(*poller->acq[1].d));
@@ -140,8 +146,11 @@ il_poller_t *il_poller_create(il_servo_t *servo, size_t n_ch)
 cleanup_acq_d_0:
 	free(poller->acq[0].d);
 
+cleanup_mappings_valid:
+	free(poller->mappings_valid);
+
 cleanup_mappings:
-	free((void *)poller->mappings);
+	free(poller->mappings);
 
 cleanup_lock:
 	osal_mutex_destroy(poller->lock);
@@ -182,7 +191,8 @@ void il_poller_destroy(il_poller_t *poller)
 	free(poller->acq[1].d);
 	free(poller->acq[0].d);
 
-	free((void *)poller->mappings);
+	free(poller->mappings);
+	free(poller->mappings_valid);
 
 	osal_mutex_destroy(poller->lock);
 
@@ -219,7 +229,7 @@ int il_poller_start(il_poller_t *poller)
 
 	poller->stop = 0;
 
-	poller->td = osal_thread_create(poller_td, poller);
+	poller->td = osal_thread_create_(poller_td, poller);
 	if (!poller->td) {
 		ilerr__set("Poller thread creation failed");
 		return IL_EFAIL;
@@ -317,12 +327,14 @@ int il_poller_ch_configure(il_poller_t *poller, unsigned int ch,
 			return IL_EFAIL;
 		}
 
-		r = il_dict_reg_get(dict, id, &reg_);
+		r = il_dict_reg_get(dict, id, &reg_, DEFAULT_SUBNODE_VALUE);
 		if (r < 0)
 			return r;
 	}
 
-	poller->mappings[ch] = reg_;
+	/* keep a copy of the register */
+	memcpy(&poller->mappings[ch], reg_, sizeof(*reg_));
+	poller->mappings_valid[ch] = 1;
 
 	return 0;
 }
@@ -339,7 +351,7 @@ int il_poller_ch_disable(il_poller_t *poller, unsigned int ch)
 		return IL_EINVAL;
 	}
 
-	poller->mappings[ch] = NULL;
+	poller->mappings_valid[ch] = 0;
 
 	return 0;
 }

@@ -124,7 +124,7 @@ typedef enum {
 
 /** State updates subcriber callback. */
 typedef void (*il_servo_state_subscriber_cb_t)(
-		void *ctx, il_servo_state_t state, int flags);
+		void *ctx, il_servo_state_t state, int flags, uint8_t subnode);
 
 /** Servo operation modes. */
 typedef enum {
@@ -231,8 +231,7 @@ typedef enum {
  * @return
  *	Servo instance (NULL if it could not be created).
  */
-IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint16_t id,
-				      const char *dict);
+IL_EXPORT il_servo_t *il_servo_create(il_net_t *net, uint16_t id, const char *dict);
 
 /**
  * Destroy an IngeniaLink servo instance.
@@ -265,10 +264,12 @@ IL_EXPORT int il_servo_reset(il_servo_t *servo);
  *	Servo state.
  * @param [out] flags
  *	Servo flags.
+ * @param [in] subnode
+ *	Subnode.
  */
 
 IL_EXPORT void il_servo_state_get(il_servo_t *servo, il_servo_state_t *state,
-				  int *flags);
+				  int *flags, uint8_t subnode);
 
 /**
  * Subscribe to state changes (and operation flags).
@@ -361,6 +362,28 @@ IL_EXPORT il_dict_t *il_servo_dict_get(il_servo_t *servo);
 IL_EXPORT int il_servo_dict_load(il_servo_t *servo, const char *dict);
 
 /**
+ * Read all dictionary registers content and put it to the dictionary storage.
+ *
+ * @param [in] servo
+ *	Servo instance.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_dict_storage_read(il_servo_t *servo);
+
+/**
+ * Write current dictionary storage to the servo drive.
+ *
+ * @param [in] servo
+ *	Servo instance.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_dict_storage_write(il_servo_t *servo);
+
+/**
  * Obtain servo name.
  *
  * @param [in] servo
@@ -410,13 +433,15 @@ IL_EXPORT int il_servo_info_get(il_servo_t *servo, il_servo_info_t *info);
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_store_all(il_servo_t *servo);
+IL_EXPORT int il_servo_store_all(il_servo_t *servo, int subnode);
 
 /**
  * Store all servo current communications parameters to the NVM.
  *
  * @param [in] servo
  *	IngeniaLink servo instance.
+ * @param [in] subnode
+ *	Subnode.
  *
  * @return
  *	0 on success, error code otherwise.
@@ -638,6 +663,24 @@ IL_EXPORT int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
 				    const char *id, uint32_t *buf);
 
 /**
+ * Read string value from a register.
+ *
+ * @param [in] servo
+ *	IngeniaLink servo.
+ * @param [in] reg
+ *	Register.
+ * @param [in] id
+ *	Register id.
+ * @param [out] buf
+ *	Buffer where to store received data.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_servo_raw_read_str(il_servo_t *servo, const il_reg_t *reg,
+				    const char *id, uint32_t *buf);
+
+/**
  * Read signed 32-bit value from a register.
  *
  * @param [in] servo
@@ -748,7 +791,7 @@ IL_EXPORT int il_servo_read(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
-				    const char *id, uint8_t val, int confirm);
+				    const char *id, uint8_t val, int confirm, uint16_t extended);
 
 /**
  * Write signed 8-bit integer to a register.
@@ -768,7 +811,7 @@ IL_EXPORT int il_servo_raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
-				    const char *id, int8_t val, int confirm);
+				    const char *id, int8_t val, int confirm, uint16_t extended);
 
 /**
  * Write unsigned 16-bit integer to a register.
@@ -788,7 +831,7 @@ IL_EXPORT int il_servo_raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
-				     const char *id, uint16_t val, int confirm);
+				     const char *id, uint16_t val, int confirm, uint16_t extended);
 
 /**
  * Write signed 16-bit integer to a register.
@@ -808,7 +851,7 @@ IL_EXPORT int il_servo_raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
-				     const char *id, int16_t val, int confirm);
+				     const char *id, int16_t val, int confirm, uint16_t extended);
 
 /**
  * Write unsigned 32-bit integer to a register.
@@ -828,7 +871,10 @@ IL_EXPORT int il_servo_raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
-				     const char *id, uint32_t val, int confirm);
+				     const char *id, uint32_t val, int confirm, uint16_t extended);
+
+IL_EXPORT int il_servo_raw_wait_write_u32(il_servo_t *servo, const il_reg_t *reg,
+				     const char *id, uint32_t val, int confirm, uint16_t extended);
 
 /**
  * Write signed 32-bit integer to a register.
@@ -848,7 +894,7 @@ IL_EXPORT int il_servo_raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
-				     const char *id, int32_t val, int confirm);
+				     const char *id, int32_t val, int confirm, uint16_t extended);
 
 /**
  * Write unsigned 64-bit integer to a register.
@@ -868,7 +914,7 @@ IL_EXPORT int il_servo_raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
-				     const char *id, uint64_t val, int confirm);
+				     const char *id, uint64_t val, int confirm, uint16_t extended);
 
 /**
  * Write signed 64-bit integer to a register.
@@ -888,7 +934,7 @@ IL_EXPORT int il_servo_raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
-				     const char *id, int64_t val, int confirm);
+				     const char *id, int64_t val, int confirm, uint16_t extended);
 
 /**
  * Write float to a register.
@@ -908,7 +954,7 @@ IL_EXPORT int il_servo_raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_raw_write_float(il_servo_t *servo, const il_reg_t *reg,
-				       const char *id, float val, int confirm);
+				       const char *id, float val, int confirm, uint16_t extended);
 
 /**
  * Write to a register.
@@ -931,7 +977,7 @@ IL_EXPORT int il_servo_raw_write_float(il_servo_t *servo, const il_reg_t *reg,
  *	0 on success, error code otherwise.
  */
 IL_EXPORT int il_servo_write(il_servo_t *servo, const il_reg_t *reg,
-			     const char *id, double val, int confirm);
+			     const char *id, double val, int confirm, uint16_t extended);
 
 /**
  * Disable servo PDS.
@@ -942,7 +988,7 @@ IL_EXPORT int il_servo_write(il_servo_t *servo, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_disable(il_servo_t *servo);
+IL_EXPORT int il_servo_disable(il_servo_t *servo, uint8_t subnode);
 
 /**
  * Switch on servo PDS.
@@ -952,13 +998,13 @@ IL_EXPORT int il_servo_disable(il_servo_t *servo);
  *
  * @param [in] servo
  *	IngeniaLink servo.
- * @param [in] timeout
- *	Timeout (ms).
+ * @param [in] subnode
+ *	Subnode.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_switch_on(il_servo_t *servo, int timeout);
+IL_EXPORT int il_servo_switch_on(il_servo_t *servo, int timeout, uint8_t subnode);
 
 /**
  * Enable servo PDS.
@@ -970,22 +1016,28 @@ IL_EXPORT int il_servo_switch_on(il_servo_t *servo, int timeout);
  *	IngeniaLink servo.
  * @param [in] timeout
  *	Timeout (ms).
+ * @param [in] subnode
+ *	Subnode.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_enable(il_servo_t *servo, int timeout);
+IL_EXPORT int il_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode);
 
 /**
  * Reset the drive fault state.
  *
  * @param [in] servo
  *	IngeniaLink servo.
+ * @param [in] timeout
+ *	Timeout (ms).
+ * @param [in] subnode
+ *	Subnode.
  *
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_fault_reset(il_servo_t *servo);
+IL_EXPORT int il_servo_fault_reset(il_servo_t *servo, uint8_t subnode);
 
 /**
  * Get the servo operation mode.
@@ -994,6 +1046,8 @@ IL_EXPORT int il_servo_fault_reset(il_servo_t *servo);
  *	IngeniaLink servo.
  * @param [out] mode
  *	Where mode will be stored.
+ * @param [in] subnode
+ *	Subnode.
  *
  * @return
  *	0 on success, error code otherwise.
@@ -1220,6 +1274,9 @@ IL_EXPORT int il_servo_velocity_res_get(il_servo_t *servo, uint32_t *res);
  */
 IL_EXPORT int il_servo_wait_reached(il_servo_t *servo, int timeout);
 
+
+IL_EXPORT void il_servo_fake_destroy(il_servo_t *servo);
+
 /**
  * Utility function to connect to the first available servo drive.
  *
@@ -1238,7 +1295,25 @@ IL_EXPORT int il_servo_wait_reached(il_servo_t *servo, int timeout);
 IL_EXPORT int il_servo_lucky(il_net_prot_t prot, il_net_t **net,
 			     il_servo_t **servo, const char *dict);
 
-/** @} */
+IL_EXPORT int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net,
+			     il_servo_t **servo, const char *dict, const char *address_ip, int port_ip, int protocol);
+
+IL_EXPORT int il_servo_is_connected(il_net_t **net, const char *address_ip, int port_ip, int protocol);
+
+/**
+ * Obtain the number of axis of the servo.
+ *
+ * @param [in] servo
+ *	Servo instance.
+ *
+ * @return
+ *	Number of axis available.
+ *
+ */
+IL_EXPORT const uint16_t *il_servo_subnodes_get(il_servo_t *servo);
+
+IL_EXPORT int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, char *if_address_ip, il_net_t **net, il_servo_t **servo,
+		   const char *dict, const char *address_ip, int port_ip);
 
 IL_END_DECL
 

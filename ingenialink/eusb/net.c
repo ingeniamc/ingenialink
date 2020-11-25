@@ -272,17 +272,15 @@ static void enet_destroy(void *ctx)
 {
 	il_eusb_net_t *this = ctx;
 
-	if (!this->is_virtual) {
-		if (il_net_state_get(&this->net) != IL_NET_STATE_DISCONNECTED) {
-			this->stop = 1;
-			osal_thread_join(this->listener, NULL);
-		}
-
-		osal_cond_destroy(this->sync.cond);
-		osal_mutex_destroy(this->sync.lock);
-
-		ser_destroy(this->ser);
+	if (il_net_state_get(&this->net) != IL_NET_STATE_DISCONNECTED) {
+		this->stop = 1;
+		osal_thread_join(this->listener, NULL);
 	}
+
+	osal_cond_destroy(this->sync.cond);
+	osal_mutex_destroy(this->sync.lock);
+
+	ser_destroy(this->ser);
 
 	il_net_base__deinit(&this->net);
 
@@ -311,12 +309,6 @@ static int net_read(il_eusb_net_t *this, uint8_t id, uint32_t address,
 {
 	int r;
 	il_eusb_frame_t frame;
-
-	/* virtual network: read always zero */
-	if (this->is_virtual) {
-		memset(buf, 0, sz);
-		return 0;
-	}
 
 	/* register synchronous transfer */
 	osal_mutex_lock(this->sync.lock);
@@ -381,7 +373,7 @@ static void il_eusb_net__release(il_net_t *net)
 	il_utils__refcnt_release(this->refcnt);
 }
 
-static int il_eusb_net__read(il_net_t *net, uint16_t id, uint32_t address,
+static int il_eusb_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
 			     void *buf, size_t sz)
 {
 	il_eusb_net_t *this = to_eusb_net(net);
@@ -402,17 +394,13 @@ static int il_eusb_net__read(il_net_t *net, uint16_t id, uint32_t address,
 	return r;
 }
 
-static int il_eusb_net__write(il_net_t *net, uint16_t id, uint32_t address,
+static int il_eusb_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
 			      const void *buf, size_t sz, int confirmed)
 {
 	il_eusb_net_t *this = to_eusb_net(net);
 
 	int r;
 	il_eusb_frame_t frame;
-
-	/* virtual network: ignore write */
-	if (this->is_virtual)
-		return 0;
 
 	if (il_net_state_get(&this->net) != IL_NET_STATE_CONNECTED) {
 		ilerr__set("Network is not connected");
@@ -486,45 +474,38 @@ static il_net_t *il_eusb_net_create(const il_net_opts_t *opts)
 	if (!this->refcnt)
 		goto cleanup_net;
 
-	if (strcmp(opts->port, EUSB_VIRTUAL_PORT) == 0) {
-		this->is_virtual = 1;
-		(void)il_net_connect(&this->net);
-	} else {
-		this->is_virtual = 0;
-
-		/* initialize synchronous transfers context */
-		this->sync.lock = osal_mutex_create();
-		if (!this->sync.lock) {
-			ilerr__set("Network sync lock allocation failed");
-			goto cleanup_refcnt;
-		}
-
-		this->sync.cond = osal_cond_create();
-		if (!this->sync.cond) {
-			ilerr__set("Network sync condition allocation failed");
-			goto cleanup_sync_lock;
-		}
-
-		this->sync.complete = 1;
-
-		/* allocate serial port */
-		this->ser = ser_create();
-		if (!this->ser) {
-			ilerr__set("Serial port allocation failed (%s)",
-				   sererr_last());
-			goto cleanup_sync_cond;
-		}
-
-		/* connect */
-		this->sopts.port = il_net_port_get(&this->net);
-		this->sopts.baudrate = BAUDRATE_DEF;
-		this->sopts.timeouts.rd = SER_POLL_TIMEOUT;
-		this->sopts.timeouts.wr = opts->timeout_wr;
-
-		r = il_net_connect(&this->net);
-		if (r < 0)
-			goto cleanup_ser;
+	/* initialize synchronous transfers context */
+	this->sync.lock = osal_mutex_create();
+	if (!this->sync.lock) {
+		ilerr__set("Network sync lock allocation failed");
+		goto cleanup_refcnt;
 	}
+
+	this->sync.cond = osal_cond_create();
+	if (!this->sync.cond) {
+		ilerr__set("Network sync condition allocation failed");
+		goto cleanup_sync_lock;
+	}
+
+	this->sync.complete = 1;
+
+	/* allocate serial port */
+	this->ser = ser_create();
+	if (!this->ser) {
+		ilerr__set("Serial port allocation failed (%s)",
+			   sererr_last());
+		goto cleanup_sync_cond;
+	}
+
+	/* connect */
+	this->sopts.port = il_net_port_get(&this->net);
+	this->sopts.baudrate = BAUDRATE_DEF;
+	this->sopts.timeouts.rd = SER_POLL_TIMEOUT;
+	this->sopts.timeouts.wr = opts->timeout_wr;
+
+	r = il_net_connect(&this->net);
+	if (r < 0)
+		goto cleanup_ser;
 
 	return &this->net;
 
@@ -564,12 +545,6 @@ static int il_eusb_net_connect(il_net_t *net)
 
 	il_eusb_net_t *this = to_eusb_net(net);
 
-	/* virtual network: always mark it as connected */
-	if (this->is_virtual) {
-		il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
-		return 0;
-	}
-
 	/* check state, proceed only if not connected */
 	state = il_net_state_get(&this->net);
 	if (state == IL_NET_STATE_CONNECTED) {
@@ -606,7 +581,7 @@ static int il_eusb_net_connect(il_net_t *net)
 	/* send the same message twice in binary (will flush) */
 	val = 1;
 	for (i = 0; i < BIN_FLUSH; i++) {
-		r = il_eusb_net__write(&this->net, 0, UARTCFG_BIN_ADDRESS, &val,
+		r = il_eusb_net__write(&this->net, 0, 0, UARTCFG_BIN_ADDRESS, &val,
 				       sizeof(val), 0);
 		if (r < 0)
 			goto close_ser;
@@ -615,7 +590,7 @@ static int il_eusb_net_connect(il_net_t *net)
 	/* start listener thread */
 	this->stop = 0;
 
-	this->listener = osal_thread_create(listener, this);
+	this->listener = osal_thread_create_(listener, this);
 	if (!this->listener) {
 		ilerr__set("Listener thread creation failed");
 		goto close_ser;
@@ -634,18 +609,24 @@ static void il_eusb_net_disconnect(il_net_t *net)
 {
 	il_eusb_net_t *this = to_eusb_net(net);
 
-	/* virtual network: always mark it as disconnected */
-	if (this->is_virtual) {
-		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
-		return;
-	}
-
 	if (il_net_state_get(&this->net) != IL_NET_STATE_DISCONNECTED) {
 		this->stop = 1;
 		osal_thread_join(this->listener, NULL);
 
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
 	}
+}
+
+static int il_eusb_status_get(il_net_t *net)
+{
+	il_eusb_net_t *this = to_eusb_net(net);
+	return this->stop;
+}
+
+static int il_eusb_mon_stop(il_net_t *net)
+{
+	ilerr__set("Functionality not supported");
+	return IL_ENOTSUP;
 }
 
 static il_net_servos_list_t *il_eusb_net_servos_list_get(
@@ -659,22 +640,6 @@ static il_net_servos_list_t *il_eusb_net_servos_list_get(
 
 	il_net_servos_list_t *lst = NULL;
 	il_net_servos_list_t *prev;
-
-	/* virtual network: always return one servo. */
-	if (this->is_virtual) {
-		prev = lst;
-		lst = malloc(sizeof(*lst));
-		if (!lst)
-			return NULL;
-
-		lst->next = prev;
-		lst->id = EUSB_VIRTUAL_ID;
-
-		if (on_found)
-			on_found(ctx, id);
-
-		return lst;
-	}
 
 	/* check network state */
 	if (il_net_state_get(net) != IL_NET_STATE_CONNECTED) {
@@ -698,7 +663,7 @@ static il_net_servos_list_t *il_eusb_net_servos_list_get(
 	/* QUIRK: ignore first run, as on cold-boot firmware may issue
 	 * improperly formatted binary messages, leading to no servos found.
 	 */
-	r = ser_write(this->ser, frame.buf, frame.sz, NULL);
+	/*r = ser_write(this->ser, frame.buf, frame.sz, NULL);
 	if (r < 0) {
 		ilerr__ser(r);
 		goto sync_unlock;
@@ -713,7 +678,7 @@ static il_net_servos_list_t *il_eusb_net_servos_list_get(
 		else
 			r = osal_cond_wait(this->sync.cond, this->sync.lock,
 					   SCAN_TIMEOUT);
-	}
+	}*/
 
 	/* second try */
 	this->sync.complete = 0;
@@ -848,17 +813,6 @@ il_net_dev_list_t *il_eusb_net_dev_list_get()
 		strncpy(lst->port, ser_dev->dev.path, sizeof(lst->port));
 	}
 
-	/* store virtual network device */
-	prev = lst;
-	lst = malloc(sizeof(*lst));
-	if (!lst) {
-		il_net_dev_list_destroy(prev);
-		goto out;
-	}
-
-	lst->next = prev;
-	strncpy(lst->port, EUSB_VIRTUAL_PORT, sizeof(lst->port));
-
 out:
 	ser_dev_list_destroy(ser_devs);
 
@@ -884,6 +838,8 @@ const il_net_ops_t il_eusb_net_ops = {
 	.disconnect = il_eusb_net_disconnect,
 	.state_get = il_net_base__state_get,
 	.servos_list_get = il_eusb_net_servos_list_get,
+	.status_get = il_eusb_status_get,
+	.mon_stop = il_eusb_mon_stop,
 };
 
 /** E-USB network device monitor operations. */

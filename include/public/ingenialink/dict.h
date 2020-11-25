@@ -61,6 +61,19 @@ IL_EXPORT il_dict_t *il_dict_create(const char *dict_f);
 IL_EXPORT void il_dict_destroy(il_dict_t *dict);
 
 /**
+ * Save a dictionary.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ * @param [in] fname
+ *	Output file name/path.
+ *
+ * @return
+ *	0 on success, IL_EFAIL if the dictionary could not be saved.
+ */
+IL_EXPORT int il_dict_save(il_dict_t *dict, const char *fname);
+
+/**
  * Obtain category labels from ID.
  *
  * @param [in] dict
@@ -183,7 +196,7 @@ IL_EXPORT void il_dict_scat_ids_destroy(const char **scat_ids);
  *	0 on success, IL_EFAIL if the register does not exist.
  */
 IL_EXPORT int il_dict_reg_get(il_dict_t *dict, const char *id,
-			      const il_reg_t **reg);
+			      const il_reg_t **reg, uint8_t subnode);
 
 /**
  * Obtain number of registers in the dictionary.
@@ -194,8 +207,23 @@ IL_EXPORT int il_dict_reg_get(il_dict_t *dict, const char *id,
  * @return
  *	Number of registers in the dictionary.
  */
-IL_EXPORT size_t il_dict_reg_cnt(il_dict_t *dict);
+IL_EXPORT size_t il_dict_reg_cnt(il_dict_t *dict, uint8_t subnode);
 
+/**
+ * Update storage value of a certain register.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ * @param [in] id
+ *	Register ID.
+ * @param [in] storage
+ *	Storage value.
+ *
+ * @return
+ *	0 on success, error code otherwise.
+ */
+IL_EXPORT int il_dict_reg_storage_update(il_dict_t *dict, const char *id,
+					 il_reg_value_t storage, uint8_t subnode);
 /**
  * Obtain the list of register IDs.
  *
@@ -208,7 +236,7 @@ IL_EXPORT size_t il_dict_reg_cnt(il_dict_t *dict);
  * @see
  *	il_dict_reg_ids_destroy
  */
-IL_EXPORT const char **il_dict_reg_ids_get(il_dict_t *dict);
+IL_EXPORT const char **il_dict_reg_ids_get(il_dict_t *dict, uint8_t subnode);
 
 /**
  * Destroy the list of obtained register IDs.
@@ -220,6 +248,32 @@ IL_EXPORT const char **il_dict_reg_ids_get(il_dict_t *dict);
  *	il_dict_reg_ids_get
  */
 IL_EXPORT void il_dict_reg_ids_destroy(const char **regs);
+
+
+/**
+ * Obtain the version of the dictionary.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ *
+ * @return
+ *	Dictionary Version.
+ *
+ */
+IL_EXPORT const char *il_dict_version_get(il_dict_t *dict);
+
+/**
+ * Obtain the subnodes defined in the dictionary.
+ *
+ * @param [in] dict
+ *	Dictionary instance.
+ *
+ * @return
+ *	Subnodes defined.
+ *
+ */
+IL_EXPORT int il_dict_subnodes_get(il_dict_t *dict);
+
 
 /** @} */
 

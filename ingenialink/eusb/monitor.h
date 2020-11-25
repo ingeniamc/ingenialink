@@ -43,6 +43,8 @@
 /** Availability wait time (ms) */
 #define AVAILABLE_WAIT_TIME	100
 
+#define DEFAULT_SUBNODE_VALUE 0
+
 /** Acquisition context. */
 typedef struct {
 	/** Acquisition (uses double buffering mechanism). */
@@ -72,7 +74,9 @@ struct il_monitor {
 	/** Associated servo. */
 	il_servo_t *servo;
 	/** Mapped registers. */
-	const il_reg_t *mappings[IL_MONITOR_CH_NUM];
+	il_reg_t mappings[IL_MONITOR_CH_NUM];
+	/** Mappings valid. */
+	int mappings_valid[IL_MONITOR_CH_NUM];
 	/** Acquisition context. */
 	il_monitor_acq_ctx_t acq;
 };

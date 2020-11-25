@@ -46,6 +46,8 @@ IL_BEGIN_DECL
 IL_EXPORT const char *il_version(void);
 /** @} */
 
+IL_EXPORT void free_(void *pointer);
+
 IL_END_DECL
 
 #endif

@@ -26,6 +26,9 @@
 #include "frame.h"
 
 #include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <windows.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
@@ -33,6 +36,9 @@
 /*******************************************************************************
  * Private
  ******************************************************************************/
+
+bool crc_tabccitt_init = false;
+uint16_t crc_tabccitt[256];
 
 /**
  * Compute CRC of the given buffer.
@@ -45,28 +51,134 @@
  * @return
  *	CRC.
  */
-static uint16_t crc_calc(const uint8_t *buf, size_t sz)
+static void init_crcccitt_tab( void ) {
+
+	uint16_t i;
+	uint16_t j;
+	uint16_t crc;
+	uint16_t c;
+
+	for (i=0; i<256; i++) {
+		crc = 0;
+		c   = i << 8;
+		for (j=0; j<8; j++) {
+			if ( (crc ^ c) & 0x8000 ) crc = ( crc << 1 ) ^ 0x1021;
+			else crc =   crc << 1;
+			c = c << 1;
+		}
+		crc_tabccitt[i] = crc;
+	}
+	crc_tabccitt_init = true;
+}
+
+static uint16_t update_crc_ccitt( uint16_t crc, unsigned char c ) {
+
+	if ( ! crc_tabccitt_init ) init_crcccitt_tab();
+	return (crc << 8) ^ crc_tabccitt[ ((crc >> 8) ^ (uint16_t) c) & 0x00FF ];
+
+} 
+
+static uint16_t crc_calc(const uint16_t *buf, uint16_t u16Sz)
 {
-	size_t pos, i;
-	uint16_t result = 0;
+	
+	uint16_t crc = 0x0000;
+    uint8_t* pu8In = (uint8_t*) buf;
+    
+	for (uint16_t u16Idx = 0; u16Idx < u16Sz * 2; u16Idx++)
+    {
+        crc = update_crc_ccitt(crc, pu8In[u16Idx]);
+    }
+    return crc;
+}
 
-	for (pos = 0; pos < sz; pos++) {
-		result ^= (uint16_t)buf[pos] << 8;
+/**
+ * Process asynchronous statusword messages.
+ *
+ * @param [in] this
+ *	MCB Network.
+ * @param [in] frame
+ *	IngeniaLink frame.
+ */
+static void process_statusword(il_mcb_net_t *this, uint8_t subnode, uint16_t data)
+{
+	il_net_sw_subscriber_lst_t *subs;
+	int i;
+	uint8_t id;
+	uint16_t sw;
 
-		for (i = 0; i < 8; i++) {
-			if ((result & 0x8000) != 0)
-				result = (result << 1) ^ MCB_CRC_POLY;
-			else
-				result <<= 1;
+	subs = &this->net.sw_subs;
+
+	id = subnode;
+	sw = data;
+
+	osal_mutex_lock(subs->lock);
+
+	for (i = 0; i < subs->sz; i++) {
+		if (subs->subs[i].id == id && subs->subs[i].cb) {
+			void *ctx;
+
+			ctx = subs->subs[i].ctx;
+			subs->subs[i].cb(ctx, sw);
+
+			break;
 		}
 	}
 
-	return result;
+	osal_mutex_unlock(subs->lock);
 }
 
-static int net_send(il_mcb_net_t *this, uint16_t address, const void *data,
-		    size_t sz)
+
+
+
+/**
+ * Listener thread.
+ *
+ * @param [in] args
+ *	MCB Network (il_mcb_net_t *).
+ */
+int listener_mcb(void *args)
 {
+	int r;
+	uint16_t buf = 0;
+
+
+	il_mcb_net_t *this = to_mcb_net(args);
+	while(1) {
+		osal_mutex_lock(this->net.lock);
+			
+		r = net_send(this, 1, 0x0011, NULL, 0);
+		if (r < 0)
+			goto unlock;
+		r = net_recv(this, 1, 0x0011, &buf, 4);
+
+		unlock:
+			osal_mutex_unlock(this->net.lock);
+
+			r = buf;
+			process_statusword(this, 1, buf);
+			// printf("%d\n", buf);
+			Sleep(200);
+	}
+	
+
+	return 0;
+
+ err:
+ 	ser_close(this->ser);
+ 	il_net__state_set(&this->net, IL_NET_STATE_FAULTY);
+
+ 	return IL_EFAIL;
+}
+
+typedef union
+{
+	uint64_t u64;
+	uint16_t u16[4];
+} UINT_UNION_T;
+
+static int net_send(il_mcb_net_t *this, uint8_t subnode, uint16_t address, const void *data,
+		    size_t sz)
+{	
 	int finished = 0;
 	uint8_t cmd;
 	size_t pending_sz = sz;
@@ -77,121 +189,100 @@ static int net_send(il_mcb_net_t *this, uint16_t address, const void *data,
 
 	while (!finished) {
 		int r;
-		uint8_t frame[MCB_FRAME_SZ], pending;
-		uint16_t hdr, crc;
+		uint16_t frame[MCB_FRAME_SZ], pending;
+		uint16_t hdr_h, hdr_l, crc;
 		size_t chunk_sz;
 
 		/* header */
-		pending = (pending_sz > MCB_DATA_SZ) ? 1 : 0;
+		// pending = (pending_sz > MCB_CFG_DATA_SZ) ? 1 : 0; // Not used right now
+		pending = 0;
 
-		hdr = (address << MCB_ADDR_POS) | (cmd << MCB_CMD_POS) |
-		      (pending << MCB_PENDING_POS);
-		*(uint16_t *)&frame[MCB_HDR_H] = hdr;
+		// hdr_h = (MCB_SUBNODE_MOCO << 12) | (MCB_NODE_DFLT);
+		hdr_h = (MCB_NODE_DFLT << 4) | (subnode);
+		*(uint16_t *)&frame[MCB_HDR_H_POS] = hdr_h;
+		hdr_l = (address << 4) | (cmd << 1) | (pending);
+		*(uint16_t *)&frame[MCB_HDR_L_POS] = hdr_l;
 
-		/* data */
-		chunk_sz = MIN(pending_sz, MCB_DATA_SZ);
-		if (chunk_sz)
-			memcpy(&frame[MCB_DATA_POS], data, chunk_sz);
-
-		memset(&frame[MCB_DATA_POS + chunk_sz], 0,
-		       MCB_DATA_SZ - chunk_sz);
-
-		il_mcb_frame__swap(frame, sizeof(frame));
-
+		/* cfg_data */
+		uint64_t d = 0;
+		if (sz > 0) {
+			memcpy(&d, data, sz);
+		}
+		UINT_UNION_T u = { .u64 = d };
+		memcpy(&frame[MCB_DATA_POS], &u.u16[0], 8);
+		
 		/* crc */
-		crc = crc_calc(frame, MCB_PAYLOAD_SZ);
-		*(uint16_t *)&frame[MCB_CRC_H] = __swap_le_16(crc);
+		crc = crc_calc(frame, MCB_CRC_POS);
+		frame[MCB_CRC_POS] = crc;
 
 		/* send frame */
 		r = ser_write(this->ser, frame, sizeof(frame), NULL);
 		if (r < 0)
 			return ilerr__ser(r);
-
-		/* update pending */
-		pending_sz -= chunk_sz;
-		if (!pending_sz)
-			finished = 1;
+		finished = 1;
 	}
 
 	return 0;
 }
 
-static int net_recv(il_mcb_net_t *this, uint16_t address, uint8_t *buf,
+static int net_recv(il_mcb_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
 		    size_t sz)
 {
 	int finished = 0;
 	size_t pending_sz = sz;
 
-	while (!finished) {
-		uint8_t frame[MCB_FRAME_SZ];
-		size_t block_sz = 0;
-		uint16_t crc, hdr;
+	/*while (!finished) {*/
+	uint16_t frame[7];
+	size_t block_sz = 0;
+	uint16_t crc, hdr_l;
+	uint8_t *pBuf = (uint8_t*) &frame;
 
-		/* read next frame */
-		while (block_sz < MCB_FRAME_SZ) {
-			int r;
-			size_t chunk_sz;
-
-			r = ser_read(this->ser, &frame[block_sz],
-				     sizeof(frame) - block_sz, &chunk_sz);
-			if (r == SER_EEMPTY) {
-				r = ser_read_wait(this->ser);
-				if (r < 0)
-					return ilerr__ser(r);
-			} else if (r < 0) {
+	Sleep(5);
+	/* read next frame */
+	while (block_sz < 14) {
+		int r;
+		size_t chunk_sz;
+		
+		r = ser_read(this->ser, pBuf,
+					sizeof(frame) - block_sz, &chunk_sz);
+		if (r == SER_EEMPTY) {
+			r = ser_read_wait(this->ser);
+			if (r < 0)
 				return ilerr__ser(r);
-			} else {
-				block_sz += chunk_sz;
-			}
-		}
-
-		/* process frame: validate CRC, address, ACK */
-		crc = *(uint16_t *)&frame[MCB_CRC_H];
-		crc = __swap_le_16(crc);
-		if (crc_calc(frame, MCB_PAYLOAD_SZ) != crc) {
-			ilerr__set("Communications error (CRC mismatch)");
-			return IL_EIO;
-		}
-
-		il_mcb_frame__swap(frame, sizeof(frame));
-
-		hdr = *(uint16_t *)&frame[MCB_HDR_H];
-
-		if (((hdr & MCB_CMD_MSK) >> MCB_CMD_POS) != MCB_CMD_ACK) {
-			uint32_t err;
-
-			err = __swap_be_32(*(uint32_t *)&frame[MCB_DATA_POS]);
-
-			ilerr__set("Communications error (NACK -> %08x)", err);
-			return IL_EIO;
-		}
-
-		if (((hdr & MCB_ADDR_MSK) >> MCB_ADDR_POS) != address) {
-			ilerr__set("Communications error (bad address)");
-			return IL_EIO;
-		}
-
-		if (!pending_sz) {
-			finished = 1;
+		} else if (r < 0) {
+			return ilerr__ser(r);
 		} else {
-			size_t data_sz;
-
-			/* store data */
-			data_sz = MIN(pending_sz, MCB_DATA_SZ);
-			memcpy(buf, &frame[MCB_DATA_POS], data_sz);
-			buf += data_sz;
-
-			/* update pending size */
-			pending_sz -= data_sz;
-			if (!pending_sz) {
-				if (hdr & MCB_PENDING_MSK) {
-					ilerr__set("Unexpected pending data");
-					return IL_EIO;
-				}
-
-				finished = 1;
-			}
+			block_sz += chunk_sz;
+			pBuf += block_sz;
 		}
+	}
+
+	/* process frame: validate CRC, address, ACK */
+	crc = *(uint16_t *)&frame[6];
+	uint16_t crc_res = crc_calc((uint16_t *)frame, 6);
+	if (crc_res != crc) {
+		ilerr__set("Communications error (CRC mismatch)");
+		return IL_EIO;
+	}
+
+	/* TODO: Check subnode */
+
+	/* Check ACK */
+	hdr_l = *(uint16_t *)&frame[MCB_HDR_L_POS];
+	int cmd = (hdr_l & MCB_CMD_MSK) >> MCB_CMD_POS;
+	if (cmd != MCB_CMD_ACK) {
+		uint32_t err;
+
+		err = __swap_be_32(*(uint32_t *)&frame[MCB_DATA_POS]);
+
+		ilerr__set("Communications error (NACK -> %08x)", err);
+		return IL_EIO;
+	}
+	if (!pending_sz) {
+		finished = 1;
+	}
+	else {
+		memcpy(buf, &(frame[MCB_DATA_POS]), sz);
 	}
 
 	return 0;
@@ -248,7 +339,7 @@ static void il_mcb_net__release(il_net_t *net)
 	il_utils__refcnt_release(this->refcnt);
 }
 
-static int il_mcb_net__read(il_net_t *net, uint16_t id, uint32_t address,
+static int il_mcb_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
 			    void *buf, size_t sz)
 {
 	il_mcb_net_t *this = to_mcb_net(net);
@@ -258,12 +349,13 @@ static int il_mcb_net__read(il_net_t *net, uint16_t id, uint32_t address,
 	(void)id;
 
 	osal_mutex_lock(this->net.lock);
-
-	r = net_send(this, (uint16_t)address, NULL, 0);
+	
+	r = net_send(this, subnode, (uint16_t)address, NULL, 0);
 	if (r < 0)
 		goto unlock;
 
-	r = net_recv(this, (uint16_t)address, buf, sz);
+	r = net_recv(this, subnode, (uint16_t)address, buf, sz);
+
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -271,7 +363,7 @@ unlock:
 	return r;
 }
 
-static int il_mcb_net__write(il_net_t *net, uint16_t id, uint32_t address,
+static int il_mcb_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
 			     const void *buf, size_t sz, int confirmed)
 {
 	il_mcb_net_t *this = to_mcb_net(net);
@@ -283,11 +375,37 @@ static int il_mcb_net__write(il_net_t *net, uint16_t id, uint32_t address,
 
 	osal_mutex_lock(this->net.lock);
 
-	r = net_send(this, (uint16_t)address, buf, sz);
+	r = net_send(this, subnode, (uint16_t)address, buf, sz);
 	if (r < 0)
 		goto unlock;
 
-	r = net_recv(this, (uint16_t)address, NULL, 0);
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0);
+
+unlock:
+	osal_mutex_unlock(this->net.lock);
+
+	return r;
+}
+
+static int il_mcb_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
+	const void *buf, size_t sz, int confirmed)
+{
+	il_mcb_net_t *this = to_mcb_net(net);
+
+	int r;
+
+	(void)id;
+	(void)confirmed;
+
+	osal_mutex_lock(this->net.lock);
+
+	r = net_send(this, subnode, (uint16_t)address, buf, sz);
+	if (r < 0)
+		goto unlock;
+
+	Sleep(1000);
+
+	r = net_recv(this, subnode, (uint16_t)address, NULL, 0);
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -382,6 +500,15 @@ static int il_mcb_net_connect(il_net_t *net)
 
 	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 
+	/* start listener thread */
+	this->stop = 0;
+
+	this->listener = osal_thread_create_(listener_mcb, this);
+	if (!this->listener) {
+		ilerr__set("Listener thread creation failed");
+		// goto close_ser;
+	}
+
 	return 0;
 }
 
@@ -390,6 +517,9 @@ static void il_mcb_net_disconnect(il_net_t *net)
 	il_mcb_net_t *this = to_mcb_net(net);
 
 	if (il_net_state_get(&this->net) != IL_NET_STATE_DISCONNECTED) {
+		this->stop = 1;
+		//osal_thread_join(this->listener, NULL);
+
 		ser_close(this->ser);
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
 	}
@@ -399,11 +529,11 @@ static il_net_servos_list_t *il_mcb_net_servos_list_get(
 	il_net_t *net, il_net_servos_on_found_t on_found, void *ctx)
 {
 	int r;
-	uint32_t vid;
+	uint64_t vid;
 	il_net_servos_list_t *lst;
 
 	/* try to read the vendor id register to see if a servo is alive */
-	r = il_net__read(net, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
+	r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 	if (r < 0)
 		return NULL;
 
@@ -419,6 +549,18 @@ static il_net_servos_list_t *il_mcb_net_servos_list_get(
 		on_found(ctx, 1);
 
 	return lst;
+}
+
+static int il_mcb_status_get(il_net_t *net)
+{
+	il_mcb_net_t *this = to_mcb_net(net);
+	return this->stop;
+}
+
+static int il_mcb_mon_stop(il_net_t *net)
+{
+	ilerr__set("Functionality not supported");
+	return IL_ENOTSUP;
 }
 
 static il_net_dev_mon_t *il_mcb_net_dev_mon_create(void)
@@ -524,6 +666,7 @@ const il_net_ops_t il_mcb_net_ops = {
 	._state_set = il_net_base__state_set,
 	._read = il_mcb_net__read,
 	._write = il_mcb_net__write,
+	._wait_write = il_mcb_net__wait_write,
 	._sw_subscribe = il_net_base__sw_subscribe,
 	._sw_unsubscribe = il_net_base__sw_unsubscribe,
 	._emcy_subscribe = il_net_base__emcy_subscribe,
@@ -535,6 +678,8 @@ const il_net_ops_t il_mcb_net_ops = {
 	.disconnect = il_mcb_net_disconnect,
 	.state_get = il_net_base__state_get,
 	.servos_list_get = il_mcb_net_servos_list_get,
+	.status_get = il_mcb_status_get,
+	.mon_stop = il_mcb_mon_stop,
 };
 
 /** MCB network device monitor operations. */

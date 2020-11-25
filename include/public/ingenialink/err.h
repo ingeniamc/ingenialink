@@ -62,6 +62,8 @@ IL_BEGIN_DECL
 /** Not supported. */
 #define IL_ENOTSUP	-10
 
+#define IL_EWRONGREG -11
+
 /**
  * Obtain library last error details.
  *

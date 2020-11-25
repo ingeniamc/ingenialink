@@ -27,6 +27,16 @@
 
 #include "../servo.h"
 
+/** PDS default timeout (ms). */
+#define PDS_TIMEOUT		1000
+
+/** Flags position offset in statusword. */
+#define FLAGS_SW_POS		10
+
+/** Number of retries to reset fault state **/
+#define FAULT_RESET_RETRIES		1
+
+
 /** IngeniaLink servo. */
 typedef struct il_mcb_servo {
 	/** Servo (parent). */
