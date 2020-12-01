@@ -624,7 +624,7 @@ static int *il_ecat_net_read_monitoring_data(il_net_t *net)
 
 	uint64_t vid;
 
-	r = il_net__read(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
+	r = il_ecat_net__read_monitoring(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
 	if (r < 0) {
 
 	}
@@ -722,6 +722,51 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 	{
 		uint16_t *monitoring_raw_data = NULL;
 		r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
+		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG) 
+		{
+			++num_retries;
+			printf("Frame lost, retry %i\n", num_retries);
+		}
+		else 
+		{
+			break;
+		}
+	}
+
+	if (r < 0) 
+	{
+		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
+		{
+			
+		}
+		goto unlock;
+	}
+		
+
+unlock:
+	osal_mutex_unlock(this->net.lock);
+
+	return r;
+}
+
+static int il_ecat_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
+	void *buf, size_t sz)
+{
+	il_ecat_net_t *this = to_ecat_net(net);
+	int r;
+	(void)id;
+
+	osal_mutex_lock(this->net.lock);
+	r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
+	if (r < 0) {
+		goto unlock;
+	}
+
+	int num_retries = 0;
+	while (num_retries < NUMBER_OP_RETRIES)
+	{
+		uint16_t *monitoring_raw_data = NULL;
+		r = il_ecat_net_recv_monitoring(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
 		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG) 
 		{
 			++num_retries;
@@ -1070,6 +1115,129 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 
 	return 0;
 }
+
+static int il_ecat_net_recv_monitoring(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
+	size_t sz, uint16_t *monitoring_raw_data, il_net_t *net)
+{
+	int finished = 0;
+	size_t pending_sz = sz;
+
+	/*while (!finished) {*/
+	uint16_t frame[1024];
+	size_t block_sz = 0;
+	uint16_t crc, hdr_l;
+	uint8_t *pBuf = (uint8_t*)&frame;
+	uint8_t extended_bit = 0;
+
+	Sleep(5);
+	/* read next frame */
+	int r = 0;
+	// r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
+	int wkc = 0;
+	ec_mbxbuft MbxIn;
+	wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
+	if (wkc < 0) 
+	{
+		return IL_EFAIL;	
+	}
+
+	int s32SzRead = 1024;
+	wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+
+	/* Obtain the frame received */
+	memcpy(frame, (uint8_t*)frame_received, 1024);
+
+	/* process frame: validate CRC, address, ACK */
+	crc = *(uint16_t *)&frame[6];
+	uint16_t crc_res = crc_calc_ecat((uint16_t *)frame, 6);
+	if (crc_res != crc) {
+		ilerr__set("Communications error (CRC mismatch)");
+		return IL_EIO;
+	}
+
+	/* TODO: Check subnode */
+
+	/* Check ACK */
+	hdr_l = *(uint16_t *)&frame[ECAT_MCB_HDR_L_POS];
+	int cmd = (hdr_l & ECAT_MCB_CMD_MSK) >> ECAT_MCB_CMD_POS;
+	if (cmd != ECAT_MCB_CMD_ACK) {
+		uint32_t err;
+
+		err = __swap_be_32(*(uint32_t *)&frame[ECAT_MCB_DATA_POS]);
+
+		ilerr__set("Communications error (NACK -> %08x)", err);
+		return IL_EIO;
+	}
+
+	/* Check if register received is the same that we asked for.  */
+	if ((hdr_l >> 4) != address) 
+	{
+		return IL_EWRONGREG;
+	}
+
+
+	extended_bit = (hdr_l & ECAT_MCB_PENDING_MSK) >> ECAT_MCB_PENDING_POS;
+	if (extended_bit == 1) {
+		/* Check if we are reading monitoring data */
+		if (address == 0x00B2) {
+			/* Monitoring */
+			/* Read size of data */
+			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
+			uint16_t size = *(uint16_t*)buf;
+			memcpy(net->monitoring_raw_data, (uint8_t*)&frame_received[14], size);
+
+			net->monitoring_data_size = size;
+			int num_mapped = net->monitoring_number_mapped_registers;
+			int bytes_per_block = net->monitoring_bytes_per_block;
+
+			int number_blocks = size / bytes_per_block;
+			uint8_t* pData = net->monitoring_raw_data;
+
+			for (int i = 0; i < number_blocks; ++i)
+			{
+				int OffsetIndexIntraBlockInBytes = 0;
+				for (int j = 0; j < num_mapped; ++j)
+				{
+					il_reg_dtype_t type = net->monitoring_data_channels[j].type;
+					switch (type) {
+						case IL_REG_DTYPE_U16:
+							net->monitoring_data_channels[j].value.monitoring_data_u16[i] = *((uint16_t*)(pData + OffsetIndexIntraBlockInBytes));
+							OffsetIndexIntraBlockInBytes += sizeof(uint16_t);
+							break;
+						case IL_REG_DTYPE_S16:
+							net->monitoring_data_channels[j].value.monitoring_data_s16[i] = *((int16_t*)(pData + OffsetIndexIntraBlockInBytes));
+							OffsetIndexIntraBlockInBytes += sizeof(int16_t);
+							break;
+						case IL_REG_DTYPE_U32:
+							net->monitoring_data_channels[j].value.monitoring_data_u32[i] = *((uint32_t*)(pData + OffsetIndexIntraBlockInBytes));
+							OffsetIndexIntraBlockInBytes += sizeof(uint32_t);
+							break;
+						case IL_REG_DTYPE_S32:
+							net->monitoring_data_channels[j].value.monitoring_data_s32[i] = *((int32_t*)(pData + OffsetIndexIntraBlockInBytes));
+							OffsetIndexIntraBlockInBytes += sizeof(int32_t);
+							break;
+						case IL_REG_DTYPE_FLOAT:
+							net->monitoring_data_channels[j].value.monitoring_data_flt[i] = *((float*)(pData + OffsetIndexIntraBlockInBytes));
+							OffsetIndexIntraBlockInBytes += sizeof(float);
+							break;
+					}
+				}
+				pData += bytes_per_block;
+			}
+		}
+		else {
+			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
+			uint16_t size = *(uint16_t*)buf;
+			memcpy(net->extended_buff, (char*)&frame_received[14], size);
+		}
+	}
+	else {
+		memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), sz);
+	}
+
+	return 0;
+}
+
 
 // =================================================================================================================
 // ECAT
@@ -2239,6 +2407,8 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	.enable_monitoring = il_ecat_net_enable_monitoring,
 	.disable_monitoring = il_ecat_net_disable_monitoring,
 	.read_monitoring_data = il_ecat_net_read_monitoring_data,
+	.recv_monitoring = il_ecat_net_recv_monitoring,
+
 	/* Disturbance */
 	.disturbance_remove_all_mapped_registers = il_ecat_net_disturbance_remove_all_mapped_registers,
 	.disturbance_set_mapped_register = il_ecat_net_disturbance_set_mapped_register,

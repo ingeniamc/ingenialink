@@ -308,6 +308,7 @@ typedef struct {
 	int (*enable_monitoring)();
 	int (*disable_monitoring)();
 	int (*read_monitoring_data)();
+	int (*recv_monitoring)();
 	/** Disturbance. */
 	int (*disturbance_remove_all_mapped_registers)();
 	int (*disturbance_set_mapped_register)();
@@ -402,6 +403,7 @@ typedef struct {
 	int (*enable_monitoring)();
 	int (*disable_monitoring)();
 	int (*read_monitoring_data)();
+	int (*recv_monitoring)();
 	/** Disturbance. */
 	int (*disturbance_remove_all_mapped_registers)();
 	int (*disturbance_set_mapped_register)();

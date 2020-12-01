@@ -159,7 +159,7 @@ struct il_net {
 	/** Emergency subcribers. */
 	il_net_emcy_subscriber_lst_t emcy_subs;
 	/** Monitoring Raw Data. */
-	uint32_t monitoring_raw_data[2048];
+	uint8_t monitoring_raw_data[409600];
 	/** Extended buffer **/
 	char extended_buff[128];
 	/** Monitoring Data. */

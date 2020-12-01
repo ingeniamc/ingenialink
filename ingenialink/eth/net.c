@@ -775,7 +775,7 @@ static int *il_eth_net_read_monitoring_data(il_net_t *net)
 
 	uint64_t vid;
 
-	r = il_net__read(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
+	r = il_eth_net__read_monitoring(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
 	if (r < 0) {
 
 	}
@@ -871,6 +871,42 @@ static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_
 	r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
 	if (r < 0)
 		goto unlock;
+
+unlock:
+	osal_mutex_unlock(this->net.lock);
+
+	return r;
+}
+
+static int il_eth_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
+	void *buf, size_t sz)
+{
+	il_eth_net_t *this = to_eth_net(net);
+	int r;
+	(void)id;
+
+	int num_bytes;
+	r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
+	
+	while (num_bytes > 0) 
+	{
+		osal_mutex_lock(this->net.lock);
+		r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
+		if (r < 0) {
+			goto unlock;
+		}
+		uint8_t *monitoring_raw_data = NULL;
+		r = il_eth_net_recv_monitoring(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net, num_bytes);
+		if (r < 0)
+			goto unlock;
+
+		r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
+	}
+
+	if (r >= 0) 
+	{
+		r = process_monitoring_data(this, net);
+	}
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -1163,6 +1199,151 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	return 0;
 }
 
+static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
+	size_t sz, uint8_t *monitoring_raw_data, il_net_t *net, int num_bytes)
+{
+	int finished = 0;
+	size_t pending_sz = sz;
+
+	/*while (!finished) {*/
+	uint16_t frame[1024];
+	size_t block_sz = 0;
+	uint16_t crc, hdr_l;
+	uint8_t *pBuf = (uint8_t*)&frame;
+	uint8_t extended_bit = 0;
+
+	Sleep(5);
+	int r = 0;
+	// GAS
+	fd_set fds;
+	int n;
+	struct timeval tv;
+
+	// Set up the file descriptor set.
+	FD_ZERO(&fds);
+	FD_SET(this->server, &fds);
+
+	// Set up the struct timeval for the timeout.
+	tv.tv_sec = 0;
+	tv.tv_usec = 1000000;
+
+	// Wait until timeout or data received.
+	n = select(this->server, &fds, NULL, NULL, &tv);
+	if (n == 0)
+	{
+		printf("Timeout..\n");
+		closesocket(this->server);
+		return -1;
+	}
+	else if (n == -1)
+	{
+		printf("Error..\n");
+		return -1;
+	}
+	
+	/* read next frame */
+	r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
+
+	/* process frame: validate CRC, address, ACK */
+	crc = *(uint16_t *)&frame[6];
+	uint16_t crc_res = crc_calc_eth((uint16_t *)frame, 6);
+	if (crc_res != crc) {
+		ilerr__set("Communications error (CRC mismatch)");
+		return IL_EIO;
+	}
+
+	/* TODO: Check subnode */
+
+	/* Check ACK */
+	hdr_l = *(uint16_t *)&frame[ETH_MCB_HDR_L_POS];
+	int cmd = (hdr_l & ETH_MCB_CMD_MSK) >> ETH_MCB_CMD_POS;
+	if (cmd != ETH_MCB_CMD_ACK) {
+		uint32_t err;
+
+		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
+
+		ilerr__set("Communications error (NACK -> %08x)", err);
+		return IL_EIO;
+	}
+	extended_bit = (hdr_l & ETH_MCB_PENDING_MSK) >> ETH_MCB_PENDING_POS;
+	if (extended_bit == 1) {
+		/* Check if we are reading monitoring data */
+		if (address == 0x00B2) {
+			/* Monitoring */
+			/* Read size of data */
+			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
+			uint16_t size = *(uint16_t*)buf;
+			if (num_bytes < size) 
+			{
+				size = num_bytes;
+			}
+			uint16_t start_addr = net->monitoring_data_size;
+			memcpy((uint8_t*)&net->monitoring_raw_data[start_addr], (uint8_t*)&pBuf[14], size);
+			//r = recv(this->server, (uint8_t*)net->monitoring_raw_data, size, 0);
+
+			net->monitoring_data_size += size;
+			printf("size = %i\n", size);
+			printf("ADEU\n");
+		
+		}
+		else {
+			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
+			uint16_t size = *(uint16_t*)buf;
+			memcpy(net->extended_buff, (char*)&pBuf[14], size);
+		
+		}
+	}
+	else {
+		memcpy(buf, &(frame[ETH_MCB_DATA_POS]), sz);
+	}
+
+	return 0;
+}
+
+static int process_monitoring_data(il_eth_net_t *this, il_net_t *net)
+{
+	printf("Process monitoring data: %i\n", net->monitoring_data_size);
+
+	int num_mapped = net->monitoring_number_mapped_registers;
+	int bytes_per_block = net->monitoring_bytes_per_block;
+
+	int number_blocks = net->monitoring_data_size / bytes_per_block;
+	uint8_t* pData = net->monitoring_raw_data;
+
+	for (int i = 0; i < number_blocks; ++i)
+	{
+		int OffsetIndexIntraBlockInBytes = 0;
+		for (int j = 0; j < num_mapped; ++j)
+		{
+			il_reg_dtype_t type = net->monitoring_data_channels[j].type;
+			switch (type) {
+			case IL_REG_DTYPE_U16:
+				net->monitoring_data_channels[j].value.monitoring_data_u16[i] = *((uint16_t*)(pData + OffsetIndexIntraBlockInBytes));
+				OffsetIndexIntraBlockInBytes += sizeof(uint16_t);
+				break;
+			case IL_REG_DTYPE_S16:
+				net->monitoring_data_channels[j].value.monitoring_data_s16[i] = *((int16_t*)(pData + OffsetIndexIntraBlockInBytes));
+				OffsetIndexIntraBlockInBytes += sizeof(int16_t);
+				break;
+			case IL_REG_DTYPE_U32:
+				net->monitoring_data_channels[j].value.monitoring_data_u32[i] = *((uint32_t*)(pData + OffsetIndexIntraBlockInBytes));
+				OffsetIndexIntraBlockInBytes += sizeof(uint32_t);
+				break;
+			case IL_REG_DTYPE_S32:
+				net->monitoring_data_channels[j].value.monitoring_data_s32[i] = *((int32_t*)(pData + OffsetIndexIntraBlockInBytes));
+				OffsetIndexIntraBlockInBytes += sizeof(int32_t);
+				break;
+			case IL_REG_DTYPE_FLOAT:
+				net->monitoring_data_channels[j].value.monitoring_data_flt[i] = *((float*)(pData + OffsetIndexIntraBlockInBytes));
+				OffsetIndexIntraBlockInBytes += sizeof(float);
+				break;
+			}
+		}
+		pData += bytes_per_block;
+	}
+
+	return 0;
+}
 
 /** ETH network operations. */
 const il_eth_net_ops_t il_eth_net_ops = {
@@ -1192,10 +1373,10 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	.enable_monitoring = il_eth_net_enable_monitoring,
 	.disable_monitoring = il_eth_net_disable_monitoring,
 	.read_monitoring_data = il_eth_net_read_monitoring_data,
+	.recv_monitoring = il_eth_net_recv_monitoring,
 	/* Disturbance */
 	.disturbance_remove_all_mapped_registers = il_eth_net_disturbance_remove_all_mapped_registers,
 	.disturbance_set_mapped_register = il_eth_net_disturbance_set_mapped_register
-
 };
 
 /** MCB network device monitor operations. */
