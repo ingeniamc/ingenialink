@@ -901,6 +901,10 @@ static int il_eth_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subno
 			goto unlock;
 
 		r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
+		if (r < 0) {
+			goto unlock;
+		}
+		osal_mutex_unlock(this->net.lock);
 	}
 
 	if (r >= 0) 
@@ -1341,7 +1345,8 @@ static int process_monitoring_data(il_eth_net_t *this, il_net_t *net)
 		}
 		pData += bytes_per_block;
 	}
-
+	
+	printf("Data Processed\n");
 	return 0;
 }
 
