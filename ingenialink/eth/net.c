@@ -885,6 +885,9 @@ static int il_eth_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subno
 	int r;
 	(void)id;
 
+	// Initialize monitoring data size value
+	net->monitoring_data_size = 0;
+
 	int num_bytes;
 	r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
 	
