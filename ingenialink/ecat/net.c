@@ -1471,8 +1471,13 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 					uint32 u32val = 0x424F4F54;
 					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) 
 					{
-						printf("Force Boot error\n");
-						return UP_FORCE_BOOT_ERROR;
+						printf("SDO write error\n");
+						printf("Retrying...\n");
+						if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) 
+						{
+							printf("Force Boot error\n");
+							return UP_FORCE_BOOT_ERROR;
+						}
 					}
 				}
 
