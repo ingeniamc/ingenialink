@@ -617,6 +617,8 @@ IL_EXPORT int il_net_close_socket(il_net_t *net);
 */
 IL_EXPORT int il_net_master_startup(il_net_t **net, char *ifname, char *if_address_ip);
 
+IL_EXPORT int il_net_num_slaves_get(il_net_t **net, char *ifname);
+
 IL_EXPORT int il_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip);
 
 IL_EXPORT int il_net_master_stop(il_net_t **net);
