@@ -1367,6 +1367,35 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip
 	return ec_slavecount;
 }
 
+int *il_ecat_net_num_slaves_get(il_net_t *net, char *ifname)
+{
+	int i, oloop, iloop, chk;
+	needlf = FALSE;
+	inOP = FALSE;
+
+	printf("Starting EtherCAT Master\n");
+	/* initialise SOEM, bind socket to ifname */
+	if (ec_init(ifname))
+	{
+		printf("ec_init on %s succeeded.\n", ifname);
+		/* find and auto-config slaves */
+		if (ec_config_init(FALSE) > 0)
+		{
+			printf("%d slaves found.\n", ec_slavecount);
+		}
+		else
+		{
+			printf("No slaves found!\n");
+		}
+	}
+	else
+	{
+		printf("No socket connection on %s\nExcecute as root\n", ifname);
+	}
+	ec_close();
+	return ec_slavecount;
+}
+
 enum update_error
 {
 	UP_NOERROR = 0,
@@ -1471,8 +1500,13 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 					uint32 u32val = 0x424F4F54;
 					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) 
 					{
-						printf("Force Boot error\n");
-						return UP_FORCE_BOOT_ERROR;
+						printf("SDO write error\n");
+						printf("Retrying...\n");
+						if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) 
+						{
+							printf("Force Boot error\n");
+							return UP_FORCE_BOOT_ERROR;
+						}
 					}
 				}
 
@@ -2244,6 +2278,7 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	.disturbance_set_mapped_register = il_ecat_net_disturbance_set_mapped_register,
 	/* Master EtherCAT */
 	.master_startup = il_ecat_net_master_startup,
+	.num_slaves_get = il_ecat_net_num_slaves_get,
 	.master_stop = il_ecat_net_master_stop,
 	.update_firmware = il_ecat_net_update_firmware,
 	.eeprom_tool = il_ecat_net_eeprom_tool,
