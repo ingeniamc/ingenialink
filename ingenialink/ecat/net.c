@@ -425,11 +425,11 @@ static int il_ecat_net_connect(il_net_t *net, const char *ip)
 	this->stop = 0;
 	this->stop_reconnect = 0;
 
-	this->listener = osal_thread_create_(listener_ecat, this);
-	if (!this->listener) {
-		ilerr__set("Listener thread creation failed");
-		// goto close_ser;
-	}
+	// this->listener = osal_thread_create_(listener_ecat, this);
+	// if (!this->listener) {
+	// 	ilerr__set("Listener thread creation failed");
+	// 	// goto close_ser;
+	// }
 
 	return 0;
 }
@@ -1421,8 +1421,6 @@ int *il_ecat_net_change_state(uint16_t slave, ec_state state)
 
 static int *il_ecat_net_master_stop(il_net_t **net)
 {
-    printf("Closing Socket\n");
-	
     printf("Setting state to INIT\n");
 	if (il_ecat_net_change_state(0, EC_STATE_INIT) != UP_NOERROR) {
 		printf("Slave %d cannot enter into state INIT.\n", 0);
@@ -1436,10 +1434,12 @@ static int *il_ecat_net_master_stop(il_net_t **net)
 	}
 	
 	/* Remove the network interface */
+	printf("Removing network interface\n");
 	netif_remove(&tNetif);
 	ec_mbxempty(0, 100000);
 	context->EOEhook = NULL;
 
+	printf("Closing EtherCAT interface\n");
 	/* Close EtherCAT interface */
 	ec_close();
 }
