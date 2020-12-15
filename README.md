@@ -65,7 +65,7 @@ submodules. Therefore, if building them make sure to initialize the submodules
 first:
 
 ```sh
-git submodule init --update --recursive
+git submodule update --init --recursive
 ```
 
 Below you can find some building instructions for dependencies. Note that

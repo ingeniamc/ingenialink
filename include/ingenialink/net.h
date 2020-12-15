@@ -413,6 +413,7 @@ typedef struct {
 	int (*close_socket)();
 
 	int (*master_startup)();
+	int (*num_slaves_get)();
 	int (*master_stop)();
 	int (*update_firmware)();
 	int (*eeprom_tool)();
