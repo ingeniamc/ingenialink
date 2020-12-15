@@ -902,12 +902,13 @@ static int il_eth_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subno
 		r = il_eth_net_recv_monitoring(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net, num_bytes);
 		if (r < 0)
 			goto unlock;
-
+		osal_mutex_unlock(this->net.lock);
+		
 		r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
 		if (r < 0) {
 			goto unlock;
 		}
-		osal_mutex_unlock(this->net.lock);
+		
 	}
 
 	if (r >= 0) 
