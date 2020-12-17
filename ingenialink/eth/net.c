@@ -1136,6 +1136,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	hdr_l = *(uint16_t *)&frame[ETH_MCB_HDR_L_POS];
 	int cmd = (hdr_l & ETH_MCB_CMD_MSK) >> ETH_MCB_CMD_POS;
 	if (cmd != ETH_MCB_CMD_ACK) {
+		
 		uint32_t err;
 
 		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
@@ -1143,6 +1144,18 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		ilerr__set("Communications error (NACK -> %08x)", err);
 		return IL_EIO;
 	}
+	/* Check address */
+	uint16_t addr = (hdr_l & 0xFFF0) >> 4;
+	if (addr != address) {
+		uint32_t err;
+
+		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
+		
+		printf("Address error (NACK -> %08x)\n", err);
+		ilerr__set("Address error (NACK -> %08x)", err);
+		return IL_EIO;
+	}
+
 	extended_bit = (hdr_l & ETH_MCB_PENDING_MSK) >> ETH_MCB_PENDING_POS;
 	if (extended_bit == 1) {
 		/* Check if we are reading monitoring data */
