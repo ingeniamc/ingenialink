@@ -1151,7 +1151,8 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 
 		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
 		
-		printf("Address error (NACK -> %08x)\n", err);
+		printf("Address error (Address asked -> %08x, Address frame -> %08x, frame -> %08x, err -> %08x)\n"
+				, address, addr, frame, err);
 		ilerr__set("Address error (NACK -> %08x)", err);
 		return IL_EIO;
 	}
