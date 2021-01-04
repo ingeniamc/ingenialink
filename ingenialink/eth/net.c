@@ -775,10 +775,13 @@ static int *il_eth_net_read_monitoring_data(il_net_t *net)
 
 	uint64_t vid;
 
+
+	osal_mutex_lock(this->net.lock);	
 	r = il_eth_net__read_monitoring(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
 	if (r < 0) {
 
 	}
+	osal_mutex_unlock(this->net.lock);
 }
 
 /**
@@ -893,7 +896,7 @@ static int il_eth_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subno
 	
 	while (num_bytes > 0) 
 	{
-		osal_mutex_lock(this->net.lock);
+		// osal_mutex_lock(this->net.lock);
 		r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
 		if (r < 0) {
 			goto unlock;
@@ -902,7 +905,7 @@ static int il_eth_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subno
 		r = il_eth_net_recv_monitoring(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net, num_bytes);
 		if (r < 0)
 			goto unlock;
-		osal_mutex_unlock(this->net.lock);
+		// osal_mutex_unlock(this->net.lock);
 		
 		r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
 		if (r < 0) {
@@ -1151,10 +1154,11 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		uint32_t err;
 
 		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
-		
+		printf("\n =======================================================================================\n\n");
 		printf("Address error (Address asked -> %08x, Address frame -> %08x, err -> %08x)\n"
 				, address, addr, err);
 		printf("Frame -> %04x %04x %04x %04x %04x %04x %04x %04x\n", frame[0], frame[1], frame[2], frame[3], frame[4], frame[5], frame[6], frame[7]);
+		printf("\n =======================================================================================\n\n");
 		ilerr__set("Address error (NACK -> %08x)", err);
 		return IL_EIO;
 	}
