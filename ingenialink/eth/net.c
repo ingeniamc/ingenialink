@@ -893,31 +893,40 @@ static int il_eth_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subno
 
 	int num_bytes;
 	r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
-	
-	while (num_bytes > 0) 
+	if (r < 0) 
 	{
-		// osal_mutex_lock(this->net.lock);
-		r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
-		if (r < 0) {
-			goto unlock;
-		}
-		uint8_t *monitoring_raw_data = NULL;
-		r = il_eth_net_recv_monitoring(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net, num_bytes);
-		if (r < 0)
-			goto unlock;
-		// osal_mutex_unlock(this->net.lock);
-		
-		r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
-		if (r < 0) {
-			goto unlock;
-		}
-		
+		// Old monitoring method
+		uint64_t vid;
+		r = il_net__read(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
 	}
+	else 
+	{
+		while (num_bytes > 0) 
+		{
+			// osal_mutex_lock(this->net.lock);
+			r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
+			if (r < 0) {
+				goto unlock;
+			}
+			uint8_t *monitoring_raw_data = NULL;
+			r = il_eth_net_recv_monitoring(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net, num_bytes);
+			if (r < 0)
+				goto unlock;
+			// osal_mutex_unlock(this->net.lock);
+			
+			r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
+			if (r < 0) {
+				goto unlock;
+			}
+			
+		}
 
-	if (r >= 0) 
-	{
-		r = process_monitoring_data(this, net);
+		if (r >= 0) 
+		{
+			r = process_monitoring_data(this, net);
+		}
 	}
+	
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
