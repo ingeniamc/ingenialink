@@ -781,6 +781,7 @@ static int *il_eth_net_read_monitoring_data(il_net_t *net)
 	if (r < 0) {
 
 	}
+	printf("UNLOCKING...\n");
 	osal_mutex_unlock(this->net.lock);
 }
 
@@ -1159,8 +1160,8 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 				, address, addr, err);
 		printf("Frame -> %04x %04x %04x %04x %04x %04x %04x %04x\n", frame[0], frame[1], frame[2], frame[3], frame[4], frame[5], frame[6], frame[7]);
 		printf("\n =======================================================================================\n\n");
-		ilerr__set("Address error (NACK -> %08x)", err);
-		return IL_EIO;
+		// ilerr__set("Address error (NACK -> %08x)", err);
+		// return IL_EIO;
 	}
 
 	extended_bit = (hdr_l & ETH_MCB_PENDING_MSK) >> ETH_MCB_PENDING_POS;
