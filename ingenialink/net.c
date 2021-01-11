@@ -312,7 +312,7 @@ int il_net_num_slaves_get(il_net_t **net, char *ifname)
 	return il_ecat_net_ops.num_slaves_get(net, ifname);
 }
 
-int il_net_master_stop(il_net_t **net)
+int il_net_master_stop(il_net_t *net)
 {
 	return il_ecat_net_ops.master_stop(net);
 }
