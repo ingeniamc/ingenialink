@@ -1789,9 +1789,21 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 
 			if (input_bin(filename, &filesize))
 			{
+				// Get filename of absolute path
+				int len = strlen(filename);
+				while (len > 0)
+				{
+					if (filename[len] == '/')
+					{
+						break;
+					}
+					--len;
+				}
+				char* file_id = &filename[len + 1];
+
 				printf("File read OK, %d bytes.\n", filesize);
 				printf("FoE write....");
-				r = ec_FOEwrite(slave, filename, 0x70636675, filesize, &filebuffer, EC_TIMEOUTSTATE);
+				r = ec_FOEwrite(slave, file_id, 0x70636675, filesize, &filebuffer, EC_TIMEOUTSTATE);
 				printf("FOE write result %d.\n", r);
 				if (r > 0) 
 				{
