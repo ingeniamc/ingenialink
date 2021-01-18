@@ -240,15 +240,14 @@ int listener_ecat(void *args)
 
 restart:
 	int error_count = 0;
-	il_ecat_net_t *this = to_ecat_net(args);
+	il_ecat_net_t *this = args;
+
 	while (error_count < 10 && this != NULL && this->stop_reconnect == 0 ) {
 		uint16_t sw;
 		
 		/* try to read the status word register to see if a servo is alive */
 		if (this != NULL) {
-			osal_mutex_lock(this->net.lock);
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
-			osal_mutex_unlock(this->net.lock);
 			if (r < 0) {
 				error_count = error_count + 1;
 			}
@@ -264,6 +263,9 @@ restart:
 	if (error_count == 10 && this != NULL && this->stop_reconnect == 0) {
 		goto err;
 	}
+	else if (error_count < 10 && this != NULL && this->stop_reconnect != 0) {
+		goto stop;
+	}
 	return 0;
 
 err:
@@ -273,6 +275,13 @@ err:
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
 		r = il_ecat_net_reconnect(this);
 		if (r == 0) goto restart;
+	}
+	return 0;
+stop:
+	if (this != NULL) {
+		printf("Stop reconnection thread\n");
+		osal_mutex_unlock(this->net.lock);
+		printf("Net unlocked\n");
 	}
 	return 0;
 }
@@ -377,16 +386,37 @@ static int il_ecat_net_is_slave_connected(il_net_t *net, const char *ip) {
 	return result;
 }
 
-static int il_ecat_net_reconnect(il_net_t *net)
+static int il_ecat_net_reconnect(il_ecat_net_t *this)
 {
-	il_ecat_net_t *this = to_ecat_net(net);
+
 	this->stop = 1;
 	int r = -1;
 	int r2 = 0;
 	uint16_t sw;
     while (r < 0 && this->stop_reconnect == 0)
 	{
-		r2 = il_net_master_stop(&this->net);
+		//r2 = il_net_master_stop(&this->net);
+		printf("Disconnecting interface\n");
+		ec_slavecount = 0;
+		/* Disconnecting and removing udp interface */
+		if (ptUdpPcb != NULL) {
+			udp_disconnect(ptUdpPcb);
+			udp_remove(ptUdpPcb);
+		}
+
+
+		/* Remove the network interface */
+		printf("Removing network interface\n");
+		netif_remove(&tNetif);
+		ec_mbxempty(0, 100000);
+		context->EOEhook = NULL;
+
+
+		printf("Closing EtherCAT interface\n");
+		/* Close EtherCAT interface */
+		ec_close();
+		Sleep(1000);
+
 		r2 = il_net_master_startup(&this->net, this->ifname, this->if_address_ip);
 		
 		if (r2 > 0)
@@ -419,11 +449,16 @@ static int il_ecat_net_connect(il_net_t *net, const char *ip)
 
 	int r = 0;
 
-
 	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 	/* start listener thread */
 	this->stop = 0;
 	this->stop_reconnect = 0;
+
+	this->listener = osal_thread_create_(listener_ecat, this);
+	if (!this->listener) {
+		ilerr__set("Listener thread creation failed");
+		// goto close_ser;
+	}
 
 	return 0;
 }
@@ -454,8 +489,12 @@ static int il_ecat_mon_stop(il_net_t *net)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop_reconnect = 1;
+	Sleep(2000);
+	printf("join thread\n");
 	osal_thread_join(this->listener, NULL);
+	Sleep(3000);
 }
+
 
 static il_net_servos_list_t *il_ecat_net_servos_list_get(
 	il_net_t *net, il_net_servos_on_found_t on_found, void *ctx)
@@ -1518,7 +1557,10 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip
 			printf("No slaves found!\n");
 		}
 
-		init_eoe(net, &ecx_context);
+		if (ec_slavecount > 0)
+		{
+			init_eoe(net, &ecx_context);
+		}
 		
 	}
 	else
@@ -1581,8 +1623,13 @@ int *il_ecat_net_change_state(uint16_t slave, ec_state state)
 	return UP_NOERROR;
 }
 
-static int *il_ecat_net_master_stop(il_net_t **net)
+static int *il_ecat_net_master_stop(il_net_t *net)
 {
+
+	printf("Close listener ecat\n");
+	il_ecat_net_t *this = to_ecat_net(net);
+	il_ecat_mon_stop(this);
+
     printf("Setting state to INIT\n");
 	if (il_ecat_net_change_state(0, EC_STATE_INIT) != UP_NOERROR) {
 		printf("Slave %d cannot enter into state INIT.\n", 0);
