@@ -204,12 +204,12 @@ void il_net_disturbance_data_size_set(il_net_t *net, uint16_t disturbance_data_s
 
 int *il_net_remove_all_mapped_registers(il_net_t *net) 
 {
-	return il_eth_net_ops.remove_all_mapped_registers(net);
+	return net->ops->remove_all_mapped_registers(net);
 }
 
 int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
 {
-	return il_eth_net_ops.set_mapped_register(net, channel, address, dtype);
+	return net->ops->set_mapped_register(net, channel, address, dtype);
 }
 
 uint16_t il_net_num_mapped_registers_get(il_net_t *net) 
@@ -219,17 +219,17 @@ uint16_t il_net_num_mapped_registers_get(il_net_t *net)
 
 int *il_net_enable_monitoring(il_net_t *net)
 {
-	return il_eth_net_ops.enable_monitoring(net);
+	return net->ops->enable_monitoring(net);
 }
 
 int *il_net_disable_monitoring(il_net_t *net) 
 {
-	return il_eth_net_ops.disable_monitoring(net);
+	return net->ops->disable_monitoring(net);
 }
 
 int *il_net_read_monitoring_data(il_net_t *net) 
 {
-	return il_eth_net_ops.read_monitoring_data(net);
+	return net->ops->read_monitoring_data(net);
 }
 
 uint16_t *il_net_monitoring_channel_u16(il_net_t *net, int channel) 
@@ -259,12 +259,12 @@ float *il_net_monitoring_channel_flt(il_net_t *net, int channel)
 
 int *il_net_disturbance_remove_all_mapped_registers(il_net_t *net) 
 {
-	return il_eth_net_ops.disturbance_remove_all_mapped_registers(net);
+	return net->ops->disturbance_remove_all_mapped_registers(net);
 }
 
 int *il_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
 {
-	return il_eth_net_ops.disturbance_set_mapped_register(net, channel, address, dtype);
+	return net->ops->disturbance_set_mapped_register(net, channel, address, dtype);
 }
 
 void il_net_disturbance_data_u16_set(il_net_t *net, int channel, uint16_t disturbance_data[2048]) 
