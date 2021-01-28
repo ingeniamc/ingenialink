@@ -742,7 +742,7 @@ const uint16_t *il_servo_subnodes_get(il_servo_t *servo)
 }
 
 int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, char *if_address_ip, il_net_t **net, il_servo_t **servo,
-		   const char *dict, const char *address_ip, int port_ip)
+		   const char *dict, const char *address_ip, int port_ip, uint16_t slave)
 {
 	il_net_servos_list_t *servo_ids, *servo_id;
 
@@ -756,9 +756,10 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, char *if_address_ip,
 	opts.port = "";
 	opts.ifname = ifname;
 	opts.if_address_ip = if_address_ip;
+	opts.slave = slave;
 	
 	// Initialization of the EtherCAT master
-	int r = il_net_master_startup(*net, ifname, if_address_ip);
+	int r = il_net_master_startup(*net, ifname, if_address_ip, slave);
 	printf("master_startup result: %i\n", r);
 	if (r > 0) {
 		printf("Servos found!\n");

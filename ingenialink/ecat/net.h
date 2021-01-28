@@ -74,6 +74,7 @@ typedef struct il_ecat_net {
 
 	char *ifname;
 	char *if_address_ip;
+	int slave;
 
 } il_ecat_net_t;
 

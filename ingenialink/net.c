@@ -302,9 +302,9 @@ int il_net_ecat_close_socket(il_net_t *net)
 	return il_ecat_net_ops.close_socket(net);
 }
 
-int il_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip)
+int il_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip, uint16_t slave)
 {
-	return il_ecat_net_ops.master_startup(net, ifname, if_address_ip);
+	return il_ecat_net_ops.master_startup(net, ifname, if_address_ip, slave);
 }
 
 int il_net_num_slaves_get(il_net_t **net, char *ifname)
