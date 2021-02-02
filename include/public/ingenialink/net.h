@@ -113,7 +113,6 @@ typedef struct {
 
 	char *ifname;
 	char *if_address_ip;
-	int slave;
 } il_ecat_net_opts_t;
 
 /** Default read timeout (ms). */
@@ -616,9 +615,9 @@ IL_EXPORT int il_net_close_socket(il_net_t *net);
 /**
 	SOEM
 */
-IL_EXPORT int il_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip, uint16_t slave);
+IL_EXPORT int il_net_master_startup(il_net_t *net, char *ifname, uint16_t slave);
 
-IL_EXPORT int il_net_num_slaves_get(il_net_t **net, char *ifname);
+IL_EXPORT int il_net_num_slaves_get(char *ifname);
 
 IL_EXPORT int il_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip);
 

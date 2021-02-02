@@ -340,7 +340,7 @@ static il_net_t *il_ecat_net_create(const il_ecat_net_opts_t *opts)
 	this->port_ip = opts->port_ip;
 	this->ifname = opts->ifname;
 	this->if_address_ip = opts->if_address_ip;
-	this->slave = opts->slave;
+	this->slave = opts->connect_slave;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(ecat_net_destroy, this);
@@ -419,7 +419,7 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 		ec_close();
 		Sleep(1000);
 
-		r2 = il_net_master_startup(&this->net, this->ifname, this->if_address_ip, this->slave);
+		r2 = il_net_master_startup(&this->net, this->ifname, this->slave);
 		
 		if (r2 > 0)
 		{
@@ -1511,7 +1511,7 @@ int *il_ecat_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip)
 	this->if_address_ip = if_address_ip;
 }
 
-int *il_ecat_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip, uint16_t slave)
+int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave)
 {
 
 	int i, oloop, iloop, chk;
@@ -1519,15 +1519,12 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip
 	inOP = FALSE;
 
 	il_ecat_net_opts_t opts;
-	opts.address_ip = if_address_ip;
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
 	opts.connect_slave = slave;
 	opts.port_ip = 1061;
 	opts.port = "";
 	opts.ifname = ifname;
-	opts.if_address_ip = if_address_ip;
-	opts.slave = slave;
 	slave_number = slave;
 
 
@@ -1595,7 +1592,7 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip
 	return ec_slavecount;
 }
 
-int *il_ecat_net_num_slaves_get(il_net_t *net, char *ifname)
+int *il_ecat_net_num_slaves_get(char *ifname)
 {
 	int i, oloop, iloop, chk;
 	needlf = FALSE;
