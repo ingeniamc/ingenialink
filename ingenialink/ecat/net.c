@@ -1567,22 +1567,22 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave)
 						printf("Not all slaves are in PRE-OP\n");
 						return -1;
 					}
-				}				
+				}
+
+				if (ec_slavecount > 0)
+				{
+					init_eoe(net, &ecx_context, slave);
+				}
 			}
 			else {
 				printf("Slave number not found.\n");
+				return -1;
 			}
 		}
 		else
 		{
 			printf("No slaves found!\n");
 		}
-
-		if (ec_slavecount > 0)
-		{
-			init_eoe(net, &ecx_context, slave);
-		}
-		
 	}
 	else
 	{
