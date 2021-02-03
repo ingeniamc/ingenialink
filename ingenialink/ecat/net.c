@@ -388,14 +388,11 @@ static int il_ecat_net_is_slave_connected(il_net_t *net, const char *ip) {
 
 static int il_ecat_net_reconnect(il_ecat_net_t *this)
 {
-
 	this->stop = 1;
 	int r = -1;
 	int r2 = 0;
 	uint16_t sw;
-    while (r < 0 && this->stop_reconnect == 0)
-	{
-		//r2 = il_net_master_stop(&this->net);
+    while (r < 0 && this->stop_reconnect == 0) {
 		printf("Disconnecting interface\n");
 		ec_slavecount = 0;
 		/* Disconnecting and removing udp interface */
@@ -404,13 +401,11 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 			udp_remove(ptUdpPcb);
 		}
 
-
 		/* Remove the network interface */
 		printf("Removing network interface\n");
 		netif_remove(&tNetif);
 		ec_mbxempty(this->slave, 100000);
 		context->EOEhook = NULL;
-
 
 		printf("Closing EtherCAT interface\n");
 		/* Close EtherCAT interface */
@@ -419,15 +414,11 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 
 		r2 = il_net_master_startup(&this->net, this->ifname, this->slave);
 		
-		if (r2 > 0)
-		{
-			// Try to read 
+		if (r2 > 0) {
+			/* Try to read */
 			Sleep(2000);
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
-			if (r < 0) {
-
-			}
-			else {
+			if (r >= 0) {
 				this->stop = 0;
 				this->stop_reconnect = 0;
 				printf("DEVICE RECONNECTED");
@@ -446,18 +437,17 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 static int il_ecat_net_connect(il_net_t *net, const char *ip)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
-
 	int r = 0;
 
 	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
-	/* start listener thread */
+
+	/* Start listener thread */
 	this->stop = 0;
 	this->stop_reconnect = 0;
 
 	this->listener = osal_thread_create_(listener_ecat, this);
 	if (!this->listener) {
 		ilerr__set("Listener thread creation failed");
-		// goto close_ser;
 	}
 
 	return 0;
@@ -472,7 +462,7 @@ static void il_ecat_net__release(il_net_t *net)
 
 il_ecat_net_dev_list_t *il_ecat_net_dev_list_get()
 {
-	// TODO: Get slaves scanned
+	/* TODO: Get slaves scanned */
 	il_ecat_net_dev_list_t *lst = NULL;
 	il_ecat_net_dev_list_t *prev;
 
