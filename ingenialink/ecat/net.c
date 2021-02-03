@@ -272,7 +272,7 @@ restart:
 err:
 	if(this != NULL) {
 		printf("DEVICE DISCONNECTED\n");
-		ilerr__set("Device at %s disconnected\n", this->address_ip);
+		ilerr__set("Slave %i disconnected\n", this->slave);
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
 		r = il_ecat_net_reconnect(this);
 		if (r == 0) goto restart;
@@ -304,9 +304,7 @@ void SignalHandlerECAT(int signal)
 		printf("Unexpected termination: %i\n", signal);
 
 		exit(-1);
-	}
-	else {
-		// ...  
+	} else {  
 		printf("Unhandled signal exception: %i\n", signal);
 	}
 }
@@ -831,40 +829,6 @@ static int il_ecat_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subn
 			r = process_monitoring_data(this, net);
 		}
 	}
-
-
-
-
-	// osal_mutex_lock(this->net.lock);
-	// r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
-	// if (r < 0) {
-	// 	goto unlock;
-	// }
-
-	// int num_retries = 0;
-	// while (num_retries < NUMBER_OP_RETRIES)
-	// {
-	// 	uint16_t *monitoring_raw_data = NULL;
-	// 	r = il_ecat_net_recv_monitoring(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
-	// 	if (r == IL_ETIMEDOUT || r == IL_EWRONGREG) 
-	// 	{
-	// 		++num_retries;
-	// 		printf("Frame lost, retry %i\n", num_retries);
-	// 	}
-	// 	else 
-	// 	{
-	// 		break;
-	// 	}
-	// }
-
-	// if (r < 0) 
-	// {
-	// 	if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
-	// 	{
-			
-	// 	}
-	// 	goto unlock;
-	// }
 		
 
 unlock:
@@ -1529,63 +1493,51 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave)
 
 
 	printf("Starting EtherCAT Master\n");
-	/* initialise SOEM, bind socket to ifname */
-	if (ec_init(ifname))
-	{
+	/* Initialise SOEM, bind socket to ifname */
+	if (ec_init(ifname)) {
 		printf("ec_init on %s succeeded.\n", ifname);
-		/* find and auto-config slaves */
-		if (ec_config_init(FALSE) > 0)
-		{
+		/* Find and auto-config slaves */
+		if (ec_config_init(FALSE) > 0) {
 			printf("%d slaves found and configured.\n", ec_slavecount);
 
 			if (slave <= ec_slavecount) {
 				printf("Slaves mapped, state to PRE_OP.\n");
-				/* wait for all slaves to reach SAFE_OP state */
+				/* Wait for all slaves to reach SAFE_OP state */
 				ec_statecheck(slave, EC_STATE_PRE_OP, EC_TIMEOUTSTATE * 4);
 
 				printf("Calculated workcounter %d\n", expectedWKC);
 				ec_slave[slave].state = EC_STATE_PRE_OP;
 
-				/* request OP state for all slaves */
+				/* Request OP state for all slaves */
 				ec_writestate(slave);
 				chk = 200;
 
-				/* wait for all slaves to reach OP state */
-				do
-				{
+				/* Wait for all slaves to reach OP state */
+				do{
 					ec_statecheck(slave, EC_STATE_PRE_OP, 50000);
 				} while (chk-- && (ec_slave[slave].state != EC_STATE_PRE_OP));
-				if (ec_slave[slave].state == EC_STATE_PRE_OP)
-				{
+				if (ec_slave[slave].state == EC_STATE_PRE_OP) {
 					printf("Pre-Operational state reached for all slaves.\n");
-				} else
-				{
+				} else {
 					printf("Not all slaves reached operational state.\n");
 					ec_readstate();
-					if (ec_slave[slave].state != EC_STATE_PRE_OP)
-					{
+					if (ec_slave[slave].state != EC_STATE_PRE_OP) {
 						printf("Not all slaves are in PRE-OP\n");
 						return -1;
 					}
 				}
 
-				if (ec_slavecount > 0)
-				{
+				if (ec_slavecount > 0) {
 					init_eoe(net, &ecx_context, slave);
 				}
-			}
-			else {
+			} else {
 				printf("Slave number not found.\n");
 				return -1;
 			}
-		}
-		else
-		{
+		} else {
 			printf("No slaves found!\n");
 		}
-	}
-	else
-	{
+	} else {
 		printf("No socket connection on %s\nExcecute as root\n", ifname);
 	}
 
@@ -1599,22 +1551,16 @@ int *il_ecat_net_num_slaves_get(char *ifname)
 	inOP = FALSE;
 
 	printf("Starting EtherCAT Master\n");
-	/* initialise SOEM, bind socket to ifname */
-	if (ec_init(ifname))
-	{
+	/* Initialise SOEM, bind socket to ifname */
+	if (ec_init(ifname)) {
 		printf("ec_init on %s succeeded.\n", ifname);
-		/* find and auto-config slaves */
-		if (ec_config_init(FALSE) > 0)
-		{
+		/* Find and auto-config slaves */
+		if (ec_config_init(FALSE) > 0) {
 			printf("%d slaves found.\n", ec_slavecount);
-		}
-		else
-		{
+		} else {
 			printf("No slaves found!\n");
 		}
-	}
-	else
-	{
+	} else {
 		printf("No socket connection on %s\nExcecute as root\n", ifname);
 	}
 	ec_close();
@@ -1700,13 +1646,11 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 	printf("Starting firmware update example\n");
 	int r = 0;
 	/* initialise SOEM, bind socket to ifname */
-	if (ec_init(ifname))
-	{
+	if (ec_init(ifname)) {
 		printf("ec_init on %s succeeded.\n", ifname);
 		/* find and auto-config slaves */
 
-		if (ec_config_init(FALSE) > 0)
-		{
+		if (ec_config_init(FALSE) > 0) {
 			printf("%d slaves found and configured.\n", ec_slavecount);
 
 			printf("Request init state for slave %d\n", slave);
@@ -1721,19 +1665,14 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			if (il_ecat_net_change_state(slave, EC_STATE_PRE_OP) != UP_NOERROR) {
 				printf("Slave %d cannot enter into state PRE-OP.\n", slave);
 				printf("Application not detected. Trying Bootloader process..\n");
-			}
-			else
-			{
-				if (!is_summit) 
-				{
+			} else {
+				if (!is_summit) {
 					printf("Writing COCO FORCE BOOT password through SDO\n");
 					uint32 u32val = 0x424F4F54;
-					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) 
-					{
+					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) {
 						printf("SDO write error\n");
 						printf("Retrying...\n");
-						if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) 
-						{
+						if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0)  {
 							printf("Force Boot error\n");
 							return UP_FORCE_BOOT_ERROR;
 						}
@@ -1802,20 +1741,16 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			}
 			printf("Slave %d state to BOOT.\n", slave);
 
-			if (ec_eeprom2pdi(slave) <= 0) 
-			{
+			if (ec_eeprom2pdi(slave) <= 0) {
 				return UP_EEPROM_PDI_ERROR;
 			}
 			printf("Slave %d EEPROM set to PDI.\n", slave);
 
-			if (input_bin(filename, &filesize))
-			{
+			if (input_bin(filename, &filesize)){
 				// Get filename of absolute path
 				int len = strlen(filename);
-				while (len > 0)
-				{
-					if (filename[len] == '/')
-					{
+				while (len > 0) {
+					if (filename[len] == '/') {
 						break;
 					}
 					--len;
@@ -1826,19 +1761,15 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				printf("FoE write....");
 				r = ec_FOEwrite(slave, file_id, 0x70636675, filesize, &filebuffer, EC_TIMEOUTSTATE);
 				printf("FOE write result %d.\n", r);
-				if (r > 0) 
-				{
+				if (r > 0) {
 					printf("Request init state for slave %d\n", slave);
-					if (!is_summit) 
-					{
+					if (!is_summit) {
 						ec_slave[slave].state = EC_STATE_INIT;
 						ec_writestate(slave);
 
 						printf("Wait for drive to reset...\n");
 						Sleep(4000);
-					}
-					else 
-					{
+					} else {
 						ec_slave[slave].state = EC_STATE_INIT;
 						ec_writestate(slave);
 
@@ -1846,29 +1777,21 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 						Sleep(60000);
 					}
 					printf("FOE Process finished succesfully!!!.\n");
-				}
-				else 
-				{
+				} else  {
 					printf("Error during FoE process...");
 				}
 				
-			}
-			else
-			{
+			} else {
 				printf("File not read OK.\n");
 				return UP_EEPROM_FILE_ERROR;
 			}
 			
-		}
-		else
-		{
+		} else {
 			printf("No slaves found!\n");
 			return UP_NOT_FOUND_ERROR;
 		}
 		
-	}
-	else
-	{
+	} else {
 		printf("No socket connection on %s\nExecute as root\n",ifname);
 		return UP_NO_SOCKET;
 	}
