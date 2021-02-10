@@ -17,4 +17,11 @@ node('windows') {
 						cmake --build external/libxml2/_build --target install
 	  		'''
 		}
+
+		stage('Build libraries') {
+				bat '''
+						cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
+						cmake --build _build
+				'''
+		}
 }
