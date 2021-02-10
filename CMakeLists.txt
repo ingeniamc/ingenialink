@@ -319,8 +319,8 @@ target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 #target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include)
 #target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include/pcap)
 
-target_link_libraries(ingenialink PRIVATE ../external/SOEM/oshw/win32/wpcap/Lib/wpcap)
-target_link_libraries(ingenialink PRIVATE ../external/SOEM/WinMM)
+target_link_libraries(ingenialink PRIVATE ../ingenialink/ecat/soem/oshw/win32/wpcap/Lib/wpcap)
+#target_link_libraries(ingenialink PRIVATE ../external/SOEM/WinMM)
 
 if(UNIX)
   # FIX: disable TRY_RUN for pthreads when cross-compiling
@@ -341,7 +341,6 @@ endif()
 # Checks
 
 include(StyleCheck)
-if(STYLE_CHECK_AVAILABLE)
   add_style_check(
     "ingenialink/*.c"
     "ingenialink/*.h"
@@ -350,7 +349,6 @@ if(STYLE_CHECK_AVAILABLE)
     "include/ingenialink/**/*.h"
     "include/osal/**/*.h"
     "include/public/**/*.h")
-endif()
 
 #-------------------------------------------------------------------------------
 # Examples
