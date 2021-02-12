@@ -1,8 +1,6 @@
 # libingenialink - Motion and communications library for Ingenia servodrives
 
-<!-- [![Build Status](https://travis-ci.org/ingeniamc/ingenialink.svg?branch=master)](https://travis-ci.org/ingeniamc/ingenialink)
-[![Build status](https://ci.appveyor.com/api/projects/status/wjysv351u0of92xt?svg=true)](https://ci.appveyor.com/project/gmarull/ingenialink) -->
-[![Build Status](https://jenkins.ingeniamc.com/buildStatus/icon?job=Ingenia-public%2Fingenialink%2FINGK-187-add-jenkins-ci-process)](https://jenkins.ingeniamc.com/job/Ingenia-public/job/ingenialink/job/INGK-187-add-jenkins-ci-process/)
+[![Build Status](https://jenkins.ingeniamc.com/buildStatus/icon?job=Ingenia-public%2Fingenialink%2FINGK-187-add-jenkins-ci-process)]()
 
 
 `libingenialink` is a portable, pure C implementation library for simple motion
@@ -26,6 +24,8 @@ The library provides:
 
 ## Building libingenialink
 
+Actually, `libingenialink` only supports Windows OS, but Linux support is coming later this year.
+
 `libingenialink` depends on [libsercomm][sercomm] and [libxml2][libxml2]. A
 couple of sections below you will find some instructions on how to build and
 install them. `libingenialink` can be built and installed on any system like
@@ -47,9 +47,9 @@ Note that a `INSTALL` is the installation folder.
 The following build options are available:
 
 - `WITH_PROT_EUSB` (ON): Build `EUSB` protocol support.
-- `WITH_PROT_MCB` (OFF): Build `MCB` protocol support (EXPERIMENTAL).
-- `WITH_EXAMPLES` (OFF): When enabled, the library usage example applications
-  will be built.
+- `WITH_PROT_MCB` (OFF): Build `MCB` protocol support.
+- `WITH_PROT_ECAT` (OFF): Build `ECAT` protocol support.
+- `WITH_EXAMPLES` (OFF): When enabled, the library usage example applications will be built.
 - `WITH_DOCS` (OFF): When enabled the API documentation can be built.
 - `WITH_PIC` (OFF): When enabled, generated code will be position independent.
   This may be useful if you want to embed ingenialink into a dynamic library.
@@ -100,7 +100,7 @@ cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
 cmake --build _build --target install
 ```
 
-If using Linux, we actually recommend installing the library packages from
+<!-- If using Linux, we actually recommend installing the library packages from
 the official repositories. For example in Debian/Ubuntu systems:
 
 ```sh
@@ -108,7 +108,7 @@ sudo apt install libxml2-dev
 ```
 
 On recent versions of macOS, it seems to be already installed on the system. If
-not, you can also use [brew][brew] to install it.
+not, you can also use [brew][brew] to install it.-->
 
 [brew]: https://brew.sh
 
