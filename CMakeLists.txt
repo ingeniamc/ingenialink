@@ -167,61 +167,61 @@ if(WITH_PROT_ECAT)
 		ingenialink/ecat/lwip/err.h
 		ingenialink/ecat/lwip/sys.h
 
-    ingenialink/ecat/soem/soem/ethercatbase.c
-    ingenialink/ecat/soem/soem/ethercatcoe.c
-    ingenialink/ecat/soem/soem/ethercatconfig.c
-    ingenialink/ecat/soem/soem/ethercatdc.c
-    ingenialink/ecat/soem/soem/ethercateoe.c
-    ingenialink/ecat/soem/soem/ethercatfoe.c
-    ingenialink/ecat/soem/soem/ethercatmain.c
-    ingenialink/ecat/soem/soem/ethercatprint.c
-    ingenialink/ecat/soem/soem/ethercatsoe.c
+    external/SOEM/soem/ethercatbase.c
+    external/SOEM/soem/ethercatcoe.c
+    external/SOEM/soem/ethercatconfig.c
+    external/SOEM/soem/ethercatdc.c
+    external/SOEM/soem/ethercateoe.c
+    external/SOEM/soem/ethercatfoe.c
+    external/SOEM/soem/ethercatmain.c
+    external/SOEM/soem/ethercatprint.c
+    external/SOEM/soem/ethercatsoe.c
 
-    ingenialink/ecat/soem/oshw/win32/nicdrv.c
-    ingenialink/ecat/soem/oshw/win32/oshw.c
+    external/SOEM/oshw/win32/nicdrv.c
+    external/SOEM/oshw/win32/oshw.c
 
-    ingenialink/ecat/soem/osal/win32/osal.c
+    external/SOEM/osal/win32/osal.c
 
 
-    ingenialink/ecat/soem/soem/ethercat.h
-    ingenialink/ecat/soem/soem/ethercatbase.h
-    ingenialink/ecat/soem/soem/ethercatcoe.h
-    ingenialink/ecat/soem/soem/ethercatconfig.h
-    ingenialink/ecat/soem/soem/ethercatconfiglist.h
-    ingenialink/ecat/soem/soem/ethercatdc.h
-    ingenialink/ecat/soem/soem/ethercateoe.h
-    ingenialink/ecat/soem/soem/ethercatfoe.h
-    ingenialink/ecat/soem/soem/ethercatmain.h
-    ingenialink/ecat/soem/soem/ethercatprint.h
-    ingenialink/ecat/soem/soem/ethercatsoe.h
-    ingenialink/ecat/soem/soem/ethercattype.h
+    external/SOEM/soem/ethercat.h
+    external/SOEM/soem/ethercatbase.h
+    external/SOEM/soem/ethercatcoe.h
+    external/SOEM/soem/ethercatconfig.h
+    external/SOEM/soem/ethercatconfiglist.h
+    external/SOEM/soem/ethercatdc.h
+    external/SOEM/soem/ethercateoe.h
+    external/SOEM/soem/ethercatfoe.h
+    external/SOEM/soem/ethercatmain.h
+    external/SOEM/soem/ethercatprint.h
+    external/SOEM/soem/ethercatsoe.h
+    external/SOEM/soem/ethercattype.h
 
-    ingenialink/ecat/soem/oshw/win32/nicdrv.h
-    ingenialink/ecat/soem/oshw/win32/oshw.h
+    external/SOEM/oshw/win32/nicdrv.h
+    external/SOEM/oshw/win32/oshw.h
 
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/bittypes.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/ip6_misc.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/Packet32.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap-bpf.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap-namedb.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap-stdinc.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/remote-ext.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/Win32-Extensions.h
+    external/SOEM/oshw/win32/wpcap/Include/bittypes.h
+    external/SOEM/oshw/win32/wpcap/Include/ip6_misc.h
+    external/SOEM/oshw/win32/wpcap/Include/Packet32.h
+    external/SOEM/oshw/win32/wpcap/Include/pcap.h
+    external/SOEM/oshw/win32/wpcap/Include/pcap-bpf.h
+    external/SOEM/oshw/win32/wpcap/Include/pcap-namedb.h
+    external/SOEM/oshw/win32/wpcap/Include/pcap-stdinc.h
+    external/SOEM/oshw/win32/wpcap/Include/remote-ext.h
+    external/SOEM/oshw/win32/wpcap/Include/Win32-Extensions.h
 
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/bluetooth.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/bpf.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/namedb.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/pcap.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/sll.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/usb.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/vlan.h
+    external/SOEM/oshw/win32/wpcap/Include/pcap/bluetooth.h
+    external/SOEM/oshw/win32/wpcap/Include/pcap/bpf.h
+    external/SOEM/oshw/win32/wpcap/Include/pcap/namedb.h
+    external/SOEM/oshw/win32/wpcap/Include/pcap/pcap.h
+    external/SOEM/oshw/win32/wpcap/Include/pcap/sll.h
+    external/SOEM/oshw/win32/wpcap/Include/pcap/usb.h
+    external/SOEM/oshw/win32/wpcap/Include/pcap/vlan.h
 
-    ingenialink/ecat/soem/osal/osal.h
-    ingenialink/ecat/soem/osal/win32/inttypes.h
-    ingenialink/ecat/soem/osal/win32/osal_defs.h
-    ingenialink/ecat/soem/osal/win32/osal_win32.h
-    ingenialink/ecat/soem/osal/win32/stdint.h
+    external/SOEM/osal/osal.h
+    external/SOEM/osal/win32/inttypes.h
+    external/SOEM/osal/win32/osal_defs.h
+    external/SOEM/osal/win32/osal_win32.h
+    external/SOEM/osal/win32/stdint.h
 
 
 
@@ -311,7 +311,8 @@ target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 find_package(soem REQUIRED)
 target_link_libraries(ingenialink PRIVATE soem)
 #target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap)
-target_link_libraries(ingenialink PRIVATE ../external/SOEM/oshw/win32/wpcap/Lib/wpcap)
+#target_link_libraries(ingenialink PRIVATE ../external/SOEM/oshw/win32/wpcap/Lib/wpcap)
+target_link_libraries(ingenialink PRIVATE ./wpcap)
 
 #target_link_libraries(ingenialink PRIVATE ../external/SOEM/_build/soem)
 
