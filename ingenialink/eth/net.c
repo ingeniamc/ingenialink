@@ -167,7 +167,7 @@ restart:
 	il_eth_net_t *this = to_eth_net(args);
 	while (error_count < 10 && this != NULL && this->stop_reconnect == 0 ) {
 		uint16_t sw;
-		
+
 		/* try to read the status word register to see if a servo is alive */
 		if (this != NULL) {
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
@@ -214,7 +214,7 @@ void SignalHandler(int signal)
 		exit(-1);
 	}
 	else {
-		// ...  
+		// ...
 		printf("Unhandled signal exception: %i\n", signal);
 	}
 }
@@ -271,7 +271,7 @@ cleanup_this:
 
 static void il_eth_net_close_socket(il_net_t *net) {
 	il_eth_net_t *this = to_eth_net(net);
-	
+
 	int r = 0;
 	r = closesocket(this->server);
 	WSACleanup();
@@ -299,11 +299,11 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	}
 	else printf("Server: WSAStartup() is OK.\n");
 	if (this != NULL) {
-		if (this->protocol == 1) 
+		if (this->protocol == 1)
 		{
         	this->server = socket(AF_INET, SOCK_STREAM, 0);
 		}
-		else 
+		else
 		{
 			this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 		}
@@ -317,7 +317,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 		{
 			printf("ioctlsocket failed with error: %ld\n", r);
 		}
-		
+
 		r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
 		if (r == SOCKET_ERROR) {
 
@@ -359,16 +359,16 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 			}
 
 		}
-		else 
+		else
 		{
 			printf("Connected to the Server\n");
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
-			if (r < 0) 
+			if (r < 0)
 			{
 				printf("Fail connecting to server\n");
 				result = 0;
 			}
-			else 
+			else
 			{
 				result = 1;
 			}
@@ -383,7 +383,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 		}
 	}
 	else result = 0;
-	
+
 	// Closing socket
 	//closesocket(this->server);
 
@@ -400,7 +400,7 @@ static int il_net_reconnect(il_net_t *net)
 	while (r < 0 && this->stop_reconnect == 0)
 	{
 		printf("Reconnecting...\n");
-		if (this->protocol == 1) 
+		if (this->protocol == 1)
 		{
         	this->server = socket(AF_INET, SOCK_STREAM, 0);
 		}
@@ -416,7 +416,7 @@ static int il_net_reconnect(il_net_t *net)
 			printf("ioctlsocket failed with error: %ld\n", r);
 		}
 		r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
-		if (r == SOCKET_ERROR) {	
+		if (r == SOCKET_ERROR) {
 			r = WSAGetLastError();
 			// check if error was WSAEWOULDBLOCK, where we'll wait
 			if (r == WSAEWOULDBLOCK) {
@@ -452,11 +452,11 @@ static int il_net_reconnect(il_net_t *net)
 		else {
 			printf("Connected to the Server\n");
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
-			if (r < 0) 
+			if (r < 0)
 			{
 				printf("Fail connecting to server\n");
 			}
-			else 
+			else
 			{
 				this->stop = 0;
 				this->stop_reconnect = 0;
@@ -491,11 +491,11 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	else printf("Server: WSAStartup() is OK.\n");
 	int gas = this->protocol;
 	// Initialize socket with the protocol choosen
-	if (this->protocol == 1) 
+	if (this->protocol == 1)
 	{
         this->server = socket(AF_INET, SOCK_STREAM, 0);
 	}
-	else 
+	else
 	{
 		this->server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	}
@@ -776,7 +776,7 @@ static int *il_eth_net_read_monitoring_data(il_net_t *net)
 	uint64_t vid;
 
 
-	osal_mutex_lock(this->net.lock);	
+	osal_mutex_lock(this->net.lock);
 	r = il_eth_net__read_monitoring(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
 	if (r < 0) {
 
@@ -890,18 +890,18 @@ static int il_eth_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subno
 
 	int num_bytes;
 	r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
-	if (r < 0) 
+	if (r < 0)
 	{
 		// Old monitoring method
 		uint64_t vid;
 		r = il_net__read(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
 	}
-	else 
+	else
 	{
 		// Initialize monitoring data size value
 		net->monitoring_data_size = 0;
 
-		while (num_bytes > 0) 
+		while (num_bytes > 0)
 		{
 			// osal_mutex_lock(this->net.lock);
 			r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
@@ -913,20 +913,20 @@ static int il_eth_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subno
 			if (r < 0)
 				goto unlock;
 			// osal_mutex_unlock(this->net.lock);
-			
+
 			r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
 			if (r < 0) {
 				goto unlock;
 			}
-			
+
 		}
 
-		if (r >= 0) 
+		if (r >= 0)
 		{
 			r = process_monitoring_data(this, net);
 		}
 	}
-	
+
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -1004,7 +1004,7 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 	cmd = sz ? ETH_MCB_CMD_WRITE : ETH_MCB_CMD_READ;
 
 	// (void)ser_flush(this->ser, SER_QUEUE_ALL);
-	
+
 	// printf("Start send\n");
 	while (!finished) {
 		int r;
@@ -1043,7 +1043,7 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 			uint8_t extended_frame[1024];
 
 			il_reg_dtype_t type = net->disturbance_data_channels[0].type;
-			
+
 			void* pData;
 			switch (type) {
 				case IL_REG_DTYPE_U16:
@@ -1065,7 +1065,7 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 
 			memcpy(&extended_frame[0], frame, frame_size);
 			memcpy(&extended_frame[frame_size], pData, 1024 - frame_size);
-			
+
 			r = send(this->server, (const char*)&extended_frame[0], net->disturbance_data_size + frame_size, 0);
 			// r = send(this->server, (const char*)&extended_frame[0],	1010 + frame_size, 0);
 			if (r < 0)
@@ -1114,15 +1114,15 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	FD_SET(this->server, &fds);
 
 	// Set up the struct timeval for the timeout.
-	tv.tv_sec = 0;
+	tv.tv_sec = 1;
 	tv.tv_usec = 1000000;
 
 	// Wait until timeout or data received.
 	n = select(this->server, &fds, NULL, NULL, &tv);
 	if (n == 0)
 	{
-		printf("Timeout..\n");
-		closesocket(this->server);
+		printf("Timeout.....\n");
+		//closesocket(this->server);
 		return -1;
 	}
 	else if (n == -1)
@@ -1130,7 +1130,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		printf("Error..\n");
 		return -1;
 	}
-	
+
 	/* read next frame */
 	r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
 
@@ -1148,7 +1148,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	hdr_l = *(uint16_t *)&frame[ETH_MCB_HDR_L_POS];
 	int cmd = (hdr_l & ETH_MCB_CMD_MSK) >> ETH_MCB_CMD_POS;
 	if (cmd != ETH_MCB_CMD_ACK) {
-		
+
 		uint32_t err;
 
 		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
@@ -1157,7 +1157,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		return IL_EIO;
 	}
 	/* Check address */
-	
+
 	uint16_t addr = (hdr_l & 0xFFF0) >> 4;
 	if (addr != address) {
 		uint32_t err;
@@ -1226,7 +1226,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
 			memcpy(net->extended_buff, (char*)&pBuf[14], size);
-		
+
 		}
 	}
 	else {
@@ -1277,7 +1277,7 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 		printf("Error..\n");
 		return -1;
 	}
-	
+
 	/* read next frame */
 	r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
 
@@ -1310,7 +1310,7 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 			/* Read size of data */
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			if (num_bytes < size) 
+			if (num_bytes < size)
 			{
 				size = num_bytes;
 			}
@@ -1321,13 +1321,13 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 			net->monitoring_data_size += size;
 			printf("size = %i\n", size);
 			printf("ADEU\n");
-		
+
 		}
 		else {
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
 			memcpy(net->extended_buff, (char*)&pBuf[14], size);
-		
+
 		}
 	}
 	else {
@@ -1378,7 +1378,7 @@ static int process_monitoring_data(il_eth_net_t *this, il_net_t *net)
 		}
 		pData += bytes_per_block;
 	}
-	
+
 	printf("Data Processed\n");
 	return 0;
 }

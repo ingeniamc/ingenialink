@@ -123,7 +123,7 @@ if(WITH_PROT_ECAT)
     ingenialink/ecat/net.c
     ingenialink/ecat/servo.c
 
-    
+
 
     ingenialink/ecat/lwip.c
 		ingenialink/ecat/lwip/def.c
@@ -143,7 +143,7 @@ if(WITH_PROT_ECAT)
 		ingenialink/ecat/lwip/timeouts.c
 		ingenialink/ecat/lwip/udp.c
 
-    
+
     ingenialink/ecat/lwipopts.h
 		ingenialink/ecat/lwip/etharp.h
 		ingenialink/ecat/lwip/prot/etharp.h
@@ -161,7 +161,7 @@ if(WITH_PROT_ECAT)
 		ingenialink/ecat/lwip/stats.h
 		ingenialink/ecat/lwip/timeouts.h
 		ingenialink/ecat/lwip/udp.h
-		
+
 		ingenialink/ecat/lwip.h
 		ingenialink/ecat/lwip/opt.h
 		ingenialink/ecat/lwip/err.h
@@ -224,8 +224,8 @@ if(WITH_PROT_ECAT)
     ingenialink/ecat/soem/osal/win32/stdint.h
 
 
-    
-    
+
+
   )
 endif()
 
@@ -315,12 +315,12 @@ target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 #target_include_directories(ingenialink PRIVATE ./external/SOEM/osal)
 #target_include_directories(ingenialink PRIVATE ./external/SOEM/osal/win32)
 
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32)
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include)
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include/pcap)
+target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32)
+target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include)
+target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include/pcap)
 
-target_link_libraries(ingenialink PRIVATE ../external/SOEM/oshw/win32/wpcap/Lib/wpcap)
-target_link_libraries(ingenialink PRIVATE ../external/SOEM/WinMM)
+target_link_libraries(ingenialink PRIVATE ../ingenialink/ecat/SOEM/oshw/win32/wpcap/Lib/wpcap)
+#target_link_libraries(ingenialink PRIVATE ../ingenialink/ecat/SOEM/WinMM)
 
 if(UNIX)
   # FIX: disable TRY_RUN for pthreads when cross-compiling
@@ -334,7 +334,7 @@ if(UNIX)
 elseif(WIN32)
   # required by: libxml2
   target_link_libraries(ingenialink PRIVATE ws2_32)
-  
+
 endif()
 
 #-------------------------------------------------------------------------------
