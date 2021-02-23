@@ -56,9 +56,7 @@ static void eth_net_destroy(void *ctx)
 
 static int not_supported(void)
 {
-	ilerr__set("Functionality not supported");
-
-	return IL_ENOTSUP;
+	return ilerr__eth(IL_ENOTSUP);
 }
 
 bool crc_tabccitt_init_eth = false;
@@ -1003,9 +1001,7 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 
 	cmd = sz ? ETH_MCB_CMD_WRITE : ETH_MCB_CMD_READ;
 
-	// (void)ser_flush(this->ser, SER_QUEUE_ALL);
 
-	// printf("Start send\n");
 	while (!finished) {
 		int r;
 		uint16_t frame[ETH_MCB_FRAME_SZ];
@@ -1013,7 +1009,6 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 		size_t chunk_sz;
 
 		/* header */
-		// hdr_h = (MCB_SUBNODE_MOCO << 12) | (MCB_NODE_DFLT);
 		hdr_h = (ETH_MCB_NODE_DFLT << 4) | (subnode);
 		*(uint16_t *)&frame[ETH_MCB_HDR_H_POS] = hdr_h;
 		hdr_l = (address << 4) | (cmd << 1) | (extended);
@@ -1067,24 +1062,16 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 			memcpy(&extended_frame[frame_size], pData, 1024 - frame_size);
 
 			r = send(this->server, (const char*)&extended_frame[0], net->disturbance_data_size + frame_size, 0);
-			// r = send(this->server, (const char*)&extended_frame[0],	1010 + frame_size, 0);
 			if (r < 0)
-				return ilerr__ser(r);
+				return ilerr__eth(r);
 		}
 		else {
 			r = send(this->server, (const char*)&frame[0], sizeof(frame), 0);
-			// printf("Not extended, result of send: %i\n", r);
 			if (r < 0)
-				return ilerr__ser(r);
+				return ilerr__eth(r);
 		}
 		finished = 1;
-		/*if (extended == 1) {
-		r = send(server, (const char*)&net->disturbance_data[0], net->disturbance_data_size, 0);
-		if (r < 0)
-		return ilerr__ser(r);
-		}*/
 	}
-	// printf("End send\n");
 
 	return 0;
 }
@@ -1122,13 +1109,12 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	if (n == 0)
 	{
 		printf("Timeout.....\n");
-		//closesocket(this->server);
-		return -1;
+		return ilerr__eth(IL_ETIMEDOUT);
 	}
 	else if (n == -1)
 	{
 		printf("Error..\n");
-		return -1;
+		return ilerr__eth(IL_EIO);
 	}
 
 	/* read next frame */
@@ -1138,8 +1124,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	crc = *(uint16_t *)&frame[6];
 	uint16_t crc_res = crc_calc_eth((uint16_t *)frame, 6);
 	if (crc_res != crc) {
-		ilerr__set("Communications error (CRC mismatch)");
-		return IL_EIO;
+		return ilerr__eth(IL_EWRONGCRC);
 	}
 
 	/* TODO: Check subnode */
@@ -1154,7 +1139,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
 
 		ilerr__set("Communications error (NACK -> %08x)", err);
-		return IL_EIO;
+		return IL_ENACK;
 	}
 	/* Check address */
 
@@ -1168,8 +1153,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 				, address, addr, err);
 		printf("Frame -> %04x %04x %04x %04x %04x %04x %04x %04x\n", frame[0], frame[1], frame[2], frame[3], frame[4], frame[5], frame[6], frame[7]);
 		printf("\n =======================================================================================\n\n");
-		ilerr__set("Address error (NACK -> %08x)", err);
-		return IL_EIO;
+		return ilerr__eth(IL_EWRONGREG);
 	}
 
 	extended_bit = (hdr_l & ETH_MCB_PENDING_MSK) >> ETH_MCB_PENDING_POS;
@@ -1285,8 +1269,7 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 	crc = *(uint16_t *)&frame[6];
 	uint16_t crc_res = crc_calc_eth((uint16_t *)frame, 6);
 	if (crc_res != crc) {
-		ilerr__set("Communications error (CRC mismatch)");
-		return IL_EIO;
+		return ilerr__eth(IL_EWRONGCRC);
 	}
 
 	/* TODO: Check subnode */
@@ -1300,7 +1283,7 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
 
 		ilerr__set("Communications error (NACK -> %08x)", err);
-		return IL_EIO;
+		return IL_ENACK;
 	}
 	extended_bit = (hdr_l & ETH_MCB_PENDING_MSK) >> ETH_MCB_PENDING_POS;
 	if (extended_bit == 1) {
@@ -1316,12 +1299,8 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 			}
 			uint16_t start_addr = net->monitoring_data_size;
 			memcpy((uint8_t*)&net->monitoring_raw_data[start_addr], (uint8_t*)&pBuf[14], size);
-			//r = recv(this->server, (uint8_t*)net->monitoring_raw_data, size, 0);
 
 			net->monitoring_data_size += size;
-			printf("size = %i\n", size);
-			printf("ADEU\n");
-
 		}
 		else {
 			memcpy(buf, &(frame[ETH_MCB_DATA_POS]), 2);
@@ -1378,8 +1357,6 @@ static int process_monitoring_data(il_eth_net_t *this, il_net_t *net)
 		}
 		pData += bytes_per_block;
 	}
-
-	printf("Data Processed\n");
 	return 0;
 }
 

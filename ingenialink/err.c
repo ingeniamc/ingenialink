@@ -50,7 +50,7 @@
 #define ERR_SZ 256U
 
 /** Global error description. */
-static thread_local char err_last[ERR_SZ] = "Success";
+static thread_local char err_last[ERR_SZ] = "";
 
 void ilerr__set(const char *fmt, ...)
 {
@@ -76,6 +76,71 @@ int ilerr__ser(int32_t code)
 		break;
 	default:
 		ilerr__set("sercomm: %s", sererr_last());
+		r = IL_EFAIL;
+		break;
+	}
+
+	return r;
+}
+
+int ilerr__eth(int32_t code)
+{
+	int r = code;
+
+	switch (code) {
+	case IL_EWRONGCRC:
+		ilerr__set("Communications error (CRC mismatch)");
+		break;
+	case IL_ENACK:
+		ilerr__set("Communications error (NACK)");
+		break;
+	case IL_EWRONGREG:
+		ilerr__set("Wrong address error");
+		break;
+	case IL_ETIMEDOUT:
+		ilerr__set("Operation timed out");
+		break;
+	case IL_EIO:
+		ilerr__set("Communications error");
+		break;
+	case IL_ENOTSUP:
+		ilerr__set("Functionality not supported");
+		break;
+	default:
+		ilerr__set("Generic error");
+		r = IL_EFAIL;
+		break;
+	}
+
+	return r;
+
+}
+
+int ilerr__ecat(int32_t code)
+{
+	int r;
+	/** TODO: LWIP & SOEM errors */
+	switch (code) {
+	case IL_EWRONGCRC:
+		ilerr__set("Communications error (CRC mismatch)");
+		break;
+	case IL_ENACK:
+		ilerr__set("Communications error (NACK)");
+		break;
+	case IL_EWRONGREG:
+		ilerr__set("Wrong address error");
+		break;
+	case IL_ETIMEDOUT:
+		ilerr__set("Operation timed out");
+		break;
+	case IL_EIO:
+		ilerr__set("Communications error");
+		break;
+	case IL_ENOTSUP:
+		ilerr__set("Functionality not supported");
+		break;
+	default:
+		ilerr__set("Generic error");
 		r = IL_EFAIL;
 		break;
 	}

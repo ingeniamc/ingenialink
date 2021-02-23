@@ -49,4 +49,8 @@ void ilerr__set(const char *fmt, ...);
  */
 int ilerr__ser(int32_t code);
 
+int ilerr__eth(int32_t code);
+
+int ilerr__ecat(int32_t code);
+
 #endif
