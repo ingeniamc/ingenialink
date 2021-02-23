@@ -304,6 +304,8 @@ cleanup_ids:
 		printf("Could not load the configuration\n");
 	}
 
+	il_dict_destroy(dict);
+
 	return r;
 }
 
