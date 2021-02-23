@@ -227,7 +227,6 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 {
 	int r = -1;
 	const char **ids = NULL;
-	bool ignore_subnode;
 	
 	il_dict_t *dict = il_dict_create(dict_path);
 	if (!dict)
@@ -236,13 +235,7 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 	// Subnodes = axis available at servo + 1 subnode of general parameters
 	int subnodes = servo->subnodes + 1;
 	for (int j = 0; j < subnodes; j++) {
-		if (subnode > 0 && j != subnode) {
-			ignore_subnode = true;
-		}
-		else {
-			ignore_subnode = false;
-		}
-		if (!ignore_subnode) {
+		if (subnode == 0 || j == subnode) {
 			printf("Loading subnode %i...\n", j);
 			ids = il_dict_reg_ids_get(dict, j);
 			if (!ids)
@@ -306,6 +299,9 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 cleanup_ids:
 	if (ids) {
 		il_dict_reg_ids_destroy(ids);
+	}
+	else {
+		printf("Could not load the configuration\n");
 	}
 
 	return r;
