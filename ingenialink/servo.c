@@ -223,27 +223,26 @@ cleanup_ids:
 	return r;
 }
 
-int il_servo_dict_storage_write(il_servo_t *servo)
+int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path)
 {
 	int r = 0;
 	const char **ids;
-
-	if (!servo->dict) {
-		ilerr__set("No dictionary loaded");
+	
+	il_dict_t *dict = il_dict_create(dict_path);
+	if (!dict)
 		return IL_EFAIL;
-	}
 
 	// Subnodes = axis available at servo + 1 subnode of general parameters
 	int subnodes = servo->subnodes + 1;
 	for (int j = 0; j < subnodes; j++) {
-		ids = il_dict_reg_ids_get(servo->dict, j);
+		ids = il_dict_reg_ids_get(dict, j);
 		if (!ids)
 			return IL_EFAIL;
 
 		for (size_t i = 0; ids[i]; i++) {
 			const il_reg_t *reg;
 
-			(void)il_dict_reg_get(servo->dict, ids[i], &reg, j);
+			(void)il_dict_reg_get(dict, ids[i], &reg, j);
 
 			if (reg->access != IL_REG_ACCESS_RW)
 				continue;
@@ -692,15 +691,12 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 	}
 	/* try to connect to any available servo */
 	servo_ids = il_net_servos_list_get(*net, NULL, NULL);
-	
-
 
 	il_net_servos_list_foreach(servo_id, servo_ids) {
 		*servo = il_servo_create(*net, servo_id->id, dict);
 		/* found */
 		if (*servo) {
 			il_net_servos_list_destroy(servo_ids);
-
 			return 0;
 		}
 	}
