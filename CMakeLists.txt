@@ -182,7 +182,6 @@ if(WITH_PROT_ECAT)
 
     external/SOEM/osal/win32/osal.c
 
-
     external/SOEM/soem/ethercat.h
     external/SOEM/soem/ethercatbase.h
     external/SOEM/soem/ethercatcoe.h
@@ -222,10 +221,6 @@ if(WITH_PROT_ECAT)
     external/SOEM/osal/win32/osal_defs.h
     external/SOEM/osal/win32/osal_win32.h
     external/SOEM/osal/win32/stdint.h
-
-
-
-
   )
 endif()
 
@@ -302,7 +297,6 @@ endif()
 # Dependencies
 find_package(sercomm CONFIG REQUIRED)
 target_link_libraries(ingenialink PRIVATE sercomm)
-#target_link_libraries(ingenialink PRIVATE ../external/sercomm/_build/Debug/sercomm)
 
 find_package(LibXml2 REQUIRED)
 target_link_libraries(ingenialink PRIVATE ${LIBXML2_LIBRARIES})
@@ -310,24 +304,10 @@ target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 
 find_package(soem REQUIRED)
 target_link_libraries(ingenialink PRIVATE soem)
-target_link_libraries(ingenialink PRIVATE ../ingenialink/ecat/soem/oshw/win32/wpcap/Lib/wpcap)
-# target_include_directories(ingenialink PRIVATE ../ingenialink/ecat/soem/oshw/win32/wpcap/Include)
+target_link_libraries(ingenialink PRIVATE ../external/SOEM/soem/oshw/win32/wpcap/Lib/wpcap)
+target_link_libraries(ingenialink PRIVATE ../external/SOEM/soem/oshw/win32/wpcap/Lib/Packet)
+target_include_directories(ingenialink PRIVATE ../ingenialink/ecat/soem/oshw/win32/wpcap/Include)
 target_include_directories(ingenialink PRIVATE ../ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap)
-#target_link_libraries(ingenialink PRIVATE ../external/SOEM/oshw/win32/wpcap/Lib/wpcap)
-#target_link_libraries(ingenialink PRIVATE ./wpcap)
-
-#target_link_libraries(ingenialink PRIVATE ../external/SOEM/_build/soem)
-
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/soem)
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/osal)
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/osal/win32)
-
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32)
-#
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include/pcap)
-
-#
-#target_link_libraries(ingenialink PRIVATE ../external/SOEM/WinMM)
 
 if(UNIX)
   # FIX: disable TRY_RUN for pthreads when cross-compiling
