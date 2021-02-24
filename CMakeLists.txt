@@ -199,23 +199,23 @@ if(WITH_PROT_ECAT)
     external/SOEM/oshw/win32/nicdrv.h
     external/SOEM/oshw/win32/oshw.h
 
-    external/SOEM/oshw/win32/wpcap/Include/bittypes.h
-    external/SOEM/oshw/win32/wpcap/Include/ip6_misc.h
-    external/SOEM/oshw/win32/wpcap/Include/Packet32.h
-    external/SOEM/oshw/win32/wpcap/Include/pcap.h
-    external/SOEM/oshw/win32/wpcap/Include/pcap-bpf.h
-    external/SOEM/oshw/win32/wpcap/Include/pcap-namedb.h
-    external/SOEM/oshw/win32/wpcap/Include/pcap-stdinc.h
-    external/SOEM/oshw/win32/wpcap/Include/remote-ext.h
-    external/SOEM/oshw/win32/wpcap/Include/Win32-Extensions.h
+    ingenialink/ecat/wpcap/Include/bittypes.h
+    ingenialink/ecat/wpcap/Include/ip6_misc.h
+    ingenialink/ecat/wpcap/Include/Packet32.h
+    ingenialink/ecat/wpcap/Include/pcap.h
+    ingenialink/ecat/wpcap/Include/pcap-bpf.h
+    ingenialink/ecat/wpcap/Include/pcap-namedb.h
+    ingenialink/ecat/wpcap/Include/pcap-stdinc.h
+    ingenialink/ecat/wpcap/Include/remote-ext.h
+    ingenialink/ecat/wpcap/Include/Win32-Extensions.h
 
-    external/SOEM/oshw/win32/wpcap/Include/pcap/bluetooth.h
-    external/SOEM/oshw/win32/wpcap/Include/pcap/bpf.h
-    external/SOEM/oshw/win32/wpcap/Include/pcap/namedb.h
-    external/SOEM/oshw/win32/wpcap/Include/pcap/pcap.h
-    external/SOEM/oshw/win32/wpcap/Include/pcap/sll.h
-    external/SOEM/oshw/win32/wpcap/Include/pcap/usb.h
-    external/SOEM/oshw/win32/wpcap/Include/pcap/vlan.h
+    ingenialink/ecat/wpcap/Include/pcap/bluetooth.h
+    ingenialink/ecat/wpcap/Include/pcap/bpf.h
+    ingenialink/ecat/wpcap/Include/pcap/namedb.h
+    ingenialink/ecat/wpcap/Include/pcap/pcap.h
+    ingenialink/ecat/wpcap/Include/pcap/sll.h
+    ingenialink/ecat/wpcap/Include/pcap/usb.h
+    ingenialink/ecat/wpcap/Include/pcap/vlan.h
 
     external/SOEM/osal/osal.h
     external/SOEM/osal/win32/inttypes.h
@@ -310,9 +310,11 @@ target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 
 find_package(soem REQUIRED)
 target_link_libraries(ingenialink PRIVATE soem)
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap)
+target_link_libraries(ingenialink PRIVATE ../ingenialink/ecat/soem/oshw/win32/wpcap/Lib/wpcap)
+# target_include_directories(ingenialink PRIVATE ../ingenialink/ecat/soem/oshw/win32/wpcap/Include)
+target_include_directories(ingenialink PRIVATE ../ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap)
 #target_link_libraries(ingenialink PRIVATE ../external/SOEM/oshw/win32/wpcap/Lib/wpcap)
-target_link_libraries(ingenialink PRIVATE ./wpcap)
+#target_link_libraries(ingenialink PRIVATE ./wpcap)
 
 #target_link_libraries(ingenialink PRIVATE ../external/SOEM/_build/soem)
 
@@ -321,10 +323,10 @@ target_link_libraries(ingenialink PRIVATE ./wpcap)
 #target_include_directories(ingenialink PRIVATE ./external/SOEM/osal/win32)
 
 #target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32)
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include)
+#
 #target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include/pcap)
 
-#target_link_libraries(ingenialink PRIVATE ../ingenialink/ecat/soem/oshw/win32/wpcap/Lib/wpcap)
+#
 #target_link_libraries(ingenialink PRIVATE ../external/SOEM/WinMM)
 
 if(UNIX)
