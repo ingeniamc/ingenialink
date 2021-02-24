@@ -18,13 +18,12 @@ node('windows') {
 
 			cmake -Hexternal/SOEM -Bexternal/SOEM/_build -DCMAKE_INSTALL_PREFIX=_install
 			cmake --build external/SOEM/_build --target install
-
 		'''
 	}
 
 	stage('Build libraries') {
 		bat '''
-			cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install
+			cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install -DWITH_PROT_MCB=ON -DWITH_PROT_ETH=ON -DWITH_PROT_ECAT=ON
 			cmake --build _build
 		'''
 	}
