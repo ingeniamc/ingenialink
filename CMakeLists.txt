@@ -198,24 +198,6 @@ if(WITH_PROT_ECAT)
     external/SOEM/oshw/win32/nicdrv.h
     external/SOEM/oshw/win32/oshw.h
 
-    ingenialink/ecat/wpcap/Include/bittypes.h
-    ingenialink/ecat/wpcap/Include/ip6_misc.h
-    ingenialink/ecat/wpcap/Include/Packet32.h
-    ingenialink/ecat/wpcap/Include/pcap.h
-    ingenialink/ecat/wpcap/Include/pcap-bpf.h
-    ingenialink/ecat/wpcap/Include/pcap-namedb.h
-    ingenialink/ecat/wpcap/Include/pcap-stdinc.h
-    ingenialink/ecat/wpcap/Include/remote-ext.h
-    ingenialink/ecat/wpcap/Include/Win32-Extensions.h
-
-    ingenialink/ecat/wpcap/Include/pcap/bluetooth.h
-    ingenialink/ecat/wpcap/Include/pcap/bpf.h
-    ingenialink/ecat/wpcap/Include/pcap/namedb.h
-    ingenialink/ecat/wpcap/Include/pcap/pcap.h
-    ingenialink/ecat/wpcap/Include/pcap/sll.h
-    ingenialink/ecat/wpcap/Include/pcap/usb.h
-    ingenialink/ecat/wpcap/Include/pcap/vlan.h
-
     external/SOEM/osal/osal.h
     external/SOEM/osal/win32/inttypes.h
     external/SOEM/osal/win32/osal_defs.h
@@ -251,6 +233,20 @@ elseif(WIN32)
 else()
   message(FATAL_ERROR "Unsupported platform")
 endif()
+
+find_path(WINPCAP_LIBRARY_WPCAP wpcap.lib
+    external/SOEM/oshw/win32/wpcap/Lib
+)
+MESSAGE("libwpcap path: " ${WINPCAP_LIBRARY_WPCAP})
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    link_directories(${WINPCAP_LIBRARY_WPCAP}/x64)
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    link_directories(${WINPCAP_LIBRARY_WPCAP}/)
+endif()
+
+include_directories(external/SOEM/oshw/win32/wpcap/Include)
+include_directories(external/SOEM/oshw/win32/wpcap/Include/pcap)
 
 add_library(ingenialink ${ingenialink_srcs})
 
@@ -304,10 +300,7 @@ target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 
 find_package(soem REQUIRED)
 target_link_libraries(ingenialink PRIVATE soem)
-target_link_libraries(ingenialink PRIVATE ../external/SOEM/soem/oshw/win32/wpcap/Lib/wpcap)
-target_link_libraries(ingenialink PRIVATE ../external/SOEM/soem/oshw/win32/wpcap/Lib/Packet)
-target_include_directories(ingenialink PRIVATE ../ingenialink/ecat/soem/oshw/win32/wpcap/Include)
-target_include_directories(ingenialink PRIVATE ../ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap)
+
 
 if(UNIX)
   # FIX: disable TRY_RUN for pthreads when cross-compiling
