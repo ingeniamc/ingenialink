@@ -37,7 +37,7 @@
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
 
-#include "soem/soem/ethercat.h"
+#include "ethercat.h"
 #include "lwip/netif.h"
 #include "lwip/err.h"
 #include "lwip/init.h"
@@ -829,7 +829,6 @@ static int il_ecat_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subn
 			r = process_monitoring_data(this, net);
 		}
 	}
-
 unlock:
 	osal_mutex_unlock(this->net.lock);
 
