@@ -187,9 +187,10 @@ restart:
 
 err:
 	if(this != NULL) {
-		printf("DEVICE DISCONNECTED\n");
+		printf("DEVICE DISCONNECTED!\n");
 		ilerr__set("Device at %s disconnected\n", this->address_ip);
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
+		closesocket(this->server);
 		r = il_net_reconnect(this);
 		if (r == 0) goto restart;
 	}
@@ -458,15 +459,16 @@ static int il_net_reconnect(il_net_t *net)
 			{
 				this->stop = 0;
 				this->stop_reconnect = 0;
-				printf("DEVICE RECONNECTED");
+				printf("DEVICE RECONNECTED!\n");
 				il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 			}
 		}
 		iMode = 0;
-		r = ioctlsocket(this->server, FIONBIO, &iMode);
-		if (r != NO_ERROR)
+		int resp = -1;
+		resp = ioctlsocket(this->server, FIONBIO, &iMode);
+		if (resp != NO_ERROR)
 		{
-			printf("ioctlsocket failed with error: %ld\n", r);
+			printf("ioctlsocket failed with error: %ld\n", resp);
 		}
 		Sleep(1000);
 	}
@@ -1101,14 +1103,14 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	FD_SET(this->server, &fds);
 
 	// Set up the struct timeval for the timeout.
-	tv.tv_sec = 1;
-	tv.tv_usec = 1000000;
+	tv.tv_sec = 0;
+	tv.tv_usec = 100000;
 
 	// Wait until timeout or data received.
 	n = select(this->server, &fds, NULL, NULL, &tv);
 	if (n == 0)
 	{
-		printf("Timeout.....\n");
+		printf("Timeout...\n");
 		return ilerr__eth(IL_ETIMEDOUT);
 	}
 	else if (n == -1)
