@@ -167,6 +167,7 @@ if(WITH_PROT_ECAT)
 		ingenialink/ecat/lwip/err.h
 		ingenialink/ecat/lwip/sys.h
 
+
     external/SOEM/soem/ethercatbase.c
     external/SOEM/soem/ethercatcoe.c
     external/SOEM/soem/ethercatconfig.c
@@ -300,7 +301,6 @@ target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 
 find_package(soem REQUIRED)
 target_link_libraries(ingenialink PRIVATE soem)
-
 
 if(UNIX)
   # FIX: disable TRY_RUN for pthreads when cross-compiling

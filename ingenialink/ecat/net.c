@@ -829,42 +829,6 @@ static int il_ecat_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subn
 			r = process_monitoring_data(this, net);
 		}
 	}
-
-
-
-
-	// osal_mutex_lock(this->net.lock);
-	// r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
-	// if (r < 0) {
-	// 	goto unlock;
-	// }
-
-	// int num_retries = 0;
-	// while (num_retries < NUMBER_OP_RETRIES)
-	// {
-	// 	uint16_t *monitoring_raw_data = NULL;
-	// 	r = il_ecat_net_recv_monitoring(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
-	// 	if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
-	// 	{
-	// 		++num_retries;
-	// 		printf("Frame lost, retry %i\n", num_retries);
-	// 	}
-	// 	else
-	// 	{
-	// 		break;
-	// 	}
-	// }
-
-	// if (r < 0)
-	// {
-	// 	if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
-	// 	{
-
-	// 	}
-	// 	goto unlock;
-	// }
-
-
 unlock:
 	osal_mutex_unlock(this->net.lock);
 
@@ -1042,7 +1006,7 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 			pbuf_free(p);
 
 			if (error < 0)
-				return ilerr__ser(error);
+				return ilerr__ecat(error);
 		}
 		else {
 			int wkc = 0;
@@ -1054,19 +1018,11 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 			}
 			pbuf_free(p);
 
-			// r = send(this->server, (const char*)&frame[0], sizeof(frame), 0);
-			// printf("Not extended, result of send: %i\n", r);
 			if (error < 0)
-				return ilerr__ser(error);
+				return ilerr__ecat(error);
 		}
 		finished = 1;
-		/*if (extended == 1) {
-		r = send(server, (const char*)&net->disturbance_data[0], net->disturbance_data_size, 0);
-		if (r < 0)
-		return ilerr__ser(r);
-		}*/
 	}
-	// printf("End send\n");
 
 	return 0;
 }
@@ -1087,7 +1043,6 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	Sleep(5);
 	/* read next frame */
 	int r = 0;
-	// r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
 	wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
@@ -1107,7 +1062,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	uint16_t crc_res = crc_calc_ecat((uint16_t *)frame, 6);
 	if (crc_res != crc) {
 		ilerr__set("Communications error (CRC mismatch)");
-		return IL_EIO;
+		return IL_EWRONGCRC;
 	}
 
 	/* TODO: Check subnode */
@@ -1121,7 +1076,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 		err = __swap_be_32(*(uint32_t *)&frame[ECAT_MCB_DATA_POS]);
 
 		ilerr__set("Communications error (NACK -> %08x)", err);
-		return IL_EIO;
+		return IL_ENACK;
 	}
 
 	/* Check if register received is the same that we asked for.  */
