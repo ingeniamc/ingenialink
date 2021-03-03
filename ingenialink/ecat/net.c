@@ -94,6 +94,7 @@ boolean isFirstTime = true;
 
 char *Ifname;
 char *If_address_ip;
+uint16_t slave_number;
 
 
 /*******************************************************************************/
@@ -271,7 +272,7 @@ restart:
 err:
 	if(this != NULL) {
 		printf("DEVICE DISCONNECTED\n");
-		ilerr__set("Device at %s disconnected\n", this->address_ip);
+		ilerr__set("Slave %i disconnected\n", this->slave);
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
 		r = il_ecat_net_reconnect(this);
 		if (r == 0) goto restart;
@@ -305,7 +306,6 @@ void SignalHandlerECAT(int signal)
 		exit(-1);
 	}
 	else {
-		// ...
 		printf("Unhandled signal exception: %i\n", signal);
 	}
 }
@@ -339,6 +339,7 @@ static il_net_t *il_ecat_net_create(const il_ecat_net_opts_t *opts)
 	this->port_ip = opts->port_ip;
 	this->ifname = opts->ifname;
 	this->if_address_ip = opts->if_address_ip;
+	this->slave = opts->connect_slave;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(ecat_net_destroy, this);
@@ -388,14 +389,11 @@ static int il_ecat_net_is_slave_connected(il_net_t *net, const char *ip) {
 
 static int il_ecat_net_reconnect(il_ecat_net_t *this)
 {
-
 	this->stop = 1;
 	int r = -1;
 	int r2 = 0;
 	uint16_t sw;
-    while (r < 0 && this->stop_reconnect == 0)
-	{
-		//r2 = il_net_master_stop(&this->net);
+    while (r < 0 && this->stop_reconnect == 0) {
 		printf("Disconnecting interface\n");
 		ec_slavecount = 0;
 		/* Disconnecting and removing udp interface */
@@ -404,30 +402,24 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 			udp_remove(ptUdpPcb);
 		}
 
-
 		/* Remove the network interface */
 		printf("Removing network interface\n");
 		netif_remove(&tNetif);
-		ec_mbxempty(0, 100000);
+		ec_mbxempty(this->slave, 100000);
 		context->EOEhook = NULL;
-
 
 		printf("Closing EtherCAT interface\n");
 		/* Close EtherCAT interface */
 		ec_close();
 		Sleep(1000);
 
-		r2 = il_net_master_startup(&this->net, this->ifname, this->if_address_ip);
-
-		if (r2 > 0)
-		{
-			// Try to read
+		r2 = il_net_master_startup(&this->net, this->ifname, this->slave);
+		
+		if (r2 > 0) {
+			/* Try to read */
 			Sleep(2000);
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
-			if (r < 0) {
-
-			}
-			else {
+			if (r >= 0) {
 				this->stop = 0;
 				this->stop_reconnect = 0;
 				printf("DEVICE RECONNECTED");
@@ -446,18 +438,17 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 static int il_ecat_net_connect(il_net_t *net, const char *ip)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
-
 	int r = 0;
 
 	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
-	/* start listener thread */
+
+	/* Start listener thread */
 	this->stop = 0;
 	this->stop_reconnect = 0;
 
 	this->listener = osal_thread_create_(listener_ecat, this);
 	if (!this->listener) {
 		ilerr__set("Listener thread creation failed");
-		// goto close_ser;
 	}
 
 	return 0;
@@ -472,7 +463,7 @@ static void il_ecat_net__release(il_net_t *net)
 
 il_ecat_net_dev_list_t *il_ecat_net_dev_list_get()
 {
-	// TODO: Get slaves scanned
+	/* TODO: Get slaves scanned */
 	il_ecat_net_dev_list_t *lst = NULL;
 	il_ecat_net_dev_list_t *prev;
 
@@ -490,7 +481,7 @@ static int il_ecat_mon_stop(il_net_t *net)
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop_reconnect = 1;
 	Sleep(2000);
-	printf("join thread\n");
+	printf("Join thread\n");
 	osal_thread_join(this->listener, NULL);
 	Sleep(3000);
 }
@@ -829,6 +820,7 @@ static int il_ecat_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subn
 			r = process_monitoring_data(this, net);
 		}
 	}
+
 unlock:
 	osal_mutex_unlock(this->net.lock);
 
@@ -1045,14 +1037,14 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	int r = 0;
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
-	wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
-	if (wkc < 0)
+	wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
+	if (wkc < 0) 
 	{
 		return IL_EFAIL;
 	}
 
 	int s32SzRead = 1024;
-	wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+	wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
 
 	/* Obtain the frame received */
 	memcpy(frame, (uint8_t*)frame_received, 1024);
@@ -1167,14 +1159,14 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
  	// r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
  	int wkc = 0;
  	ec_mbxbuft MbxIn;
- 	wkc = ecx_mbxreceive(context, 1, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
- 	if (wkc < 0)
+ 	wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
+ 	if (wkc < 0) 
  	{
  		return IL_EFAIL;
  	}
 
  	int s32SzRead = 1024;
- 	wkc = ecx_EOErecv(context, 1, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+ 	wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
 
  	/* Obtain the frame received */
  	memcpy(frame, (uint8_t*)frame_received, 1024);
@@ -1256,7 +1248,7 @@ static err_t LWIP_EthernetifOutput(struct netif *ptNetIfHnd, struct pbuf *ptBuf)
 	uint8_t frame6[1024];
 	memcpy(frame6, ptBuf->payload, ptBuf->len);
 
-	int i = ecx_EOEsend(context, 1, 0, ptBuf->tot_len, ptBuf->payload, EC_TIMEOUTRXM);
+	int i = ecx_EOEsend(context, slave_number, 0, ptBuf->tot_len, ptBuf->payload, EC_TIMEOUTRXM);
 
 
 
@@ -1359,19 +1351,7 @@ OSAL_THREAD_FUNC mailbox_reader(void *lpParam)
 /** registered EoE hook */
 int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 {
-	//printf("EoE Hook!\n");
-	// osal_mutex_lock(this->net.lock);
 	int wkc;
-
-	/*il_ecat_net_t *this;
-	this = calloc(1, sizeof(*this));
-	if (!this) {
-		ilerr__set("Network allocation failed");
-		return NULL;
-	}
-	osal_mutex_lock(this->net.lock);
-	printf("EHHHH!\n");*/
-
 
 	/*
 	* 	Pass received Mbx data to EoE recevive fragment function that
@@ -1426,7 +1406,7 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 	return ec_slavecount;
 }
 
-void init_eoe(il_net_t *net, ecx_contextt * context)
+void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 {
 	printf("Init EoE\n");
 	/* Set the HOOK */
@@ -1448,10 +1428,10 @@ void init_eoe(il_net_t *net, ecx_contextt * context)
 	printf("IP configured\n");
 
 	/* Send a set IP request */
-	ecx_EOEsetIp(context, 1, 0, &ipsettings, EC_TIMEOUTRXM);
+	ecx_EOEsetIp(context, slave, 0, &ipsettings, EC_TIMEOUTRXM);
 
 	/* Send a get IP request, should return the expected IP back */
-	ecx_EOEgetIp(context, 1, 0, &re_ipsettings, EC_TIMEOUTRXM);
+	ecx_EOEgetIp(context, slave, 0, &re_ipsettings, EC_TIMEOUTRXM);
 
 	/* Create a asyncronous EoE reader */
 	osal_thread_create(&thread2, 128000, &mailbox_reader, &ecx_context);
@@ -1464,7 +1444,7 @@ int *il_ecat_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip)
 	this->if_address_ip = if_address_ip;
 }
 
-int *il_ecat_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip)
+int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave)
 {
 
 	int i, oloop, iloop, chk;
@@ -1472,101 +1452,84 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip
 	inOP = FALSE;
 
 	il_ecat_net_opts_t opts;
-	opts.address_ip = if_address_ip;
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
-	opts.connect_slave = 1;
+	opts.connect_slave = slave;
 	opts.port_ip = 1061;
 	opts.port = "";
 	opts.ifname = ifname;
-	opts.if_address_ip = if_address_ip;
+	slave_number = slave;
 
 
 	printf("Starting EtherCAT Master\n");
-	/* initialise SOEM, bind socket to ifname */
-	if (ec_init(ifname))
-	{
+	/* Initialise SOEM, bind socket to ifname */
+	if (ec_init(ifname)) {
 		printf("ec_init on %s succeeded.\n", ifname);
-		/* find and auto-config slaves */
-		if (ec_config_init(FALSE) > 0)
-		{
+		/* Find and auto-config slaves */
+		if (ec_config_init(FALSE) > 0) {
 			printf("%d slaves found and configured.\n", ec_slavecount);
 
-			printf("Slaves mapped, state to PRE_OP.\n");
-			/* wait for all slaves to reach SAFE_OP state */
-			ec_statecheck(0, EC_STATE_PRE_OP, EC_TIMEOUTSTATE * 4);
+			if (slave <= ec_slavecount) {
+				printf("Slaves mapped, state to PRE_OP.\n");
+				/* Wait for all slaves to reach SAFE_OP state */
+				ec_statecheck(slave, EC_STATE_PRE_OP, EC_TIMEOUTSTATE * 4);
 
-			printf("Calculated workcounter %d\n", expectedWKC);
-			ec_slave[0].state = EC_STATE_PRE_OP;
+				printf("Calculated workcounter %d\n", expectedWKC);
+				ec_slave[slave].state = EC_STATE_PRE_OP;
 
-			/* request OP state for all slaves */
-			ec_writestate(0);
-			chk = 200;
+				/* Request OP state for all slaves */
+				ec_writestate(slave);
+				chk = 200;
 
-			/* wait for all slaves to reach OP state */
-			do
-			{
-				ec_statecheck(0, EC_STATE_PRE_OP, 50000);
-			} while (chk-- && (ec_slave[0].state != EC_STATE_PRE_OP));
-			if (ec_slave[0].state == EC_STATE_PRE_OP)
-			{
-				printf("Pre-Operational state reached for all slaves.\n");
-			} else
-			{
-				printf("Not all slaves reached operational state.\n");
-				ec_readstate();
-				for (i = 1; i <= ec_slavecount; i++)
-				{
-					if (ec_slave[i].state != EC_STATE_PRE_OP)
-					{
+				/* Wait for all slaves to reach OP state */
+				do{
+					ec_statecheck(slave, EC_STATE_PRE_OP, 50000);
+				} while (chk-- && (ec_slave[slave].state != EC_STATE_PRE_OP));
+				if (ec_slave[slave].state == EC_STATE_PRE_OP) {
+					printf("Pre-Operational state reached for all slaves.\n");
+				} else {
+					printf("Not all slaves reached operational state.\n");
+					ec_readstate();
+					if (ec_slave[slave].state != EC_STATE_PRE_OP) {
 						printf("Not all slaves are in PRE-OP\n");
 						return -1;
 					}
 				}
+
+				if (ec_slavecount > 0) {
+					init_eoe(net, &ecx_context, slave);
+				}
+			} else {
+				printf("Slave number not found.\n");
+				return -1;
 			}
-		}
-		else
-		{
+		} else {
 			printf("No slaves found!\n");
 		}
-
-		if (ec_slavecount > 0)
-		{
-			init_eoe(net, &ecx_context);
-		}
-
-	}
-	else
-	{
+	} else {
 		printf("No socket connection on %s\nExcecute as root\n", ifname);
 	}
 
 	return ec_slavecount;
 }
 
-int *il_ecat_net_num_slaves_get(il_net_t *net, char *ifname)
+int *il_ecat_net_num_slaves_get(char *ifname)
 {
 	int i, oloop, iloop, chk;
 	needlf = FALSE;
 	inOP = FALSE;
 
 	printf("Starting EtherCAT Master\n");
-	/* initialise SOEM, bind socket to ifname */
-	if (ec_init(ifname))
-	{
+	/* Initialise SOEM, bind socket to ifname */
+	if (ec_init(ifname)) {
 		printf("ec_init on %s succeeded.\n", ifname);
-		/* find and auto-config slaves */
-		if (ec_config_init(FALSE) > 0)
-		{
+		/* Find and auto-config slaves */
+		if (ec_config_init(FALSE) > 0) {
 			printf("%d slaves found.\n", ec_slavecount);
-		}
-		else
-		{
+		} else {
 			printf("No slaves found!\n");
 		}
-	}
-	else
-	{
+	} else {
 		printf("No socket connection on %s\nExcecute as root\n", ifname);
 	}
 	ec_close();
@@ -1604,7 +1567,7 @@ static int *il_ecat_net_master_stop(il_net_t *net)
 	il_ecat_mon_stop(this);
 
     printf("Setting state to INIT\n");
-	if (il_ecat_net_change_state(0, EC_STATE_INIT) != UP_NOERROR) {
+	if (il_ecat_net_change_state(this->slave, EC_STATE_INIT) != UP_NOERROR) {
 		printf("Slave %d cannot enter into state INIT.\n", 0);
 	}
 	printf("Disconnecting interface\n");
@@ -1618,7 +1581,7 @@ static int *il_ecat_net_master_stop(il_net_t *net)
 	/* Remove the network interface */
 	printf("Removing network interface\n");
 	netif_remove(&tNetif);
-	ec_mbxempty(0, 100000);
+	ec_mbxempty(this->slave, 100000);
 	context->EOEhook = NULL;
 
 	printf("Closing EtherCAT interface\n");
@@ -1652,13 +1615,11 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 	printf("Starting firmware update example\n");
 	int r = 0;
 	/* initialise SOEM, bind socket to ifname */
-	if (ec_init(ifname))
-	{
+	if (ec_init(ifname)) {
 		printf("ec_init on %s succeeded.\n", ifname);
 		/* find and auto-config slaves */
 
-		if (ec_config_init(FALSE) > 0)
-		{
+		if (ec_config_init(FALSE) > 0) {
 			printf("%d slaves found and configured.\n", ec_slavecount);
 
 			printf("Request init state for slave %d\n", slave);
@@ -1673,19 +1634,14 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			if (il_ecat_net_change_state(slave, EC_STATE_PRE_OP) != UP_NOERROR) {
 				printf("Slave %d cannot enter into state PRE-OP.\n", slave);
 				printf("Application not detected. Trying Bootloader process..\n");
-			}
-			else
-			{
-				if (!is_summit)
-				{
+			} else {
+				if (!is_summit) {
 					printf("Writing COCO FORCE BOOT password through SDO\n");
 					uint32 u32val = 0x424F4F54;
-					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0)
-					{
+					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) {
 						printf("SDO write error\n");
 						printf("Retrying...\n");
-						if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0)
-						{
+						if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0)  {
 							printf("Force Boot error\n");
 							return UP_FORCE_BOOT_ERROR;
 						}
@@ -1754,20 +1710,16 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			}
 			printf("Slave %d state to BOOT.\n", slave);
 
-			if (ec_eeprom2pdi(slave) <= 0)
-			{
+			if (ec_eeprom2pdi(slave) <= 0) {
 				return UP_EEPROM_PDI_ERROR;
 			}
 			printf("Slave %d EEPROM set to PDI.\n", slave);
 
-			if (input_bin(filename, &filesize))
-			{
+			if (input_bin(filename, &filesize)){
 				// Get filename of absolute path
 				int len = strlen(filename);
-				while (len > 0)
-				{
-					if (filename[len] == '/')
-					{
+				while (len > 0) {
+					if (filename[len] == '/') {
 						break;
 					}
 					--len;
@@ -1778,19 +1730,15 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				printf("FoE write....");
 				r = ec_FOEwrite(slave, file_id, 0x70636675, filesize, &filebuffer, EC_TIMEOUTSTATE);
 				printf("FOE write result %d.\n", r);
-				if (r > 0)
-				{
+				if (r > 0) {
 					printf("Request init state for slave %d\n", slave);
-					if (!is_summit)
-					{
+					if (!is_summit) {
 						ec_slave[slave].state = EC_STATE_INIT;
 						ec_writestate(slave);
 
 						printf("Wait for drive to reset...\n");
 						Sleep(4000);
-					}
-					else
-					{
+					} else {
 						ec_slave[slave].state = EC_STATE_INIT;
 						ec_writestate(slave);
 
@@ -1798,29 +1746,21 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 						Sleep(60000);
 					}
 					printf("FOE Process finished succesfully!!!.\n");
-				}
-				else
-				{
+				} else  {
 					printf("Error during FoE process...");
 				}
-
-			}
-			else
-			{
+				
+			} else {
 				printf("File not read OK.\n");
 				return UP_EEPROM_FILE_ERROR;
 			}
-
-		}
-		else
-		{
+			
+		} else {
 			printf("No slaves found!\n");
 			return UP_NOT_FOUND_ERROR;
 		}
-
-	}
-	else
-	{
+		
+	} else {
 		printf("No socket connection on %s\nExecute as root\n",ifname);
 		return UP_NO_SOCKET;
 	}

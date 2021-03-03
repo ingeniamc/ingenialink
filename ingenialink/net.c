@@ -302,14 +302,14 @@ int il_net_ecat_close_socket(il_net_t *net)
 	return il_ecat_net_ops.close_socket(net);
 }
 
-int il_net_master_startup(il_net_t *net, char *ifname, char *if_address_ip)
+int il_net_master_startup(il_net_t *net, char *ifname, uint16_t slave)
 {
-	return il_ecat_net_ops.master_startup(net, ifname, if_address_ip);
+	return il_ecat_net_ops.master_startup(net, ifname, slave);
 }
 
-int il_net_num_slaves_get(il_net_t **net, char *ifname)
+int il_net_num_slaves_get(char *ifname)
 {
-	return il_ecat_net_ops.num_slaves_get(net, ifname);
+	return il_ecat_net_ops.num_slaves_get(ifname);
 }
 
 int il_net_master_stop(il_net_t *net)
