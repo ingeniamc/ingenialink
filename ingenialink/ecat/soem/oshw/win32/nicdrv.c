@@ -161,7 +161,7 @@ int ecx_setupnic(ecx_portt *port, const char *ifname, int secondary)
  */
 int ecx_closenic(ecx_portt *port)
 {
-   timeEndPeriod(15);
+   //timeEndPeriod(15);
 
    DeleteCriticalSection(&(port->getindex_mutex));
    DeleteCriticalSection(&(port->tx_mutex));
@@ -174,7 +174,7 @@ int ecx_closenic(ecx_portt *port)
       pcap_close(port->redport->sockhandle);
       port->redport->sockhandle = NULL;
    }
-   
+
    port = NULL;
 
    return 0;

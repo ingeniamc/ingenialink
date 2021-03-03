@@ -8,3 +8,6 @@
 	url = https://github.com/ingeniamc/sercomm.git
 	branch = 1.3.2
 	ignore = dirty
+[submodule "external/SOEM"]
+	path = external/SOEM
+	url = https://github.com/ingeniamc/SOEM.git

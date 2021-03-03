@@ -123,7 +123,7 @@ if(WITH_PROT_ECAT)
     ingenialink/ecat/net.c
     ingenialink/ecat/servo.c
 
-    
+
 
     ingenialink/ecat/lwip.c
 		ingenialink/ecat/lwip/def.c
@@ -143,7 +143,7 @@ if(WITH_PROT_ECAT)
 		ingenialink/ecat/lwip/timeouts.c
 		ingenialink/ecat/lwip/udp.c
 
-    
+
     ingenialink/ecat/lwipopts.h
 		ingenialink/ecat/lwip/etharp.h
 		ingenialink/ecat/lwip/prot/etharp.h
@@ -161,71 +161,49 @@ if(WITH_PROT_ECAT)
 		ingenialink/ecat/lwip/stats.h
 		ingenialink/ecat/lwip/timeouts.h
 		ingenialink/ecat/lwip/udp.h
-		
+
 		ingenialink/ecat/lwip.h
 		ingenialink/ecat/lwip/opt.h
 		ingenialink/ecat/lwip/err.h
 		ingenialink/ecat/lwip/sys.h
 
-    ingenialink/ecat/soem/soem/ethercatbase.c
-    ingenialink/ecat/soem/soem/ethercatcoe.c
-    ingenialink/ecat/soem/soem/ethercatconfig.c
-    ingenialink/ecat/soem/soem/ethercatdc.c
-    ingenialink/ecat/soem/soem/ethercateoe.c
-    ingenialink/ecat/soem/soem/ethercatfoe.c
-    ingenialink/ecat/soem/soem/ethercatmain.c
-    ingenialink/ecat/soem/soem/ethercatprint.c
-    ingenialink/ecat/soem/soem/ethercatsoe.c
 
-    ingenialink/ecat/soem/oshw/win32/nicdrv.c
-    ingenialink/ecat/soem/oshw/win32/oshw.c
+    external/SOEM/soem/ethercatbase.c
+    external/SOEM/soem/ethercatcoe.c
+    external/SOEM/soem/ethercatconfig.c
+    external/SOEM/soem/ethercatdc.c
+    external/SOEM/soem/ethercateoe.c
+    external/SOEM/soem/ethercatfoe.c
+    external/SOEM/soem/ethercatmain.c
+    external/SOEM/soem/ethercatprint.c
+    external/SOEM/soem/ethercatsoe.c
 
-    ingenialink/ecat/soem/osal/win32/osal.c
+    external/SOEM/oshw/win32/nicdrv.c
+    external/SOEM/oshw/win32/oshw.c
 
+    external/SOEM/osal/win32/osal.c
 
-    ingenialink/ecat/soem/soem/ethercat.h
-    ingenialink/ecat/soem/soem/ethercatbase.h
-    ingenialink/ecat/soem/soem/ethercatcoe.h
-    ingenialink/ecat/soem/soem/ethercatconfig.h
-    ingenialink/ecat/soem/soem/ethercatconfiglist.h
-    ingenialink/ecat/soem/soem/ethercatdc.h
-    ingenialink/ecat/soem/soem/ethercateoe.h
-    ingenialink/ecat/soem/soem/ethercatfoe.h
-    ingenialink/ecat/soem/soem/ethercatmain.h
-    ingenialink/ecat/soem/soem/ethercatprint.h
-    ingenialink/ecat/soem/soem/ethercatsoe.h
-    ingenialink/ecat/soem/soem/ethercattype.h
+    external/SOEM/soem/ethercat.h
+    external/SOEM/soem/ethercatbase.h
+    external/SOEM/soem/ethercatcoe.h
+    external/SOEM/soem/ethercatconfig.h
+    external/SOEM/soem/ethercatconfiglist.h
+    external/SOEM/soem/ethercatdc.h
+    external/SOEM/soem/ethercateoe.h
+    external/SOEM/soem/ethercatfoe.h
+    external/SOEM/soem/ethercatmain.h
+    external/SOEM/soem/ethercatprint.h
+    external/SOEM/soem/ethercatsoe.h
+    external/SOEM/soem/ethercattype.h
 
-    ingenialink/ecat/soem/oshw/win32/nicdrv.h
-    ingenialink/ecat/soem/oshw/win32/oshw.h
+    external/SOEM/oshw/win32/nicdrv.h
+    external/SOEM/oshw/win32/oshw.h
 
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/bittypes.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/ip6_misc.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/Packet32.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap-bpf.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap-namedb.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap-stdinc.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/remote-ext.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/Win32-Extensions.h
-
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/bluetooth.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/bpf.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/namedb.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/pcap.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/sll.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/usb.h
-    ingenialink/ecat/soem/oshw/win32/wpcap/Include/pcap/vlan.h
-
-    ingenialink/ecat/soem/osal/osal.h
-    ingenialink/ecat/soem/osal/win32/inttypes.h
-    ingenialink/ecat/soem/osal/win32/osal_defs.h
-    ingenialink/ecat/soem/osal/win32/osal_win32.h
-    ingenialink/ecat/soem/osal/win32/stdint.h
-
-
-    
-    
+    external/SOEM/osal/osal.h
+    external/SOEM/osal/win32/inttypes.h
+    external/SOEM/osal/win32/osal_defs.h
+    external/SOEM/osal/win32/osal_win32.h
+    external/SOEM/osal/win32/stdint.h
   )
 endif()
 
@@ -256,6 +234,20 @@ elseif(WIN32)
 else()
   message(FATAL_ERROR "Unsupported platform")
 endif()
+
+find_path(WINPCAP_LIBRARY_WPCAP wpcap.lib
+    external/SOEM/oshw/win32/wpcap/Lib
+)
+MESSAGE("libwpcap path: " ${WINPCAP_LIBRARY_WPCAP})
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    link_directories(${WINPCAP_LIBRARY_WPCAP}/x64)
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    link_directories(${WINPCAP_LIBRARY_WPCAP}/)
+endif()
+
+include_directories(external/SOEM/oshw/win32/wpcap/Include)
+include_directories(external/SOEM/oshw/win32/wpcap/Include/pcap)
 
 add_library(ingenialink ${ingenialink_srcs})
 
@@ -302,25 +294,13 @@ endif()
 # Dependencies
 find_package(sercomm CONFIG REQUIRED)
 target_link_libraries(ingenialink PRIVATE sercomm)
-#target_link_libraries(ingenialink PRIVATE ../external/sercomm/_build/Debug/sercomm)
 
 find_package(LibXml2 REQUIRED)
 target_link_libraries(ingenialink PRIVATE ${LIBXML2_LIBRARIES})
 target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})
 
-
-#target_link_libraries(ingenialink PRIVATE ../external/SOEM/_build/soem)
-
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/soem)
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/osal)
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/osal/win32)
-
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32)
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include)
-#target_include_directories(ingenialink PRIVATE ./external/SOEM/oshw/win32/wpcap/Include/pcap)
-
-target_link_libraries(ingenialink PRIVATE ../external/SOEM/oshw/win32/wpcap/Lib/wpcap)
-target_link_libraries(ingenialink PRIVATE ../external/SOEM/WinMM)
+find_package(soem REQUIRED)
+target_link_libraries(ingenialink PRIVATE soem)
 
 if(UNIX)
   # FIX: disable TRY_RUN for pthreads when cross-compiling
@@ -334,14 +314,13 @@ if(UNIX)
 elseif(WIN32)
   # required by: libxml2
   target_link_libraries(ingenialink PRIVATE ws2_32)
-  
+
 endif()
 
 #-------------------------------------------------------------------------------
 # Checks
 
 include(StyleCheck)
-if(STYLE_CHECK_AVAILABLE)
   add_style_check(
     "ingenialink/*.c"
     "ingenialink/*.h"
@@ -350,7 +329,6 @@ if(STYLE_CHECK_AVAILABLE)
     "include/ingenialink/**/*.h"
     "include/osal/**/*.h"
     "include/public/**/*.h")
-endif()
 
 #-------------------------------------------------------------------------------
 # Examples

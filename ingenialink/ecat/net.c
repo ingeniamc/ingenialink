@@ -37,7 +37,7 @@
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
 
-#include "soem/soem/ethercat.h"
+#include "ethercat.h"
 #include "lwip/netif.h"
 #include "lwip/err.h"
 #include "lwip/init.h"
@@ -245,7 +245,7 @@ restart:
 
 	while (error_count < 10 && this != NULL && this->stop_reconnect == 0 ) {
 		uint16_t sw;
-		
+
 		/* try to read the status word register to see if a servo is alive */
 		if (this != NULL) {
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
@@ -257,7 +257,7 @@ restart:
 				this->stop = 0;
 				process_statusword(this, 1, sw);
 			}
-			
+
 		}
 		Sleep(100);
 	}
@@ -304,7 +304,8 @@ void SignalHandlerECAT(int signal)
 		printf("Unexpected termination: %i\n", signal);
 
 		exit(-1);
-	} else {  
+	}
+	else {
 		printf("Unhandled signal exception: %i\n", signal);
 	}
 }
@@ -363,7 +364,7 @@ cleanup_this:
 
 static void il_ecat_net_close_socket(il_net_t *net) {
 	il_ecat_net_t *this = to_ecat_net(net);
-	
+
 	int r = 0;
 	r = closesocket(this->server);
 	WSACleanup();
@@ -480,7 +481,7 @@ static int il_ecat_mon_stop(il_net_t *net)
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop_reconnect = 1;
 	Sleep(2000);
-	printf("join thread\n");
+	printf("Join thread\n");
 	osal_thread_join(this->listener, NULL);
 	Sleep(3000);
 }
@@ -647,7 +648,7 @@ static int *il_ecat_net_read_monitoring_data(il_net_t *net)
 
 	uint64_t vid;
 
-	osal_mutex_lock(this->net.lock);	
+	osal_mutex_lock(this->net.lock);
 	r = il_ecat_net__read_monitoring(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
 	if (r < 0) {
 
@@ -747,26 +748,26 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 	{
 		uint16_t *monitoring_raw_data = NULL;
 		r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
-		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG) 
+		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
 		{
 			++num_retries;
 			printf("Frame lost, retry %i\n", num_retries);
 		}
-		else 
+		else
 		{
 			break;
 		}
 	}
 
-	if (r < 0) 
+	if (r < 0)
 	{
 		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
 		{
-			
+
 		}
 		goto unlock;
 	}
-		
+
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -783,18 +784,18 @@ static int il_ecat_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subn
 
 	int num_bytes;
 	r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
-	if (r < 0) 
+	if (r < 0)
 	{
 		// Old monitoring method
 		uint64_t vid;
 		r = il_net__read(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
 	}
-	else 
+	else
 	{
 		// Initialize monitoring data size value
 		net->monitoring_data_size = 0;
 
-		while (num_bytes > 0) 
+		while (num_bytes > 0)
 		{
 			// osal_mutex_lock(this->net.lock);
 			r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
@@ -806,20 +807,19 @@ static int il_ecat_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subn
 			if (r < 0)
 				goto unlock;
 			// osal_mutex_unlock(this->net.lock);
-			
+
 			r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
 			if (r < 0) {
 				goto unlock;
 			}
-			
+
 		}
 
-		if (r >= 0) 
+		if (r >= 0)
 		{
 			r = process_monitoring_data(this, net);
 		}
 	}
-		
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
@@ -848,18 +848,18 @@ static int il_ecat_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint3
 	while (num_retries < NUMBER_OP_RETRIES)
 	{
 		r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
-		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG) 
+		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
 		{
 			++num_retries;
 			printf("Frame lost, retry %i\n", num_retries);
 		}
-		else 
+		else
 		{
 			break;
 		}
 	}
 
-	if (r < 0) 
+	if (r < 0)
 	{
 		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
 		{
@@ -867,7 +867,7 @@ static int il_ecat_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint3
 		}
 		goto unlock;
 	}
-	
+
 unlock:
 	osal_mutex_unlock(this->net.lock);
 
@@ -897,17 +897,17 @@ static int il_ecat_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, 
 	while (num_retries < NUMBER_OP_RETRIES)
 	{
 		r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
-		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG) 
+		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
 		{
 			++num_retries;
 			printf("Frame lost, retry %i\n", num_retries);
 		}
-		else 
+		else
 		{
 			break;
 		}
 	}
-	if (r < 0) 
+	if (r < 0)
 	{
 		goto unlock;
 	}
@@ -968,7 +968,7 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 			uint8_t extended_frame[1024];
 
 			il_reg_dtype_t type = net->disturbance_data_channels[0].type;
-			
+
 			void* pData;
 			switch (type) {
 				case IL_REG_DTYPE_U16:
@@ -998,7 +998,7 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 			pbuf_free(p);
 
 			if (error < 0)
-				return ilerr__ser(error);
+				return ilerr__ecat(error);
 		}
 		else {
 			int wkc = 0;
@@ -1010,19 +1010,11 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
 			}
 			pbuf_free(p);
 
-			// r = send(this->server, (const char*)&frame[0], sizeof(frame), 0);
-			// printf("Not extended, result of send: %i\n", r);
 			if (error < 0)
-				return ilerr__ser(error);
+				return ilerr__ecat(error);
 		}
 		finished = 1;
-		/*if (extended == 1) {
-		r = send(server, (const char*)&net->disturbance_data[0], net->disturbance_data_size, 0);
-		if (r < 0)
-		return ilerr__ser(r);
-		}*/
 	}
-	// printf("End send\n");
 
 	return 0;
 }
@@ -1043,13 +1035,12 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	Sleep(5);
 	/* read next frame */
 	int r = 0;
-	// r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
 	wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
 	if (wkc < 0) 
 	{
-		return IL_EFAIL;	
+		return IL_EFAIL;
 	}
 
 	int s32SzRead = 1024;
@@ -1063,7 +1054,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	uint16_t crc_res = crc_calc_ecat((uint16_t *)frame, 6);
 	if (crc_res != crc) {
 		ilerr__set("Communications error (CRC mismatch)");
-		return IL_EIO;
+		return IL_EWRONGCRC;
 	}
 
 	/* TODO: Check subnode */
@@ -1077,11 +1068,11 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 		err = __swap_be_32(*(uint32_t *)&frame[ECAT_MCB_DATA_POS]);
 
 		ilerr__set("Communications error (NACK -> %08x)", err);
-		return IL_EIO;
+		return IL_ENACK;
 	}
 
 	/* Check if register received is the same that we asked for.  */
-	if ((hdr_l >> 4) != address) 
+	if ((hdr_l >> 4) != address)
 	{
 		return IL_EWRONGREG;
 	}
@@ -1171,7 +1162,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
  	wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
  	if (wkc < 0) 
  	{
- 		return IL_EFAIL;	
+ 		return IL_EFAIL;
  	}
 
  	int s32SzRead = 1024;
@@ -1203,17 +1194,17 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
  	}
 
  	/* Check if register received is the same that we asked for.  */
- 	if ((hdr_l >> 4) != address) 
+ 	if ((hdr_l >> 4) != address)
  	{
  		return IL_EWRONGREG;
  	}
 
 
  	extended_bit = (hdr_l & ECAT_MCB_PENDING_MSK) >> ECAT_MCB_PENDING_POS;
- 	if (extended_bit == 1) 
+ 	if (extended_bit == 1)
 	{
  		/* Check if we are reading monitoring data */
- 		if (address == 0x00B2) 
+ 		if (address == 0x00B2)
 		{
  			/* Monitoring */
  			/* Read size of data */
@@ -1230,14 +1221,14 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 			printf("size = %i\n", size);
 			printf("ADEU ECAT\n");
  		}
- 		else 
+ 		else
 		{
  			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
  			uint16_t size = *(uint16_t*)buf;
  			memcpy(net->extended_buff, (char*)&frame_received[14], size);
  		}
  	}
- 	else 
+ 	else
 	{
  		memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), sz);
  	}
@@ -1360,21 +1351,9 @@ OSAL_THREAD_FUNC mailbox_reader(void *lpParam)
 /** registered EoE hook */
 int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 {
-	//printf("EoE Hook!\n");
-	// osal_mutex_lock(this->net.lock);
 	int wkc;
 
-	/*il_ecat_net_t *this;
-	this = calloc(1, sizeof(*this));
-	if (!this) {
-		ilerr__set("Network allocation failed");
-		return NULL;
-	}
-	osal_mutex_lock(this->net.lock);
-	printf("EHHHH!\n");*/
-	
-	
-	/* 
+	/*
 	* 	Pass received Mbx data to EoE recevive fragment function that
 	* 	that will start/continue fill an Ethernet frame buffer
 	*/
@@ -1458,7 +1437,7 @@ void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 	osal_thread_create(&thread2, 128000, &mailbox_reader, &ecx_context);
 }
 
-int *il_ecat_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip) 
+int *il_ecat_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->ifname = ifname;
@@ -1569,11 +1548,11 @@ enum update_error
 	UP_FORCE_BOOT_ERROR = -9
 };
 
-int *il_ecat_net_change_state(uint16_t slave, ec_state state) 
+int *il_ecat_net_change_state(uint16_t slave, ec_state state)
 {
 	ec_slave[slave].state = state;
 	ec_writestate(slave);
-	
+
 	if (ec_statecheck(slave, state, EC_TIMEOUTSTATE) != state) {
 		return UP_STATEMACHINE_ERROR;
 	}
@@ -1598,7 +1577,7 @@ static int *il_ecat_net_master_stop(il_net_t *net)
 		udp_disconnect(ptUdpPcb);
 		udp_remove(ptUdpPcb);
 	}
-	
+
 	/* Remove the network interface */
 	printf("Removing network interface\n");
 	netif_remove(&tNetif);
@@ -1630,7 +1609,7 @@ int input_bin(char *fname, int *length)
 /**
  * Update Firmware using FoE
 */
-static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename, bool is_summit) 
+static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename, bool is_summit)
 {
 	printf(filename);
 	printf("Starting firmware update example\n");
@@ -1688,14 +1667,14 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				ec_init(ifname);
 				ec_config_init(FALSE);
 			}
-			
+
 			printf("Request init state for slave %d\n", slave);
 			if (il_ecat_net_change_state(slave, EC_STATE_INIT) != UP_NOERROR) {
 				printf("Slave %d cannot enter into state INIT.\n", slave);
 				return UP_STATEMACHINE_ERROR;
 			}
 			printf("Slave %d state to INIT.\n", slave);
-			
+
 			// MAGIC
 			/* read BOOT mailbox data, master -> slave */
 			data = ec_readeeprom(slave, ECT_SII_BOOTRXMBX, EC_TIMEOUTEEP);
@@ -2086,7 +2065,7 @@ int eeprom_writealias(int slave, int alias, uint16 crc)
    return 0;
 }
 
-static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *fname) 
+static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *fname)
 {
 	int w, rc = 0, estart, esize;
 	int r = 0;
@@ -2130,11 +2109,11 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 				}
 				if ((mode == MODE_READBIN) || (mode == MODE_READINTEL))
 				{
-					if (esize > MINBUF) 
+					if (esize > MINBUF)
 					{
 						eeprom_read(slave, MINBUF, esize - MINBUF); // read reminder
 					}
-						
+
 
 					tend = osal_current_time();
 					osal_time_diff(&tstart, &tend, &tdif);
@@ -2338,7 +2317,7 @@ int *il_ecat_net_force_error(il_net_t **net, char *ifname, char *if_address_ip)
    	printf("Slave force error\n");
 
 	/* initialise SOEM, bind socket to ifname */
-   	if (ec_init(ifname)) 
+   	if (ec_init(ifname))
 	{
 		printf("ec_init on %s succeeded.\n",ifname);
       	/* find and auto-config slaves */
@@ -2347,13 +2326,13 @@ int *il_ecat_net_force_error(il_net_t **net, char *ifname, char *if_address_ip)
       	{
 
 			printf("%d slaves found and configured.\n",ec_slavecount);
-			if (ec_slavecount > 0) 
+			if (ec_slavecount > 0)
 			{
 				int slave = 1;
 				ec_slave[slave].PO2SOconfig = &Everestsetup;
 
 				ec_config_map(&IOmap);
-						
+
 				ec_configdc();
 				ec_slave[slave].state = EC_STATE_PRE_OP;
 
@@ -2368,7 +2347,7 @@ int *il_ecat_net_force_error(il_net_t **net, char *ifname, char *if_address_ip)
 				while (chk-- && (ec_slave[slave].state != EC_STATE_PRE_OP));
 				Sleep(2000);
 				int retval = 0;
-				
+
 				uint16_t objectValue = 0x10;
 				retval += ec_SDOwrite(slave, 0x1600, 0x00, FALSE, sizeof(objectValue), &objectValue, EC_TIMEOUTSAFE);
 				printf("retval = %i\n", retval);
@@ -2381,18 +2360,18 @@ int *il_ecat_net_force_error(il_net_t **net, char *ifname, char *if_address_ip)
 				retval += ec_SDOwrite(slave, 0x1600, 0x00, FALSE, sizeof(objectValue), &objectValue, EC_TIMEOUTSAFE);
 
 			}
-			else 
+			else
 			{
 				// No slaves found!
 				return -2;
 			}
 		}
-		else 
+		else
 		{
 			return -1;
 		}
 	}
-	else 
+	else
 	{
 		return -1;
 	}
@@ -2440,7 +2419,7 @@ static int process_monitoring_data(il_ecat_net_t *this, il_net_t *net)
 		}
 		pData += bytes_per_block;
 	}
-	
+
 	printf("Data Processed\n");
 	return 0;
 }
