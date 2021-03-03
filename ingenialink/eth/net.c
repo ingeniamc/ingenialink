@@ -1141,6 +1141,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
 
 		ilerr__set("Communications error (NACK -> %08x)", err);
+		ilerr__ipb_set(err);
 		return IL_ENACK;
 	}
 	/* Check address */
@@ -1285,6 +1286,7 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
 
 		ilerr__set("Communications error (NACK -> %08x)", err);
+		ilerr__ipb_set(err);
 		return IL_ENACK;
 	}
 	extended_bit = (hdr_l & ETH_MCB_PENDING_MSK) >> ETH_MCB_PENDING_POS;

@@ -52,6 +52,8 @@
 /** Global error description. */
 static thread_local char err_last[ERR_SZ] = "";
 
+static thread_local int err_ipb_last = 0;
+
 void ilerr__set(const char *fmt, ...)
 {
 	va_list args;
@@ -59,6 +61,11 @@ void ilerr__set(const char *fmt, ...)
 	va_start(args, fmt);
 	vsnprintf(err_last, sizeof(err_last), fmt, args);
 	va_end(args);
+}
+
+void ilerr__ipb_set(int err)
+{
+	err_ipb_last = err;
 }
 
 int ilerr__ser(int32_t code)
@@ -155,4 +162,9 @@ int ilerr__ecat(int32_t code)
 const char *ilerr_last()
 {
 	return (const char *)err_last;
+}
+
+int *ilerr_ipb_last()
+{
+	return err_ipb_last;
 }

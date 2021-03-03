@@ -79,7 +79,7 @@ IL_BEGIN_DECL
  *      Last error details.
  */
 IL_EXPORT const char *ilerr_last(void);
-
+IL_EXPORT int *ilerr_ipb_last(void);
 /** @} */
 
 IL_END_DECL
