@@ -30,7 +30,7 @@ install them. `libingenialink` can be built and installed on any system like
 this:
 
 ```sh
-cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL -DWITH_PROT_MCB=ON -DWITH_PROT_ETH=ON -DWITH_PROT_ECAT=ON
 cmake --build _build
 cmake --build _build --target install
 ```
@@ -44,8 +44,10 @@ Note that a `INSTALL` is the installation folder.
 
 The following build options are available:
 
+- `-DWITH_PROT_ETH` (ON): Build `ETH` protocol support.  
+- `-DWITH_PROT_ECAT` (ON): Build `ECAT` protocol support. 
 - `WITH_PROT_EUSB` (ON): Build `EUSB` protocol support.
-- `WITH_PROT_MCB` (OFF): Build `MCB` protocol support (EXPERIMENTAL).
+- `WITH_PROT_MCB` (OFF): Build `MCB` protocol support.
 - `WITH_EXAMPLES` (OFF): When enabled, the library usage example applications
   will be built.
 - `WITH_DOCS` (OFF): When enabled the API documentation can be built.
@@ -109,6 +111,16 @@ On recent versions of macOS, it seems to be already installed on the system. If
 not, you can also use [brew][brew] to install it.
 
 [brew]: https://brew.sh
+
+### SOEM (EXPERIMENTAL)
+In order to use the embbedded master communications of `ingenialink` (still in development), you must 
+install SOEM libraries as an external package.
+```sh
+cd external/SOEM
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake --build _build --target install
+```
+
 
 ## Coding standards
 
