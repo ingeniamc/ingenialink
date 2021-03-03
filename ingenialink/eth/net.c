@@ -163,7 +163,7 @@ int listener_eth(void *args)
 restart:
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
-	while (error_count < 10 && this != NULL && this->stop_reconnect == 0 ) {
+	while (error_count < 7 && this != NULL && this->stop_reconnect == 0 ) {
 		uint16_t sw;
 
 		/* try to read the status word register to see if a servo is alive */
@@ -180,7 +180,7 @@ restart:
 		}
 		Sleep(100);
 	}
-	if (error_count == 10 && this != NULL && this->stop_reconnect == 0) {
+	if (error_count == 7 && this != NULL && this->stop_reconnect == 0) {
 		goto err;
 	}
 	return 0;
@@ -464,11 +464,11 @@ static int il_net_reconnect(il_net_t *net)
 			}
 		}
 		iMode = 0;
-		int resp = -1;
-		resp = ioctlsocket(this->server, FIONBIO, &iMode);
-		if (resp != NO_ERROR)
+		int r = -1;
+		r = ioctlsocket(this->server, FIONBIO, &iMode);
+		if (r != NO_ERROR)
 		{
-			printf("ioctlsocket failed with error: %ld\n", resp);
+			printf("ioctlsocket failed with error: %ld\n", r);
 		}
 		Sleep(1000);
 	}
@@ -1104,7 +1104,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 
 	// Set up the struct timeval for the timeout.
 	tv.tv_sec = 0;
-	tv.tv_usec = 100000;
+	tv.tv_usec = 200000;
 
 	// Wait until timeout or data received.
 	n = select(this->server, &fds, NULL, NULL, &tv);
