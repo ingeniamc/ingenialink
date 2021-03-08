@@ -567,7 +567,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	uint32_t product_code_coco;
 	r = il_net__read(&this->net, 1, 0, PRODUCT_CODE_COCO, &product_code_coco, sizeof(product_code_coco));
 	if (r < 0) {
-		printf("Cannot connect to the slave\n");
+		printf("Cannot connect to the slave.\n");
 		closesocket(this->server);
 		return -2;
 	} 
@@ -575,9 +575,9 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		uint32_t sw;
 		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 		if (r < 0) {
-			printf("Failed connecting. MOCO did not respond\n");
+			printf("Failed connecting. MOCO did not respond.\n");
 			closesocket(this->server);
-			return -3;
+			return -2;
 		}
 	}
 
