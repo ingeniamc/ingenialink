@@ -42,6 +42,8 @@ int poller_td(void *args)
 	while (!poller->stop) {
 		il_poller_acq_t *acq;
 		double t;
+		int r, acq_fail = 0;
+
 
 		/* wait until next period */
 		osal_timer_wait(poller->timer);
@@ -66,13 +68,20 @@ int poller_td(void *args)
 				if (!poller->mappings_valid[ch])
 					continue;
 
-				(void)il_servo_read(poller->servo,
+				r = il_servo_read(poller->servo,
 						    &poller->mappings[ch],
 						    NULL,
 						    &acq->d[ch][acq->cnt]);
+				if (r < 0)
+				{
+					acq_fail = 1;
+				}
 			}
 
-			acq->cnt++;
+			if (acq_fail != 1)
+			{
+				acq->cnt++;
+			}
 		}
 
 		osal_mutex_unlock(poller->lock);
