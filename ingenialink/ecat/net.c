@@ -2424,9 +2424,9 @@ static int process_monitoring_data(il_ecat_net_t *this, il_net_t *net)
 	return 0;
 }
 
-int il_ecat_set_reconnection_retries(il_net_t *net, uint8_t num_reconnections)
+int il_ecat_set_reconnection_retries(il_net_t *net, uint8_t retries)
 {
-	il_eth_net_t *this = to_eth_net(net);
+	il_ecat_net_t *this = to_ecat_net(net);
 	this->reconnection_retries = retries;
 	return 0;
 }
@@ -2436,6 +2436,7 @@ int il_ecat_set_recv_timeout(il_net_t *net, uint32_t timeout)
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->recv_timeout = timeout;
 	return 0;
+}
 
 /** ECAT network operations. */
 const il_ecat_net_ops_t il_ecat_net_ops = {
