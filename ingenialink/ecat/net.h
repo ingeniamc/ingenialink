@@ -35,11 +35,11 @@
 #include <sercomm/sercomm.h>
 #include <winsock2.h>
 
-/** Number of retries while waiting to receive a frame. */
-#define NUMBER_OP_RETRIES	3
+/** Default number of retries while waiting to receive a frame. */
+#define NUMBER_OP_RETRIES_DEF	3
 
 /** Default read timeout. */
-#define READ_TIMEOUT_DEF	10000
+#define READ_TIMEOUT_DEF	200000
 
 /** Vendor ID register address. */
 #define VENDOR_ID_ADDR		0x06E0
@@ -75,6 +75,11 @@ typedef struct il_ecat_net {
 	char *ifname;
 	char *if_address_ip;
 	int slave;
+
+	/** Reconnection retries. */
+	uint8_t reconnection_retries;
+	/** Recv timeout in ms*/
+	uint32_t recv_timeout;
 
 } il_ecat_net_t;
 

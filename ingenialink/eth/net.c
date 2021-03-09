@@ -163,7 +163,7 @@ int listener_eth(void *args)
 restart:
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
-	while (error_count < 7 && this != NULL && this->stop_reconnect == 0 ) {
+	while (error_count < this->reconnection_retries && this != NULL && this->stop_reconnect == 0 ) {
 		uint16_t sw;
 
 		/* try to read the status word register to see if a servo is alive */
@@ -180,7 +180,7 @@ restart:
 		}
 		Sleep(100);
 	}
-	if (error_count == 7 && this != NULL && this->stop_reconnect == 0) {
+	if (error_count == this->reconnection_retries && this != NULL && this->stop_reconnect == 0) {
 		goto err;
 	}
 	return 0;
@@ -246,6 +246,9 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 	this->address_ip = opts->address_ip;
 	this->port_ip = opts->port_ip;
 	this->protocol = opts->protocol;
+	this->reconnection_retries = NUMBER_OP_RETRIES_DEF;
+	this->stop_reconnect = 1;
+	this->recv_timeout = READ_TIMEOUT_DEF;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(eth_net_destroy, this);
@@ -256,6 +259,8 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 		if (r < 0)
 			goto cleanup_this;
 	}
+
+	this->listener = NULL;
 
 	return &this->net;
 
@@ -576,16 +581,6 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	printf("Connected to the Server!\n");
 	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 
-	/* start listener thread */
-	this->stop = 0;
-	this->stop_reconnect = 0;
-
-	this->listener = osal_thread_create_(listener_eth, this);
-	if (!this->listener) {
-		ilerr__set("Listener thread creation failed");
-		// goto close_ser;
-	}
-
 	return 0;
 }
 
@@ -737,7 +732,6 @@ static int *il_eth_net_disturbance_set_mapped_register(il_net_t *net, int channe
 
 	return r;
 }
-
 
 /**
 * Monitoring enable
@@ -1104,7 +1098,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 
 	// Set up the struct timeval for the timeout.
 	tv.tv_sec = 0;
-	tv.tv_usec = 200000;
+	tv.tv_usec = this->recv_timeout;
 
 	// Wait until timeout or data received.
 	n = select(this->server, &fds, NULL, NULL, &tv);
@@ -1249,7 +1243,7 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 
 	// Set up the struct timeval for the timeout.
 	tv.tv_sec = 0;
-	tv.tv_usec = 1000000;
+	tv.tv_usec = this->recv_timeout;
 
 	// Wait until timeout or data received.
 	n = select(this->server, &fds, NULL, NULL, &tv);
@@ -1364,6 +1358,32 @@ static int process_monitoring_data(il_eth_net_t *this, il_net_t *net)
 	return 0;
 }
 
+int il_eth_set_reconnection_retries(il_net_t *net, uint8_t retries)
+{
+	il_eth_net_t *this = to_eth_net(net);
+	this->reconnection_retries = retries;
+
+	if (this->reconnection_retries > 0 && this->listener == NULL)
+	{
+		/* start listener thread */
+		this->stop = 0;
+		this->stop_reconnect = 0;
+
+		this->listener = osal_thread_create_(listener_eth, this);
+		if (!this->listener) {
+			ilerr__set("Listener thread creation failed");
+		}
+	}
+	return 0;
+}
+
+int il_eth_set_recv_timeout(il_net_t *net, uint32_t timeout)
+{
+	il_eth_net_t *this = to_eth_net(net);
+	this->recv_timeout = timeout;
+	return 0;
+}
+
 /** ETH network operations. */
 const il_eth_net_ops_t il_eth_net_ops = {
 	/* internal */
@@ -1395,7 +1415,9 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	.recv_monitoring = il_eth_net_recv_monitoring,
 	/* Disturbance */
 	.disturbance_remove_all_mapped_registers = il_eth_net_disturbance_remove_all_mapped_registers,
-	.disturbance_set_mapped_register = il_eth_net_disturbance_set_mapped_register
+	.disturbance_set_mapped_register = il_eth_net_disturbance_set_mapped_register,
+	.set_reconnection_retries = il_eth_set_reconnection_retries,
+	.set_recv_timeout = il_eth_set_recv_timeout
 };
 
 /** MCB network device monitor operations. */
