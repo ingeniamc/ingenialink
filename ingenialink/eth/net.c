@@ -571,7 +571,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	if (r < 0) {
 		printf("Cannot connect to the slave.\n");
 		closesocket(this->server);
-		return -2;
+		return r;
 	} 
 	else {
 		uint32_t sw;
@@ -579,7 +579,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		if (r < 0) {
 			printf("Failed connecting. MOCO did not respond.\n");
 			closesocket(this->server);
-			return -2;
+			return r;
 		}
 	}
 

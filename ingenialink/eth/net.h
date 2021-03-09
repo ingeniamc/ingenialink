@@ -39,7 +39,7 @@
 #define NUMBER_OP_RETRIES_DEF 	0
 
 /** Default read timeout. */
-#define READ_TIMEOUT_DEF	200000
+#define READ_TIMEOUT_DEF	400000
 
 /** Default reconnection retries. */
 #define RECONNECTION_RETRIES_DEF	7

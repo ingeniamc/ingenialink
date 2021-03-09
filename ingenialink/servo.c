@@ -693,11 +693,16 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 	opts.port = "";
 	opts.protocol = protocol;
 
-	printf("before connect");
 	*net = il_net_create(prot, &opts);
 	if (!*net) {
-		printf("FAIL");
-		return IL_EFAIL;
+		int err;
+		err = ilerr_ipb_last();
+		if (err > 0) {
+			return IL_ENACK;
+		}
+		else {
+			return IL_EFAIL;
+		}
 	}
 	/* try to connect to any available servo */
 	servo_ids = il_net_servos_list_get(*net, NULL, NULL);
