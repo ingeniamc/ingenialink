@@ -39,7 +39,7 @@
 #define NUMBER_OP_RETRIES_DEF	3
 
 /** Default read timeout. */
-#define READ_TIMEOUT_DEF	200000
+#define READ_TIMEOUT_DEF	400000
 
 /** Vendor ID register address. */
 #define VENDOR_ID_ADDR		0x06E0
