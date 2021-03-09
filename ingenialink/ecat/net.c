@@ -414,7 +414,7 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 		Sleep(1000);
 
 		r2 = il_net_master_startup(&this->net, this->ifname, this->slave);
-		
+
 		if (r2 > 0) {
 			/* Try to read */
 			Sleep(2000);
@@ -744,7 +744,7 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 	}
 
 	int num_retries = 0;
-	while (num_retries < NUMBER_OP_RETRIES)
+	while (num_retries < NUMBER_OP_RETRIES_DEF)
 	{
 		uint16_t *monitoring_raw_data = NULL;
 		r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
@@ -845,7 +845,7 @@ static int il_ecat_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint3
 		goto unlock;
 
 	int num_retries = 0;
-	while (num_retries < NUMBER_OP_RETRIES)
+	while (num_retries < NUMBER_OP_RETRIES_DEF)
 	{
 		r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
 		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
@@ -894,7 +894,7 @@ static int il_ecat_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, 
 	Sleep(1000);
 
 	int num_retries = 0;
-	while (num_retries < NUMBER_OP_RETRIES)
+	while (num_retries < NUMBER_OP_RETRIES_DEF)
 	{
 		r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
 		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
@@ -1038,7 +1038,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
 	wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
-	if (wkc < 0) 
+	if (wkc < 0)
 	{
 		return IL_EFAIL;
 	}
@@ -1160,7 +1160,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
  	int wkc = 0;
  	ec_mbxbuft MbxIn;
  	wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
- 	if (wkc < 0) 
+ 	if (wkc < 0)
  	{
  		return IL_EFAIL;
  	}
@@ -1749,17 +1749,17 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				} else  {
 					printf("Error during FoE process...");
 				}
-				
+
 			} else {
 				printf("File not read OK.\n");
 				return UP_EEPROM_FILE_ERROR;
 			}
-			
+
 		} else {
 			printf("No slaves found!\n");
 			return UP_NOT_FOUND_ERROR;
 		}
-		
+
 	} else {
 		printf("No socket connection on %s\nExecute as root\n",ifname);
 		return UP_NO_SOCKET;
@@ -2424,7 +2424,19 @@ static int process_monitoring_data(il_ecat_net_t *this, il_net_t *net)
 	return 0;
 }
 
+int il_ecat_set_reconnection_retries(il_net_t *net, uint8_t retries)
+{
+	il_ecat_net_t *this = to_ecat_net(net);
+	this->reconnection_retries = retries;
+	return 0;
+}
 
+int il_ecat_set_recv_timeout(il_net_t *net, uint32_t timeout)
+{
+	il_ecat_net_t *this = to_ecat_net(net);
+	this->recv_timeout = timeout;
+	return 0;
+}
 
 /** ECAT network operations. */
 const il_ecat_net_ops_t il_ecat_net_ops = {
@@ -2468,7 +2480,10 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 
 	.force_error = il_ecat_net_force_error,
 
-	.set_if_params = il_ecat_net_set_if_params
+	.set_if_params = il_ecat_net_set_if_params,
+
+	.set_reconnection_retries = il_ecat_set_reconnection_retries,
+	.set_recv_timeout = il_ecat_set_recv_timeout
 };
 
 /** MCB network device monitor operations. */

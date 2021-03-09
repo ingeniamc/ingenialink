@@ -304,7 +304,7 @@ IL_EXPORT const char *il_net_port_get(il_net_t *net);
  *	  Network.
  * @param [in] ip
  *	  Address ip.
- *	
+ *
  */
 IL_EXPORT int *il_net_is_slave_connected(il_net_t *net, const char *ip);
 
@@ -382,7 +382,7 @@ IL_EXPORT uint16_t il_net_disturbance_data_size_get(il_net_t *net);
  *
  * @param [in] net
  *	  Network.
- *	
+ *
  */
 IL_EXPORT void il_net_disturbance_data_set(il_net_t *net, uint16_t disturbance_data[2048]);
 
@@ -391,7 +391,7 @@ IL_EXPORT void il_net_disturbance_data_set(il_net_t *net, uint16_t disturbance_d
  *
  * @param [in] net
  *	  Network.
- *	
+ *
  */
 IL_EXPORT void il_net_disturbance_data_size_set(il_net_t *net, uint16_t disturbance_data_size);
 
@@ -400,7 +400,7 @@ IL_EXPORT void il_net_disturbance_data_size_set(il_net_t *net, uint16_t disturba
  *
  * @param [in] net
  *	  Network.
- *	
+ *
  */
 IL_EXPORT int *il_net_remove_all_mapped_registers(il_net_t *net);
 
@@ -412,13 +412,13 @@ IL_EXPORT int *il_net_remove_all_mapped_registers(il_net_t *net);
  *
  * @param [in] channel
  *	  Channel.
- *	
+ *
  * @param [in] address
  *	  Address.
  *
  *  @param [in] dtype
  *	  Data Type.
- * 
+ *
  */
 IL_EXPORT int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype);
 
@@ -438,8 +438,8 @@ IL_EXPORT uint16_t il_net_num_mapped_registers_get(il_net_t *net);
  *
  * @param [in] net
  *	  Network.
- * 
- */ 
+ *
+ */
 IL_EXPORT int *il_net_enable_monitoring(il_net_t *net);
 
 /**
@@ -447,8 +447,8 @@ IL_EXPORT int *il_net_enable_monitoring(il_net_t *net);
  *
  * @param [in] net
  *	  Network.
- * 
- */ 
+ *
+ */
 IL_EXPORT int *il_net_disable_monitoring(il_net_t *net);
 
 /**
@@ -456,8 +456,8 @@ IL_EXPORT int *il_net_disable_monitoring(il_net_t *net);
  *
  * @param [in] net
  *	  Network.
- * 
- */ 
+ *
+ */
 IL_EXPORT int *il_net_read_monitoring_data(il_net_t *net);
 
 /**
@@ -536,7 +536,7 @@ IL_EXPORT float *il_net_monitoring_channel_flt(il_net_t *net, int channel);
  *
  * @param [in] net
  *	  Network.
- *	
+ *
  */
 IL_EXPORT int *il_net_disturbance_remove_all_mapped_registers(il_net_t *net);
 
@@ -548,13 +548,13 @@ IL_EXPORT int *il_net_disturbance_remove_all_mapped_registers(il_net_t *net);
  *
  * @param [in] channel
  *	  Channel.
- *	
+ *
  * @param [in] address
  *	  Address.
  *
  *  @param [in] dtype
  *	  Data Type.
- * 
+ *
  */
 IL_EXPORT int *il_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype);
 
@@ -563,7 +563,7 @@ IL_EXPORT int *il_net_disturbance_set_mapped_register(il_net_t *net, int channel
  *
  * @param [in] net
  *	  Network.
- *	
+ *
  */
 IL_EXPORT void il_net_disturbance_data_u16_set(il_net_t *net, int channel, uint16_t disturbance_data[2048]);
 
@@ -572,7 +572,7 @@ IL_EXPORT void il_net_disturbance_data_u16_set(il_net_t *net, int channel, uint1
  *
  * @param [in] net
  *	  Network.
- *	
+ *
  */
 IL_EXPORT void il_net_disturbance_data_s16_set(il_net_t *net, int channel, int16_t disturbance_data[2048]);
 
@@ -581,7 +581,7 @@ IL_EXPORT void il_net_disturbance_data_s16_set(il_net_t *net, int channel, int16
  *
  * @param [in] net
  *	  Network.
- *	
+ *
  */
 IL_EXPORT void il_net_disturbance_data_u32_set(il_net_t *net, int channel, uint32_t disturbance_data[2048]);
 
@@ -590,7 +590,7 @@ IL_EXPORT void il_net_disturbance_data_u32_set(il_net_t *net, int channel, uint3
  *
  * @param [in] net
  *	  Network.
- *	
+ *
  */
 IL_EXPORT void il_net_disturbance_data_s32_set(il_net_t *net, int channel, int32_t disturbance_data[2048]);
 
@@ -599,7 +599,7 @@ IL_EXPORT void il_net_disturbance_data_s32_set(il_net_t *net, int channel, int32
  *
  * @param [in] net
  *	  Network.
- *	
+ *
  */
 IL_EXPORT void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturbance_data[2048]);
 
@@ -608,7 +608,7 @@ IL_EXPORT void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float
  *
  * @param [in] net
  *	  Network.
- * 
+ *
  */
 IL_EXPORT int il_net_close_socket(il_net_t *net);
 
@@ -628,6 +628,14 @@ IL_EXPORT int il_net_update_firmware(il_net_t **net, char *ifname, uint16_t slav
 IL_EXPORT int il_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int mode, char *fname);
 
 IL_EXPORT int il_net_force_error(il_net_t **net, char *ifname, char *if_address_ip);
+
+/**
+ * Communications parameters
+ */
+IL_EXPORT int il_net_set_reconnection_retries(il_net_t *net, uint8_t num_reconnections);
+
+IL_EXPORT int il_net_set_recv_timeout(il_net_t *net, uint32_t timeout);
+
 
 /**
  * Obtain network servos list.
