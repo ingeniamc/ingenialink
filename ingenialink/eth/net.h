@@ -50,6 +50,9 @@
 /** Statusword address. */
 #define STATUSWORD_ADDRESS	0x0011
 
+/** Product code COCO. */
+#define PRODUCT_CODE_COCO	0x06E1
+
 /** ETH network. */
 typedef struct il_eth_net {
 	/** Network (parent). */
