@@ -190,7 +190,6 @@ err:
 		printf("DEVICE DISCONNECTED!\n");
 		ilerr__set("Device at %s disconnected\n", this->address_ip);
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
-		closesocket(this->server);
 		r = il_net_reconnect(this);
 		if (r == 0) goto restart;
 	}
@@ -388,9 +387,6 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	}
 	else result = 0;
 
-	// Closing socket
-	//closesocket(this->server);
-
 	return result;
 
 }
@@ -404,6 +400,7 @@ static int il_net_reconnect(il_net_t *net)
 	while (r < 0 && this->stop_reconnect == 0)
 	{
 		printf("Reconnecting...\n");
+		closesocket(this->server);
 		if (this->protocol == 1)
 		{
         	this->server = socket(AF_INET, SOCK_STREAM, 0);
@@ -626,7 +623,9 @@ static int il_eth_mon_stop(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
 	this->stop_reconnect = 1;
-	osal_thread_join(this->listener, NULL);
+	if (this->listener) {
+		osal_thread_join(this->listener, NULL);
+	}
 }
 
 static il_net_servos_list_t *il_eth_net_servos_list_get(
