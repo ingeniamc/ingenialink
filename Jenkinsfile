@@ -15,9 +15,6 @@ node('windows') {
 
 			cmake -Hexternal/libxml2 -Bexternal/libxml2/_build -DCMAKE_INSTALL_PREFIX=_install
 			cmake --build external/libxml2/_build --target install
-
-			cmake -Hexternal/SOEM -Bexternal/SOEM/_build -DCMAKE_INSTALL_PREFIX=_install
-			cmake --build external/SOEM/_build --target install
 		'''
 	}
 
