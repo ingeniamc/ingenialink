@@ -575,7 +575,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		printf("Cannot connect to the slave.\n");
 		closesocket(this->server);
 		return r;
-	} 
+	}
 	else {
 		uint32_t sw;
 		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
@@ -626,7 +626,9 @@ static int il_eth_mon_stop(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
 	this->stop_reconnect = 1;
-	osal_thread_join(this->listener, NULL);
+	if (this->listener) {
+		osal_thread_join(this->listener, NULL);
+	}
 }
 
 static il_net_servos_list_t *il_eth_net_servos_list_get(
