@@ -73,7 +73,7 @@ static uint16_t sw_get(il_servo_t *servo, uint8_t subnode)
 		.enums = NULL,
 		.enums_count = 0
 	};
-	// (void)il_servo_read(servo, &status_word_register, NULL, &sw);
+	(void)il_servo_read(servo, &status_word_register, NULL, &sw);
 	if (servo->sw.value != sw) {
 		servo->sw.value = sw;
 		osal_cond_broadcast(servo->sw.changed);
@@ -125,7 +125,7 @@ static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout, uint8_t
 	}
 	double time_s = 0;
 	time_s = (double) *timeout / 1000;
-	// (void)il_servo_raw_read_u16(servo, &status_word_register, NULL, &buff);
+	(void)il_servo_raw_read_u16(servo, &status_word_register, NULL, &buff);
 	while (buff == *sw) {
 		osal_clock_gettime(&diff);
 		if (diff.s > start.s + time_s) {
@@ -133,7 +133,7 @@ static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout, uint8_t
  			r = IL_ETIMEDOUT;
  			goto unlock;
 		}
-		// (void)il_servo_raw_read_u16(servo, &status_word_register, NULL, &buff);
+		(void)il_servo_raw_read_u16(servo, &status_word_register, NULL, &buff);
 	}
 
 	servo->sw.value = buff;
