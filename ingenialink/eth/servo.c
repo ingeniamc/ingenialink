@@ -727,6 +727,12 @@ static int il_eth_servo_wait_reached(il_servo_t *servo, int timeout)
 	return sw_wait_value(servo, IL_MC_SW_TR, IL_MC_SW_TR, timeout);
 }
 
+int il_eth_servo_state_subs_stop(il_servo_t *servo, int stop)
+{
+	servo->state_subs.stop = stop;
+	return 0;
+}
+
 /** ETH servo operations. */
 const il_servo_ops_t il_eth_servo_ops = {
 	/* internal */
@@ -803,4 +809,5 @@ const il_servo_ops_t il_eth_servo_ops = {
 	.velocity_set = il_eth_servo_velocity_set,
 	.velocity_res_get = il_eth_servo_velocity_res_get,
 	.wait_reached = il_eth_servo_wait_reached,
+	.state_subs_stop = il_eth_servo_state_subs_stop
 };

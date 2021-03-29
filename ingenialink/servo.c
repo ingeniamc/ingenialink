@@ -155,7 +155,7 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 		ids = il_dict_reg_ids_get(servo->dict, j);
 		if (!ids)
 			return IL_EFAIL;
-			
+
 		for (size_t i = 0; i < ids[i]; i++) {
 			const il_reg_t *reg;
 			il_reg_value_t storage;
@@ -215,7 +215,7 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 			(void)il_dict_reg_storage_update(servo->dict, ids[i], storage, j);
 		}
 	}
-	
+
 
 cleanup_ids:
 	il_dict_reg_ids_destroy(ids);
@@ -227,7 +227,7 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 {
 	int r = -1;
 	const char **ids = NULL;
-	
+
 	il_dict_t *dict = il_dict_create(dict_path);
 	if (!dict)
 		return IL_EFAIL;
@@ -628,11 +628,16 @@ int il_servo_wait_reached(il_servo_t *servo, int timeout)
 	return servo->ops->wait_reached(servo, timeout);
 }
 
+int il_servo_state_subs_stop(il_servo_t *servo, int stop)
+{
+	return servo->ops->state_subs_stop(servo, stop);
+}
+
 void il_servo_fake_destroy(il_servo_t *servo) {}
 
 int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		   const char *dict)
-{	
+{
 
 	il_net_dev_list_t *devs, *dev;
 	il_net_servos_list_t *servo_ids, *servo_id;
@@ -660,7 +665,6 @@ int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 			if (*servo) {
 				il_net_servos_list_destroy(servo_ids);
 				il_net_dev_list_destroy(devs);
-
 				return 0;
 			}
 		}
@@ -677,7 +681,7 @@ int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 
 int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		   const char *dict, const char *address_ip, int port_ip, int protocol)
-{	
+{
 	il_eth_net_dev_list_t *dev;
 	il_net_servos_list_t *servo_ids, *servo_id;
 
@@ -717,13 +721,13 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 	}
 	il_net_servos_list_destroy(servo_ids);
 	il_net_destroy(*net);
-	
+
 	ilerr__set("No connected servos found");
 	return IL_EFAIL;
 }
 
 
-int il_servo_is_connected(il_net_t **net, const char *address_ip, int port_ip, int protocol) 
+int il_servo_is_connected(il_net_t **net, const char *address_ip, int port_ip, int protocol)
 {
 	il_eth_net_opts_t opts;
 
@@ -747,12 +751,12 @@ int il_servo_is_connected(il_net_t **net, const char *address_ip, int port_ip, i
 	return r;
 }
 
-const uint16_t *il_servo_subnodes_get(il_servo_t *servo) 
+const uint16_t *il_servo_subnodes_get(il_servo_t *servo)
 {
 	return servo->subnodes;
 }
 
-int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net, 
+int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 	il_servo_t **servo, const char *dict, int port_ip, uint16_t slave)
 {
 	il_net_servos_list_t *servo_ids, *servo_id;
@@ -765,7 +769,7 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 	opts.port_ip = port_ip;
 	opts.port = "";
 	opts.ifname = ifname;
-	
+
 	/* Initialization of the EtherCAT master */
 	int r = il_net_master_startup(*net, ifname, slave);
 	printf("master_startup result: %i\n", r);

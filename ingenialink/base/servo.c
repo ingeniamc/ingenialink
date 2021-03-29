@@ -340,7 +340,7 @@ static int state_subs_monitor(void *args)
 						servo->state_subs.subs[sz].cb(ctx, current_state, flags, subnode);
 					}
 
-					osal_mutex_unlock(servo->state_subs.lock);	
+					osal_mutex_unlock(servo->state_subs.lock);
 				}
 			}
 		}
@@ -442,7 +442,7 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 	/* initialize */
 	servo->net = net;
 	servo->id = id;
-	
+
 	//il_net__retain(servo->net);
 
 	/* load dictionary (optional) */
@@ -485,7 +485,7 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 	}
 
 	servo->sw.value = 0;
-	
+
 	r = il_net__sw_subscribe(servo->net, servo->id, sw_update, servo);
 	if (r < 0)
 		goto cleanup_sw_changed;
@@ -512,13 +512,13 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 
 	servo->state_subs.stop = 0;
 
-	// servo->state_subs.monitor = osal_thread_create_(state_subs_monitor,
-	// 	servo);
-	// if (!servo->state_subs.monitor) {
-	// 	ilerr__set("State change monitor could not be created");
-	// 	r = IL_EFAIL;
-	// 	goto cleanup_state_subs_lock;
-	// }
+	servo->state_subs.monitor = osal_thread_create_(state_subs_monitor,
+		servo);
+	if (!servo->state_subs.monitor) {
+		ilerr__set("State change monitor could not be created");
+		r = IL_EFAIL;
+		goto cleanup_state_subs_lock;
+	}
 
 	/* configure emergency subscription */
 	servo->emcy.lock = osal_mutex_create();
@@ -669,7 +669,7 @@ void il_servo_base__state_get(il_servo_t *servo, il_servo_state_t *state,
 	osal_mutex_lock(servo->sw.lock);
 	int r = il_servo_raw_read_u16(servo, &status_word_register, NULL, &sw);
 	osal_mutex_unlock(servo->sw.lock);
-	
+
 	servo->ops->_state_decode(sw, state, flags);
 }
 
@@ -1129,7 +1129,7 @@ int il_servo_base__raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
 			return IL_EINVAL;
 		}
 	}
-	
+
 
 	val_ = __swap_be_16(val);
 
