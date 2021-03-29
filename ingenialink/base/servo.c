@@ -512,13 +512,13 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 
 	servo->state_subs.stop = 0;
 
-	servo->state_subs.monitor = osal_thread_create_(state_subs_monitor,
-		servo);
-	if (!servo->state_subs.monitor) {
-		ilerr__set("State change monitor could not be created");
-		r = IL_EFAIL;
-		goto cleanup_state_subs_lock;
-	}
+	// servo->state_subs.monitor = osal_thread_create_(state_subs_monitor,
+	// 	servo);
+	// if (!servo->state_subs.monitor) {
+	// 	ilerr__set("State change monitor could not be created");
+	// 	r = IL_EFAIL;
+	// 	goto cleanup_state_subs_lock;
+	// }
 
 	/* configure emergency subscription */
 	servo->emcy.lock = osal_mutex_create();

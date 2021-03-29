@@ -73,6 +73,8 @@ typedef struct il_eth_net {
 	SOCKADDR_IN addr;
     /** Stop reconnect */
     int stop_reconnect;
+	/** Check status */
+	int check_status;
 	/** Listener thread. */
 	osal_thread_t *listener;
 	/** Listener stop flag. */
