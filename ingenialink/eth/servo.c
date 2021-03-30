@@ -299,7 +299,7 @@ static il_servo_t *il_eth_servo_create(il_net_t *net, uint16_t id,
 		goto cleanup_base;
 
 	/* trigger status update (with manual read) */
-	// (void)il_servo_read(&this->servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
+	(void)il_servo_read(&this->servo, &IL_REG_MCB_STS_WORD, NULL, &sw);
 
 	return &this->servo;
 
