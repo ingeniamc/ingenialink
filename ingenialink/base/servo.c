@@ -308,44 +308,48 @@ static int state_subs_monitor(void *args)
 	};
 	il_servo_state_t states[5] = { IL_SERVO_STATE_NRDY, IL_SERVO_STATE_NRDY, IL_SERVO_STATE_NRDY, IL_SERVO_STATE_NRDY, IL_SERVO_STATE_NRDY };
 	Sleep(200);
-	while (!servo->state_subs.stop) {
-		for (uint8_t i = 0; i < servo->subnodes; i++) {
-			subnode = i + 1;
-			status_word_register.subnode = subnode;
-			osal_mutex_lock(servo->sw.lock);
-			int r = il_servo_raw_read_u16(servo, &status_word_register, NULL, &sw);
-			if (r < 0) {
-				osal_mutex_unlock(servo->sw.lock);
-			}
-			else {
-				if (servo->sw.value != sw) {
-					servo->sw.value = sw;
-					osal_cond_broadcast(servo->sw.changed);
+	while (true) {
+		while (servo->state_subs.stop != 1) {
+			for (uint8_t i = 0; i < servo->subnodes; i++) {
+				subnode = i + 1;
+				status_word_register.subnode = subnode;
+				osal_mutex_lock(servo->sw.lock);
+				int r = il_servo_raw_read_u16(servo, &status_word_register, NULL, &sw);
+				if (r < 0) {
+					osal_mutex_unlock(servo->sw.lock);
 				}
-				osal_mutex_unlock(servo->sw.lock);
-				/* obtain state/flags */
-				il_servo_state_t current_state;
-				int flags;
-				servo->ops->_state_decode(sw, &current_state, &flags);
-				if (current_state != states[i]) {
-					states[i] = current_state;
-					/* notify all subscribers */
-					size_t sz;
-					osal_mutex_lock(servo->state_subs.lock);
-					for (sz = 0; sz < servo->state_subs.sz; sz++) {
-						void *ctx;
-						if (!servo->state_subs.subs[sz].cb)
-							continue;
-						ctx = servo->state_subs.subs[sz].ctx;
-						servo->state_subs.subs[sz].cb(ctx, current_state, flags, subnode);
+				else {
+					if (servo->sw.value != sw) {
+						servo->sw.value = sw;
+						osal_cond_broadcast(servo->sw.changed);
 					}
+					osal_mutex_unlock(servo->sw.lock);
+					/* obtain state/flags */
+					il_servo_state_t current_state;
+					int flags;
+					servo->ops->_state_decode(sw, &current_state, &flags);
+					if (current_state != states[i]) {
+						states[i] = current_state;
+						/* notify all subscribers */
+						size_t sz;
+						osal_mutex_lock(servo->state_subs.lock);
+						for (sz = 0; sz < servo->state_subs.sz; sz++) {
+							void *ctx;
+							if (!servo->state_subs.subs[sz].cb)
+								continue;
+							ctx = servo->state_subs.subs[sz].ctx;
+							servo->state_subs.subs[sz].cb(ctx, current_state, flags, subnode);
+						}
 
-					osal_mutex_unlock(servo->state_subs.lock);
+						osal_mutex_unlock(servo->state_subs.lock);
+					}
 				}
 			}
+			Sleep(200);
 		}
 		Sleep(200);
 	}
+
 	return 0;
 }
 
