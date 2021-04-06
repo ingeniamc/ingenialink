@@ -35,15 +35,23 @@
 #include <sercomm/sercomm.h>
 #include <winsock2.h>
 
+/** Default number of retries while waiting to receive a frame. */
+#define NUMBER_OP_RETRIES_DEF 	0
 
 /** Default read timeout. */
-#define READ_TIMEOUT_DEF	10000
+#define READ_TIMEOUT_DEF	400000
+
+/** Default reconnection retries. */
+#define RECONNECTION_RETRIES_DEF	7
 
 /** Vendor ID register address. */
 #define VENDOR_ID_ADDR		0x06E0
 
 /** Statusword address. */
 #define STATUSWORD_ADDRESS	0x0011
+
+/** Product code COCO. */
+#define PRODUCT_CODE_COCO	0x06E1
 
 /** ETH network. */
 typedef struct il_eth_net {
@@ -71,6 +79,10 @@ typedef struct il_eth_net {
 	int stop;
 	/** Protocol. */
 	int protocol;
+	/** Reconnection retries. */
+	uint8_t reconnection_retries;
+	/** Recv timeout in ms*/
+	uint32_t recv_timeout;
 
 } il_eth_net_t;
 

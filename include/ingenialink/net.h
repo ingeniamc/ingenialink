@@ -326,7 +326,8 @@ typedef struct {
 	int (*is_slave_connected)();
 	/** Close socket */
 	int (*close_socket)();
-	
+	int (*set_reconnection_retries)();
+	int (*set_recv_timeout)();
 } il_eth_net_ops_t;
 
 /** Network device monitor operations. */
@@ -421,17 +422,15 @@ typedef struct {
 	int (*is_slave_connected)();
 	/** Close socket */
 	int (*close_socket)();
-
 	int (*master_startup)();
 	int (*num_slaves_get)();
 	int (*master_stop)();
 	int (*update_firmware)();
 	int (*eeprom_tool)();
-
 	int (*force_error)();
-
 	int (*set_if_params)();
-	
+	int (*set_reconnection_retries)();
+	int (*set_recv_timeout)();
 } il_ecat_net_ops_t;
 
 #endif

@@ -61,8 +61,12 @@ IL_BEGIN_DECL
 #define IL_EIO		-9
 /** Not supported. */
 #define IL_ENOTSUP	-10
-
+/** Wrong register obtained. */
 #define IL_EWRONGREG -11
+/** Wrong CRC. */
+#define IL_EWRONGCRC -12
+/** NACK. */
+#define IL_ENACK -13
 
 /**
  * Obtain library last error details.
@@ -75,7 +79,7 @@ IL_BEGIN_DECL
  *      Last error details.
  */
 IL_EXPORT const char *ilerr_last(void);
-
+IL_EXPORT int *ilerr_ipb_last(void);
 /** @} */
 
 IL_END_DECL

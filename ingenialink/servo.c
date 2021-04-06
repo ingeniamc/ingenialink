@@ -223,79 +223,88 @@ cleanup_ids:
 	return r;
 }
 
-int il_servo_dict_storage_write(il_servo_t *servo)
+int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int subnode)
 {
-	int r = 0;
-	const char **ids;
-
-	if (!servo->dict) {
-		ilerr__set("No dictionary loaded");
+	int r = -1;
+	const char **ids = NULL;
+	
+	il_dict_t *dict = il_dict_create(dict_path);
+	if (!dict)
 		return IL_EFAIL;
-	}
 
 	// Subnodes = axis available at servo + 1 subnode of general parameters
 	int subnodes = servo->subnodes + 1;
 	for (int j = 0; j < subnodes; j++) {
-		ids = il_dict_reg_ids_get(servo->dict, j);
-		if (!ids)
-			return IL_EFAIL;
+		if (subnode == 0 || j == subnode) {
+			printf("Loading subnode %i...\n", j);
+			ids = il_dict_reg_ids_get(dict, j);
+			if (!ids)
+				return IL_EFAIL;
 
-		for (size_t i = 0; ids[i]; i++) {
-			const il_reg_t *reg;
+			for (size_t i = 0; ids[i]; i++) {
+				const il_reg_t *reg;
 
-			(void)il_dict_reg_get(servo->dict, ids[i], &reg, j);
+				(void)il_dict_reg_get(dict, ids[i], &reg, j);
 
-			if (reg->access != IL_REG_ACCESS_RW)
-				continue;
+				if (reg->access != IL_REG_ACCESS_RW)
+					continue;
 
-			switch (reg->dtype) {
-			case IL_REG_DTYPE_U8:
-				r = il_servo_raw_write_u8(servo, reg, ids[i],
-							reg->storage.u8, 1, 0);
-				break;
-			case IL_REG_DTYPE_S8:
-				r = il_servo_raw_write_s8(servo, reg, ids[i],
-							reg->storage.s8, 1, 0);
-				break;
-			case IL_REG_DTYPE_U16:
-				r = il_servo_raw_write_u16(servo, reg, ids[i],
-							reg->storage.u16, 1, 0);
-				break;
-			case IL_REG_DTYPE_S16:
-				r = il_servo_raw_write_s16(servo, reg, ids[i],
-							reg->storage.s16, 1, 0);
-				break;
-			case IL_REG_DTYPE_U32:
-				r = il_servo_raw_write_u32(servo, reg, ids[i],
-							reg->storage.u32, 1, 0);
-				break;
-			case IL_REG_DTYPE_S32:
-				r = il_servo_raw_write_s32(servo, reg, ids[i],
-							reg->storage.s32, 1, 0);
-				break;
-			case IL_REG_DTYPE_U64:
-				r = il_servo_raw_write_u64(servo, reg, ids[i],
-							reg->storage.u64, 1, 0);
-				break;
-			case IL_REG_DTYPE_S64:
-				r = il_servo_raw_write_s64(servo, reg, ids[i],
-							reg->storage.s64, 1, 0);
-				break;
-			case IL_REG_DTYPE_FLOAT:
-				r = il_servo_raw_write_float(servo, reg, ids[i],
-								reg->storage.flt, 1, 0);
-				break;
-			default:
-				continue;
+				switch (reg->dtype) {
+				case IL_REG_DTYPE_U8:
+					r = il_servo_raw_write_u8(servo, reg, ids[i],
+						reg->storage.u8, 1, 0);
+					break;
+				case IL_REG_DTYPE_S8:
+					r = il_servo_raw_write_s8(servo, reg, ids[i],
+						reg->storage.s8, 1, 0);
+					break;
+				case IL_REG_DTYPE_U16:
+					r = il_servo_raw_write_u16(servo, reg, ids[i],
+						reg->storage.u16, 1, 0);
+					break;
+				case IL_REG_DTYPE_S16:
+					r = il_servo_raw_write_s16(servo, reg, ids[i],
+						reg->storage.s16, 1, 0);
+					break;
+				case IL_REG_DTYPE_U32:
+					r = il_servo_raw_write_u32(servo, reg, ids[i],
+						reg->storage.u32, 1, 0);
+					break;
+				case IL_REG_DTYPE_S32:
+					r = il_servo_raw_write_s32(servo, reg, ids[i],
+						reg->storage.s32, 1, 0);
+					break;
+				case IL_REG_DTYPE_U64:
+					r = il_servo_raw_write_u64(servo, reg, ids[i],
+						reg->storage.u64, 1, 0);
+					break;
+				case IL_REG_DTYPE_S64:
+					r = il_servo_raw_write_s64(servo, reg, ids[i],
+						reg->storage.s64, 1, 0);
+					break;
+				case IL_REG_DTYPE_FLOAT:
+					r = il_servo_raw_write_float(servo, reg, ids[i],
+						reg->storage.flt, 1, 0);
+					break;
+				default:
+					continue;
+				}
+
+				if (r < 0)
+					continue;
 			}
-
-			if (r < 0)
-				continue;
 		}
 	}
 
 cleanup_ids:
-	il_dict_reg_ids_destroy(ids);
+	if (ids) {
+		il_dict_reg_ids_destroy(ids);
+	}
+	else {
+		printf("Could not load the configuration\n");
+	}
+
+	il_dict_destroy(dict);
 
 	return r;
 }
@@ -684,23 +693,25 @@ int il_servo_lucky_eth(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 	opts.port = "";
 	opts.protocol = protocol;
 
-	printf("before connect");
 	*net = il_net_create(prot, &opts);
 	if (!*net) {
-		printf("FAIL");
-		return IL_EFAIL;
+		int err;
+		err = ilerr_ipb_last();
+		if (err > 0) {
+			return IL_ENACK;
+		}
+		else {
+			return IL_EFAIL;
+		}
 	}
 	/* try to connect to any available servo */
 	servo_ids = il_net_servos_list_get(*net, NULL, NULL);
-	
-
 
 	il_net_servos_list_foreach(servo_id, servo_ids) {
 		*servo = il_servo_create(*net, servo_id->id, dict);
 		/* found */
 		if (*servo) {
 			il_net_servos_list_destroy(servo_ids);
-
 			return 0;
 		}
 	}
@@ -741,28 +752,26 @@ const uint16_t *il_servo_subnodes_get(il_servo_t *servo)
 	return servo->subnodes;
 }
 
-int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, char *if_address_ip, il_net_t **net, il_servo_t **servo,
-		   const char *dict, const char *address_ip, int port_ip)
+int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net, 
+	il_servo_t **servo, const char *dict, int port_ip, uint16_t slave)
 {
 	il_net_servos_list_t *servo_ids, *servo_id;
 
 	il_ecat_net_opts_t opts;
 
-	opts.address_ip = address_ip;
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
-	opts.connect_slave = 1;
+	opts.connect_slave = slave;
 	opts.port_ip = port_ip;
 	opts.port = "";
 	opts.ifname = ifname;
-	opts.if_address_ip = if_address_ip;
 	
-	// Initialization of the EtherCAT master
-	int r = il_net_master_startup(*net, ifname, if_address_ip);
+	/* Initialization of the EtherCAT master */
+	int r = il_net_master_startup(*net, ifname, slave);
 	printf("master_startup result: %i\n", r);
 	if (r > 0) {
 		printf("Servos found!\n");
-		// Wait until slaves are initialized
+		/* Wait until slaves are initialized */
 		Sleep(2000);
 
 		*net = il_net_create(prot, &opts);
@@ -785,6 +794,5 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, char *if_address_ip,
 		}
 	}
 	printf("No connected servos found\n");
-	// ilerr__set("No connected servos found");
 	return r;
 }

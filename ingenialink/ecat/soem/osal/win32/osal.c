@@ -18,7 +18,7 @@ int osal_getrelativetime(struct timeval *tv, struct timezone *tz)
    int64_t wintime, usecs;
    if(!sysfrequency)
    {
-      timeBeginPeriod(1);
+      // timeBeginPeriod(1);
       QueryPerformanceFrequency((LARGE_INTEGER *)&sysfrequency);
       qpc2usec = 1000000.0 / sysfrequency;
    }
