@@ -359,6 +359,15 @@ int il_net_set_recv_timeout(il_net_t *net, uint32_t timeout)
 	}
 }
 
+int il_net_set_status_check(il_net_t *net, int status_check)
+{
+	switch(net->prot)
+	{
+		case IL_NET_PROT_ETH:
+			return il_eth_net_ops.set_status_check(net, status_check);
+	}
+}
+
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)

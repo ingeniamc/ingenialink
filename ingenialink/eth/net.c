@@ -167,7 +167,7 @@ restart:
 		uint16_t sw;
 
 		/* try to read the status word register to see if a servo is alive */
-		if (this != NULL) {
+		if (this != NULL && this->check_status != 0) {
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 			if (r < 0) {
 				error_count = error_count + 1;
@@ -178,7 +178,7 @@ restart:
 				process_statusword(this, 1, sw);
 			}
 		}
-		Sleep(100);
+		Sleep(500);
 	}
 	if (error_count == this->reconnection_retries && this != NULL && this->stop_reconnect == 0) {
 		goto err;
@@ -248,6 +248,7 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 	this->protocol = opts->protocol;
 	this->reconnection_retries = RECONNECTION_RETRIES_DEF;
 	this->stop_reconnect = 1;
+	this->check_status = 1;
 	this->recv_timeout = READ_TIMEOUT_DEF;
 
 	/* setup refcnt */
@@ -1410,6 +1411,13 @@ int il_eth_set_recv_timeout(il_net_t *net, uint32_t timeout)
 	return 0;
 }
 
+int il_eth_set_status_check(il_net_t *net, int status_check)
+{
+	il_eth_net_t *this = to_eth_net(net);
+	this->check_status = status_check;
+	return 0;
+}
+
 /** ETH network operations. */
 const il_eth_net_ops_t il_eth_net_ops = {
 	/* internal */
@@ -1443,7 +1451,8 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	.disturbance_remove_all_mapped_registers = il_eth_net_disturbance_remove_all_mapped_registers,
 	.disturbance_set_mapped_register = il_eth_net_disturbance_set_mapped_register,
 	.set_reconnection_retries = il_eth_set_reconnection_retries,
-	.set_recv_timeout = il_eth_set_recv_timeout
+	.set_recv_timeout = il_eth_set_recv_timeout,
+	.set_status_check = il_eth_set_status_check
 };
 
 /** MCB network device monitor operations. */
