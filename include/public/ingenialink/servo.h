@@ -1277,6 +1277,8 @@ IL_EXPORT int il_servo_wait_reached(il_servo_t *servo, int timeout);
 
 IL_EXPORT void il_servo_fake_destroy(il_servo_t *servo);
 
+IL_EXPORT int il_servo_state_subs_stop(il_servo_t *servo, int stop);
+
 /**
  * Utility function to connect to the first available servo drive.
  *

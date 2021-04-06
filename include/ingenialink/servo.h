@@ -181,6 +181,7 @@ typedef struct {
 	int (*velocity_set)(il_servo_t *servo, double vel);
 	int (*velocity_res_get)(il_servo_t *servo, uint32_t *res);
 	int (*wait_reached)(il_servo_t *servo, int timeout);
+	int (*state_subs_stop)(il_servo_t *servo, int stop);
 } il_servo_ops_t;
 
 #endif

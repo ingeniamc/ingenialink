@@ -328,6 +328,7 @@ typedef struct {
 	int (*close_socket)();
 	int (*set_reconnection_retries)();
 	int (*set_recv_timeout)();
+	int (*set_status_check)();
 } il_eth_net_ops_t;
 
 /** Network device monitor operations. */

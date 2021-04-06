@@ -139,7 +139,7 @@ static int sw_wait_change(il_servo_t *servo, uint16_t *sw, int *timeout, uint8_t
 	servo->sw.value = buff;
 	*sw = buff;
 
-out:	
+out:
 
 unlock:
 
@@ -268,7 +268,7 @@ static il_servo_t *il_eth_servo_create(il_net_t *net, uint16_t id,
 	int r;
 	il_eth_servo_t *this;
 	double sw;
-	
+
 	/* allocate servo */
 	this = malloc(sizeof(*this));
 	if (!this) {
@@ -279,7 +279,7 @@ static il_servo_t *il_eth_servo_create(il_net_t *net, uint16_t id,
 	if (r < 0) {
 		goto cleanup_servo;
 	}
-		
+
 	this->servo.ops = &il_eth_servo_ops;
 
 	/* Configure the number of axis if the register is defined */
@@ -393,7 +393,7 @@ static int il_eth_servo_disable(il_servo_t *servo, uint8_t subnode)
 	il_servo_state_t state;
 	int timeout = PDS_TIMEOUT;
 	sw = sw_get(servo, subnode);
-	
+
 	do {
 		servo->ops->_state_decode(sw, &state, NULL);
 
@@ -522,7 +522,7 @@ static int il_eth_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode)
 			r = sw_wait_change(servo, &sw, &timeout_, subnode);
 			if (r < 0)
 				return r;
-	
+
 		}
 	} while ((state != IL_SERVO_STATE_ENABLED));
 
@@ -548,7 +548,7 @@ static int il_eth_servo_fault_reset(il_servo_t *servo, uint8_t subnode)
 			if (retries == FAULT_RESET_RETRIES) {
 				return IL_ESTATE;
 			}
-			
+
 			IL_REG_MCB_CTL_WORD.subnode = subnode;
 			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
 						   NULL, 0, 1, 0);
@@ -727,6 +727,12 @@ static int il_eth_servo_wait_reached(il_servo_t *servo, int timeout)
 	return sw_wait_value(servo, IL_MC_SW_TR, IL_MC_SW_TR, timeout);
 }
 
+int il_eth_servo_state_subs_stop(il_servo_t *servo, int stop)
+{
+	servo->state_subs.stop = stop;
+	return 0;
+}
+
 /** ETH servo operations. */
 const il_servo_ops_t il_eth_servo_ops = {
 	/* internal */
@@ -803,4 +809,5 @@ const il_servo_ops_t il_eth_servo_ops = {
 	.velocity_set = il_eth_servo_velocity_set,
 	.velocity_res_get = il_eth_servo_velocity_res_get,
 	.wait_reached = il_eth_servo_wait_reached,
+	.state_subs_stop = il_eth_servo_state_subs_stop
 };
