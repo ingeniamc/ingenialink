@@ -246,7 +246,7 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 	this->address_ip = opts->address_ip;
 	this->port_ip = opts->port_ip;
 	this->protocol = opts->protocol;
-	this->reconnection_retries = NUMBER_OP_RETRIES_DEF;
+	this->reconnection_retries = RECONNECTION_RETRIES_DEF;
 	this->stop_reconnect = 1;
 	this->recv_timeout = READ_TIMEOUT_DEF;
 
@@ -261,6 +261,18 @@ static il_net_t *il_eth_net_create(const il_net_opts_t *opts)
 	}
 
 	this->listener = NULL;
+
+	if (this->reconnection_retries > 0 && this->listener == NULL)
+	{
+		/* start listener thread */
+		this->stop = 0;
+		this->stop_reconnect = 0;
+
+		this->listener = osal_thread_create_(listener_eth, this);
+		if (!this->listener) {
+			ilerr__set("Listener thread creation failed");
+		}
+	}
 
 	return &this->net;
 
@@ -572,9 +584,13 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	uint32_t product_code_coco;
 	r = il_net__read(&this->net, 1, 0, PRODUCT_CODE_COCO, &product_code_coco, sizeof(product_code_coco));
 	if (r < 0) {
-		printf("Cannot connect to the slave.\n");
-		closesocket(this->server);
-		return r;
+		uint32_t sw;
+		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
+		if (r < 0) {
+			printf("Cannot connect to the slave.\n");
+			closesocket(this->server);
+			return r;
+		}
 	}
 	else {
 		uint32_t sw;
