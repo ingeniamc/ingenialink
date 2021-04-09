@@ -636,7 +636,7 @@ IL_EXPORT int il_net_set_reconnection_retries(il_net_t *net, uint8_t num_reconne
 
 IL_EXPORT int il_net_set_recv_timeout(il_net_t *net, uint32_t timeout);
 
-IL_EXPORT int il_net_set_status_check(il_net_t *net, int status_check);
+IL_EXPORT int il_net_set_status_check_stop(il_net_t *net, int status_check);
 /**
  * Obtain network servos list.
  *

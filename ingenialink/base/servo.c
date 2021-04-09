@@ -514,7 +514,7 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 		goto cleanup_state_subs_subs;
 	}
 
-	servo->state_subs.stop = 0;
+	servo->state_subs.stop = 1;
 
 	servo->state_subs.monitor = osal_thread_create_(state_subs_monitor,
 		servo);
