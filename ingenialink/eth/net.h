@@ -74,7 +74,7 @@ typedef struct il_eth_net {
     /** Stop reconnect */
     int stop_reconnect;
 	/** Check status */
-	int check_status_stop;
+	int status_check_stop;
 	/** Listener thread. */
 	osal_thread_t *listener;
 	/** Listener stop flag. */
