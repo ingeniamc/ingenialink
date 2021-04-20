@@ -236,6 +236,12 @@ void il_ecat_servo__state_decode(uint16_t sw, il_servo_state_t *state,
 		*flags = (int)(sw >> FLAGS_SW_POS);
 }
 
+int il_ecat_servo_state_subs_stop(il_servo_t *servo, int stop)
+{
+	servo->state_subs.stop = stop;
+	return 0;
+}
+
 /*******************************************************************************
  * Public
  ******************************************************************************/
@@ -258,8 +264,7 @@ static il_servo_t *il_ecat_servo_create(il_net_t *net, uint16_t id,
 		goto cleanup_servo;
 	}
 
-	 this->servo.state_subs.stop = 1;
-     (void)osal_thread_join(this->servo.state_subs.monitor, NULL);
+	 il_ecat_servo_state_subs_stop(&this->servo, 1);
 	 this->servo.emcy_subs.stop = 1;
 	 (void)osal_thread_join(this->servo.emcy_subs.monitor, NULL);
 
@@ -787,4 +792,5 @@ const il_servo_ops_t il_ecat_servo_ops = {
 	.velocity_set = il_ecat_servo_velocity_set,
 	.velocity_res_get = il_ecat_servo_velocity_res_get,
 	.wait_reached = il_ecat_servo_wait_reached,
+	.state_subs_stop = il_ecat_servo_state_subs_stop
 };
