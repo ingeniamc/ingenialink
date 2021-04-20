@@ -340,6 +340,7 @@ static il_net_t *il_ecat_net_create(const il_ecat_net_opts_t *opts)
 	this->ifname = opts->ifname;
 	this->if_address_ip = opts->if_address_ip;
 	this->slave = opts->connect_slave;
+	this->recv_timeout = EC_TIMEOUTRXM;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(ecat_net_destroy, this);
@@ -1037,14 +1038,14 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	int r = 0;
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
-	wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
+	wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, this->recv_timeout);
 	if (wkc < 0)
 	{
 		return IL_EFAIL;
 	}
 
 	int s32SzRead = 1024;
-	wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+	wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, this->recv_timeout);
 
 	/* Obtain the frame received */
 	memcpy(frame, (uint8_t*)frame_received, 1024);
