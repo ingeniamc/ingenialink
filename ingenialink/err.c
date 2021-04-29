@@ -104,6 +104,9 @@ int ilerr__eth(int32_t code)
 	case IL_EWRONGREG:
 		ilerr__set("Wrong address error");
 		break;
+	case IL_REGNOTFOUND:
+		ilerr__set("Register not found");
+		break;
 	case IL_ETIMEDOUT:
 		ilerr__set("Operation timed out");
 		break;
@@ -136,6 +139,9 @@ int ilerr__ecat(int32_t code)
 		break;
 	case IL_EWRONGREG:
 		ilerr__set("Wrong address error");
+		break;
+	case IL_REGNOTFOUND:
+		ilerr__set("Register not found");
 		break;
 	case IL_ETIMEDOUT:
 		ilerr__set("Operation timed out");
