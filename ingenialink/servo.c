@@ -793,11 +793,10 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 			/* found */
 			if (servo) {
 				il_net_servos_list_destroy(servo_ids);
-				il_net_test(*net);
 				return r;
 			}
 		}
-		
+
 	}
 	printf("No connected servos found\n");
 	return r;
