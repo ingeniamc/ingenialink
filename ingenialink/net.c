@@ -368,6 +368,13 @@ int il_net_set_status_check_stop(il_net_t *net, int stop)
 	}
 }
 
+int il_net_test(il_net_t *net) {
+	switch(net->prot) {
+		case IL_NET_PROT_ECAT:
+			return il_ecat_net_ops.net_test(net);
+	}
+}
+
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)

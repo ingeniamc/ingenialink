@@ -16,6 +16,7 @@
 #include "netif/etharp.h"
 
 #include <stdint.h>
+#include <time.h>
 
 /* Default Ip address */
 #define DEFAULT_IP_ADDR1        (uint8_t)192
@@ -227,9 +228,7 @@ void LWIP_ProcessTimeouts()
     sys_check_timeouts();
 }
 
-
-
-void sys_now()
+uint32_t sys_now()
 {
-    // HAL_GetTick();
+    return clock();
 }

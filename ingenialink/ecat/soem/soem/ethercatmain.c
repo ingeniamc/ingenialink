@@ -746,7 +746,7 @@ int ecx_readstate(ecx_contextt *context)
    {
       noerrorflag = TRUE;
       context->slavelist[0].ALstatuscode = 0;
-   }   
+   }
    else
    {
       noerrorflag = FALSE;
@@ -766,7 +766,7 @@ int ecx_readstate(ecx_contextt *context)
          allslavessamestate = FALSE;
          break;
    }
-    
+
    if (noerrorflag && allslavessamestate && allslavespresent)
    {
       /* No slave has toggled the error flag so the alstatuscode
@@ -819,7 +819,7 @@ int ecx_readstate(ecx_contextt *context)
       } while (lslave < *(context->slavecount));
       context->slavelist[0].state = lowest;
    }
-  
+
    return lowest;
 }
 
@@ -1067,7 +1067,7 @@ int ecx_mbxreceive(ecx_contextt *context, uint16 slave, ec_mbxbuft *mbx, int tim
                      {
                         /* Fragment handled by EoE hook */
                         wkc = 0;
-						wkc2 = 0;
+						      wkc2 = 0;
                      }
                   }
                }
@@ -1672,9 +1672,9 @@ static int ecx_pullindex(ecx_contextt *context)
    return rval;
 }
 
-/** 
+/**
  * Clear the idx stack.
- * 
+ *
  * @param context           = context struct
  */
 static void ecx_clearindex(ecx_contextt *context)  {
@@ -1729,7 +1729,7 @@ static int ecx_main_send_processdata(ecx_contextt *context, uint8 group, boolean
       length = context->grouplist[group].Obytes + context->grouplist[group].Ibytes;
       iomapinputoffset = 0;
    }
-   
+
    LogAdr = context->grouplist[group].logstartaddr;
    if(length)
    {
@@ -1852,11 +1852,11 @@ static int ecx_main_send_processdata(ecx_contextt *context, uint8 group, boolean
             /* send frame */
             ecx_outframe_red(context->port, idx);
             /* push index and data pointer on stack.
-             * the iomapinputoffset compensate for where the inputs are stored 
+             * the iomapinputoffset compensate for where the inputs are stored
              * in the IOmap if we use an overlapping IOmap. If a regular IOmap
              * is used it should always be 0.
              */
-            ecx_pushindex(context, idx, (data + iomapinputoffset), sublength);      
+            ecx_pushindex(context, idx, (data + iomapinputoffset), sublength);
             length -= sublength;
             LogAdr += sublength;
             data += sublength;

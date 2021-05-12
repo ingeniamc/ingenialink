@@ -447,10 +447,10 @@ static int il_ecat_net_connect(il_net_t *net, const char *ip)
 	this->stop = 0;
 	this->stop_reconnect = 0;
 
-	this->listener = osal_thread_create_(listener_ecat, this);
-	if (!this->listener) {
-		ilerr__set("Listener thread creation failed");
-	}
+	// this->listener = osal_thread_create_(listener_ecat, this);
+	// if (!this->listener) {
+	// 	ilerr__set("Listener thread creation failed");
+	// }
 
 	return 0;
 }
@@ -569,8 +569,6 @@ static int *il_ecat_net_set_mapped_register(il_net_t *net, int channel, uint32_t
 	if (r < 0) {
 
 	}
-
-
 	return r;
 }
 
@@ -772,6 +770,8 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
+
+	LWIP_ProcessTimeouts();
 
 	return r;
 }
@@ -1038,11 +1038,11 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	int r = 0;
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
-	wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, this->recv_timeout);
-	if (wkc < 0)
-	{
-		return IL_EFAIL;
-	}
+	// wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, this->recv_timeout);
+	// if (wkc < 0)
+	// {
+	// 	return IL_EFAIL;
+	// }
 
 	int s32SzRead = 1024;
 	wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, this->recv_timeout);
@@ -1373,35 +1373,35 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 	/* wkc == 1 would mean a frame is complete , last fragment flag have been set and all
 	* other checks must have past
 	*/
-	if (wkc > 0)
-	{
-		ec_etherheadert *bp = (ec_etherheadert *)rxbuf;
-		uint16 type = ntohs(bp->etype);
-		if (type == ETH_P_ECAT)
-		{
-			/* Check that the TX and RX frames are EQ */
-			if (memcmp(rxbuf, txbuf, size_of_rx))
-			{
-				//printf("memcmp result != 0\n");
-			}
-			else
-			{
-				//printf("memcmp result == 0\n");
-			}
-			/* Send a new frame */
-			int ixme;
-			for (ixme = ETH_HEADERSIZE; ixme < sizeof(txbuf); ixme++)
-			{
-				txbuf[ixme] = (uint8)rand();
-			}
+	//if (wkc > 0)
+	//{
+	//	ec_etherheadert *bp = (ec_etherheadert *)rxbuf;
+	//	uint16 type = ntohs(bp->etype);
+	//	if (type == ETH_P_ECAT)
+	//	{
+	//		/* Check that the TX and RX frames are EQ */
+	//		if (memcmp(rxbuf, txbuf, size_of_rx))
+	//		{
+	//			//printf("memcmp result != 0\n");
+	//		}
+	//		else
+	//		{
+	//			//printf("memcmp result == 0\n");
+	//		}
+	//		/* Send a new frame */
+	//		int ixme;
+	//		for (ixme = ETH_HEADERSIZE; ixme < sizeof(txbuf); ixme++)
+	//		{
+	//			txbuf[ixme] = (uint8)rand();
+	//		}
 
-			ecx_EOEsend(context, 1, 0, sizeof(txbuf), txbuf, EC_TIMEOUTRXM);
-		}
-		else
-		{
-			//printf("Skip type 0x%x\n", type);
-		}
-	}
+	//		ecx_EOEsend(context, 1, 0, sizeof(txbuf), txbuf, EC_TIMEOUTRXM);
+	//	}
+	//	else
+	//	{
+	//		//printf("Skip type 0x%x\n", type);
+	//	}
+	//}
 
 	/* No point in returning as unhandled */
 	return ec_slavecount;
@@ -1421,10 +1421,17 @@ void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 	ipsettings.ip_set = 1;
 	ipsettings.subnet_set = 1;
 	ipsettings.default_gateway_set = 1;
+	ipsettings.mac_set = 1;
 
 	EOE_IP4_ADDR_TO_U32(&ipsettings.ip, 192, 168, 2, 22);
 	EOE_IP4_ADDR_TO_U32(&ipsettings.subnet, 255, 255, 255, 0);
 	EOE_IP4_ADDR_TO_U32(&ipsettings.default_gateway, 192, 168, 2, 1);
+	ipsettings.mac.addr[0] = 0;
+	ipsettings.mac.addr[1] = 1;
+	ipsettings.mac.addr[2] = 2;
+	ipsettings.mac.addr[3] = 3;
+	ipsettings.mac.addr[4] = 4;
+	ipsettings.mac.addr[5] = 5;
 
 	printf("IP configured\n");
 
@@ -1512,6 +1519,23 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave)
 	}
 
 	return ec_slavecount;
+}
+
+int *il_ecat_net_test(il_net_t *net) {
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+	while(true) {
+		uint16_t sw;
+		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
+		if (r < 0) {
+			printf("FAIL READING SW!\n");
+		}
+		else {
+			printf("SW -> %i\n", sw);
+		}
+		Sleep(1000);
+	}
+	return 0;
 }
 
 int *il_ecat_net_num_slaves_get(char *ifname)
@@ -1908,7 +1932,6 @@ int input_intelhex(char *fname, int *start, int *length)
 
    return retval;
 }
-
 
 int output_bin(char *fname, int length)
 {
@@ -2484,7 +2507,9 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	.set_if_params = il_ecat_net_set_if_params,
 
 	.set_reconnection_retries = il_ecat_set_reconnection_retries,
-	.set_recv_timeout = il_ecat_set_recv_timeout
+	.set_recv_timeout = il_ecat_set_recv_timeout,
+
+	.net_test = il_ecat_net_test
 };
 
 /** MCB network device monitor operations. */
