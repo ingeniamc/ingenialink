@@ -247,7 +247,7 @@ restart:
 		uint16_t sw;
 
 		/* try to read the status word register to see if a servo is alive */
-		if (this != NULL) {
+		if (this != NULL && this->status_check_stop == 0) {
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 			if (r < 0) {
 				error_count = error_count + 1;
@@ -341,6 +341,7 @@ static il_net_t *il_ecat_net_create(const il_ecat_net_opts_t *opts)
 	this->if_address_ip = opts->if_address_ip;
 	this->slave = opts->connect_slave;
 	this->recv_timeout = EC_TIMEOUTRXM;
+	this->status_check_stop = 1;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(ecat_net_destroy, this);
@@ -2462,6 +2463,13 @@ int il_ecat_set_recv_timeout(il_net_t *net, uint32_t timeout)
 	return 0;
 }
 
+int il_ecat_set_status_check_stop(il_net_t *net, int stop)
+{
+	il_ecat_net_t *this = to_ecat_net(net);
+	this->status_check_stop = stop;
+	return 0;
+}
+
 /** ECAT network operations. */
 const il_ecat_net_ops_t il_ecat_net_ops = {
 	/* internal */
@@ -2508,7 +2516,7 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 
 	.set_reconnection_retries = il_ecat_set_reconnection_retries,
 	.set_recv_timeout = il_ecat_set_recv_timeout,
-
+	.set_status_check_stop = il_ecat_set_status_check_stop,
 	.net_test = il_ecat_net_test
 };
 

@@ -67,6 +67,8 @@ typedef struct il_ecat_net {
 	SOCKADDR_IN addr;
     /** Stop reconnect */
     int stop_reconnect;
+	/** Check status */
+	int status_check_stop;
 	/** Listener thread. */
 	osal_thread_t *listener;
 	/** Listener stop flag. */

@@ -432,6 +432,7 @@ typedef struct {
 	int (*set_if_params)();
 	int (*set_reconnection_retries)();
 	int (*set_recv_timeout)();
+	int (*set_status_check_stop)();
 	int (*net_test)();
 } il_ecat_net_ops_t;
 
