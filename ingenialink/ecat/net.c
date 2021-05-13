@@ -448,10 +448,10 @@ static int il_ecat_net_connect(il_net_t *net, const char *ip)
 	this->stop = 0;
 	this->stop_reconnect = 0;
 
-	// this->listener = osal_thread_create_(listener_ecat, this);
-	// if (!this->listener) {
-	// 	ilerr__set("Listener thread creation failed");
-	// }
+	this->listener = osal_thread_create_(listener_ecat, this);
+	if (!this->listener) {
+		ilerr__set("Listener thread creation failed");
+	}
 
 	return 0;
 }
@@ -482,10 +482,12 @@ static int il_ecat_mon_stop(il_net_t *net)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop_reconnect = 1;
-	Sleep(2000);
 	printf("Join thread\n");
-	osal_thread_join(this->listener, NULL);
-	Sleep(3000);
+	if (this->listener)
+	{
+		osal_thread_join(this->listener, NULL);
+	}
+	Sleep(1000);
 }
 
 
