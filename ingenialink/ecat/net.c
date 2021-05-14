@@ -37,7 +37,7 @@
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
 
-#include "soem/soem/ethercat.h"
+#include "external/soem/soem/ethercat.h"
 #include "lwip/netif.h"
 #include "lwip/err.h"
 #include "lwip/init.h"
@@ -1049,7 +1049,10 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 
 	int s32SzRead = 1024;
 	wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, this->recv_timeout);
-
+	if (wkc < 0)
+	{
+		return IL_EFAIL;
+	}
 	/* Obtain the frame received */
 	memcpy(frame, (uint8_t*)frame_received, 1024);
 
