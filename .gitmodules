@@ -11,3 +11,4 @@
 [submodule "external/SOEM"]
 	path = external/SOEM
 	url = https://github.com/ingeniamc/SOEM.git
+	branch = 1.0.0
