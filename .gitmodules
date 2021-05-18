@@ -10,5 +10,6 @@
 	ignore = dirty
 [submodule "external/SOEM"]
 	path = external/SOEM
-	branch = 1.0.0
 	url = https://github.com/ingeniamc/SOEM.git
+	branch = 1.0.0
+	ignore = dirty
