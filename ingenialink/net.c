@@ -365,6 +365,15 @@ int il_net_set_status_check_stop(il_net_t *net, int stop)
 	{
 		case IL_NET_PROT_ETH:
 			return il_eth_net_ops.set_status_check_stop(net, stop);
+		case IL_NET_PROT_ECAT:
+			return il_ecat_net_ops.set_status_check_stop(net, stop);
+	}
+}
+
+int il_net_test(il_net_t *net) {
+	switch(net->prot) {
+		case IL_NET_PROT_ECAT:
+			return il_ecat_net_ops.net_test(net);
 	}
 }
 

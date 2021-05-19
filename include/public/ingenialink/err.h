@@ -67,6 +67,8 @@ IL_BEGIN_DECL
 #define IL_EWRONGCRC -12
 /** NACK. */
 #define IL_ENACK -13
+/** Register not found in dictionary. */
+#define IL_REGNOTFOUND -14
 
 /**
  * Obtain library last error details.

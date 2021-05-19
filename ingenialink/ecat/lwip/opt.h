@@ -554,7 +554,7 @@
  *  (60 * 5) seconds = 5 minutes.
  */
 #if !defined ARP_MAXAGE || defined __DOXYGEN__
-#define ARP_MAXAGE                      300
+#define ARP_MAXAGE                      100
 #endif
 
 /**
@@ -2486,8 +2486,8 @@
  * - src: source eth address
  * - dst: destination eth address
  * - eth_type: ethernet type to packet to be sent\n
- * 
- * 
+ *
+ *
  * Return values:
  * - &lt;0: Packet shall not contain VLAN header.
  * - 0 &lt;= return value &lt;= 0xFFFF: Packet shall contain VLAN header. Return value is prio_vid in host byte order.

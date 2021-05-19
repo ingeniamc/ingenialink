@@ -796,6 +796,7 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 				return r;
 			}
 		}
+
 	}
 	printf("No connected servos found\n");
 	return r;
