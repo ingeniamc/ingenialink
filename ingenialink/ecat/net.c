@@ -339,9 +339,11 @@ static il_net_t *il_ecat_net_create(const il_ecat_net_opts_t *opts)
 	this->port_ip = opts->port_ip;
 	this->ifname = opts->ifname;
 	this->if_address_ip = opts->if_address_ip;
-	this->slave = opts->connect_slave;
+	this->slave = opts->slave;
 	this->recv_timeout = EC_TIMEOUTRXM;
 	this->status_check_stop = 1;
+	//this->use_eoe_comms = opts->use_eoe_comms;
+	this->use_eoe_comms = 0;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(ecat_net_destroy, this);
@@ -415,7 +417,7 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 		ec_close();
 		Sleep(1000);
 
-		r2 = il_net_master_startup(&this->net, this->ifname, this->slave);
+		r2 = il_net_master_startup(&this->net, this->ifname, this->slave, 1);
 
 		if (r2 > 0) {
 			/* Try to read */
@@ -497,20 +499,22 @@ static il_net_servos_list_t *il_ecat_net_servos_list_get(
 	int r;
 	uint64_t vid;
 	il_net_servos_list_t *lst;
+	il_ecat_net_t *this = to_ecat_net(net);
 
 	/* Check if there are slave in the network*/
 	if (ec_slavecount > 0) {
 		/* try to read the vendor id register to see if a servo is alive */
-		r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
+		r = il_ecat_net__read(net, this->slave, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 		if (r < 0) {
 			printf("First try fail\n");
-			r = il_net__read(net, 1, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
+			r = il_ecat_net__read(net, this->slave, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 			if (r < 0) {
 				printf("Second try fail\n");
 				il_net_master_stop(net);
 				return NULL;
 			}
 		}
+
 
 		/* create list with one element (id=1) */
 		lst = malloc(sizeof(*lst));
@@ -737,29 +741,39 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 {
 	il_ecat_net_t *this = to_ecat_net(net);
 	int r;
-	(void)id;
+	//(void)id;
 
 	osal_mutex_lock(this->net.lock);
-	r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
-	if (r < 0) {
-		goto unlock;
+	if (this->use_eoe_comms)
+	{
+		r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
+		if (r < 0) {
+			goto unlock;
+		}
+
+		int num_retries = 0;
+		while (num_retries < NUMBER_OP_RETRIES_DEF)
+		{
+			uint16_t *monitoring_raw_data = NULL;
+			r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
+			if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
+			{
+				++num_retries;
+				printf("Frame lost, retry %i\n", num_retries);
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+	else
+	{
+		// SDOs
+		r = il_ecat_net_SDO_read(id, address, 0x00, sz, buf);
+		printf("EIII\n");
 	}
 
-	int num_retries = 0;
-	while (num_retries < NUMBER_OP_RETRIES_DEF)
-	{
-		uint16_t *monitoring_raw_data = NULL;
-		r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
-		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
-		{
-			++num_retries;
-			printf("Frame lost, retry %i\n", num_retries);
-		}
-		else
-		{
-			break;
-		}
-	}
 
 	if (r < 0)
 	{
@@ -918,6 +932,40 @@ static int il_ecat_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, 
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
+
+	return r;
+}
+
+int il_ecat_net_SDO_read(uint8_t slave, uint16_t index, uint8 subindex, int size, uint8_t *buf) {
+	int wkc = 0;
+	int r = 0;
+	int aux_addr = index + 0x2000;
+	int num_retries = 0;
+	while (num_retries < NUMBER_OP_RETRIES_DEF)
+	{
+		wkc = ec_SDOread(slave, aux_addr, subindex, FALSE, &size, buf, EC_TIMEOUTRXM);
+		if (wkc <= 0)
+		{
+			++num_retries;
+			printf("Frame lost, retry %i\n", num_retries);
+		}
+		else
+		{
+			Sleep(100);
+			break;
+		}
+	}
+	if (wkc <= 0)
+	{
+		r = -1;
+	}
+	return r;
+}
+
+int il_ecat_net_SDO_write(uint8_t slave, uint16_t index, uint8 subindex, int size, uint8_t *buf) {
+	int r = 0;
+	int aux_addr = index + 0x2000;
+	// r += ec_SDOwrite(slave, aux_addr, subindex, FALSE, &size, &u8val, EC_TIMEOUTRXM);
 
 	return r;
 }
@@ -1458,21 +1506,26 @@ int *il_ecat_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip)
 	this->if_address_ip = if_address_ip;
 }
 
-int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave)
+int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uint8_t use_eoe_comms)
 {
 
 	int i, oloop, iloop, chk;
 	needlf = FALSE;
 	inOP = FALSE;
 
+	il_ecat_net_t *this = to_ecat_net(net);
+	//this->use_eoe_comms = use_eoe_comms;
+
 	il_ecat_net_opts_t opts;
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
 	opts.connect_slave = slave;
+	opts.slave = slave;
 	opts.port_ip = 1061;
 	opts.port = "";
 	opts.ifname = ifname;
 	slave_number = slave;
+	opts.use_eoe_comms = use_eoe_comms;
 
 
 	printf("Starting EtherCAT Master\n");
@@ -1510,7 +1563,7 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave)
 					}
 				}
 
-				if (ec_slavecount > 0) {
+				if (ec_slavecount > 0 && use_eoe_comms) {
 					init_eoe(net, &ecx_context, slave);
 				}
 			} else {

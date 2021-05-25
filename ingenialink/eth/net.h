@@ -86,6 +86,8 @@ typedef struct il_eth_net {
 	/** Recv timeout in ms*/
 	uint32_t recv_timeout;
 
+	uint8_t use_eoe_comms;
+
 } il_eth_net_t;
 
 /** ETH network device monitor */

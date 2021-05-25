@@ -177,6 +177,7 @@ struct il_net {
 	/** Disturbance Data size. */
 	uint16_t disturbance_data_size;
 
+	int slave;
 	/** Operations. */
 	const il_net_ops_t *ops;
 };
