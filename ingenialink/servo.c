@@ -770,6 +770,7 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 	opts.port_ip = port_ip;
 	opts.port = "";
 	opts.ifname = ifname;
+	opts.use_eoe_comms = use_eoe_comms;
 
 	/* Initialization of the EtherCAT master */
 	int r = il_net_master_startup(*net, ifname, slave, use_eoe_comms);

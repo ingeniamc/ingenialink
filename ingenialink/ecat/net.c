@@ -343,7 +343,7 @@ static il_net_t *il_ecat_net_create(const il_ecat_net_opts_t *opts)
 	this->recv_timeout = EC_TIMEOUTRXM;
 	this->status_check_stop = 1;
 	//this->use_eoe_comms = opts->use_eoe_comms;
-	this->use_eoe_comms = 0;
+	this->use_eoe_comms = opts->use_eoe_comms;
 
 	/* setup refcnt */
 	this->refcnt = il_utils__refcnt_create(ecat_net_destroy, this);
