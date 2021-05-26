@@ -770,8 +770,15 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 	else
 	{
 		// SDOs
-		r = il_ecat_net_SDO_read(id, address, 0x00, sz, buf);
-		printf("EIII\n");
+		int addr;
+		if (subnode >= 1) {
+			addr = address + (0x2000 + ((subnode - 1) * 0x800));
+		}
+		else
+		{
+			addr = address + 0x5800;
+		}
+		r = il_ecat_net_SDO_read(id, addr, 0x00, sz, buf);
 	}
 
 
@@ -857,24 +864,39 @@ static int il_ecat_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint3
 
 	osal_mutex_lock(this->net.lock);
 
-
-	r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
-	if (r < 0)
-		goto unlock;
-
-	int num_retries = 0;
-	while (num_retries < NUMBER_OP_RETRIES_DEF)
+	if (this->use_eoe_comms)
 	{
-		r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
-		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
+		r = net_send(this, subnode, (uint16_t)address, buf, sz, extended, net);
+		if (r < 0)
+			goto unlock;
+
+		int num_retries = 0;
+		while (num_retries < NUMBER_OP_RETRIES_DEF)
 		{
-			++num_retries;
-			printf("Frame lost, retry %i\n", num_retries);
+			r = net_recv(this, subnode, (uint16_t)address, NULL, 0, NULL, NULL);
+			if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
+			{
+				++num_retries;
+				printf("Frame lost, retry %i\n", num_retries);
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+	else
+	{
+		// SDOs
+		int addr;
+		if (subnode >= 1) {
+			addr = address + (0x2000 + ((subnode - 1) * 0x800));
 		}
 		else
 		{
-			break;
+			addr = address + 0x5800;
 		}
+		r = il_ecat_net_SDO_write(id, addr, 0x00, sz, buf);
 	}
 
 	if (r < 0)
@@ -939,15 +961,14 @@ unlock:
 int il_ecat_net_SDO_read(uint8_t slave, uint16_t index, uint8 subindex, int size, uint8_t *buf) {
 	int wkc = 0;
 	int r = 0;
-	int aux_addr = index + 0x2000;
 	int num_retries = 0;
 	while (num_retries < NUMBER_OP_RETRIES_DEF)
 	{
-		wkc = ec_SDOread(slave, aux_addr, subindex, FALSE, &size, buf, EC_TIMEOUTRXM);
+		wkc = ec_SDOread(slave, index, subindex, FALSE, &size, buf, 700000);
 		if (wkc <= 0)
 		{
 			++num_retries;
-			printf("Frame lost, retry %i\n", num_retries);
+			//printf("Frame lost, retry %i\n", num_retries);
 		}
 		else
 		{
@@ -963,10 +984,27 @@ int il_ecat_net_SDO_read(uint8_t slave, uint16_t index, uint8 subindex, int size
 }
 
 int il_ecat_net_SDO_write(uint8_t slave, uint16_t index, uint8 subindex, int size, uint8_t *buf) {
+	int wkc = 0;
 	int r = 0;
-	int aux_addr = index + 0x2000;
-	// r += ec_SDOwrite(slave, aux_addr, subindex, FALSE, &size, &u8val, EC_TIMEOUTRXM);
-
+	int num_retries = 0;
+	while (num_retries < NUMBER_OP_RETRIES_DEF)
+	{
+		wkc += ec_SDOwrite(slave, index, subindex, FALSE, size, buf, EC_TIMEOUTRXM);
+		if (wkc <= 0)
+		{
+			++num_retries;
+			//printf("Frame lost, retry %i\n", num_retries);
+		}
+		else
+		{
+			Sleep(100);
+			break;
+		}
+	}
+	if (wkc <= 0)
+	{
+		r = -1;
+	}
 	return r;
 }
 
