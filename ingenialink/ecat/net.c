@@ -1749,7 +1749,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			if (input_bin(filename, &filesize)){
 				// Get filename of absolute path
 				int len = strlen(filename);
-				while (len > 0) {
+				while (len >= 0) {
 					if (filename[len] == '/') {
 						break;
 					}
@@ -1759,7 +1759,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 
 				printf("File read OK, %d bytes.\n", filesize);
 				printf("FoE write....");
-				r = ec_FOEwrite(slave, file_id, 0x70636675, filesize, &filebuffer, EC_TIMEOUTSTATE);
+				r = ec_FOEwrite(slave, file_id, 0x70636675, filesize, &filebuffer, 700000);
 				printf("FOE write result %d.\n", r);
 				if (r > 0) {
 					printf("Request init state for slave %d\n", slave);
