@@ -778,7 +778,7 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 		{
 			addr = address + 0x5800;
 		}
-		r = il_ecat_net_SDO_read(id, addr, 0x00, sz, buf);
+		r = il_ecat_net_SDO_read(this, id, addr, 0x00, sz, buf);
 	}
 
 
@@ -896,7 +896,7 @@ static int il_ecat_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint3
 		{
 			addr = address + 0x5800;
 		}
-		r = il_ecat_net_SDO_write(id, addr, 0x00, sz, buf);
+		r = il_ecat_net_SDO_write(this, id, addr, 0x00, sz, buf);
 	}
 
 	if (r < 0)
@@ -958,21 +958,22 @@ unlock:
 	return r;
 }
 
-int il_ecat_net_SDO_read(uint8_t slave, uint16_t index, uint8 subindex, int size, uint8_t *buf) {
+int il_ecat_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, void *buf) {
 	int wkc = 0;
 	int r = 0;
 	int num_retries = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
 	while (num_retries < NUMBER_OP_RETRIES_DEF)
 	{
 		wkc = ec_SDOread(slave, index, subindex, FALSE, &size, buf, 700000);
 		if (wkc <= 0)
 		{
 			++num_retries;
-			//printf("Frame lost, retry %i\n", num_retries);
+			Sleep(100);
 		}
 		else
 		{
-			Sleep(100);
 			break;
 		}
 	}
@@ -983,21 +984,23 @@ int il_ecat_net_SDO_read(uint8_t slave, uint16_t index, uint8 subindex, int size
 	return r;
 }
 
-int il_ecat_net_SDO_write(uint8_t slave, uint16_t index, uint8 subindex, int size, uint8_t *buf) {
+int il_ecat_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, void *buf) {
 	int wkc = 0;
 	int r = 0;
 	int num_retries = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
 	while (num_retries < NUMBER_OP_RETRIES_DEF)
 	{
 		wkc += ec_SDOwrite(slave, index, subindex, FALSE, size, buf, EC_TIMEOUTRXM);
 		if (wkc <= 0)
 		{
 			++num_retries;
+			Sleep(100);
 			//printf("Frame lost, retry %i\n", num_retries);
 		}
 		else
 		{
-			Sleep(100);
 			break;
 		}
 	}
@@ -2613,7 +2616,9 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	.set_reconnection_retries = il_ecat_set_reconnection_retries,
 	.set_recv_timeout = il_ecat_set_recv_timeout,
 	.set_status_check_stop = il_ecat_set_status_check_stop,
-	.net_test = il_ecat_net_test
+	.net_test = il_ecat_net_test,
+	.SDO_read = il_ecat_net_SDO_read,
+	.SDO_write = il_ecat_net_SDO_write
 };
 
 /** MCB network device monitor operations. */

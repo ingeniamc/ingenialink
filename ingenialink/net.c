@@ -377,6 +377,24 @@ int il_net_test(il_net_t *net) {
 	}
 }
 
+int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, void *buf)
+{
+	switch(net->prot)
+	{
+		case IL_NET_PROT_ECAT:
+			return il_ecat_net_ops.SDO_read(net, slave, index, subindex, size, buf);
+	}
+}
+
+int il_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, void *buf)
+{
+	switch(net->prot)
+	{
+		case IL_NET_PROT_ECAT:
+			return il_ecat_net_ops.SDO_write(net, slave, index, subindex, size, buf);
+	}
+}
+
 il_net_servos_list_t *il_net_servos_list_get(il_net_t *net,
 					     il_net_servos_on_found_t on_found,
 					     void *ctx)
