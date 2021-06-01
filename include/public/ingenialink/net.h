@@ -643,9 +643,9 @@ IL_EXPORT int il_net_set_recv_timeout(il_net_t *net, uint32_t timeout);
 
 IL_EXPORT int il_net_set_status_check_stop(il_net_t *net, int status_check);
 
-IL_EXPORT int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, void *buf);
+IL_EXPORT int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, il_reg_dtype_t dtype, double *buf);
 
-IL_EXPORT int il_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, void *buf);
+IL_EXPORT int il_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, il_reg_dtype_t dtype, double buf);
 /**
  * Obtain network servos list.
  *
