@@ -436,16 +436,21 @@ int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subind
 					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(float), &float_v);
 					buf_ = (double)float_v;
 					break;
-				case IL_REG_DTYPE_STR:
-					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(float), &u32_str_v);
-					buf_ = (float)u32_str_v;
-					break;
 				default:
 					ilerr__set("Unsupported register data type");
 					return IL_EINVAL;
 			}
 			*buf = buf_;
 			return r;
+	}
+}
+
+int il_net_SDO_read_string(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, char *buf)
+	{
+	switch(net->prot)
+	{
+		case IL_NET_PROT_ECAT:
+			return il_ecat_net_ops.SDO_read_string(net, slave, index, subindex, size, buf);
 	}
 }
 

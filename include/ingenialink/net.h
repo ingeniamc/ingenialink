@@ -330,6 +330,7 @@ typedef struct {
 	int (*set_recv_timeout)();
 	int (*set_status_check_stop)();
 	int (*SDO_read)();
+	int (*SDO_read_string)();
 	int (*SDO_write)();
 } il_eth_net_ops_t;
 
@@ -437,6 +438,7 @@ typedef struct {
 	int (*set_status_check_stop)();
 	int (*net_test)();
 	int (*SDO_read)();
+	int (*SDO_read_string)();
 	int (*SDO_write)();
 } il_ecat_net_ops_t;
 
