@@ -302,9 +302,9 @@ int il_net_ecat_close_socket(il_net_t *net)
 	return il_ecat_net_ops.close_socket(net);
 }
 
-int il_net_master_startup(il_net_t *net, char *ifname, uint16_t slave)
+int il_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uint8_t use_eoe_comms)
 {
-	return il_ecat_net_ops.master_startup(net, ifname, slave);
+	return il_ecat_net_ops.master_startup(net, ifname, slave, use_eoe_comms);
 }
 
 int il_net_num_slaves_get(char *ifname)
@@ -374,6 +374,139 @@ int il_net_test(il_net_t *net) {
 	switch(net->prot) {
 		case IL_NET_PROT_ECAT:
 			return il_ecat_net_ops.net_test(net);
+	}
+}
+
+int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, il_reg_dtype_t dtype, double *buf)
+{
+	switch(net->prot)
+	{
+		case IL_NET_PROT_ECAT:
+
+			uint8_t u8_v;
+			uint16_t u16_v;
+			uint32_t u32_v;
+			uint32_t u32_str_v;
+			uint64_t u64_v;
+			int8_t s8_v;
+			int16_t s16_v;
+			int32_t s32_v;
+			int64_t s64_v;
+			float float_v;
+
+			double buf_;
+
+			int r = 0;
+
+			switch(dtype)
+			{
+				case IL_REG_DTYPE_U8:
+					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(uint8_t), &u8_v);
+					buf_ = (float)u8_v;
+					break;
+				case IL_REG_DTYPE_S8:
+					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(int8_t), &s8_v);
+					buf_ = (float)s8_v;
+					break;
+				case IL_REG_DTYPE_U16:
+					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(uint16_t), &u16_v);
+					buf_ = (float)u16_v;
+					break;
+				case IL_REG_DTYPE_S16:
+					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(int16_t), &s16_v);
+					buf_ = (float)s16_v;
+					break;
+				case IL_REG_DTYPE_U32:
+					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(uint32_t), &u32_v);
+					buf_ = (float)u32_v;
+					break;
+				case IL_REG_DTYPE_S32:
+					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(int32_t), &s32_v);
+					buf_ = (float)s32_v;
+					break;
+				case IL_REG_DTYPE_U64:
+					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(uint64_t), &u64_v);
+					buf_ = (float)u64_v;
+					break;
+				case IL_REG_DTYPE_S64:
+					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(int64_t), &s64_v);
+					buf_ = (float)s64_v;
+					break;
+				case IL_REG_DTYPE_FLOAT:
+					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(float), &float_v);
+					buf_ = (double)float_v;
+					break;
+				default:
+					ilerr__set("Unsupported register data type");
+					return IL_EINVAL;
+			}
+			*buf = buf_;
+			return r;
+	}
+}
+
+int il_net_SDO_read_string(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, char *buf)
+	{
+	switch(net->prot)
+	{
+		case IL_NET_PROT_ECAT:
+			return il_ecat_net_ops.SDO_read_string(net, slave, index, subindex, size, buf);
+	}
+}
+
+int il_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, il_reg_dtype_t dtype, double buf)
+{
+	switch(net->prot)
+	{
+		case IL_NET_PROT_ECAT:
+			uint8_t u8_v;
+			uint16_t u16_v;
+			uint32_t u32_v;
+			uint32_t u32_str_v;
+			uint64_t u64_v;
+			int8_t s8_v;
+			int16_t s16_v;
+			int32_t s32_v;
+			int64_t s64_v;
+			float float_v;
+			double val_;
+
+			// val_ = buf;
+
+			switch (dtype) {
+				case IL_REG_DTYPE_U8:
+					u8_v = (uint8_t)buf;
+					return il_ecat_net_ops.SDO_write(net, slave, index, subindex, dtype, &u8_v);
+				case IL_REG_DTYPE_S8:
+					s8_v = (int8_t)buf;
+					return il_ecat_net_ops.SDO_write(net, slave, index, subindex, dtype, &s8_v);
+				case IL_REG_DTYPE_U16:
+					u16_v = (uint16_t)buf;
+					return il_ecat_net_ops.SDO_write(net, slave, index, subindex, dtype, &u16_v);
+				case IL_REG_DTYPE_S16:
+					s16_v = (int16_t)buf;
+					return il_ecat_net_ops.SDO_write(net, slave, index, subindex, dtype, &s16_v);
+				case IL_REG_DTYPE_U32:
+					u32_v = (uint32_t)buf;
+					return il_ecat_net_ops.SDO_write(net, slave, index, subindex, dtype, &u32_v);
+				case IL_REG_DTYPE_S32:
+					s32_v = (int32_t)buf;
+					return il_ecat_net_ops.SDO_write(net, slave, index, subindex, dtype, &s32_v);
+				case IL_REG_DTYPE_U64:
+					u64_v = (uint64_t)buf;
+					return il_ecat_net_ops.SDO_write(net, slave, index, subindex, dtype, &u64_v);
+				case IL_REG_DTYPE_S64:
+					s64_v = (int64_t)buf;
+					return il_ecat_net_ops.SDO_write(net, slave, index, subindex, dtype, &s64_v);
+				case IL_REG_DTYPE_FLOAT:
+					float_v = (double)buf;
+					return il_ecat_net_ops.SDO_write(net, slave, index, subindex, dtype, &float_v);
+				default:
+					ilerr__set("Unsupported register data type");
+					return IL_EINVAL;
+			}
+
+
 	}
 }
 

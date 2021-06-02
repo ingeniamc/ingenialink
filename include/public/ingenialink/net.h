@@ -73,6 +73,7 @@ typedef struct {
 	int connect_slave;
 	/** Connect to slave */
 	int protocol;
+	int slave;
 } il_net_opts_t;
 
 
@@ -92,6 +93,7 @@ typedef struct {
 	int connect_slave;
 	/** Protocol. */
 	int protocol;
+	int slave;
 } il_eth_net_opts_t;
 
 /** Ethercat network initialization options. */
@@ -113,6 +115,9 @@ typedef struct {
 
 	char *ifname;
 	char *if_address_ip;
+	uint8_t use_eoe_comms;
+
+	int slave;
 } il_ecat_net_opts_t;
 
 /** Default read timeout (ms). */
@@ -615,7 +620,7 @@ IL_EXPORT int il_net_close_socket(il_net_t *net);
 /**
 	SOEM
 */
-IL_EXPORT int il_net_master_startup(il_net_t *net, char *ifname, uint16_t slave);
+IL_EXPORT int il_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uint8_t use_eoe_comms);
 
 IL_EXPORT int il_net_num_slaves_get(char *ifname);
 
@@ -637,6 +642,12 @@ IL_EXPORT int il_net_set_reconnection_retries(il_net_t *net, uint8_t num_reconne
 IL_EXPORT int il_net_set_recv_timeout(il_net_t *net, uint32_t timeout);
 
 IL_EXPORT int il_net_set_status_check_stop(il_net_t *net, int status_check);
+
+IL_EXPORT int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, il_reg_dtype_t dtype, double *buf);
+
+IL_EXPORT int il_net_SDO_read_string(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, char *buf);
+
+IL_EXPORT int il_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, il_reg_dtype_t dtype, double buf);
 /**
  * Obtain network servos list.
  *

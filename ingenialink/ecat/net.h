@@ -83,6 +83,8 @@ typedef struct il_ecat_net {
 	/** Recv timeout in ms*/
 	uint32_t recv_timeout;
 
+	uint8_t use_eoe_comms;
+
 } il_ecat_net_t;
 
 /** ECAT network device monitor */
