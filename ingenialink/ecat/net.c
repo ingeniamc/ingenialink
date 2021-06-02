@@ -966,7 +966,7 @@ int il_ecat_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t s
 
 	while (num_retries < NUMBER_OP_RETRIES_DEF)
 	{
-		wkc = ec_SDOread(slave, index, subindex, FALSE, &size, buf, 500000);
+		wkc = ec_SDOread(slave, index, subindex, FALSE, &size, buf, EC_TIMEOUTRXM);
 		if (wkc <= 0)
 		{
 			++num_retries;
@@ -993,7 +993,7 @@ int il_ecat_net_SDO_read_string(il_net_t *net, uint8_t slave, uint16_t index, ui
 
 	while (num_retries < NUMBER_OP_RETRIES_DEF)
 	{
-		wkc = ec_SDOread(slave, index, subindex, FALSE, &size, buf, 500000);
+		wkc = ec_SDOread(slave, index, subindex, FALSE, &size, buf, EC_TIMEOUTRXM);
 		if (wkc <= 0)
 		{
 			++num_retries;
