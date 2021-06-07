@@ -89,13 +89,6 @@ ip_addr_t dstaddr;
 err_t error;
 
 uint8_t frame_received[1024];
-uint8_t empty_frame[1024];
-
-uint8_t frame_last[1024];
-struct pbuf* ptBufGeneric;
-u16_t ptBufSize;
-int count_callback = 0;
-int count_recv = 0;
 
 boolean isFirstTime = true;
 
@@ -770,10 +763,7 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 				if (r == IL_ETIMEDOUT || r == IL_EWRONGREG || r == IL_EFAIL)
 				{
 					++num_retries_recv;
-					printf("Frame lost, retry %i\n", num_retries_recv);
-				}
-				else if (r < 0) {
-					printf("ERROR NO CONTROLAT!\n");
+					//printf("Frame lost, retry %i\n", num_retries_recv);
 				}
 				else
 				{
@@ -897,7 +887,7 @@ static int il_ecat_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint3
 			if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
 			{
 				++num_retries;
-				printf("Frame lost, retry %i\n", num_retries);
+				//printf("Frame lost, retry %i\n", num_retries);
 			}
 			else
 			{
@@ -960,7 +950,7 @@ static int il_ecat_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, 
 		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
 		{
 			++num_retries;
-			printf("Frame lost, retry %i\n", num_retries);
+			//printf("Frame lost, retry %i\n", num_retries);
 		}
 		else
 		{
@@ -1199,37 +1189,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	{
 		return IL_EFAIL;
 	}
-	/*osal_timert timer;
 
-	osal_timer_start(&timer, 100000);
-
-	while(isprocess != false)
-	{
-		if (osal_timer_is_expired(&timer) == TRUE)
-		{
-			break;
-		}
-	}*/
-	/*osal_timert timer;
-
-	osal_timer_start(&timer, 1000000);
-	bool hola = false;
-	while (!hola)
-	{
-		if (frame_received[0] != 0) {
-			hola = true;
-		}
-		if (osal_timer_is_expired(&timer) == TRUE) {
-			printf("ptBufSize: %i\n", ptBufSize);
-			ptBufSize = 0;
-			printf("TIMEOUT\n");
-			return IL_EFAIL;
-		}
-	}
-	isprocess = true;*/
-	// Sleep(1000);
-	count_recv++;
-	printf("COUNT RECV = %i\n", count_recv);
 	/* Obtain the frame received */
 	memcpy(frame, (uint8_t*)frame_received, 1024);
 	/* process frame: validate CRC, address, ACK */
@@ -1481,17 +1441,8 @@ void LWIP_EthernetifInp(void* pData, uint16_t u16SizeBy)
 static void LWIP_UdpReceiveData(void* pArg, struct udp_pcb* ptUdpPcb, struct pbuf* ptBuf,
 	const ip_addr_t* ptAddr, u16_t u16Port)
 {
-	ptBufSize = ptBuf->len;
-	/*if (ptBuf->len == 0) {
-		printf("EIIII!\n");
-	}*/
+
 	memcpy(frame_received, ptBuf->payload, ptBuf->len);
-	++count_callback;
-	printf("COUNT CALLBACK = %i\n", count_callback);
-	/*if (frame_received == frame_last) {
-		printf("EIIII!\n");
-	}
-	memcpy(frame_last, ptBuf->payload, ptBuf->len);*/
 	isprocess = false;
 }
 
