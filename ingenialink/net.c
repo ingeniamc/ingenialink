@@ -402,15 +402,15 @@ int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subind
 			{
 				case IL_REG_DTYPE_U8:
 					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(uint8_t), &u8_v);
-					buf_ = (float)u8_v;
+					buf_ = (double)u8_v;
 					break;
 				case IL_REG_DTYPE_S8:
 					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(int8_t), &s8_v);
-					buf_ = (float)s8_v;
+					buf_ = (double)s8_v;
 					break;
 				case IL_REG_DTYPE_U16:
 					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(uint16_t), &u16_v);
-					buf_ = (float)u16_v;
+					buf_ = (double)u16_v;
 					break;
 				case IL_REG_DTYPE_S16:
 					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(int16_t), &s16_v);
@@ -418,19 +418,19 @@ int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subind
 					break;
 				case IL_REG_DTYPE_U32:
 					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(uint32_t), &u32_v);
-					buf_ = (float)u32_v;
+					buf_ = (double)u32_v;
 					break;
 				case IL_REG_DTYPE_S32:
 					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(int32_t), &s32_v);
-					buf_ = (float)s32_v;
+					buf_ = (double)s32_v;
 					break;
 				case IL_REG_DTYPE_U64:
 					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(uint64_t), &u64_v);
-					buf_ = (float)u64_v;
+					buf_ = (double)u64_v;
 					break;
 				case IL_REG_DTYPE_S64:
 					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(int64_t), &s64_v);
-					buf_ = (float)s64_v;
+					buf_ = (double)s64_v;
 					break;
 				case IL_REG_DTYPE_FLOAT:
 					il_ecat_net_ops.SDO_read(net, slave, index, subindex, sizeof(float), &float_v);

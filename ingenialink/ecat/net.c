@@ -89,12 +89,20 @@ ip_addr_t dstaddr;
 err_t error;
 
 uint8_t frame_received[1024];
+uint8_t empty_frame[1024];
+
+uint8_t frame_last[1024];
+struct pbuf* ptBufGeneric;
+u16_t ptBufSize;
+int count_callback = 0;
+int count_recv = 0;
 
 boolean isFirstTime = true;
 
 char *Ifname;
 char *If_address_ip;
 uint16_t slave_number;
+volatile bool isprocess;
 
 
 /*******************************************************************************/
@@ -746,25 +754,37 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 	osal_mutex_lock(this->net.lock);
 	if (this->use_eoe_comms)
 	{
-		r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
-		if (r < 0) {
-			goto unlock;
-		}
-
-		int num_retries = 0;
-		while (num_retries < NUMBER_OP_RETRIES_DEF)
+		int num_retries_send = 0;
+		while (num_retries_send < NUMBER_OP_RETRIES_DEF)
 		{
-			uint16_t *monitoring_raw_data = NULL;
-			r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
-			if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
-			{
-				++num_retries;
-				printf("Frame lost, retry %i\n", num_retries);
+			r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
+			if (r < 0) {
+				goto unlock;
 			}
-			else
+
+			int num_retries_recv = 0;
+			while (num_retries_recv < NUMBER_OP_RETRIES_DEF)
+			{
+				uint16_t *monitoring_raw_data = NULL;
+				r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
+				if (r == IL_ETIMEDOUT || r == IL_EWRONGREG || r == IL_EFAIL)
+				{
+					++num_retries_recv;
+					printf("Frame lost, retry %i\n", num_retries_recv);
+				}
+				else if (r < 0) {
+					printf("ERROR NO CONTROLAT!\n");
+				}
+				else
+				{
+					break;
+				}
+			}
+			if (r >= 0)
 			{
 				break;
 			}
+			++num_retries_send;
 		}
 	}
 	else
@@ -979,7 +999,7 @@ int il_ecat_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t s
 	}
 	if (wkc <= 0)
 	{
-		r = -1;
+		r = IL_EFAIL;
 	}
 	return r;
 }
@@ -1006,7 +1026,7 @@ int il_ecat_net_SDO_read_string(il_net_t *net, uint8_t slave, uint16_t index, ui
 	}
 	if (wkc <= 0)
 	{
-		r = -1;
+		r = IL_EFAIL;
 	}
 	return r;
 }
@@ -1033,7 +1053,7 @@ int il_ecat_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t 
 	}
 	if (wkc <= 0)
 	{
-		r = -1;
+		r = IL_EFAIL;
 	}
 	return r;
 }
@@ -1157,21 +1177,61 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	int r = 0;
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
-	// wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, this->recv_timeout);
-	// if (wkc < 0)
-	// {
-	// 	return IL_EFAIL;
-	// }
 
 	int s32SzRead = 1024;
-	wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, this->recv_timeout);
-	if (wkc < 0)
+	int num_retries = 0;
+
+	while (num_retries < NUMBER_OP_RETRIES_DEF)
+	{
+		// wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, this->recv_timeout);
+		wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, 20000);
+		if (wkc <= 0)
+		{
+			++num_retries;
+			Sleep(100);
+		}
+		else
+		{
+			break;
+		}
+	}
+	if (wkc <= 0)
 	{
 		return IL_EFAIL;
 	}
+	/*osal_timert timer;
+
+	osal_timer_start(&timer, 100000);
+
+	while(isprocess != false)
+	{
+		if (osal_timer_is_expired(&timer) == TRUE)
+		{
+			break;
+		}
+	}*/
+	/*osal_timert timer;
+
+	osal_timer_start(&timer, 1000000);
+	bool hola = false;
+	while (!hola)
+	{
+		if (frame_received[0] != 0) {
+			hola = true;
+		}
+		if (osal_timer_is_expired(&timer) == TRUE) {
+			printf("ptBufSize: %i\n", ptBufSize);
+			ptBufSize = 0;
+			printf("TIMEOUT\n");
+			return IL_EFAIL;
+		}
+	}
+	isprocess = true;*/
+	// Sleep(1000);
+	count_recv++;
+	printf("COUNT RECV = %i\n", count_recv);
 	/* Obtain the frame received */
 	memcpy(frame, (uint8_t*)frame_received, 1024);
-
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
 	uint16_t crc_res = crc_calc_ecat((uint16_t *)frame, 6);
@@ -1421,7 +1481,18 @@ void LWIP_EthernetifInp(void* pData, uint16_t u16SizeBy)
 static void LWIP_UdpReceiveData(void* pArg, struct udp_pcb* ptUdpPcb, struct pbuf* ptBuf,
 	const ip_addr_t* ptAddr, u16_t u16Port)
 {
+	ptBufSize = ptBuf->len;
+	/*if (ptBuf->len == 0) {
+		printf("EIIII!\n");
+	}*/
 	memcpy(frame_received, ptBuf->payload, ptBuf->len);
+	++count_callback;
+	printf("COUNT CALLBACK = %i\n", count_callback);
+	/*if (frame_received == frame_last) {
+		printf("EIIII!\n");
+	}
+	memcpy(frame_last, ptBuf->payload, ptBuf->len);*/
+	isprocess = false;
 }
 
 OSAL_THREAD_FUNC mailbox_reader(void *lpParam)
@@ -1435,6 +1506,7 @@ OSAL_THREAD_FUNC mailbox_reader(void *lpParam)
 
 	ip4_addr_t tIpAddr, tNetmask, tGwIpAddr;
 
+	isprocess = true;
 	/* Initilialize the LwIP stack without RTOS */
 	lwip_init();
 
@@ -1526,7 +1598,7 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 	//}
 
 	/* No point in returning as unhandled */
-	return ec_slavecount;
+	return 0;
 }
 
 void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
