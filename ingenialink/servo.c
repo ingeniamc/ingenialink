@@ -757,7 +757,7 @@ const uint16_t *il_servo_subnodes_get(il_servo_t *servo)
 }
 
 int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
-	il_servo_t **servo, const char *dict, int port_ip, uint16_t slave)
+	il_servo_t **servo, const char *dict, int port_ip, uint16_t slave, uint8_t use_eoe_comms)
 {
 	il_net_servos_list_t *servo_ids, *servo_id;
 
@@ -766,12 +766,14 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
 	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
 	opts.connect_slave = slave;
+	opts.slave = slave;
 	opts.port_ip = port_ip;
 	opts.port = "";
 	opts.ifname = ifname;
+	opts.use_eoe_comms = use_eoe_comms;
 
 	/* Initialization of the EtherCAT master */
-	int r = il_net_master_startup(*net, ifname, slave);
+	int r = il_net_master_startup(*net, ifname, slave, use_eoe_comms);
 	printf("master_startup result: %i\n", r);
 	if (r > 0) {
 		printf("Servos found!\n");
@@ -788,14 +790,14 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 		servo_ids = il_net_servos_list_get(*net, NULL, NULL);
 
 		/* Create servo */
-		il_net_servos_list_foreach(servo_id, servo_ids) {
-			*servo = il_servo_create(*net, servo_id->id, dict);
-			/* found */
-			if (servo) {
-				il_net_servos_list_destroy(servo_ids);
-				return r;
-			}
+		//il_net_servos_list_foreach(servo_id, servo_ids) {
+		*servo = il_servo_create(*net, slave, dict);
+		/* found */
+		if (servo) {
+			il_net_servos_list_destroy(servo_ids);
+			return r;
 		}
+		//}
 
 	}
 	printf("No connected servos found\n");
