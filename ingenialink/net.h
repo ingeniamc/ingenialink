@@ -166,11 +166,11 @@ struct il_net {
 	/** Disturbance Raw Data. */
 	uint16_t disturbance_data[2048];
 	/** Distburbance Data. */
-	struct disturbance_data_t disturbance_data_channels[2];
+	struct disturbance_data_t disturbance_data_channels[16];
 	/** Disturbance Data size. */
 	uint16_t disturbance_data_size;
 	/** Last disturbance channel */
-	uint8_t channel_actual;
+	uint8_t last_channel;
 
 	int slave;
 	/** Operations. */

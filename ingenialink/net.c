@@ -293,9 +293,9 @@ void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturban
 	switch(net->prot)
 	{
 		case IL_NET_PROT_ETH:
-			return il_eth_net_ops.set_disturbance_data_flt(net, channel, size);
+			return il_eth_net_ops.set_last_channel(net, channel);
 	}
-
+	net->last_channel = net->last_channel > channel ? net->last_channel : channel;
 }
 
 int il_net_close_socket(il_net_t *net)

@@ -606,7 +606,7 @@ IL_EXPORT void il_net_disturbance_data_s32_set(il_net_t *net, int channel, int32
  *	  Network.
  *
  */
-IL_EXPORT void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturbance_data[2048], uint32_t size);
+IL_EXPORT void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturbance_data[2048]);
 
 /**
  * Close socket connected.
