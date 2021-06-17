@@ -264,6 +264,7 @@ int *il_net_disturbance_remove_all_mapped_registers(il_net_t *net)
 
 int *il_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
 {
+	net->last_channel = net->last_channel > channel ? net->last_channel : channel;
 	return net->ops->disturbance_set_mapped_register(net, channel, address, dtype);
 }
 
@@ -290,12 +291,6 @@ void il_net_disturbance_data_s32_set(il_net_t *net, int channel, int32_t disturb
 void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturbance_data[2048], uint32_t size)
 {
 	for (int i = 0; i < (1010/sizeof(float)); net->disturbance_data_channels[channel].value.disturbance_data_flt[i] = disturbance_data[i], i++);
-	switch(net->prot)
-	{
-		case IL_NET_PROT_ETH:
-			return il_eth_net_ops.set_last_channel(net, channel);
-	}
-	net->last_channel = net->last_channel > channel ? net->last_channel : channel;
 }
 
 int il_net_close_socket(il_net_t *net)
