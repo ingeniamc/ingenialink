@@ -322,6 +322,7 @@ typedef struct {
 	/** Disturbance. */
 	int (*disturbance_remove_all_mapped_registers)();
 	int (*disturbance_set_mapped_register)();
+	int (*set_disturbance_data_flt)();
 	/** Is Slave Connected. */
 	int (*is_slave_connected)();
 	/** Close socket */

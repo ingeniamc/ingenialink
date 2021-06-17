@@ -760,6 +760,19 @@ static int *il_eth_net_disturbance_set_mapped_register(il_net_t *net, int channe
 	return r;
 }
 
+static int il_eth_set_disturbance_data_flt(il_net_t *net, int channel, uint32_t size) 
+{
+	int r = 0;
+	il_eth_net_t *this = to_eth_net(net);
+	net->disturbance_data_size = size;
+	net->channel_actual = channel;
+
+	// Dist data
+	r = il_net__write(&this->net, 1, 0, 0x00B4, &size, 2, 1, 1);
+
+	return r;
+}
+
 /**
 * Monitoring enable
 */
@@ -1060,24 +1073,24 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 			uint16_t frame_size = sizeof(uint16_t) * ETH_MCB_FRAME_SZ;
 			uint8_t extended_frame[1024];
 
-			il_reg_dtype_t type = net->disturbance_data_channels[0].type;
+			il_reg_dtype_t type = net->disturbance_data_channels[net->channel_actual].type;
 
 			void* pData;
 			switch (type) {
 				case IL_REG_DTYPE_U16:
-					pData = net->disturbance_data_channels[0].value.disturbance_data_u16;
+					pData = net->disturbance_data_channels[net->channel_actual].value.disturbance_data_u16;
 					break;
 				case IL_REG_DTYPE_S16:
-					pData = net->disturbance_data_channels[0].value.disturbance_data_s16;
+					pData = net->disturbance_data_channels[net->channel_actual].value.disturbance_data_s16;
 					break;
 				case IL_REG_DTYPE_U32:
-					pData = net->disturbance_data_channels[0].value.disturbance_data_u32;
+					pData = net->disturbance_data_channels[net->channel_actual].value.disturbance_data_u32;
 					break;
 				case IL_REG_DTYPE_S32:
-					pData = net->disturbance_data_channels[0].value.disturbance_data_s32;
+					pData = net->disturbance_data_channels[net->channel_actual].value.disturbance_data_s32;
 					break;
 				case IL_REG_DTYPE_FLOAT:
-					pData = net->disturbance_data_channels[0].value.disturbance_data_flt;
+					pData = net->disturbance_data_channels[net->channel_actual].value.disturbance_data_flt;
 					break;
 			}
 
@@ -1450,6 +1463,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	/* Disturbance */
 	.disturbance_remove_all_mapped_registers = il_eth_net_disturbance_remove_all_mapped_registers,
 	.disturbance_set_mapped_register = il_eth_net_disturbance_set_mapped_register,
+	.set_disturbance_data_flt = il_eth_set_disturbance_data_flt,
 	.set_reconnection_retries = il_eth_set_reconnection_retries,
 	.set_recv_timeout = il_eth_set_recv_timeout,
 	.set_status_check_stop = il_eth_set_status_check_stop
