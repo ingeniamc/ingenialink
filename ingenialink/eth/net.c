@@ -1093,31 +1093,26 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 							n_bytes_sum+=2;
 							memcpy(pData, &net->disturbance_data_channels[i].value.disturbance_data_u16[sample_position], 2);
 							pData += sizeof(uint16_t);
-							//pData[sample_position*net->last_channel+i] = net->disturbance_data_channels[i].value.disturbance_data_u16[sample_position];
 							break;
 						case IL_REG_DTYPE_S16:
 							n_bytes_sum+=2;
 							memcpy(pData, &net->disturbance_data_channels[i].value.disturbance_data_s16[sample_position], 2);
 							pData += sizeof(int16_t);
-							//pData[sample_position*net->last_channel+i] = net->disturbance_data_channels[i].value.disturbance_data_s16[sample_position];
 							break;
 						case IL_REG_DTYPE_U32:
 							n_bytes_sum+=4;
 							memcpy(pData, &net->disturbance_data_channels[i].value.disturbance_data_u32[sample_position], 4);
 							pData += sizeof(uint32_t);
-							//pData[sample_position*net->last_channel+i] = net->disturbance_data_channels[i].value.disturbance_data_u32[sample_position];
 							break;
 						case IL_REG_DTYPE_S32:
 							n_bytes_sum+=4;
 							memcpy(pData, &net->disturbance_data_channels[i].value.disturbance_data_s32[sample_position], 4);
 							pData += sizeof(int32_t);
-							//pData[sample_position*net->last_channel+i] = net->disturbance_data_channels[i].value.disturbance_data_s32[sample_position];
 							break;
 						case IL_REG_DTYPE_FLOAT:
 							n_bytes_sum+=4;
 							memcpy(pData, &net->disturbance_data_channels[i].value.disturbance_data_flt[sample_position], 4);
 							pData += sizeof(float);
-							//pData[sample_position*net->last_channel+i] = net->disturbance_data_channels[i].value.disturbance_data_flt[sample_position];
 							break;
 					}
 				}
@@ -1126,7 +1121,7 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 
 			memcpy(&extended_frame[0], frame, frame_size);
 			memcpy(&extended_frame[frame_size], pDataAux, 1024 - frame_size);
-
+			free(pDataAux);
 			r = send(this->server, (const char*)&extended_frame[0], net->disturbance_data_size + frame_size, 0);
 			if (r < 0)
 				return ilerr__eth(r);
