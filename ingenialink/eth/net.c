@@ -760,19 +760,6 @@ static int *il_eth_net_disturbance_set_mapped_register(il_net_t *net, int channe
 	return r;
 }
 
-static int il_eth_set_disturbance_data_flt(il_net_t *net, int channel, uint32_t size) 
-{
-	int r = 0;
-	il_eth_net_t *this = to_eth_net(net);
-	net->disturbance_data_size = size;
-	// net->channel_actual = channel;
-
-	// Dist data
-	r = il_net__write(&this->net, 1, 0, 0x00B4, &size, 2, 1, 1);
-
-	return r;
-}
-
 static int il_eth_set_last_channel(il_net_t *net, int channel) 
 {
 	net->last_channel = net->last_channel > channel ? net->last_channel : channel;
@@ -1488,7 +1475,6 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	/* Disturbance */
 	.disturbance_remove_all_mapped_registers = il_eth_net_disturbance_remove_all_mapped_registers,
 	.disturbance_set_mapped_register = il_eth_net_disturbance_set_mapped_register,
-	.set_disturbance_data_flt = il_eth_set_disturbance_data_flt,
 	.set_last_channel = il_eth_set_last_channel,
 	.set_reconnection_retries = il_eth_set_reconnection_retries,
 	.set_recv_timeout = il_eth_set_recv_timeout,
