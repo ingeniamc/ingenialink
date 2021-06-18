@@ -760,6 +760,12 @@ static int *il_eth_net_disturbance_set_mapped_register(il_net_t *net, int channe
 	return r;
 }
 
+static int il_eth_set_last_channel(il_net_t *net, int channel) 
+{
+	net->last_channel = net->last_channel > channel ? net->last_channel : channel;
+	return 0;
+}
+
 /**
 * Monitoring enable
 */
@@ -1060,30 +1066,49 @@ static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const
 			uint16_t frame_size = sizeof(uint16_t) * ETH_MCB_FRAME_SZ;
 			uint8_t extended_frame[1024];
 
-			il_reg_dtype_t type = net->disturbance_data_channels[0].type;
+			int n_bytes_sum = 0;
+			int sample_position = 0;
+			uint8_t* pData;
+			pData = malloc(net->disturbance_data_size);
+			uint8_t* pDataAux = pData;
 
-			void* pData;
-			switch (type) {
-				case IL_REG_DTYPE_U16:
-					pData = net->disturbance_data_channels[0].value.disturbance_data_u16;
-					break;
-				case IL_REG_DTYPE_S16:
-					pData = net->disturbance_data_channels[0].value.disturbance_data_s16;
-					break;
-				case IL_REG_DTYPE_U32:
-					pData = net->disturbance_data_channels[0].value.disturbance_data_u32;
-					break;
-				case IL_REG_DTYPE_S32:
-					pData = net->disturbance_data_channels[0].value.disturbance_data_s32;
-					break;
-				case IL_REG_DTYPE_FLOAT:
-					pData = net->disturbance_data_channels[0].value.disturbance_data_flt;
-					break;
+			while(n_bytes_sum < net->disturbance_data_size){
+				for (int i = 0; i <= net->last_channel; i++){
+					il_reg_dtype_t type = net->disturbance_data_channels[i].type;
+					switch (type) {
+						case IL_REG_DTYPE_U16:
+							n_bytes_sum+=2;
+							memcpy(pData, &net->disturbance_data_channels[i].value.disturbance_data_u16[sample_position], 2);
+							pData += sizeof(uint16_t);
+							break;
+						case IL_REG_DTYPE_S16:
+							n_bytes_sum+=2;
+							memcpy(pData, &net->disturbance_data_channels[i].value.disturbance_data_s16[sample_position], 2);
+							pData += sizeof(int16_t);
+							break;
+						case IL_REG_DTYPE_U32:
+							n_bytes_sum+=4;
+							memcpy(pData, &net->disturbance_data_channels[i].value.disturbance_data_u32[sample_position], 4);
+							pData += sizeof(uint32_t);
+							break;
+						case IL_REG_DTYPE_S32:
+							n_bytes_sum+=4;
+							memcpy(pData, &net->disturbance_data_channels[i].value.disturbance_data_s32[sample_position], 4);
+							pData += sizeof(int32_t);
+							break;
+						case IL_REG_DTYPE_FLOAT:
+							n_bytes_sum+=4;
+							memcpy(pData, &net->disturbance_data_channels[i].value.disturbance_data_flt[sample_position], 4);
+							pData += sizeof(float);
+							break;
+					}
+				}
+				sample_position++;
 			}
 
 			memcpy(&extended_frame[0], frame, frame_size);
-			memcpy(&extended_frame[frame_size], pData, 1024 - frame_size);
-
+			memcpy(&extended_frame[frame_size], pDataAux, 1024 - frame_size);
+			free(pDataAux);
 			r = send(this->server, (const char*)&extended_frame[0], net->disturbance_data_size + frame_size, 0);
 			if (r < 0)
 				return ilerr__eth(r);
@@ -1450,6 +1475,7 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	/* Disturbance */
 	.disturbance_remove_all_mapped_registers = il_eth_net_disturbance_remove_all_mapped_registers,
 	.disturbance_set_mapped_register = il_eth_net_disturbance_set_mapped_register,
+	.set_last_channel = il_eth_set_last_channel,
 	.set_reconnection_retries = il_eth_set_reconnection_retries,
 	.set_recv_timeout = il_eth_set_recv_timeout,
 	.set_status_check_stop = il_eth_set_status_check_stop
