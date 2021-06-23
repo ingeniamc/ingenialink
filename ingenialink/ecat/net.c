@@ -1168,13 +1168,13 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
 
-	int s32SzRead = 1024;
+	int s32SzRead = 65536;
 	int num_retries = 0;
 
 	while (num_retries < NUMBER_OP_RETRIES_DEF)
 	{
-		// wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, this->recv_timeout);
-		wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, 20000);
+		wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, this->recv_timeout);
+		//wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, 20000);
 		if (wkc <= 0)
 		{
 			++num_retries;
