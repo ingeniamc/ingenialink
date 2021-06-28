@@ -244,7 +244,7 @@ restart:
 	int error_count = 0;
 	il_ecat_net_t *this = args;
 
-	while (error_count < 10 && this != NULL && this->stop_reconnect == 0 ) {
+	while (error_count < 3 && this != NULL && this->stop_reconnect == 0 ) {
 		uint16_t sw;
 
 		/* try to read the status word register to see if a servo is alive */
@@ -262,10 +262,10 @@ restart:
 		}
 		Sleep(100);
 	}
-	if (error_count == 10 && this != NULL && this->stop_reconnect == 0) {
+	if (error_count == 3 && this != NULL && this->stop_reconnect == 0) {
 		goto err;
 	}
-	else if (error_count < 10 && this != NULL && this->stop_reconnect != 0) {
+	else if (error_count < 3 && this != NULL && this->stop_reconnect != 0) {
 		goto stop;
 	}
 	return 0;
@@ -287,8 +287,6 @@ stop:
 	}
 	return 0;
 }
-
-
 
 void SignalHandlerECAT(int signal)
 {
@@ -398,7 +396,8 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 	int r = -1;
 	int r2 = 0;
 	uint16_t sw;
-    while (r < 0 && this->stop_reconnect == 0) {
+
+	while (r < 0 && this->stop_reconnect == 0) {
 		printf("Disconnecting interface\n");
 		ec_slavecount = 0;
 		/* Disconnecting and removing udp interface */
@@ -1178,7 +1177,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 		if (wkc <= 0)
 		{
 			++num_retries;
-			Sleep(100);
+			Sleep(10);
 		}
 		else
 		{
