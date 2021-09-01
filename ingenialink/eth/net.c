@@ -707,12 +707,17 @@ static int *il_eth_net_set_mapped_register(il_net_t *net, int channel, uint32_t 
 	net->monitoring_data_channels[channel].type = dtype;
 
 	// Map address
-	r = il_net__write(&this->net, 1, 0, 0x00E0, &address, 2, 1, 0);
-	if (r < 0) {
+	// r = il_net__write(&this->net, 1, 0, 0x00E0, &address, 2, 1, 0);
+	// if (r < 0) {
 
-	}
+	// }
+	uint32_t val1 = 6293508;
+	uint32_t val2 = 3213316;
+	r = il_net__write(&this->net, 1, 0, 0x00D0, &val1, 4, 1, 0);
+	r = il_net__write(&this->net, 1, 0, 0x00D1, &val2, 4, 1, 0);
 	// Update number of mapped registers & monitoring bytes per block
-	net->monitoring_number_mapped_registers = net->monitoring_number_mapped_registers + 1;
+	net->monitoring_number_mapped_registers = net->monitoring_number_mapped_registers + 2;
+	r = il_net__write(&this->net, 1, 0, 0x00E3, &net->monitoring_number_mapped_registers, 2, 1, 0);
 	r = il_net__read(&this->net, 1, 0, 0x00E4, &net->monitoring_bytes_per_block, sizeof(net->monitoring_bytes_per_block));
 	if (r < 0) {
 
@@ -760,7 +765,7 @@ static int *il_eth_net_disturbance_set_mapped_register(il_net_t *net, int channe
 	return r;
 }
 
-static int il_eth_set_last_channel(il_net_t *net, int channel) 
+static int il_eth_set_last_channel(il_net_t *net, int channel)
 {
 	net->last_channel = net->last_channel > channel ? net->last_channel : channel;
 	return 0;
@@ -1347,7 +1352,7 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 			{
 				size = num_bytes;
 			}
-			uint16_t start_addr = net->monitoring_data_size;
+			uint32_t start_addr = net->monitoring_data_size;
 			memcpy((uint8_t*)&net->monitoring_raw_data[start_addr], (uint8_t*)&pBuf[14], size);
 
 			net->monitoring_data_size += size;

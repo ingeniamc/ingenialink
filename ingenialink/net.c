@@ -172,7 +172,7 @@ uint16_t *il_net_monitornig_data_get(il_net_t *net)
 	return net->monitoring_raw_data;
 }
 
-uint16_t il_net_monitornig_data_size_get(il_net_t *net)
+uint32_t il_net_monitornig_data_size_get(il_net_t *net)
 {
 	return net->monitoring_data_size;
 }
@@ -187,7 +187,7 @@ uint16_t *il_net_disturbance_data_get(il_net_t *net)
 	return net->disturbance_data;
 }
 
-uint16_t il_net_disturbance_data_size_get(il_net_t *net)
+uint32_t il_net_disturbance_data_size_get(il_net_t *net)
 {
 	return net->disturbance_data_size;
 }

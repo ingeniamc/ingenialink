@@ -347,7 +347,7 @@ IL_EXPORT uint16_t *il_net_monitornig_data_get(il_net_t *net);
  * @returns
  *	Network monitoring datasize.
  */
-IL_EXPORT uint16_t il_net_monitornig_data_size_get(il_net_t *net);
+IL_EXPORT uint32_t il_net_monitornig_data_size_get(il_net_t *net);
 
 /**
  * Obtain monitoring bytes per block.
@@ -380,7 +380,7 @@ IL_EXPORT uint16_t *il_net_disturbance_data_get(il_net_t *net);
  * @returns
  *	Network disturbance datasize.
  */
-IL_EXPORT uint16_t il_net_disturbance_data_size_get(il_net_t *net);
+IL_EXPORT uint32_t il_net_disturbance_data_size_get(il_net_t *net);
 
 /**
  * Set network disturbance data.

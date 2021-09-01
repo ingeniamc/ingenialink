@@ -109,7 +109,7 @@ struct monitoring_data_t {
 		int32_t monitoring_data_s32[1024];
 		uint64_t monitoring_data_u64[1024];
 		int64_t monitoring_data_s64[1024];
-		float monitoring_data_flt[1024];
+		float monitoring_data_flt[102400];
 	} value;
 };
 
@@ -162,13 +162,13 @@ struct il_net {
 	/** Monitoring bytes per block */
 	uint16_t monitoring_bytes_per_block;
 	/** Monitoring Data size. */
-	uint16_t monitoring_data_size;
+	uint32_t monitoring_data_size;
 	/** Disturbance Raw Data. */
 	uint16_t disturbance_data[2048];
 	/** Distburbance Data. */
 	struct disturbance_data_t disturbance_data_channels[16];
 	/** Disturbance Data size. */
-	uint16_t disturbance_data_size;
+	uint32_t disturbance_data_size;
 	/** Last disturbance channel */
 	uint8_t last_channel;
 
