@@ -685,9 +685,9 @@ static int *il_eth_net_remove_all_mapped_registers(il_net_t *net)
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
 
-	uint16_t remove_val = 1;
+	uint16_t remove_val = 0;
 
-	r = il_net__write(&this->net, 1, 0, 0x00E2, &remove_val, 2, 1, 0);
+	r = il_net__write(&this->net, 1, 0, 0x00E3, &remove_val, sizeof(uint16_t), 1, 0);
 	if (r < 0) {
 
 	}
@@ -699,24 +699,35 @@ static int *il_eth_net_remove_all_mapped_registers(il_net_t *net)
 /**
 * Monitoring set mapped registers
 */
-static int *il_eth_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
+static int *il_eth_net_set_mapped_register(il_net_t *net, int channel, uint32_t address,
+											uint8_t subnode, il_reg_dtype_t dtype,
+											uint8_t size)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
 
 	net->monitoring_data_channels[channel].type = dtype;
 
-	// Map address
-	// r = il_net__write(&this->net, 1, 0, 0x00E0, &address, 2, 1, 0);
-	// if (r < 0) {
+	uint16_t frame[2];
+	uint16_t hdr_h, hdr_l;
+	uint8_t subnode = subnode;
+	uint16_t address = address;
+	uint8_t data_type = dtype;
+	uint8_t data_size = size;
 
-	// }
-	uint32_t val1 = 6293508;
-	uint32_t val2 = 3213316;
-	r = il_net__write(&this->net, 1, 0, 0x00D0, &val1, 4, 1, 0);
-	r = il_net__write(&this->net, 1, 0, 0x00D1, &val2, 4, 1, 0);
+	hdr_h = ((uint32_t) subnode << 10) | (address);
+	*(uint16_t *)&frame[0] = hdr_h;
+
+	hdr_l = ((uint32_t) data_type << 8) | (data_size);
+	*(uint16_t *)&frame[1] = hdr_l;
+
+	r = il_net__write(&this->net, 1, 0, 0x00D0, (const char*)&frame[0], sizeof(uint32_t), 1, 0);
+	// uint32_t val1 = 6293508;
+	// uint32_t val2 = 3213316;
+	// r = il_net__write(&this->net, 1, 0, 0x00D0, &val1, sizeof(uint32_t), 1, 0);
+	// r = il_net__write(&this->net, 1, 0, 0x00D1, &val2, sizeof(uint32_t), 1, 0);
 	// Update number of mapped registers & monitoring bytes per block
-	net->monitoring_number_mapped_registers = net->monitoring_number_mapped_registers + 2;
+	net->monitoring_number_mapped_registers = net->monitoring_number_mapped_registers + 1;
 	r = il_net__write(&this->net, 1, 0, 0x00E3, &net->monitoring_number_mapped_registers, 2, 1, 0);
 	r = il_net__read(&this->net, 1, 0, 0x00E4, &net->monitoring_bytes_per_block, sizeof(net->monitoring_bytes_per_block));
 	if (r < 0) {
