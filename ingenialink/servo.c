@@ -226,6 +226,7 @@ cleanup_ids:
 int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int subnode)
 {
 	int r = -1;
+	int all_subnodes = -1;
 	const char **ids = NULL;
 
 	il_dict_t *dict = il_dict_create(dict_path);
@@ -235,7 +236,7 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 	// Subnodes = axis available at servo + 1 subnode of general parameters
 	int subnodes = servo->subnodes + 1;
 	for (int j = 0; j < subnodes; j++) {
-		if (subnode == 0 || j == subnode) {
+		if (subnode == all_subnodes || j == subnode) {
 			printf("Loading subnode %i...\n", j);
 			ids = il_dict_reg_ids_get(dict, j);
 			if (!ids)
