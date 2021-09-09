@@ -237,10 +237,13 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 	int subnodes = servo->subnodes + 1;
 	for (int j = 0; j < subnodes; j++) {
 		if (subnode == all_subnodes || j == subnode) {
-			printf("Loading subnode %i...\n", j);
 			ids = il_dict_reg_ids_get(dict, j);
 			if (!ids)
 				return IL_EFAIL;
+
+			if (ids[0] != NULL) {
+				printf("Loading subnode %i...\n", j);
+			}
 
 			for (size_t i = 0; ids[i]; i++) {
 				const il_reg_t *reg;
