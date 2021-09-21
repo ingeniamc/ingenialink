@@ -28,7 +28,6 @@
 #include <string.h>
 
 #include "ingenialink/err.h"
-#include "..\..\ConsoleApplication2\ConsoleApplication2\net.h"
 
 /*******************************************************************************
  * Internal
