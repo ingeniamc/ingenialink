@@ -425,7 +425,8 @@ IL_EXPORT int *il_net_remove_all_mapped_registers(il_net_t *net);
  *	  Data Type.
  *
  */
-IL_EXPORT int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype);
+IL_EXPORT int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address,
+											uint8_t subnode, il_reg_dtype_t dtype, uint8_t size);
 
 
 /**
@@ -455,6 +456,42 @@ IL_EXPORT int *il_net_enable_monitoring(il_net_t *net);
  *
  */
 IL_EXPORT int *il_net_disable_monitoring(il_net_t *net);
+
+/**
+ * Enable monitoring.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ */
+IL_EXPORT int *il_net_enable_disturbance(il_net_t *net);
+
+/**
+ * Disable monitoring.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ */
+IL_EXPORT int *il_net_disable_disturbance(il_net_t *net);
+
+/**
+ * Remove data from disturbance.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ */
+IL_EXPORT int *il_net_disturbance_remove_data(il_net_t *net);
+
+/**
+ * Remove data from monitoing.
+ *
+ * @param [in] net
+ *	  Network.
+ *
+ */
+IL_EXPORT int *il_net_monitoring_remove_data(il_net_t *net);
 
 /**
  * Read monitoring data.
@@ -561,7 +598,7 @@ IL_EXPORT int *il_net_disturbance_remove_all_mapped_registers(il_net_t *net);
  *	  Data Type.
  *
  */
-IL_EXPORT int *il_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype);
+IL_EXPORT int *il_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address, uint8_t subnode, il_reg_dtype_t dtype, uint8_t size);
 
 /**
  * Set network disturbance uint16 data.

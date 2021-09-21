@@ -28,11 +28,11 @@
 #include <string.h>
 
 #include "ingenialink/err.h"
+#include "..\..\ConsoleApplication2\ConsoleApplication2\net.h"
 
 /*******************************************************************************
  * Internal
  ******************************************************************************/
-
 void il_net__retain(il_net_t *net)
 {
 	net->ops->_retain(net);
@@ -207,9 +207,9 @@ int *il_net_remove_all_mapped_registers(il_net_t *net)
 	return net->ops->remove_all_mapped_registers(net);
 }
 
-int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
+int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, uint8_t subnode, il_reg_dtype_t dtype, uint8_t size)
 {
-	return net->ops->set_mapped_register(net, channel, address, dtype);
+	return net->ops->set_mapped_register(net, channel, address, subnode, dtype, size);
 }
 
 uint16_t il_net_num_mapped_registers_get(il_net_t *net)
@@ -225,6 +225,26 @@ int *il_net_enable_monitoring(il_net_t *net)
 int *il_net_disable_monitoring(il_net_t *net)
 {
 	return net->ops->disable_monitoring(net);
+}
+
+int *il_net_enable_disturbance(il_net_t *net)
+{
+	return net->ops->enable_disturbance(net);
+}
+
+int *il_net_disable_disturbance(il_net_t *net)
+{
+	return net->ops->disable_disturbance(net);
+}
+
+int *il_net_disturbance_remove_data(il_net_t *net)
+{
+	return net->ops->disturbance_remove_data(net);
+}
+
+int *il_net_monitoring_remove_data(il_net_t *net)
+{
+	return net->ops->monitoring_remove_data(net);
 }
 
 int *il_net_read_monitoring_data(il_net_t *net)
@@ -262,10 +282,14 @@ int *il_net_disturbance_remove_all_mapped_registers(il_net_t *net)
 	return net->ops->disturbance_remove_all_mapped_registers(net);
 }
 
-int *il_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
+
+
+int *il_net_disturbance_set_mapped_register(il_net_t *net,
+	int channel, uint32_t address,
+	uint8_t subnode, il_reg_dtype_t dtype, uint8_t size)
 {
 	net->last_channel = net->last_channel > channel ? net->last_channel : channel;
-	return net->ops->disturbance_set_mapped_register(net, channel, address, dtype);
+	return net->ops->disturbance_set_mapped_register(net, channel, address, subnode, dtype, size);
 }
 
 void il_net_disturbance_data_u16_set(il_net_t *net, int channel, uint16_t disturbance_data[2048])

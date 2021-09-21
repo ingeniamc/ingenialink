@@ -594,6 +594,8 @@ static int *il_ecat_net_disturbance_remove_all_mapped_registers(il_net_t *net)
 
 	}
 
+	net->disturbance_number_mapped_registers = 0;
+
 	return r;
 }
 
