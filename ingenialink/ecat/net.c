@@ -841,18 +841,7 @@ static int il_ecat_net_disturbance_set_mapped_register_v2(il_net_t *net, int cha
 /**
 * Monitoring enable
 */
-static int *il_ecat_net_enable_monitoring(il_net_t *net)
-{
-	int r = 0;
-	il_ecat_net_t *this = to_ecat_net(net);
 
-	uint16_t enable_monitoring_val = 1;
-	r = il_net__write(&this->net, 1, 0, 0x00C0, &enable_monitoring_val, 2, 1, 0);
-	if (r < 0) {
-
-	}
-	return r;
-}
 
 static int *il_ecat_net_enable_disturbance(il_net_t *net)
 {
@@ -953,13 +942,6 @@ static int *il_ecat_net_disable_monitoring(il_net_t *net)
 	if (r < 0) {
 
 	}
-	return r;
-}
-
-static int *il_ecat_net_enable_monitoring(il_net_t *net)
-{
-	int r = 0;
-	il_ecat_net_t *this = to_ecat_net(net);
 
 	uint32_t mon_dist_version = 0;
 	r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
@@ -970,6 +952,13 @@ static int *il_ecat_net_enable_monitoring(il_net_t *net)
 
 		}
 	}
+	return r;
+}
+
+static int *il_ecat_net_enable_monitoring(il_net_t *net)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
 
 	uint16_t enable_monitoring_val = 1;
 	r = il_net__write(&this->net, 1, 0, 0x00C0, &enable_monitoring_val, 2, 1, 0);
@@ -978,6 +967,23 @@ static int *il_ecat_net_enable_monitoring(il_net_t *net)
 	}
 	return r;
 }
+
+static int *il_ecat_net_read_monitoring_data(il_net_t *net)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
+	uint64_t vid;
+
+
+	osal_mutex_lock(this->net.lock);
+	r = il_ecat_net__read_monitoring(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
+	if (r < 0) {
+
+	}
+	osal_mutex_unlock(this->net.lock);
+}
+
 
 /**
 * Monitor event callback.
@@ -2968,6 +2974,8 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	/* Disturbance */
 	.disturbance_remove_all_mapped_registers = il_ecat_net_disturbance_remove_all_mapped_registers,
 	.disturbance_set_mapped_register = il_ecat_net_disturbance_set_mapped_register,
+	.enable_disturbance = il_ecat_net_enable_disturbance,
+	.disable_disturbance = il_ecat_net_disable_disturbance,
 	/* Master EtherCAT */
 	.master_startup = il_ecat_net_master_startup,
 	.num_slaves_get = il_ecat_net_num_slaves_get,
