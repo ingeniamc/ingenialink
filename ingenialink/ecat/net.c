@@ -116,6 +116,44 @@ uint16 argslave;
 /*******************************************************************************
 * Private
 ******************************************************************************/
+int il_net_ecat_monitoring_mapping_registers[16] = {
+	0x0D0,
+	0x0D1,
+	0x0D2,
+	0x0D3,
+	0x0D4,
+	0x0D5,
+	0x0D6,
+	0x0D7,
+	0x0D8,
+	0x0D9,
+	0x0DA,
+	0x0DB,
+	0x0DC,
+	0x0DD,
+	0x0DE,
+	0x0DF
+};
+
+int il_net_ecat_disturbance_mapping_registers[16] = {
+	0x090,
+	0x091,
+	0x092,
+	0x093,
+	0x094,
+	0x095,
+	0x096,
+	0x097,
+	0x098,
+	0x099,
+	0x09A,
+	0x09B,
+	0x09C,
+	0x09D,
+	0x09E,
+	0x09F
+};
+
 
 /**
 * Destroy ECAT network.
@@ -544,9 +582,42 @@ static int *il_ecat_net_remove_all_mapped_registers(il_net_t *net)
 	int r = 0;
 	il_ecat_net_t *this = to_ecat_net(net);
 
-	uint16_t remove_val = 1;
+	// Check the Monitoring/Disturbance version
+	uint32_t mon_dist_version = 0;
+	r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
+	if (r < 0) {
+		// Old monitoring implementation
+		r = il_ecat_net_remove_all_mapped_registers_v1(net);
+	}
+	else {
+		r = il_ecat_net_remove_all_mapped_registers_v2(net);
+	}
 
+	return r;
+}
+
+static int il_ecat_net_remove_all_mapped_registers_v1(il_net_t *net)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
+	uint16_t remove_val = 1;
 	r = il_net__write(&this->net, 1, 0, 0x00E2, &remove_val, 2, 1, 0);
+	if (r < 0) {
+
+	}
+
+	net->monitoring_number_mapped_registers = 0;
+	return r;
+}
+
+static int il_ecat_net_remove_all_mapped_registers_v2(il_net_t *net)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
+	uint16_t remove_val = 0;
+	r = il_net__write(&this->net, 1, 0, 0x00E3, &remove_val, sizeof(uint16_t), 1, 0);
 	if (r < 0) {
 
 	}
@@ -558,7 +629,30 @@ static int *il_ecat_net_remove_all_mapped_registers(il_net_t *net)
 /**
 * Monitoring set mapped registers
 */
-static int *il_ecat_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
+static int *il_ecat_net_set_mapped_register(il_net_t *net, int channel, uint32_t address,
+											uint8_t subnode, il_reg_dtype_t dtype,
+											uint8_t size)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
+	// Check the Monitoring/Disturbance version
+	uint32_t mon_dist_version = 0;
+	r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
+	if (r < 0) {
+		// Old monitoring implementation
+		r = il_ecat_net_set_mapped_register_v1(net, channel, address, dtype);
+	}
+	else {
+		il_ecat_net_set_mapped_register_v2(net, channel,
+											address, subnode,
+											dtype, size);
+	}
+
+	return r;
+}
+
+static int il_ecat_net_set_mapped_register_v1(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
 {
 	int r = 0;
 	il_ecat_net_t *this = to_ecat_net(net);
@@ -576,6 +670,43 @@ static int *il_ecat_net_set_mapped_register(il_net_t *net, int channel, uint32_t
 	if (r < 0) {
 
 	}
+
+	return r;
+}
+
+static int il_ecat_net_set_mapped_register_v2(il_net_t *net, int channel, uint32_t address,
+											uint8_t subnode, il_reg_dtype_t dtype,
+											uint8_t size)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
+	net->monitoring_data_channels[channel].type = dtype;
+
+	uint16_t frame[2];
+	uint16_t hdr_h, hdr_l;
+	uint16_t reg_address = address;
+	uint8_t reg_subnode = subnode;
+	uint8_t data_type = dtype;
+	uint8_t data_size = size;
+
+	hdr_l = ((uint32_t)data_type << 8) | (data_size);
+	*(uint16_t *)&frame[0] = hdr_l;
+
+	hdr_h = ((uint32_t) (subnode) << 12) | (address);
+	*(uint16_t *)&frame[1] = hdr_h;
+
+	uint32_t entire_frame = *(uint32_t*)frame;
+	r = il_net__write(&this->net, 1, 0, il_net_ecat_monitoring_mapping_registers[net->monitoring_number_mapped_registers], &entire_frame, 4, 1, 0);
+
+	// Update number of mapped registers & monitoring bytes per block
+	net->monitoring_number_mapped_registers = net->monitoring_number_mapped_registers + 1;
+	r = il_net__write(&this->net, 1, 0, 0x00E3, &net->monitoring_number_mapped_registers, 2, 1, 0);
+	r = il_net__read(&this->net, 1, 0, 0x00E4, &net->monitoring_bytes_per_block, sizeof(net->monitoring_bytes_per_block));
+	if (r < 0) {
+
+	}
+
 	return r;
 }
 
@@ -587,22 +718,77 @@ static int *il_ecat_net_disturbance_remove_all_mapped_registers(il_net_t *net)
 	int r = 0;
 	il_ecat_net_t *this = to_ecat_net(net);
 
-	uint16_t remove_val = 1;
+	// Check the Monitoring/Disturbance version
+	uint32_t mon_dist_version = 0;
+	r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
+	if (r < 0) {
+		// Old monitoring implementation
+		r = il_ecat_net_disturbance_remove_all_mapped_registers_v1(net);
+	}
+	else {
+		r = il_ecat_net_disturbance_remove_all_mapped_registers_v2(net);
+	}
 
+	return r;
+}
+
+static int il_ecat_net_disturbance_remove_all_mapped_registers_v1(il_net_t *net)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
+	uint16_t remove_val = 1;
 	r = il_net__write(&this->net, 1, 0, 0x00E7, &remove_val, 2, 1, 0);
 	if (r < 0) {
 
 	}
 
 	net->disturbance_number_mapped_registers = 0;
+	return r;
+}
 
+static int il_ecat_net_disturbance_remove_all_mapped_registers_v2(il_net_t *net)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
+	uint16_t remove_val = 0;
+	r = il_net__write(&this->net, 1, 0, 0x00E8, &remove_val, 2, 1, 0);
+	if (r < 0) {
+
+	}
+
+	net->disturbance_number_mapped_registers = 0;
 	return r;
 }
 
 /**
 * Disturbance set mapped reg
 */
-static int *il_ecat_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype)
+static int *il_ecat_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address,
+														uint8_t subnode, il_reg_dtype_t dtype,
+														uint8_t size)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
+	// Check the Monitoring/Disturbance version
+	uint32_t mon_dist_version = 0;
+	r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
+	if (r < 0) {
+		// Old monitoring implementation
+		il_ecat_net_disturbance_set_mapped_register_v1(net, channel, address, subnode, dtype, size);
+	}
+	else {
+		il_ecat_net_disturbance_set_mapped_register_v2(net, channel, address, subnode, dtype, size);
+	}
+
+	return r;
+}
+
+static int il_ecat_net_disturbance_set_mapped_register_v1(il_net_t *net, int channel, uint32_t address,
+															uint8_t subnode, il_reg_dtype_t dtype,
+															uint8_t size)
 {
 	int r = 0;
 	il_ecat_net_t *this = to_ecat_net(net);
@@ -615,6 +801,38 @@ static int *il_ecat_net_disturbance_set_mapped_register(il_net_t *net, int chann
 	if (r < 0) {
 
 	}
+
+	return r;
+}
+
+static int il_ecat_net_disturbance_set_mapped_register_v2(il_net_t *net, int channel, uint32_t address,
+														uint8_t subnode, il_reg_dtype_t dtype,
+														uint8_t size)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
+	net->disturbance_data_channels[channel].type = dtype;
+
+	uint16_t frame[2];
+	uint16_t hdr_h, hdr_l;
+	uint16_t reg_address = address;
+	uint8_t reg_subnode = subnode;
+	uint8_t data_type = dtype;
+	uint8_t data_size = size;
+
+	hdr_l = ((uint32_t)data_type << 8) | (data_size);
+	*(uint16_t *)&frame[0] = hdr_l;
+
+	hdr_h = ((uint32_t) (subnode) << 12) | (address);		// subnode | address
+	*(uint16_t *)&frame[1] = hdr_h;
+
+	uint32_t entire_frame = *(uint32_t*)frame;
+	r = il_net__write(&this->net, 1, 0, il_net_ecat_disturbance_mapping_registers[net->disturbance_number_mapped_registers], &entire_frame, 4, 1, 0);
+
+	// Update number of mapped registers
+	net->disturbance_number_mapped_registers = net->disturbance_number_mapped_registers + 1;
+	r = il_net__write(&this->net, 1, 0, 0x0E8, &net->disturbance_number_mapped_registers, 2, 1, 0);
 
 	return r;
 }
@@ -636,6 +854,95 @@ static int *il_ecat_net_enable_monitoring(il_net_t *net)
 	return r;
 }
 
+static int *il_ecat_net_enable_disturbance(il_net_t *net)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
+	uint16_t enable_disturbance_val = 1;
+
+	// Check the Monitoring/Disturbance version
+	uint32_t mon_dist_version = 0;
+	r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
+	if (r < 0) {
+		// Old version
+		r = il_net__write(&this->net, 1, 0, 0x00C0, &enable_disturbance_val, 2, 1, 0);
+		if (r < 0) {
+
+		}
+	} else {
+		// New version
+		// Obtaining the bit to know if monitoring and disturbance are detached or not
+		int detached_monitoring_bit = 0;
+		int mask =  1 << detached_monitoring_bit;
+		int masked_n = mon_dist_version & mask;
+		int detached_monitoring = masked_n >> detached_monitoring_bit;
+		if (detached_monitoring == 0) {
+			// Monitoring and distrubance are NOT detached.
+			r = il_net__write(&this->net, 1, 0, 0x00C0, &enable_disturbance_val, 2, 1, 0);
+			if (r < 0) {
+
+			}
+		}
+		else {
+			// Monitoring and disturbance are detached and we need to write in the new register.
+			r = il_net__write(&this->net, 1, 0, 0x00C6, &enable_disturbance_val, 2, 1, 0);
+			if (r < 0) {
+
+			}
+		}
+	}
+
+	return r;
+}
+
+static int *il_ecat_net_disable_disturbance(il_net_t *net)
+{
+	int r = 0;
+	il_ecat_net_t *this = to_ecat_net(net);
+
+	uint16_t disable_disturbance_val = 0;
+
+	// Check the Monitoring/Disturbance version
+	uint32_t mon_dist_version = 0;
+	r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
+	if (r < 0) {
+		// Old version
+		r = il_net__write(&this->net, 1, 0, 0x00C0, &disable_disturbance_val, 2, 1, 0);
+		if (r < 0) {
+
+		}
+	} else {
+		// New version
+		// Obtaining the bit to know if monitoring and disturbance are detached or not
+		int detached_monitoring_bit = 0;
+		int mask =  1 << detached_monitoring_bit;
+		int masked_n = mon_dist_version & mask;
+		int detached_monitoring = masked_n >> detached_monitoring_bit;
+		if (detached_monitoring == 0) {
+			// Monitoring and distrubance are NOT detached.
+			r = il_net__write(&this->net, 1, 0, 0x00C0, &disable_disturbance_val, 2, 1, 0);
+			if (r < 0) {
+
+			}
+		}
+		else {
+			// Monitoring and disturbance are detached and we need to write in the new register.
+			r = il_net__write(&this->net, 1, 0, 0x00C6, &disable_disturbance_val, 2, 1, 0);
+			if (r < 0) {
+
+			}
+		}
+		uint16_t remove_data_val = 1;
+		r = il_net__write(&this->net, 1, 0, 0x0E1, &remove_data_val, 2, 1, 0);
+		if (r < 0) {
+		}
+	}
+
+	return r;
+}
+
+
 static int *il_ecat_net_disable_monitoring(il_net_t *net)
 {
 	int r = 0;
@@ -649,19 +956,27 @@ static int *il_ecat_net_disable_monitoring(il_net_t *net)
 	return r;
 }
 
-static int *il_ecat_net_read_monitoring_data(il_net_t *net)
+static int *il_ecat_net_enable_monitoring(il_net_t *net)
 {
 	int r = 0;
 	il_ecat_net_t *this = to_ecat_net(net);
 
-	uint64_t vid;
+	uint32_t mon_dist_version = 0;
+	r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
+	if (r >= 0) {
+		uint16_t remove_data_val = 1;
+		r = il_net__write(&this->net, 1, 0, 0x0E0, &remove_data_val, 2, 1, 0);
+		if (r < 0) {
 
-	osal_mutex_lock(this->net.lock);
-	r = il_ecat_net__read_monitoring(&this->net, 1, 0, 0x00B2, &vid, sizeof(vid));
+		}
+	}
+
+	uint16_t enable_monitoring_val = 1;
+	r = il_net__write(&this->net, 1, 0, 0x00C0, &enable_monitoring_val, 2, 1, 0);
 	if (r < 0) {
 
 	}
-	osal_mutex_unlock(this->net.lock);
+	return r;
 }
 
 /**

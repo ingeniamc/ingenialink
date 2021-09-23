@@ -1109,16 +1109,6 @@ static int *il_eth_net_enable_monitoring(il_net_t *net)
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
 
-	uint32_t mon_dist_version = 0;
-	r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
-	if (r >= 0) {
-		uint16_t remove_data_val = 1;
-		r = il_net__write(&this->net, 1, 0, 0x0E0, &remove_data_val, 2, 1, 0);
-		if (r < 0) {
-
-		}
-	}
-
 	uint16_t enable_monitoring_val = 1;
 	r = il_net__write(&this->net, 1, 0, 0x00C0, &enable_monitoring_val, 2, 1, 0);
 	if (r < 0) {
@@ -1137,6 +1127,17 @@ static int *il_eth_net_disable_monitoring(il_net_t *net)
 	if (r < 0) {
 
 	}
+
+	uint32_t mon_dist_version = 0;
+	r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
+	if (r >= 0) {
+		uint16_t remove_data_val = 1;
+		r = il_net__write(&this->net, 1, 0, 0x0E0, &remove_data_val, 2, 1, 0);
+		if (r < 0) {
+
+		}
+	}
+
 	return r;
 }
 
