@@ -1071,29 +1071,29 @@ static int *il_eth_net_disable_disturbance(il_net_t *net)
 	return r;
 }
 
-// static int *il_eth_net_monitoring_remove_data(il_net_t *net)
-// {
-// 	int r = 0;
-// 	il_eth_net_t *this = to_eth_net(net);
-// 	uint16_t remove_data_val = 1;
+static int *il_eth_net_monitoring_remove_data(il_net_t *net)
+{
+	int r = 0;
+	il_eth_net_t *this = to_eth_net(net);
+	uint16_t remove_data_val = 1;
 
-// 	r = il_net__write(&this->net, 1, 0, 0x0E0, &remove_data_val, 2, 1, 0);
-// 	if (r < 0) {
+	r = il_net__write(&this->net, 1, 0, 0x0E0, &remove_data_val, 2, 1, 0);
+	if (r < 0) {
 
-// 	}
-// }
+	}
+}
 
-// static int *il_eth_net_disturbance_remove_data(il_net_t *net)
-// {
-// 	int r = 0;
-// 	il_eth_net_t *this = to_eth_net(net);
-// 	uint16_t remove_data_val = 1;
+static int *il_eth_net_disturbance_remove_data(il_net_t *net)
+{
+	int r = 0;
+	il_eth_net_t *this = to_eth_net(net);
+	uint16_t remove_data_val = 1;
 
-// 	r = il_net__write(&this->net, 1, 0, 0x0E1, &remove_data_val, 2, 1, 0);
-// 	if (r < 0) {
+	r = il_net__write(&this->net, 1, 0, 0x0E1, &remove_data_val, 2, 1, 0);
+	if (r < 0) {
 
-// 	}
-// }
+	}
+}
 
 static int il_eth_set_last_channel(il_net_t *net, int channel)
 {
@@ -1816,16 +1816,17 @@ const il_eth_net_ops_t il_eth_net_ops = {
 	.set_mapped_register = il_eth_net_set_mapped_register,
 	.enable_monitoring = il_eth_net_enable_monitoring,
 	.disable_monitoring = il_eth_net_disable_monitoring,
-	.read_monitoring_data = il_eth_net_read_monitoring_data,
-	.recv_monitoring = il_eth_net_recv_monitoring,
+
 	/* Disturbance */
 	.disturbance_remove_all_mapped_registers = il_eth_net_disturbance_remove_all_mapped_registers,
 	.disturbance_set_mapped_register = il_eth_net_disturbance_set_mapped_register,
 	// .set_last_channel = il_eth_set_last_channel,
 	.enable_disturbance = il_eth_net_enable_disturbance,
 	.disable_disturbance = il_eth_net_disable_disturbance,
-	// .monitoring_remove_data = il_eth_net_monitoring_remove_data,
-	// .disturbance_remove_data = il_eth_net_disturbance_remove_data,
+	.monitoring_remove_data = il_eth_net_monitoring_remove_data,
+	.disturbance_remove_data = il_eth_net_disturbance_remove_data,
+	.read_monitoring_data = il_eth_net_read_monitoring_data,
+	.recv_monitoring = il_eth_net_recv_monitoring,
 	.set_reconnection_retries = il_eth_set_reconnection_retries,
 	.set_recv_timeout = il_eth_set_recv_timeout,
 	.set_status_check_stop = il_eth_set_status_check_stop

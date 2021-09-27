@@ -246,13 +246,14 @@ typedef struct {
 	int (*disable_monitoring)();
 	int (*enable_disturbance)();
 	int (*disable_disturbance)();
+	int (*monitoring_remove_data)();
+	int (*disturbance_remove_data)();
 	int (*read_monitoring_data)();
 	int (*recv_monitoring)();
 	/** Disturbance. */
 	int (*disturbance_remove_all_mapped_registers)();
 	int (*disturbance_set_mapped_register)();
-	int (*monitoring_remove_data)();
-	int (*disturbance_remove_data)();
+
 } il_net_ops_t;
 
 
@@ -326,6 +327,8 @@ typedef struct {
 	int (*disable_monitoring)();
 	int (*enable_disturbance)();
 	int (*disable_disturbance)();
+	int (*monitoring_remove_data)();
+	int (*disturbance_remove_data)();
 	int (*read_monitoring_data)();
 	int (*recv_monitoring)();
 	/** Disturbance. */
@@ -342,8 +345,7 @@ typedef struct {
 	int (*SDO_read)();
 	int (*SDO_read_string)();
 	int (*SDO_write)();
-	int (*disturbance_remove_data)();
-	int (*monitoring_remove_data)();
+
 } il_eth_net_ops_t;
 
 /** Network device monitor operations. */
@@ -432,6 +434,8 @@ typedef struct {
 	int (*enable_disturbance)();
 	int (*disable_disturbance)();
 	int (*read_monitoring_data)();
+	int (*monitoring_remove_data)();
+	int (*disturbance_remove_data)();
 	int (*recv_monitoring)();
 	/** Disturbance. */
 	int (*disturbance_remove_all_mapped_registers)();
@@ -455,8 +459,6 @@ typedef struct {
 	int (*SDO_read)();
 	int (*SDO_read_string)();
 	int (*SDO_write)();
-	int (*monitoring_remove_data)();
-	int (*disturbance_remove_data)();
 } il_ecat_net_ops_t;
 
 #endif

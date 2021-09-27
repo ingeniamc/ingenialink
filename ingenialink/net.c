@@ -236,14 +236,14 @@ int *il_net_disable_disturbance(il_net_t *net)
 	return net->ops->disable_disturbance(net);
 }
 
-int *il_net_disturbance_remove_data(il_net_t *net)
-{
-	return net->ops->disturbance_remove_data(net);
-}
-
 int *il_net_monitoring_remove_data(il_net_t *net)
 {
 	return net->ops->monitoring_remove_data(net);
+}
+
+int *il_net_disturbance_remove_data(il_net_t *net)
+{
+	return net->ops->disturbance_remove_data(net);
 }
 
 int *il_net_read_monitoring_data(il_net_t *net)
