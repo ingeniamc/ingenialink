@@ -1062,10 +1062,6 @@ static int *il_eth_net_disable_disturbance(il_net_t *net)
 
 			}
 		}
-		uint16_t remove_data_val = 1;
-		r = il_net__write(&this->net, 1, 0, 0x0E1, &remove_data_val, 2, 1, 0);
-		if (r < 0) {
-		}
 	}
 
 	return r;
@@ -1126,16 +1122,6 @@ static int *il_eth_net_disable_monitoring(il_net_t *net)
 	r = il_net__write(&this->net, 1, 0, 0x00C0, &disable_monitoring_val, 2, 1, 0);
 	if (r < 0) {
 
-	}
-
-	uint32_t mon_dist_version = 0;
-	r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
-	if (r >= 0) {
-		uint16_t remove_data_val = 1;
-		r = il_net__write(&this->net, 1, 0, 0x0E0, &remove_data_val, 2, 1, 0);
-		if (r < 0) {
-
-		}
 	}
 
 	return r;
