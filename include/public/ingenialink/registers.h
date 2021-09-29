@@ -57,6 +57,8 @@ typedef enum {
 	IL_REG_DTYPE_S64,
 	/** Float. */
 	IL_REG_DTYPE_FLOAT,
+	/** Float64 */
+	IL_REG_DTYPE_FLOAT64,
 	/** String. */
 	IL_REG_DTYPE_STR,
 } il_reg_dtype_t;
