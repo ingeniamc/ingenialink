@@ -433,9 +433,9 @@ typedef struct {
 	int (*disable_monitoring)();
 	int (*enable_disturbance)();
 	int (*disable_disturbance)();
-	int (*read_monitoring_data)();
 	int (*monitoring_remove_data)();
 	int (*disturbance_remove_data)();
+	int (*read_monitoring_data)();
 	int (*recv_monitoring)();
 	/** Disturbance. */
 	int (*disturbance_remove_all_mapped_registers)();
