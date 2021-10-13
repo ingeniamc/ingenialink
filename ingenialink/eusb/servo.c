@@ -617,12 +617,11 @@ static double il_eusb_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 	return factor;
 }
 
-static int il_eusb_servo_disable(il_servo_t *servo)
+static int il_eusb_servo_disable(il_servo_t *servo, int timeout)
 {
 	int r;
 	uint16_t sw;
 	il_servo_state_t state;
-	int timeout = PDS_TIMEOUT;
 
 	sw = sw_get(servo);
 
