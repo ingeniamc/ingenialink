@@ -748,12 +748,11 @@ static int il_eusb_servo_enable(il_servo_t *servo, int timeout)
 	return 0;
 }
 
-static int il_eusb_servo_fault_reset(il_servo_t *servo)
+static int il_eusb_servo_fault_reset(il_servo_t *servo, int timeout)
 {
 	int r;
 	uint16_t sw;
 	il_servo_state_t state;
-	int timeout = PDS_TIMEOUT;
 
 	sw = sw_get(servo);
 

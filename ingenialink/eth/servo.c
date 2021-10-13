@@ -399,7 +399,7 @@ static int il_eth_servo_disable(il_servo_t *servo, int timeout, uint8_t subnode)
 		/* try fault reset if faulty */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_servo_fault_reset(servo, subnode);
+			r = il_servo_fault_reset(servo, timeout, subnode);
 			if (r < 0)
 				return r;
 
@@ -437,7 +437,7 @@ static int il_eth_servo_switch_on(il_servo_t *servo, int timeout, uint8_t subnod
 		/* try fault reset if faulty */
 		if ((state == IL_SERVO_STATE_FAULT) ||
 		    (state == IL_SERVO_STATE_FAULTR)) {
-			r = il_servo_fault_reset(servo, subnode);
+			r = il_servo_fault_reset(servo, timeout, subnode);
 			if (r < 0)
 				return r;
 
@@ -487,7 +487,7 @@ static int il_eth_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode)
 	/* try fault reset if faulty */
 	if ((state == IL_SERVO_STATE_FAULT) ||
 		(state == IL_SERVO_STATE_FAULTR)) {
-		r = il_servo_fault_reset(servo, subnode);
+		r = il_servo_fault_reset(servo, timeout, subnode);
 		if (r < 0)
 			return r;
 
@@ -528,12 +528,11 @@ static int il_eth_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode)
 	return 0;
 }
 
-static int il_eth_servo_fault_reset(il_servo_t *servo, uint8_t subnode)
+static int il_eth_servo_fault_reset(il_servo_t *servo, int timeout, uint8_t subnode)
 {
 	int r;
 	uint16_t sw;
 	il_servo_state_t state;
-	int timeout = PDS_TIMEOUT;
 	int retries = 0;
 
 	sw = sw_get(servo, subnode);

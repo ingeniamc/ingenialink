@@ -521,12 +521,11 @@ static int il_mcb_servo_enable(il_servo_t *servo, int timeout)
 	return 0;
 }
 
-static int il_mcb_servo_fault_reset(il_servo_t *servo)
+static int il_mcb_servo_fault_reset(il_servo_t *servo, int timeout)
 {
 	int r;
 	uint16_t sw;
 	il_servo_state_t state;
-	int timeout = PDS_TIMEOUT;
 	int retries = 0;
 
 	sw = sw_get(servo);

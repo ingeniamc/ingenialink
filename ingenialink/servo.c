@@ -540,9 +540,9 @@ int il_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode)
 	return servo->ops->enable(servo, timeout, subnode);
 }
 
-int il_servo_fault_reset(il_servo_t *servo, uint8_t subnode)
+int il_servo_fault_reset(il_servo_t *servo, int timeout, uint8_t subnode)
 {
-	return servo->ops->fault_reset(servo, subnode);
+	return servo->ops->fault_reset(servo, timeout, subnode);
 }
 
 int il_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode)
