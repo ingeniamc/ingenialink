@@ -748,7 +748,7 @@ static int il_eusb_servo_enable(il_servo_t *servo, uint8_t subnode, int timeout)
 	return 0;
 }
 
-static int il_eusb_servo_fault_reset(il_servo_t *servo, int timeout)
+static int il_eusb_servo_fault_reset(il_servo_t *servo, uint8_t subnode, int timeout)
 {
 	int r;
 	uint16_t sw;

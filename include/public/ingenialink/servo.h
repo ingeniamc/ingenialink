@@ -1037,7 +1037,7 @@ IL_EXPORT int il_servo_enable(il_servo_t *servo, uint8_t subnode, int timeout);
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_fault_reset(il_servo_t *servo, int timeout, uint8_t subnode);
+IL_EXPORT int il_servo_fault_reset(il_servo_t *servo, uint8_t subnode, int timeout);
 
 /**
  * Get the servo operation mode.

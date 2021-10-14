@@ -716,7 +716,7 @@ static int il_virtual_servo_enable(il_servo_t *servo, uint8_t subnode, int timeo
 	return 0;
 }
 
-static int il_virtual_servo_fault_reset(il_servo_t *servo)
+static int il_virtual_servo_fault_reset(il_servo_t *servo, uint8_t subnode, int timeout)
 {
 	il_virtual_servo_t *this = to_virtual_servo(servo);
 
