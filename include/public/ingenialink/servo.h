@@ -988,7 +988,7 @@ IL_EXPORT int il_servo_write(il_servo_t *servo, const il_reg_t *reg,
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_disable(il_servo_t *servo, int timeout, uint8_t subnode);
+IL_EXPORT int il_servo_disable(il_servo_t *servo, uint8_t subnode, int timeout);
 
 /**
  * Switch on servo PDS.

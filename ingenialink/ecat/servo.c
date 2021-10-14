@@ -374,7 +374,7 @@ static double il_ecat_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 	return not_supported();
 }
 
-static int il_ecat_servo_disable(il_servo_t *servo, int timeout, uint8_t subnode)
+static int il_ecat_servo_disable(il_servo_t *servo, uint8_t subnode, int timeout)
 {
 	int r;
 	uint16_t sw;

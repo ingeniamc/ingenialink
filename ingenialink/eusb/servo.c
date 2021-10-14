@@ -617,7 +617,7 @@ static double il_eusb_servo_units_factor(il_servo_t *servo, const il_reg_t *reg)
 	return factor;
 }
 
-static int il_eusb_servo_disable(il_servo_t *servo, int timeout)
+static int il_eusb_servo_disable(il_servo_t *servo, uint8_t subnode, int timeout)
 {
 	int r;
 	uint16_t sw;
@@ -653,7 +653,7 @@ static int il_eusb_servo_disable(il_servo_t *servo, int timeout)
 	return 0;
 }
 
-static int il_eusb_servo_switch_on(il_servo_t *servo, int timeout)
+static int il_eusb_servo_switch_on(il_servo_t *servo, uint8_t subnode, int timeout)
 {
 	int r;
 	uint16_t sw, cmd;

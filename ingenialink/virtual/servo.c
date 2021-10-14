@@ -685,7 +685,7 @@ int il_servo_virtual_raw_write_float(il_servo_t *servo, const il_reg_t *reg,
 			 sizeof(val_), confirm);
 }
 
-static int il_virtual_servo_disable(il_servo_t *servo)
+static int il_virtual_servo_disable(il_servo_t *servo, uint8_t subnode, int timeout)
 {
 	il_virtual_servo_t *this = to_virtual_servo(servo);
 
