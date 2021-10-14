@@ -685,7 +685,7 @@ int il_servo_virtual_raw_write_float(il_servo_t *servo, const il_reg_t *reg,
 			 sizeof(val_), confirm);
 }
 
-static int il_virtual_servo_disable(il_servo_t *servo)
+static int il_virtual_servo_disable(il_servo_t *servo, uint8_t subnode, int timeout)
 {
 	il_virtual_servo_t *this = to_virtual_servo(servo);
 
@@ -705,7 +705,7 @@ static int il_virtual_servo_switch_on(il_servo_t *servo, int timeout)
 	return 0;
 }
 
-static int il_virtual_servo_enable(il_servo_t *servo, int timeout)
+static int il_virtual_servo_enable(il_servo_t *servo, uint8_t subnode, int timeout)
 {
 	il_virtual_servo_t *this = to_virtual_servo(servo);
 
@@ -716,7 +716,7 @@ static int il_virtual_servo_enable(il_servo_t *servo, int timeout)
 	return 0;
 }
 
-static int il_virtual_servo_fault_reset(il_servo_t *servo)
+static int il_virtual_servo_fault_reset(il_servo_t *servo, uint8_t subnode, int timeout)
 {
 	il_virtual_servo_t *this = to_virtual_servo(servo);
 
