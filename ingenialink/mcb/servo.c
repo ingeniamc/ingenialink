@@ -458,7 +458,7 @@ static int il_mcb_servo_switch_on(il_servo_t *servo, int timeout)
 	return 0;
 }
 
-static int il_mcb_servo_enable(il_servo_t *servo, int timeout)
+static int il_mcb_servo_enable(il_servo_t *servo, uint8_t subnode, int timeout)
 {
 	int r;
 	uint16_t sw, cmd;
