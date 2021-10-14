@@ -1022,7 +1022,7 @@ IL_EXPORT int il_servo_switch_on(il_servo_t *servo, int timeout, uint8_t subnode
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode);
+IL_EXPORT int il_servo_enable(il_servo_t *servo, uint8_t subnode, int timeout);
 
 /**
  * Reset the drive fault state.

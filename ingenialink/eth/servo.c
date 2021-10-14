@@ -473,7 +473,7 @@ static int il_eth_servo_switch_on(il_servo_t *servo, int timeout, uint8_t subnod
 	return 0;
 }
 
-static int il_eth_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode)
+static int il_eth_servo_enable(il_servo_t *servo, uint8_t subnode, int timeout)
 {
 	int r;
 	uint16_t sw, cmd;
