@@ -90,6 +90,13 @@ cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
 cmake --build _build --target install
 ```
 
+Is it possible that you need to install first these packages:
+
+```sh
+apt-get install libusb-1.0-0-dev
+apt-get install libudev-dev
+```
+
 ### libxml2
 
 Athough `libxml2` is multiplatform, the building process can be somewhat painful
@@ -100,6 +107,12 @@ to build it on the systems we support. It can be built and installed like this:
 cd external/libxml2
 cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
 cmake --build _build --target install
+```
+
+Is it possible that you need to install first these packages:
+
+```sh
+apt-get install liblzma-dev
 ```
 
 <!-- If using Linux, we actually recommend installing the library packages from

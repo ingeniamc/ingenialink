@@ -26,7 +26,6 @@
 
 
 #include <string.h>
-
 #include "ingenialink/err.h"
 
 /*******************************************************************************
@@ -406,7 +405,7 @@ int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subind
 	switch(net->prot)
 	{
 		case IL_NET_PROT_ECAT:
-
+		{
 			uint8_t u8_v;
 			uint16_t u16_v;
 			uint32_t u32_v;
@@ -466,6 +465,7 @@ int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subind
 			}
 			*buf = buf_;
 			return r;
+		}
 	}
 }
 
@@ -483,6 +483,7 @@ int il_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subin
 	switch(net->prot)
 	{
 		case IL_NET_PROT_ECAT:
+		{
 			uint8_t u8_v;
 			uint16_t u16_v;
 			uint32_t u32_v;
@@ -529,6 +530,10 @@ int il_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subin
 					ilerr__set("Unsupported register data type");
 					return IL_EINVAL;
 			}
+			break;
+		}
+		default:
+			break;
 
 
 	}

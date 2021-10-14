@@ -278,7 +278,7 @@ IL_EXPORT il_net_state_t il_net_state_get(il_net_t *net);
  * @returns
  *	Network is status.
  */
-IL_EXPORT il_net_prot_t il_net_status_get(il_net_t *net);
+IL_EXPORT int il_net_status_get(il_net_t *net);
 
 /**
  * Stop network monitor.
@@ -643,7 +643,7 @@ IL_EXPORT void il_net_disturbance_data_s32_set(il_net_t *net, int channel, int32
  *	  Network.
  *
  */
-IL_EXPORT void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturbance_data[2048]);
+IL_EXPORT void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturbance_data[2048], uint32_t size);
 
 /**
  * Close socket connected.
