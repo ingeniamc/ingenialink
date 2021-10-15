@@ -226,6 +226,7 @@ cleanup_ids:
 int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int subnode)
 {
 	int r = -1;
+	int all_subnodes = -1;
 	const char **ids = NULL;
 
 	il_dict_t *dict = il_dict_create(dict_path);
@@ -235,11 +236,14 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 	// Subnodes = axis available at servo + 1 subnode of general parameters
 	int subnodes = servo->subnodes + 1;
 	for (int j = 0; j < subnodes; j++) {
-		if (subnode == 0 || j == subnode) {
-			printf("Loading subnode %i...\n", j);
+		if (subnode == all_subnodes || j == subnode) {
 			ids = il_dict_reg_ids_get(dict, j);
 			if (!ids)
 				return IL_EFAIL;
+
+			if (ids[0] != NULL) {
+				printf("Loading subnode %i...\n", j);
+			}
 
 			for (size_t i = 0; ids[i]; i++) {
 				const il_reg_t *reg;
@@ -521,9 +525,9 @@ int il_servo_write(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	return servo->ops->write(servo, reg, id, val, confirm, extended);
 }
 
-int il_servo_disable(il_servo_t *servo, uint8_t subnode)
+int il_servo_disable(il_servo_t *servo, uint8_t subnode, int timeout)
 {
-	return servo->ops->disable(servo, subnode);
+	return servo->ops->disable(servo, subnode, timeout);
 }
 
 int il_servo_switch_on(il_servo_t *servo, int timeout)
@@ -531,14 +535,14 @@ int il_servo_switch_on(il_servo_t *servo, int timeout)
 	return servo->ops->switch_on(servo, timeout);
 }
 
-int il_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode)
+int il_servo_enable(il_servo_t *servo, uint8_t subnode, int timeout)
 {
-	return servo->ops->enable(servo, timeout, subnode);
+	return servo->ops->enable(servo, subnode, timeout);
 }
 
-int il_servo_fault_reset(il_servo_t *servo, uint8_t subnode)
+int il_servo_fault_reset(il_servo_t *servo, uint8_t subnode, int timeout)
 {
-	return servo->ops->fault_reset(servo, subnode);
+	return servo->ops->fault_reset(servo, subnode, timeout);
 }
 
 int il_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode)

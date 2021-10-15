@@ -36,7 +36,7 @@
 /** Number string length (enough to fit all numbers). */
 #define NUM_STR_LEN	25
 /** Number of subnodes by default. */
-#define INITIAL_SUBNODES 2
+#define INITIAL_SUBNODES 4
 
 /** Register container. */
 typedef struct {

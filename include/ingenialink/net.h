@@ -46,6 +46,9 @@ typedef struct il_net_emcy_subscriber il_net_emcy_subscriber_t;
 /** Emergency subcriber callback. */
 typedef void (*il_net_emcy_subscriber_cb_t)(void *ctx, uint32_t code);
 
+int il_net_monitoring_mapping_register[16];
+int il_net_disturbance_mapping_register[16];
+
 /**
  * Retain a reference of the network.
  *
@@ -241,11 +244,16 @@ typedef struct {
 	int (*set_mapped_register)();
 	int (*enable_monitoring)();
 	int (*disable_monitoring)();
+	int (*enable_disturbance)();
+	int (*disable_disturbance)();
+	int (*monitoring_remove_data)();
+	int (*disturbance_remove_data)();
 	int (*read_monitoring_data)();
 	int (*recv_monitoring)();
 	/** Disturbance. */
 	int (*disturbance_remove_all_mapped_registers)();
 	int (*disturbance_set_mapped_register)();
+
 } il_net_ops_t;
 
 
@@ -317,6 +325,10 @@ typedef struct {
 	int (*set_mapped_register)();
 	int (*enable_monitoring)();
 	int (*disable_monitoring)();
+	int (*enable_disturbance)();
+	int (*disable_disturbance)();
+	int (*monitoring_remove_data)();
+	int (*disturbance_remove_data)();
 	int (*read_monitoring_data)();
 	int (*recv_monitoring)();
 	/** Disturbance. */
@@ -333,6 +345,7 @@ typedef struct {
 	int (*SDO_read)();
 	int (*SDO_read_string)();
 	int (*SDO_write)();
+
 } il_eth_net_ops_t;
 
 /** Network device monitor operations. */
@@ -418,6 +431,10 @@ typedef struct {
 	int (*set_mapped_register)();
 	int (*enable_monitoring)();
 	int (*disable_monitoring)();
+	int (*enable_disturbance)();
+	int (*disable_disturbance)();
+	int (*monitoring_remove_data)();
+	int (*disturbance_remove_data)();
 	int (*read_monitoring_data)();
 	int (*recv_monitoring)();
 	/** Disturbance. */
