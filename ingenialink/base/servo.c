@@ -25,7 +25,7 @@
 #include "../servo.h"
 
 #include "ingenialink/err.h"
-#include <windows.h>
+//#include <windows.h>
 
 /*******************************************************************************
  * Private
@@ -1020,43 +1020,43 @@ int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 	/* read */
 	switch (reg_->dtype) {
 	case IL_REG_DTYPE_U8:
-		r = il_servo_raw_read_u8(servo, reg_, NULL, &u8_v, subnode);
+		r = il_servo_raw_read_u8(servo, reg_, NULL, &u8_v);
 		buf_ = (float)u8_v;
 		break;
 	case IL_REG_DTYPE_S8:
-		r = il_servo_raw_read_s8(servo, reg_, NULL, &s8_v, subnode);
+		r = il_servo_raw_read_s8(servo, reg_, NULL, &s8_v);
 		buf_ = (float)s8_v;
 		break;
 	case IL_REG_DTYPE_U16:
-		r = il_servo_raw_read_u16(servo, reg_, NULL, &u16_v, subnode);
+		r = il_servo_raw_read_u16(servo, reg_, NULL, &u16_v);
 		buf_ = (float)u16_v;
 		break;
 	case IL_REG_DTYPE_S16:
-		r = il_servo_raw_read_s16(servo, reg_, NULL, &s16_v, subnode);
+		r = il_servo_raw_read_s16(servo, reg_, NULL, &s16_v);
 		buf_ = (float)s16_v;
 		break;
 	case IL_REG_DTYPE_U32:
-		r = il_servo_raw_read_u32(servo, reg_, NULL, &u32_v, subnode);
+		r = il_servo_raw_read_u32(servo, reg_, NULL, &u32_v);
 		buf_ = (float)u32_v;
 		break;
 	case IL_REG_DTYPE_S32:
-		r = il_servo_raw_read_s32(servo, reg_, NULL, &s32_v, subnode);
+		r = il_servo_raw_read_s32(servo, reg_, NULL, &s32_v);
 		buf_ = (float)s32_v;
 		break;
 	case IL_REG_DTYPE_U64:
-		r = il_servo_raw_read_u64(servo, reg_, NULL, &u64_v, subnode);
+		r = il_servo_raw_read_u64(servo, reg_, NULL, &u64_v);
 		buf_ = (float)u64_v;
 		break;
 	case IL_REG_DTYPE_S64:
-		r = il_servo_raw_read_s64(servo, reg_, NULL, &s64_v, subnode);
+		r = il_servo_raw_read_s64(servo, reg_, NULL, &s64_v);
 		buf_ = (float)s64_v;
 		break;
 	case IL_REG_DTYPE_FLOAT:
-		r = il_servo_raw_read_float(servo, reg_, NULL, &float_v, subnode);
+		r = il_servo_raw_read_float(servo, reg_, NULL, &float_v);
 		buf_ = (double)float_v;
 		break;
 	case IL_REG_DTYPE_STR:
-		r = il_servo_raw_read_str(servo, reg_, NULL, &u32_str_v, subnode);
+		r = il_servo_raw_read_str(servo, reg_, NULL, &u32_str_v);
 		buf_ = (float)u32_str_v;
 		break;
 	default:
@@ -1092,7 +1092,7 @@ int il_servo_base__raw_write_u8(il_servo_t *servo, const il_reg_t *reg,
 	}
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U8, &val, sizeof(val),
-			 confirm, extended, subnode);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
@@ -1113,7 +1113,7 @@ int il_servo_base__raw_write_s8(il_servo_t *servo, const il_reg_t *reg,
 	}
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S8, &val, sizeof(val),
-			 confirm, extended, subnode);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
@@ -1138,7 +1138,7 @@ int il_servo_base__raw_write_u16(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_16(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U16, &val_, sizeof(val_),
-			 confirm, extended, subnode);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
@@ -1162,7 +1162,7 @@ int il_servo_base__raw_write_s16(il_servo_t *servo, const il_reg_t *reg,
 	val_ = (int16_t)__swap_be_16(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S16, &val_, sizeof(val_),
-			 confirm, extended, subnode);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
@@ -1186,7 +1186,7 @@ int il_servo_base__raw_write_u32(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_32(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U32, &val_, sizeof(val_),
-			 confirm, extended, subnode);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_wait_write_u32(il_servo_t *servo, const il_reg_t *reg,
@@ -1210,7 +1210,7 @@ int il_servo_base__raw_wait_write_u32(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_32(val);
 
 	return raw_wait_write(servo, reg_, IL_REG_DTYPE_U32, &val_, sizeof(val_),
-		confirm, extended, subnode);
+		confirm, extended);
 }
 
 int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
@@ -1234,7 +1234,7 @@ int il_servo_base__raw_write_s32(il_servo_t *servo, const il_reg_t *reg,
 	val_ = (int32_t)__swap_be_32(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S32, &val_, sizeof(val_),
-			 confirm, extended, subnode);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
@@ -1258,7 +1258,7 @@ int il_servo_base__raw_write_u64(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_64(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_U64, &val_, sizeof(val_),
-			 confirm, extended, subnode);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
@@ -1282,7 +1282,7 @@ int il_servo_base__raw_write_s64(il_servo_t *servo, const il_reg_t *reg,
 	val_ = (int64_t)__swap_be_64(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_S64, &val_, sizeof(val_),
-			 confirm, extended, subnode);
+			 confirm, extended);
 }
 
 int il_servo_base__raw_write_float(il_servo_t *servo, const il_reg_t *reg,
@@ -1299,7 +1299,7 @@ int il_servo_base__raw_write_float(il_servo_t *servo, const il_reg_t *reg,
 	val_ = __swap_be_float(val);
 
 	return raw_write(servo, reg_, IL_REG_DTYPE_FLOAT, &val_,
-			 sizeof(val_), confirm, extended, subnode);
+			 sizeof(val_), confirm, extended);
 }
 
 int il_servo_base__write(il_servo_t *servo, const il_reg_t *reg, const char *id,

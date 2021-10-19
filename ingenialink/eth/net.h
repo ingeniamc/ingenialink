@@ -33,7 +33,14 @@
 
 #define _SER_NO_LEGACY_STDINT
 #include <sercomm/sercomm.h>
+
+#ifdef _WIN32
 #include <winsock2.h>
+#endif
+
+#ifdef linux
+#include <sys/socket.h>
+#endif
 
 /** Default number of retries while waiting to receive a frame. */
 #define NUMBER_OP_RETRIES_DEF 	0

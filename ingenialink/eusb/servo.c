@@ -749,7 +749,7 @@ static int il_eusb_servo_enable(il_servo_t *servo, int timeout)
 	return 0;
 }
 
-static int il_eusb_servo_fault_reset(il_servo_t *servo)
+int il_eusb_servo_fault_reset(il_servo_t *servo)
 {
 	int r;
 	uint16_t sw;

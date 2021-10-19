@@ -28,7 +28,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <windows.h>
+//#include <windows.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/servo.h"
@@ -37,6 +37,7 @@
 /*******************************************************************************
  * Private
  ******************************************************************************/
+static int il_mcb_servo_fault_reset(il_servo_t *servo);
 
 static int not_supported(void)
 {

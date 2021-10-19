@@ -28,7 +28,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <windows.h>
+// #include <windows.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
@@ -36,6 +36,11 @@
 /*******************************************************************************
  * Private
  ******************************************************************************/
+static int net_send(il_mcb_net_t *this, uint8_t subnode, uint16_t address, const void *data,
+		    size_t sz);
+
+static int net_recv(il_mcb_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
+		    size_t sz);
 
 bool crc_tabccitt_init = false;
 uint16_t crc_tabccitt[256];

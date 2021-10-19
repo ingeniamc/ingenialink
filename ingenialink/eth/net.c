@@ -21,7 +21,15 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
+#ifdef _WIN32
 #include <winsock2.h>
+#endif
+
+#ifdef linux
+#include <sys/socket.h>
+#endif
+
+
 #include "net.h"
 #include "frame.h"
 
@@ -29,7 +37,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <windows.h>
+// #include <windows.h>
 #include <fcntl.h>
 
 #include "ingenialink/err.h"
@@ -38,6 +46,11 @@
 /*******************************************************************************
 * Private
 ******************************************************************************/
+
+static int process_monitoring_data(il_eth_net_t *this, il_net_t *net);
+static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
+	size_t sz, uint8_t *monitoring_raw_data, il_net_t *net, int num_bytes);
+
 int il_net_monitoring_mapping_registers[16] = {
 	0x0D0,
 	0x0D1,
@@ -1478,7 +1491,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 
 	// Set up the file descriptor set.
 	FD_ZERO(&fds);
-	FD_SET(this->server, &fds);
+	// FD_SET(this->server, &fds);
 
 	// Set up the struct timeval for the timeout.
 	tv.tv_sec = 0;
@@ -1623,6 +1636,7 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 
 	// Set up the file descriptor set.
 	FD_ZERO(&fds);
+	#ifdef 
 	FD_SET(this->server, &fds);
 
 	// Set up the struct timeval for the timeout.

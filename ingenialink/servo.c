@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <windows.h>
+//#include <windows.h>
 #include <inttypes.h>
 /*******************************************************************************
  * Internal
@@ -396,61 +396,61 @@ void il_servo_units_acc_set(il_servo_t *servo, il_units_acc_t units)
 int il_servo_raw_read_u8(il_servo_t *servo, const il_reg_t *reg, const char *id,
 			 uint8_t *buf)
 {
-	return servo->ops->raw_read_u8(servo, reg, id, buf);
+	return servo->ops->raw_read_u8(servo, reg, id, buf, reg->subnode);
 }
 
 int il_servo_raw_read_s8(il_servo_t *servo, const il_reg_t *reg, const char *id,
 			 int8_t *buf)
 {
-	return servo->ops->raw_read_s8(servo, reg, id, buf);
+	return servo->ops->raw_read_s8(servo, reg, id, buf, reg->subnode);
 }
 
 int il_servo_raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
 			  const char *id, uint16_t *buf)
 {
-	return servo->ops->raw_read_u16(servo, reg, id, buf);
+	return servo->ops->raw_read_u16(servo, reg, id, buf, reg->subnode);
 }
 
 int il_servo_raw_read_s16(il_servo_t *servo, const il_reg_t *reg,
 			  const char *id, int16_t *buf)
 {
-	return servo->ops->raw_read_s16(servo, reg, id, buf);
+	return servo->ops->raw_read_s16(servo, reg, id, buf, reg->subnode);
 }
 
 int il_servo_raw_read_u32(il_servo_t *servo, const il_reg_t *reg,
 			  const char *id, uint32_t *buf)
 {
-	return servo->ops->raw_read_u32(servo, reg, id, buf);
+	return servo->ops->raw_read_u32(servo, reg, id, buf, reg->subnode);
 }
 
 int il_servo_raw_read_str(il_servo_t *servo, const il_reg_t *reg,
 			  const char *id, uint32_t *buf)
 {
-	return servo->ops->raw_read_str(servo, reg, id, buf);
+	return servo->ops->raw_read_str(servo, reg, id, buf, reg->subnode);
 }
 
 int il_servo_raw_read_s32(il_servo_t *servo, const il_reg_t *reg,
 			  const char *id, int32_t *buf)
 {
-	return servo->ops->raw_read_s32(servo, reg, id, buf);
+	return servo->ops->raw_read_s32(servo, reg, id, buf, reg->subnode);
 }
 
 int il_servo_raw_read_u64(il_servo_t *servo, const il_reg_t *reg,
 			  const char *id, uint64_t *buf)
 {
-	return servo->ops->raw_read_u64(servo, reg, id, buf);
+	return servo->ops->raw_read_u64(servo, reg, id, buf, reg->subnode);
 }
 
 int il_servo_raw_read_s64(il_servo_t *servo, const il_reg_t *reg,
 			  const char *id, int64_t *buf)
 {
-	return servo->ops->raw_read_s64(servo, reg, id, buf);
+	return servo->ops->raw_read_s64(servo, reg, id, buf, reg->subnode);
 }
 
 int il_servo_raw_read_float(il_servo_t *servo, const il_reg_t *reg,
 			    const char *id, float *buf)
 {
-	return servo->ops->raw_read_float(servo, reg, id, buf);
+	return servo->ops->raw_read_float(servo, reg, id, buf, reg->subnode);
 }
 
 int il_servo_read(il_servo_t *servo, const il_reg_t *reg, const char *id,
@@ -530,9 +530,9 @@ int il_servo_disable(il_servo_t *servo, uint8_t subnode)
 	return servo->ops->disable(servo, subnode);
 }
 
-int il_servo_switch_on(il_servo_t *servo, int timeout)
+int il_servo_switch_on(il_servo_t *servo, int timeout, uint8_t subnode)
 {
-	return servo->ops->switch_on(servo, timeout);
+	return servo->ops->switch_on(servo, timeout, subnode);
 }
 
 int il_servo_enable(il_servo_t *servo, int timeout, uint8_t subnode)

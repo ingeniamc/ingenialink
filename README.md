@@ -37,7 +37,11 @@ cmake --build _build
 cmake --build _build --target install
 ```
 
-Note that a `INSTALL` is the installation folder.
+Note that a `INSTALL` is the installation folder. One example of this could be:
+
+```sh
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX="_install"
+```
 
 [sercomm]: https://github.com/ingeniamc/sercomm
 [libxml2]: https://xmlsoft.org
@@ -90,6 +94,11 @@ cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
 cmake --build _build --target install
 ```
 
+$INSTALL will be the destination folder for the compiled dependency, for example:
+```sh
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX="../../_install"
+```
+
 Is it possible that you need to install first these packages:
 
 ```sh
@@ -108,6 +117,12 @@ cd external/libxml2
 cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
 cmake --build _build --target install
 ```
+
+$INSTALL will be the destination folder for the compiled dependency, for example:
+```sh
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX="../../_install"
+```
+
 
 Is it possible that you need to install first these packages:
 
