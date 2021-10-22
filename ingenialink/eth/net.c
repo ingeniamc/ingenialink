@@ -1015,7 +1015,7 @@ static int *il_eth_net_enable_disturbance(il_net_t *net)
 		}
 		else {
 			// Monitoring and disturbance are detached and we need to write in the new register.
-			r = il_net__write(&this->net, 1, 0, 0x00C6, &enable_disturbance_val, 2, 1, 0);
+			r = il_net__write(&this->net, 1, 0, 0x00C7, &enable_disturbance_val, 2, 1, 0);
 			if (r < 0) {
 
 			}
@@ -1057,7 +1057,7 @@ static int *il_eth_net_disable_disturbance(il_net_t *net)
 		}
 		else {
 			// Monitoring and disturbance are detached and we need to write in the new register.
-			r = il_net__write(&this->net, 1, 0, 0x00C6, &disable_disturbance_val, 2, 1, 0);
+			r = il_net__write(&this->net, 1, 0, 0x00C7, &disable_disturbance_val, 2, 1, 0);
 			if (r < 0) {
 
 			}
