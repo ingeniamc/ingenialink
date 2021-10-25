@@ -70,6 +70,7 @@ boolean inOP;
 uint8 currentgroup = 0;
 OSAL_THREAD_HANDLE thread1;
 OSAL_THREAD_HANDLE thread2;
+OSAL_THREAD_HANDLE thread3;
 uint8 txbuf[1024];
 
 /** Current RX fragment number */
@@ -88,7 +89,7 @@ struct udp_pcb *ptUdpPcb;
 ip_addr_t dstaddr;
 err_t error;
 
-uint8_t frame_received[1024];
+uint8_t* frame_received[1024];
 
 boolean isFirstTime = true;
 
@@ -1076,39 +1077,29 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 {
 	il_ecat_net_t *this = to_ecat_net(net);
 	int r;
-	//(void)id;
 
 	osal_mutex_lock(this->net.lock);
 	if (this->use_eoe_comms)
 	{
-		int num_retries_send = 0;
-		while (num_retries_send < NUMBER_OP_RETRIES_DEF)
+		int num_retries = 0;
+		while (num_retries < NUMBER_OP_RETRIES_DEF)
 		{
 			r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
 			if (r < 0) {
 				goto unlock;
 			}
 
-			int num_retries_recv = 0;
-			while (num_retries_recv < NUMBER_OP_RETRIES_DEF)
+			uint16_t *monitoring_raw_data = NULL;
+			r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
+			if (r == IL_ETIMEDOUT || r == IL_EWRONGREG || r == IL_EFAIL)
 			{
-				uint16_t *monitoring_raw_data = NULL;
-				r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
-				if (r == IL_ETIMEDOUT || r == IL_EWRONGREG || r == IL_EFAIL)
-				{
-					++num_retries_recv;
-					//printf("Frame lost, retry %i\n", num_retries_recv);
-				}
-				else
-				{
-					break;
-				}
+				++num_retries;
+				printf("Frame lost, retry %i\n", num_retries);
 			}
-			if (r >= 0)
+			else
 			{
 				break;
 			}
-			++num_retries_send;
 		}
 	}
 	else
@@ -1502,30 +1493,13 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
 
-	int s32SzRead = 65536;
-	int num_retries = 0;
+	int s32SzRead = 1024;
 
-	while (num_retries < NUMBER_OP_RETRIES_DEF)
-	{
-		wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, this->recv_timeout);
-		//wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, 20000);
-		if (wkc <= 0)
-		{
-			++num_retries;
-			Sleep(10);
-		}
-		else
-		{
-			break;
-		}
-	}
-	if (wkc <= 0)
-	{
-		return IL_EFAIL;
-	}
+	while (frame_received == NULL);
 
 	/* Obtain the frame received */
 	memcpy(frame, (uint8_t*)frame_received, 1024);
+	frame_received = (uint8_t*)NULL;
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
 	uint16_t crc_res = crc_calc_ecat((uint16_t *)frame, 6);
@@ -1563,7 +1537,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 			/* Read size of data */
 			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			memcpy(net->monitoring_raw_data, (uint8_t*)&frame_received[14], size);
+			memcpy(net->monitoring_raw_data, (uint8_t*)frame_received[14], size);
 
 			net->monitoring_data_size = size;
 			int num_mapped = net->monitoring_number_mapped_registers;
@@ -1607,7 +1581,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 		else {
 			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			memcpy(net->extended_buff, (char*)&frame_received[14], size);
+			memcpy(net->extended_buff, (char*)frame_received[14], size);
 		}
 	}
 	else {
@@ -1692,7 +1666,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 				size = num_bytes;
 			}
 			uint16_t start_addr = net->monitoring_data_size;
-			memcpy((uint8_t*)&net->monitoring_raw_data[start_addr], (uint8_t*)&frame_received[14], size);
+			memcpy((uint8_t*)&net->monitoring_raw_data[start_addr], (uint8_t*)frame_received[14], size);
 
 			net->monitoring_data_size += size;
 			printf("size = %i\n", size);
@@ -1702,7 +1676,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 		{
  			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
  			uint16_t size = *(uint16_t*)buf;
- 			memcpy(net->extended_buff, (char*)&frame_received[14], size);
+ 			memcpy(net->extended_buff, (char*)frame_received[14], size);
  		}
  	}
  	else
@@ -1780,7 +1754,7 @@ static void LWIP_UdpReceiveData(void* pArg, struct udp_pcb* ptUdpPcb, struct pbu
 	isprocess = false;
 }
 
-OSAL_THREAD_FUNC mailbox_reader(void *lpParam)
+OSAL_THREAD_FUNC configure_udp(void *lpParam)
 {
 	context = (ecx_contextt *)lpParam;
 	int wkc = 0;
@@ -1826,6 +1800,18 @@ OSAL_THREAD_FUNC mailbox_reader(void *lpParam)
 	error = udp_connect(ptUdpPcb, &tIpAddr, 1061);
 
 	//osal_usleep(100000);
+}
+
+OSAL_THREAD_FUNC mailbox_reader(uint16_t slave)
+{
+	int s32SzRead = 1024;
+	int wkc;
+
+	while (true)
+	{
+		wkc = ecx_EOErecv(context, slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+		//printf("Failed ecx_EOErecv %d\n", wkc);
+	}
 }
 
 /** registered EoE hook */
@@ -1920,8 +1906,11 @@ void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 	/* Send a get IP request, should return the expected IP back */
 	ecx_EOEgetIp(context, slave, 0, &re_ipsettings, EC_TIMEOUTRXM);
 
+	/* Configure UDP */
+	osal_thread_create(&thread2, 128000, &configure_udp, &ecx_context);
+
 	/* Create a asyncronous EoE reader */
-	osal_thread_create(&thread2, 128000, &mailbox_reader, &ecx_context);
+	osal_thread_create(&thread3, 128000, &mailbox_reader, slave);
 }
 
 int *il_ecat_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip)
