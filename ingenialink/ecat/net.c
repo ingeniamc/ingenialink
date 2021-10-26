@@ -1808,7 +1808,9 @@ OSAL_THREAD_FUNC mailbox_reader(uint16_t slave)
 
 	while (true)
 	{
-		wkc = ecx_EOErecv(context, slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+		if (context != NULL){
+			wkc = ecx_EOErecv(context, slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+		}
 	}
 }
 
