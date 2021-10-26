@@ -89,7 +89,8 @@ struct udp_pcb *ptUdpPcb;
 ip_addr_t dstaddr;
 err_t error;
 
-uint8_t* frame_received[1024];
+uint8_t frame_received[1024];
+uint8_t data_is_ready = 0;
 
 boolean isFirstTime = true;
 
@@ -1488,18 +1489,16 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	uint8_t extended_bit = 0;
 
 	Sleep(5);
-	/* read next frame */
-	int r = 0;
-	int wkc = 0;
-	ec_mbxbuft MbxIn;
 
+	for (int i = 0; data_is_ready != 1; i++) {
+		Sleep(1);
+		if (i > 1000) return IL_ETIMEDOUT;
+	}
+
+	data_is_ready = 0;
 	int s32SzRead = 1024;
-
-	while (frame_received == NULL);
-
 	/* Obtain the frame received */
-	memcpy(frame, (uint8_t*)frame_received, 1024);
-	frame_received = (uint8_t*)NULL;
+	memcpy(frame, (uint8_t*)&frame_received, 1024);
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
 	uint16_t crc_res = crc_calc_ecat((uint16_t *)frame, 6);
@@ -1537,7 +1536,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 			/* Read size of data */
 			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			memcpy(net->monitoring_raw_data, (uint8_t*)frame_received[14], size);
+			memcpy(net->monitoring_raw_data, (uint8_t*)&frame_received[14], size);
 
 			net->monitoring_data_size = size;
 			int num_mapped = net->monitoring_number_mapped_registers;
@@ -1581,7 +1580,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 		else {
 			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			memcpy(net->extended_buff, (char*)frame_received[14], size);
+			memcpy(net->extended_buff, (char*)&frame_received[14], size);
 		}
 	}
 	else {
@@ -1620,7 +1619,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
  	wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
 
  	/* Obtain the frame received */
- 	memcpy(frame, (uint8_t*)frame_received, 1024);
+ 	memcpy(frame, (uint8_t*)&frame_received, 1024);
 
  	/* process frame: validate CRC, address, ACK */
  	crc = *(uint16_t *)&frame[6];
@@ -1666,7 +1665,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 				size = num_bytes;
 			}
 			uint16_t start_addr = net->monitoring_data_size;
-			memcpy((uint8_t*)&net->monitoring_raw_data[start_addr], (uint8_t*)frame_received[14], size);
+			memcpy((uint8_t*)&net->monitoring_raw_data[start_addr], (uint8_t*)&frame_received[14], size);
 
 			net->monitoring_data_size += size;
 			printf("size = %i\n", size);
@@ -1676,7 +1675,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 		{
  			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
  			uint16_t size = *(uint16_t*)buf;
- 			memcpy(net->extended_buff, (char*)frame_received[14], size);
+ 			memcpy(net->extended_buff, (char*)&frame_received[14], size);
  		}
  	}
  	else
@@ -1749,8 +1748,8 @@ void LWIP_EthernetifInp(void* pData, uint16_t u16SizeBy)
 static void LWIP_UdpReceiveData(void* pArg, struct udp_pcb* ptUdpPcb, struct pbuf* ptBuf,
 	const ip_addr_t* ptAddr, u16_t u16Port)
 {
-
 	memcpy(frame_received, ptBuf->payload, ptBuf->len);
+	data_is_ready = 1;
 	isprocess = false;
 }
 
@@ -1810,7 +1809,6 @@ OSAL_THREAD_FUNC mailbox_reader(uint16_t slave)
 	while (true)
 	{
 		wkc = ecx_EOErecv(context, slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
-		//printf("Failed ecx_EOErecv %d\n", wkc);
 	}
 }
 
