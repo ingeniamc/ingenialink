@@ -90,7 +90,7 @@ ip_addr_t dstaddr;
 err_t error;
 
 uint8_t frame_received[1024];
-uint8_t data_is_ready = 0;
+volatile uint8_t data_is_ready = 0;
 
 boolean isFirstTime = true;
 
@@ -1168,7 +1168,6 @@ static int il_ecat_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subn
 			if (r < 0)
 				goto unlock;
 			// osal_mutex_unlock(this->net.lock);
-
 			r = il_net__read(&this->net, 1, 0, 0x00B7, &num_bytes, sizeof(num_bytes));
 			if (r < 0) {
 				goto unlock;
@@ -1492,7 +1491,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 
 	for (int i = 0; data_is_ready != 1; i++) {
 		Sleep(1);
-		if (i > 1000) return IL_ETIMEDOUT;
+		if (i > 100) return IL_ETIMEDOUT;
 	}
 
 	data_is_ready = 0;
@@ -1605,18 +1604,12 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 
  	Sleep(5);
  	/* read next frame */
- 	int r = 0;
- 	// r = recv(this->server, (char*)&pBuf[0], sizeof(frame), 0);
- 	int wkc = 0;
- 	ec_mbxbuft MbxIn;
- 	wkc = ecx_mbxreceive(context, this->slave, (ec_mbxbuft *)&MbxIn, EC_TIMEOUTRXM);
- 	if (wkc < 0)
- 	{
- 		return IL_EFAIL;
- 	}
+	for (int i = 0; data_is_ready != 1; i++) {
+		Sleep(1);
+		if (i > 100) return IL_ETIMEDOUT;
+	}
+	data_is_ready = 0;
 
- 	int s32SzRead = 1024;
- 	wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
 
  	/* Obtain the frame received */
  	memcpy(frame, (uint8_t*)&frame_received, 1024);
@@ -1668,8 +1661,6 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 			memcpy((uint8_t*)&net->monitoring_raw_data[start_addr], (uint8_t*)&frame_received[14], size);
 
 			net->monitoring_data_size += size;
-			printf("size = %i\n", size);
-			printf("ADEU ECAT\n");
  		}
  		else
 		{
