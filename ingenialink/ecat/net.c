@@ -90,14 +90,14 @@ ip_addr_t dstaddr;
 err_t error;
 
 uint8_t frame_received[1024];
-volatile uint8_t data_is_ready = 0;
+osal_cond_t *mailbox_check;
+osal_mutex_t *lock_mailbox;
 
 boolean isFirstTime = true;
 
 char *Ifname;
 char *If_address_ip;
 uint16_t slave_number;
-volatile bool isprocess;
 
 
 /*******************************************************************************/
@@ -1487,14 +1487,15 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	uint8_t *pBuf = (uint8_t*)&frame;
 	uint8_t extended_bit = 0;
 
-	Sleep(5);
+	int r = osal_cond_wait(mailbox_check, lock_mailbox, 1000);
 
-	for (int i = 0; data_is_ready != 1; i++) {
-		Sleep(1);
-		if (i > 100) return IL_ETIMEDOUT;
+	if (r == -2){
+		return IL_ETIMEDOUT;
+	}
+	if (r < 0) {
+		return IL_EFAIL;
 	}
 
-	data_is_ready = 0;
 	int s32SzRead = 1024;
 	/* Obtain the frame received */
 	memcpy(frame, (uint8_t*)&frame_received, 1024);
@@ -1602,14 +1603,14 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
  	uint8_t *pBuf = (uint8_t*)&frame;
  	uint8_t extended_bit = 0;
 
- 	Sleep(5);
- 	/* read next frame */
-	for (int i = 0; data_is_ready != 1; i++) {
-		Sleep(1);
-		if (i > 100) return IL_ETIMEDOUT;
-	}
-	data_is_ready = 0;
+	int r = osal_cond_wait(mailbox_check, lock_mailbox, 1000);
 
+	if (r == -2) {
+		return IL_ETIMEDOUT;
+	}
+	if (r < 0) {
+		return IL_EFAIL;
+	}
 
  	/* Obtain the frame received */
  	memcpy(frame, (uint8_t*)&frame_received, 1024);
@@ -1691,8 +1692,6 @@ static err_t LWIP_EthernetifOutput(struct netif *ptNetIfHnd, struct pbuf *ptBuf)
 
 	int i = ecx_EOEsend(context, slave_number, 0, ptBuf->tot_len, ptBuf->payload, EC_TIMEOUTRXM);
 
-
-
 	uint16_t u16Ret = 0;
 	if (u16Ret != (uint16_t)0U)
 	{
@@ -1740,8 +1739,7 @@ static void LWIP_UdpReceiveData(void* pArg, struct udp_pcb* ptUdpPcb, struct pbu
 	const ip_addr_t* ptAddr, u16_t u16Port)
 {
 	memcpy(frame_received, ptBuf->payload, ptBuf->len);
-	data_is_ready = 1;
-	isprocess = false;
+	osal_cond_signal(mailbox_check);
 }
 
 OSAL_THREAD_FUNC configure_udp(void *lpParam)
@@ -1755,7 +1753,6 @@ OSAL_THREAD_FUNC configure_udp(void *lpParam)
 
 	ip4_addr_t tIpAddr, tNetmask, tGwIpAddr;
 
-	isprocess = true;
 	/* Initilialize the LwIP stack without RTOS */
 	lwip_init();
 
@@ -1796,7 +1793,8 @@ OSAL_THREAD_FUNC mailbox_reader(uint16_t slave)
 {
 	int s32SzRead = 1024;
 	int wkc;
-
+	mailbox_check = osal_cond_create();
+	lock_mailbox = osal_mutex_create();
 	while (true)
 	{
 		if (context != NULL){
