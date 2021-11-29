@@ -1740,6 +1740,7 @@ static void LWIP_UdpReceiveData(void* pArg, struct udp_pcb* ptUdpPcb, struct pbu
 {
 	memcpy(frame_received, ptBuf->payload, ptBuf->len);
 	osal_cond_signal(mailbox_check);
+	pbuf_free(ptBuf);
 }
 
 OSAL_THREAD_FUNC configure_udp(void *lpParam)
