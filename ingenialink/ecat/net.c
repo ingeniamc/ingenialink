@@ -1328,8 +1328,7 @@ int il_ecat_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t s
 	return r;
 }
 
-int il_ecat_net_SDO_read_string(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, char *buf)
-{
+int il_ecat_net_SDO_read_complete_access(il_net_t *net, uint8_t slave, uint16_t index, int size, void *buf) {
 	int wkc = 0;
 	int r = 0;
 	int num_retries = 0;
@@ -1337,7 +1336,7 @@ int il_ecat_net_SDO_read_string(il_net_t *net, uint8_t slave, uint16_t index, ui
 
 	while (num_retries < NUMBER_OP_RETRIES_DEF)
 	{
-		wkc = ec_SDOread(slave, index, subindex, FALSE, &size, buf, EC_TIMEOUTRXM);
+		wkc = ec_SDOread(slave, index, 1, TRUE, &size, buf, EC_TIMEOUTRXM);
 		if (wkc <= 0)
 		{
 			++num_retries;
@@ -3006,7 +3005,7 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	.set_status_check_stop = il_ecat_set_status_check_stop,
 	.net_test = il_ecat_net_test,
 	.SDO_read = il_ecat_net_SDO_read,
-	.SDO_read_string = il_ecat_net_SDO_read_string,
+	.SDO_read_complete_access = il_ecat_net_SDO_read_complete_access,
 	.SDO_write = il_ecat_net_SDO_write
 };
 
