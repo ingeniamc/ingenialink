@@ -2045,6 +2045,18 @@ int *il_ecat_net_num_slaves_get(char *ifname)
 	return ec_slavecount;
 }
 
+enum update_error
+{
+	UP_NOERROR = 0,
+	UP_STATEMACHINE_ERROR = -2,
+	UP_NOT_IN_BOOT_ERROR = -3,
+	UP_EEPROM_PDI_ERROR = -4,
+	UP_EEPROM_FILE_ERROR = -6,
+	UP_NOT_FOUND_ERROR = -7,
+	UP_NO_SOCKET = -8,
+	UP_FORCE_BOOT_ERROR = -9
+};
+
 int *il_ecat_net_change_state(uint16_t slave, ec_state state)
 {
 	ec_slave[slave].state = state;
@@ -2109,6 +2121,7 @@ int input_bin(char *fname, int *length)
 static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename, bool is_summit)
 {
 	printf(filename);
+	printf("Starting firmware update example\n");
 	int r = 0;
 	/* initialise SOEM, bind socket to ifname */
 	if (ec_init(ifname)) {
