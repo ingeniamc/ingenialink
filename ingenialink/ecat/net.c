@@ -291,11 +291,17 @@ restart:
 		if (this != NULL && this->status_check_stop == 0) {
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 			if (r < 0) {
-				error_count = error_count + 1;
+				if (il_net_status_get(this) != IL_NET_STATE_DISCONNECTED) {
+					error_count = error_count + 1;
+				}
 			}
 			else {
+				if (il_net_status_get(this) == IL_NET_STATE_DISCONNECTED) {
+					printf("DEVICE CONNECTED\n");
+					il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+				}
 				error_count = 0;
-				this->stop = 0;
+				this->stop = IL_NET_STATE_CONNECTED;
 				process_statusword(this, 1, sw);
 			}
 
@@ -314,9 +320,9 @@ err:
 	if(this != NULL) {
 		printf("DEVICE DISCONNECTED\n");
 		ilerr__set("Slave %i disconnected\n", this->slave);
+		this->stop = IL_NET_STATE_DISCONNECTED;
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
-		r = il_ecat_net_reconnect(this);
-		if (r == 0) goto restart;
+		goto restart;
 	}
 	return 0;
 stop:
@@ -546,13 +552,8 @@ static il_net_servos_list_t *il_ecat_net_servos_list_get(
 		/* try to read the vendor id register to see if a servo is alive */
 		r = il_ecat_net__read(net, this->slave, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 		if (r < 0) {
-			printf("First try fail\n");
-			r = il_ecat_net__read(net, this->slave, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
-			if (r < 0) {
-				printf("Second try fail\n");
-				il_net_master_stop(net);
-				return NULL;
-			}
+			il_net_master_stop(net);
+			return NULL;
 		}
 
 
@@ -1082,26 +1083,13 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 	osal_mutex_lock(this->net.lock);
 	if (this->use_eoe_comms)
 	{
-		int num_retries = 0;
-		while (num_retries < NUMBER_OP_RETRIES_DEF)
-		{
-			r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
-			if (r < 0) {
-				goto unlock;
-			}
-
-			uint16_t *monitoring_raw_data = NULL;
-			r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
-			if (r == IL_ETIMEDOUT || r == IL_EWRONGREG || r == IL_EFAIL)
-			{
-				++num_retries;
-				printf("Frame lost, retry %i\n", num_retries);
-			}
-			else
-			{
-				break;
-			}
+		r = net_send(this, subnode, (uint16_t)address, NULL, 0, 0, net);
+		if (r < 0) {
+			goto unlock;
 		}
+
+		uint16_t *monitoring_raw_data = NULL;
+		r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
 	}
 	else
 	{
