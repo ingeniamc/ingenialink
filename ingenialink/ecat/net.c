@@ -68,9 +68,8 @@ boolean needlf;
 volatile int globalwkc;
 boolean inOP;
 uint8 currentgroup = 0;
-OSAL_THREAD_HANDLE thread1;
-OSAL_THREAD_HANDLE thread2;
-OSAL_THREAD_HANDLE thread3;
+OSAL_THREAD_HANDLE configure_udp_thread;
+OSAL_THREAD_HANDLE mailbox_reader_thread;
 uint8 txbuf[1024];
 
 /** Current RX fragment number */
@@ -1118,9 +1117,6 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 
 unlock:
 	osal_mutex_unlock(this->net.lock);
-
-	LWIP_ProcessTimeouts();
-
 	return r;
 }
 
@@ -1307,8 +1303,7 @@ int il_ecat_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t s
 	return r;
 }
 
-int il_ecat_net_SDO_read_string(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, char *buf)
-{
+int il_ecat_net_SDO_read_complete_access(il_net_t *net, uint8_t slave, uint16_t index, int size, void *buf) {
 	int wkc = 0;
 	int r = 0;
 	int num_retries = 0;
@@ -1316,7 +1311,7 @@ int il_ecat_net_SDO_read_string(il_net_t *net, uint8_t slave, uint16_t index, ui
 
 	while (num_retries < NUMBER_OP_RETRIES_DEF)
 	{
-		wkc = ec_SDOread(slave, index, subindex, FALSE, &size, buf, EC_TIMEOUTRXM);
+		wkc = ec_SDOread(slave, index, 1, TRUE, &size, buf, EC_TIMEOUTRXM);
 		if (wkc <= 0)
 		{
 			++num_retries;
@@ -1715,11 +1710,9 @@ void LWIP_EthernetifInp(void* pData, uint16_t u16SizeBy)
 		pBuf->len = u16SizeBy;
 
 		tError = tNetif.input(pBuf, &tNetif);
-		if (tError == ERR_OK)
-		{
-			pbuf_free(pBuf);
-			pBuf = NULL;
-		}
+
+		pbuf_free(pBuf);
+		pBuf = NULL;
 	}
 }
 
@@ -1788,6 +1781,7 @@ OSAL_THREAD_FUNC mailbox_reader(uint16_t slave)
 	{
 		if (context != NULL){
 			wkc = ecx_EOErecv(context, slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+			LWIP_ProcessTimeouts();
 		}
 	}
 }
@@ -1813,38 +1807,6 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 	int r = rxframesize;
 
 	LWIP_EthernetifInp((uint16_t*)rxbuf, sizeof(rxbuf));
-	/* wkc == 1 would mean a frame is complete , last fragment flag have been set and all
-	* other checks must have past
-	*/
-	//if (wkc > 0)
-	//{
-	//	ec_etherheadert *bp = (ec_etherheadert *)rxbuf;
-	//	uint16 type = ntohs(bp->etype);
-	//	if (type == ETH_P_ECAT)
-	//	{
-	//		/* Check that the TX and RX frames are EQ */
-	//		if (memcmp(rxbuf, txbuf, size_of_rx))
-	//		{
-	//			//printf("memcmp result != 0\n");
-	//		}
-	//		else
-	//		{
-	//			//printf("memcmp result == 0\n");
-	//		}
-	//		/* Send a new frame */
-	//		int ixme;
-	//		for (ixme = ETH_HEADERSIZE; ixme < sizeof(txbuf); ixme++)
-	//		{
-	//			txbuf[ixme] = (uint8)rand();
-	//		}
-
-	//		ecx_EOEsend(context, 1, 0, sizeof(txbuf), txbuf, EC_TIMEOUTRXM);
-	//	}
-	//	else
-	//	{
-	//		//printf("Skip type 0x%x\n", type);
-	//	}
-	//}
 
 	/* No point in returning as unhandled */
 	return 0;
@@ -1885,10 +1847,10 @@ void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 	ecx_EOEgetIp(context, slave, 0, &re_ipsettings, EC_TIMEOUTRXM);
 
 	/* Configure UDP */
-	osal_thread_create(&thread2, 128000, &configure_udp, &ecx_context);
+	osal_thread_create(&configure_udp_thread, 128000, &configure_udp, &ecx_context);
 
 	/* Create a asyncronous EoE reader */
-	osal_thread_create(&thread3, 128000, &mailbox_reader, slave);
+	osal_thread_create(&mailbox_reader_thread, 128000, &mailbox_reader, slave);
 }
 
 int *il_ecat_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip)
@@ -1906,7 +1868,6 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uin
 	inOP = FALSE;
 
 	il_ecat_net_t *this = to_ecat_net(net);
-	//this->use_eoe_comms = use_eoe_comms;
 
 	il_ecat_net_opts_t opts;
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
@@ -2223,6 +2184,9 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 					}
 					printf("FOE Process finished succesfully!!!.\n");
 				} else  {
+					if (r == 0) {
+						r = SOEM_EC_ERR_TYPE_SDO_ERROR;
+					}
 					printf("Error during FoE process...");
 				}
 
@@ -2973,7 +2937,7 @@ const il_ecat_net_ops_t il_ecat_net_ops = {
 	.set_status_check_stop = il_ecat_set_status_check_stop,
 	.net_test = il_ecat_net_test,
 	.SDO_read = il_ecat_net_SDO_read,
-	.SDO_read_string = il_ecat_net_SDO_read_string,
+	.SDO_read_complete_access = il_ecat_net_SDO_read_complete_access,
 	.SDO_write = il_ecat_net_SDO_write
 };
 

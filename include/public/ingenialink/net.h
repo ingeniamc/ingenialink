@@ -57,6 +57,34 @@ typedef enum {
 	IL_NET_PROT_VIRTUAL,
 } il_net_prot_t;
 
+enum update_error
+{
+	UP_NOERROR = 0,
+	UP_STATEMACHINE_ERROR = -32,
+	UP_NOT_IN_BOOT_ERROR = -33,
+	UP_EEPROM_PDI_ERROR = -34,
+	UP_EEPROM_FILE_ERROR = -35,
+	UP_NOT_FOUND_ERROR = -36,
+	UP_NO_SOCKET = -37,
+	UP_FORCE_BOOT_ERROR = -38
+};
+
+/** SOEM Error types */
+enum soem_ec_err_type
+{
+   SOEM_EC_ERR_TYPE_EMERGENCY            = -1,
+   SOEM_EC_ERR_TYPE_PACKET_ERROR         = -3,
+   SOEM_EC_ERR_TYPE_SDOINFO_ERROR        = -4,
+   SOEM_EC_ERR_TYPE_FOE_ERROR            = -5,
+   SOEM_EC_ERR_TYPE_FOE_BUF2SMALL        = -6,
+   SOEM_EC_ERR_TYPE_FOE_PACKETNUMBER     = -7,
+   SOEM_EC_ERR_TYPE_SOE_ERROR            = -8,
+   SOEM_EC_ERR_TYPE_MBX_ERROR            = -9,
+   SOEM_EC_ERR_TYPE_FOE_FILE_NOTFOUND    = -10,
+   SOEM_EC_ERR_TYPE_EOE_INVALID_RX_DATA  = -11,
+   SOEM_EC_ERR_TYPE_SDO_ERROR            = -31
+};
+
 /** Network initialization options. */
 typedef struct {
 	/** Port. */
@@ -682,7 +710,9 @@ IL_EXPORT int il_net_set_status_check_stop(il_net_t *net, int status_check);
 
 IL_EXPORT int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, il_reg_dtype_t dtype, double *buf);
 
-IL_EXPORT int il_net_SDO_read_string(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, char *buf);
+IL_EXPORT int il_net_SDO_read_array(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, char *buf);
+
+IL_EXPORT int il_net_SDO_read_complete_access(il_net_t *net, uint8_t slave, uint16_t index, int size, void *buf);
 
 IL_EXPORT int il_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, il_reg_dtype_t dtype, double buf);
 /**

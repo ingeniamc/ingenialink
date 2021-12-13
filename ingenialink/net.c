@@ -469,12 +469,21 @@ int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subind
 	}
 }
 
-int il_net_SDO_read_string(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, char *buf)
+int il_net_SDO_read_array(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, void *buf)
 	{
 	switch(net->prot)
 	{
 		case IL_NET_PROT_ECAT:
-			return il_ecat_net_ops.SDO_read_string(net, slave, index, subindex, size, buf);
+			return il_ecat_net_ops.SDO_read(net, slave, index, subindex, size, buf);
+	}
+}
+
+int il_net_SDO_read_complete_access(il_net_t *net, uint8_t slave, uint16_t index, int size, void *buf) 
+	{
+	switch(net->prot)
+	{
+		case IL_NET_PROT_ECAT:
+			return il_ecat_net_ops.SDO_read_complete_access(net, slave, index, size, buf);
 	}
 }
 
