@@ -2255,6 +2255,9 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 					}
 					printf("FOE Process finished succesfully!!!.\n");
 				} else  {
+					if (r == 0) {
+						r = SOEM_EC_ERR_TYPE_SDO_ERROR;
+					}
 					printf("Error during FoE process...");
 				}
 

@@ -57,6 +57,34 @@ typedef enum {
 	IL_NET_PROT_VIRTUAL,
 } il_net_prot_t;
 
+enum update_error
+{
+	UP_NOERROR = 0,
+	UP_STATEMACHINE_ERROR = -32,
+	UP_NOT_IN_BOOT_ERROR = -33,
+	UP_EEPROM_PDI_ERROR = -34,
+	UP_EEPROM_FILE_ERROR = -35,
+	UP_NOT_FOUND_ERROR = -36,
+	UP_NO_SOCKET = -37,
+	UP_FORCE_BOOT_ERROR = -38
+};
+
+/** SOEM Error types */
+enum soem_ec_err_type
+{
+   SOEM_EC_ERR_TYPE_EMERGENCY            = -1,
+   SOEM_EC_ERR_TYPE_PACKET_ERROR         = -3,
+   SOEM_EC_ERR_TYPE_SDOINFO_ERROR        = -4,
+   SOEM_EC_ERR_TYPE_FOE_ERROR            = -5,
+   SOEM_EC_ERR_TYPE_FOE_BUF2SMALL        = -6,
+   SOEM_EC_ERR_TYPE_FOE_PACKETNUMBER     = -7,
+   SOEM_EC_ERR_TYPE_SOE_ERROR            = -8,
+   SOEM_EC_ERR_TYPE_MBX_ERROR            = -9,
+   SOEM_EC_ERR_TYPE_FOE_FILE_NOTFOUND    = -10,
+   SOEM_EC_ERR_TYPE_EOE_INVALID_RX_DATA  = -11,
+   SOEM_EC_ERR_TYPE_SDO_ERROR            = -31
+};
+
 /** Network initialization options. */
 typedef struct {
 	/** Port. */
