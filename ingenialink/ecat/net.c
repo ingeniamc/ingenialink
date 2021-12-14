@@ -378,7 +378,7 @@ static il_net_t *il_ecat_net_create(const il_ecat_net_opts_t *opts)
 	this->ifname = opts->ifname;
 	this->if_address_ip = opts->if_address_ip;
 	this->slave = opts->slave;
-	this->recv_timeout = EC_TIMEOUTRXM/1000;
+	this->recv_timeout = EC_TIMEOUTRET;
 	this->status_check_stop = 1;
 	this->use_eoe_comms = opts->use_eoe_comms;
 
@@ -1477,7 +1477,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	uint8_t *pBuf = (uint8_t*)&frame;
 	uint8_t extended_bit = 0;
 
-	int r = osal_cond_wait(mailbox_check, lock_mailbox, this->recv_timeout);
+	int r = osal_cond_wait(mailbox_check, lock_mailbox, this->recv_timeout/1000);
 
 	if (r == -2){
 		return IL_ETIMEDOUT;
@@ -1592,7 +1592,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
  	uint8_t *pBuf = (uint8_t*)&frame;
  	uint8_t extended_bit = 0;
 
-	int r = osal_cond_wait(mailbox_check, lock_mailbox, this->recv_timeout);
+	int r = osal_cond_wait(mailbox_check, lock_mailbox, this->recv_timeout/1000);
 
 	if (r == -2) {
 		return IL_ETIMEDOUT;
@@ -1679,7 +1679,7 @@ static err_t LWIP_EthernetifOutput(struct netif *ptNetIfHnd, struct pbuf *ptBuf)
 	uint8_t frame6[1024];
 	memcpy(frame6, ptBuf->payload, ptBuf->len);
 
-	int i = ecx_EOEsend(context, slave_number, 0, ptBuf->tot_len, ptBuf->payload, EC_TIMEOUTRXM);
+	int i = ecx_EOEsend(context, slave_number, 0, ptBuf->tot_len, ptBuf->payload, EC_TIMEOUTTXM);
 
 	uint16_t u16Ret = 0;
 	if (u16Ret != (uint16_t)0U)
@@ -2069,10 +2069,10 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				if (!is_summit) {
 					printf("Writing COCO FORCE BOOT password through SDO\n");
 					uint32 u32val = 0x424F4F54;
-					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) {
+					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTRXM) <= 0) {
 						printf("SDO write error\n");
 						printf("Retrying...\n");
-						if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0)  {
+						if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTRXM) <= 0)  {
 							printf("Force Boot error\n");
 							return UP_FORCE_BOOT_ERROR;
 						}
