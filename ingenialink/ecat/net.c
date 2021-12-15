@@ -70,6 +70,7 @@ boolean inOP;
 uint8 currentgroup = 0;
 OSAL_THREAD_HANDLE configure_udp_thread;
 OSAL_THREAD_HANDLE mailbox_reader_thread;
+volatile int stop_mailbox = 0;
 uint8 txbuf[1024];
 
 /** Current RX fragment number */
@@ -290,11 +291,17 @@ restart:
 		if (this != NULL && this->status_check_stop == 0) {
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 			if (r < 0) {
-				error_count = error_count + 1;
+				if (il_net_status_get(this) != IL_NET_STATE_DISCONNECTED) {
+					error_count = error_count + 1;
+				}
 			}
 			else {
+				if (il_net_status_get(this) == IL_NET_STATE_DISCONNECTED) {
+					printf("DEVICE CONNECTED\n");
+					il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
+				}
 				error_count = 0;
-				this->stop = 0;
+				this->stop = IL_NET_STATE_CONNECTED;
 				process_statusword(this, 1, sw);
 			}
 
@@ -313,9 +320,9 @@ err:
 	if(this != NULL) {
 		printf("DEVICE DISCONNECTED\n");
 		ilerr__set("Slave %i disconnected\n", this->slave);
+		this->stop = IL_NET_STATE_DISCONNECTED;
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
-		r = il_ecat_net_reconnect(this);
-		if (r == 0) goto restart;
+		goto restart;
 	}
 	return 0;
 stop:
@@ -522,11 +529,13 @@ static int il_ecat_mon_stop(il_net_t *net)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop_reconnect = 1;
-	printf("Join thread\n");
+	printf("Join listener thread\n");
 	if (this->listener)
 	{
 		osal_thread_join(this->listener, NULL);
 	}
+	printf("Join mailbox thread\n");
+	stop_mailbox = 1;
 	Sleep(1000);
 }
 
@@ -544,13 +553,8 @@ static il_net_servos_list_t *il_ecat_net_servos_list_get(
 		/* try to read the vendor id register to see if a servo is alive */
 		r = il_ecat_net__read(net, this->slave, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
 		if (r < 0) {
-			printf("First try fail\n");
-			r = il_ecat_net__read(net, this->slave, 1, VENDOR_ID_ADDR, &vid, sizeof(vid));
-			if (r < 0) {
-				printf("Second try fail\n");
-				il_net_master_stop(net);
-				return NULL;
-			}
+			il_net_master_stop(net);
+			return NULL;
 		}
 
 
@@ -1783,7 +1787,7 @@ OSAL_THREAD_FUNC mailbox_reader(uint16_t slave)
 	int wkc;
 	mailbox_check = osal_cond_create();
 	lock_mailbox = osal_mutex_create();
-	while (true)
+	while (!stop_mailbox)
 	{
 		if (context != NULL){
 			wkc = ecx_EOErecv(context, slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
@@ -1856,6 +1860,7 @@ void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 	osal_thread_create(&configure_udp_thread, 128000, &configure_udp, &ecx_context);
 
 	/* Create a asyncronous EoE reader */
+	stop_mailbox = 0;
 	osal_thread_create(&mailbox_reader_thread, 128000, &mailbox_reader, slave);
 }
 
