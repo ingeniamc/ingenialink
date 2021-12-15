@@ -1103,9 +1103,6 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 				break;
 			}
 		}
-
-		uint16_t *monitoring_raw_data = NULL;
-		r = net_recv(this, subnode, (uint16_t)address, buf, sz, monitoring_raw_data, net);
 	}
 	else
 	{
