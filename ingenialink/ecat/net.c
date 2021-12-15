@@ -378,9 +378,8 @@ static il_net_t *il_ecat_net_create(const il_ecat_net_opts_t *opts)
 	this->ifname = opts->ifname;
 	this->if_address_ip = opts->if_address_ip;
 	this->slave = opts->slave;
-	this->recv_timeout = EC_TIMEOUTRXM;
+	this->recv_timeout = EC_TIMEOUTRET;
 	this->status_check_stop = 1;
-	//this->use_eoe_comms = opts->use_eoe_comms;
 	this->use_eoe_comms = opts->use_eoe_comms;
 
 	/* setup refcnt */
@@ -1094,7 +1093,6 @@ static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32
 			if (r == IL_ETIMEDOUT || r == IL_EWRONGREG || r == IL_EFAIL)
 			{
 				++num_retries;
-				printf("Frame lost, retry %i\n", num_retries);
 			}
 			else
 			{
@@ -1208,7 +1206,6 @@ static int il_ecat_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint3
 			if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
 			{
 				++num_retries;
-				//printf("Frame lost, retry %i\n", num_retries);
 			}
 			else
 			{
@@ -1271,7 +1268,6 @@ static int il_ecat_net__wait_write(il_net_t *net, uint16_t id, uint8_t subnode, 
 		if (r == IL_ETIMEDOUT || r == IL_EWRONGREG)
 		{
 			++num_retries;
-			//printf("Frame lost, retry %i\n", num_retries);
 		}
 		else
 		{
@@ -1354,7 +1350,6 @@ int il_ecat_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t 
 		{
 			++num_retries;
 			Sleep(100);
-			//printf("Frame lost, retry %i\n", num_retries);
 		}
 		else
 		{
@@ -1482,7 +1477,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	uint8_t *pBuf = (uint8_t*)&frame;
 	uint8_t extended_bit = 0;
 
-	int r = osal_cond_wait(mailbox_check, lock_mailbox, 1000);
+	int r = osal_cond_wait(mailbox_check, lock_mailbox, this->recv_timeout/1000);
 
 	if (r == -2){
 		return IL_ETIMEDOUT;
@@ -1591,14 +1586,13 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
  	int finished = 0;
  	size_t pending_sz = sz;
 
- 	/*while (!finished) {*/
  	uint16_t frame[1024];
  	size_t block_sz = 0;
  	uint16_t crc, hdr_l;
  	uint8_t *pBuf = (uint8_t*)&frame;
  	uint8_t extended_bit = 0;
 
-	int r = osal_cond_wait(mailbox_check, lock_mailbox, 1000);
+	int r = osal_cond_wait(mailbox_check, lock_mailbox, this->recv_timeout/1000);
 
 	if (r == -2) {
 		return IL_ETIMEDOUT;
@@ -1685,7 +1679,7 @@ static err_t LWIP_EthernetifOutput(struct netif *ptNetIfHnd, struct pbuf *ptBuf)
 	uint8_t frame6[1024];
 	memcpy(frame6, ptBuf->payload, ptBuf->len);
 
-	int i = ecx_EOEsend(context, slave_number, 0, ptBuf->tot_len, ptBuf->payload, EC_TIMEOUTRXM);
+	int i = ecx_EOEsend(context, slave_number, 0, ptBuf->tot_len, ptBuf->payload, EC_TIMEOUTTXM);
 
 	uint16_t u16Ret = 0;
 	if (u16Ret != (uint16_t)0U)
@@ -1985,18 +1979,6 @@ int *il_ecat_net_num_slaves_get(char *ifname)
 	return ec_slavecount;
 }
 
-enum update_error
-{
-	UP_NOERROR = 0,
-	UP_STATEMACHINE_ERROR = -2,
-	UP_NOT_IN_BOOT_ERROR = -3,
-	UP_EEPROM_PDI_ERROR = -4,
-	UP_EEPROM_FILE_ERROR = -6,
-	UP_NOT_FOUND_ERROR = -7,
-	UP_NO_SOCKET = -8,
-	UP_FORCE_BOOT_ERROR = -9
-};
-
 int *il_ecat_net_change_state(uint16_t slave, ec_state state)
 {
 	ec_slave[slave].state = state;
@@ -2087,10 +2069,10 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				if (!is_summit) {
 					printf("Writing COCO FORCE BOOT password through SDO\n");
 					uint32 u32val = 0x424F4F54;
-					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0) {
+					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTRXM) <= 0) {
 						printf("SDO write error\n");
 						printf("Retrying...\n");
-						if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTTXM) <= 0)  {
+						if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTRXM) <= 0)  {
 							printf("Force Boot error\n");
 							return UP_FORCE_BOOT_ERROR;
 						}
