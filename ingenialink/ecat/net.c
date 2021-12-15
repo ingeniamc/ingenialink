@@ -70,6 +70,7 @@ boolean inOP;
 uint8 currentgroup = 0;
 OSAL_THREAD_HANDLE configure_udp_thread;
 OSAL_THREAD_HANDLE mailbox_reader_thread;
+volatile int stop_mailbox = 0;
 uint8 txbuf[1024];
 
 /** Current RX fragment number */
@@ -529,11 +530,13 @@ static int il_ecat_mon_stop(il_net_t *net)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop_reconnect = 1;
-	printf("Join thread\n");
+	printf("Join listener thread\n");
 	if (this->listener)
 	{
 		osal_thread_join(this->listener, NULL);
 	}
+	printf("Join mailbox thread\n");
+	stop_mailbox = 1;
 	Sleep(1000);
 }
 
@@ -1777,7 +1780,7 @@ OSAL_THREAD_FUNC mailbox_reader(uint16_t slave)
 	int wkc;
 	mailbox_check = osal_cond_create();
 	lock_mailbox = osal_mutex_create();
-	while (true)
+	while (!stop_mailbox)
 	{
 		if (context != NULL){
 			wkc = ecx_EOErecv(context, slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
@@ -1850,6 +1853,7 @@ void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 	osal_thread_create(&configure_udp_thread, 128000, &configure_udp, &ecx_context);
 
 	/* Create a asyncronous EoE reader */
+	stop_mailbox = 0;
 	osal_thread_create(&mailbox_reader_thread, 128000, &mailbox_reader, slave);
 }
 
