@@ -1815,8 +1815,10 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 		&size_of_rx,
 		rxbuf);
 	int r = rxframesize;
-
-	LWIP_EthernetifInp((uint16_t*)rxbuf, sizeof(rxbuf));
+	
+	if (wkc > 0) {
+		LWIP_EthernetifInp((uint16_t*)rxbuf, size_of_rx);
+	}
 
 	/* No point in returning as unhandled */
 	return 0;
