@@ -136,6 +136,7 @@ typedef struct {
 	osal_thread_t *monitor;
 	/** Monitor stop flag. */
 	int stop;
+	int kill;
 } il_servo_state_subscriber_lst_t;
 
 /** Statusword updates subcription. */
