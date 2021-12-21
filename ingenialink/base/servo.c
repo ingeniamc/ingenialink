@@ -308,8 +308,8 @@ static int state_subs_monitor(void *args)
 	};
 	il_servo_state_t states[5] = { IL_SERVO_STATE_NRDY, IL_SERVO_STATE_NRDY, IL_SERVO_STATE_NRDY, IL_SERVO_STATE_NRDY, IL_SERVO_STATE_NRDY };
 	Sleep(200);
-	while (true) {
-		while (servo->state_subs.stop != 1) {
+	while (servo->state_subs.kill != 1) {
+		if (servo->state_subs.stop != 1) {
 			for (uint8_t i = 0; i < servo->subnodes; i++) {
 				subnode = i + 1;
 				status_word_register.subnode = subnode;
@@ -514,6 +514,7 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 		goto cleanup_state_subs_subs;
 	}
 
+	servo->state_subs.kill = 0;
 	servo->state_subs.stop = 1;
 
 	servo->state_subs.monitor = osal_thread_create_(state_subs_monitor,
@@ -594,6 +595,7 @@ cleanup_emcy_lock:
 
 cleanup_state_subs_monitor:
 	servo->state_subs.stop = 1;
+	servo->state_subs.kill = 1;
 	(void)osal_thread_join(servo->state_subs.monitor, NULL);
 
 cleanup_state_subs_lock:
@@ -627,7 +629,6 @@ cleanup_net:
 void il_servo_base__deinit(il_servo_t *servo)
 {
 	servo->emcy_subs.stop = 1;
-	(void)osal_thread_join(servo->emcy_subs.monitor, NULL);
 	osal_mutex_destroy(servo->emcy_subs.lock);
 	free(servo->emcy_subs.subs);
 
@@ -636,6 +637,7 @@ void il_servo_base__deinit(il_servo_t *servo)
 	osal_mutex_destroy(servo->emcy.lock);
 
 	servo->state_subs.stop = 1;
+	servo->state_subs.kill = 1;
 	(void)osal_thread_join(servo->state_subs.monitor, NULL);
 	osal_mutex_destroy(servo->state_subs.lock);
 	free(servo->state_subs.subs);
