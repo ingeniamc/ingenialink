@@ -36,7 +36,7 @@
 #include <winsock2.h>
 
 /** Default number of retries while waiting to receive a frame. */
-#define NUMBER_OP_RETRIES_DEF	3
+#define NUMBER_OP_RETRIES_DEF	2
 
 /** Default read timeout. */
 #define READ_TIMEOUT_DEF	400000
