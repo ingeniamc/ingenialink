@@ -63,6 +63,8 @@ ecx_contextt *context;
 
 char IOmap[4096];
 
+bool is_lwip_on = FALSE;
+
 int expectedWKC;
 boolean needlf;
 volatile int globalwkc;
@@ -422,6 +424,7 @@ static void il_ecat_net_close_socket(il_net_t *net) {
 static void il_ecat_net_destroy(il_net_t *net)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
+	il_ecat_mon_stop(this);
 	il_utils__refcnt_release(this->refcnt);
 }
 
@@ -535,7 +538,6 @@ static int il_ecat_mon_stop(il_net_t *net)
 		osal_thread_join(this->listener, NULL);
 	}
 	printf("Join mailbox thread\n");
-	stop_mailbox = 1;
 	Sleep(1000);
 }
 
@@ -1734,9 +1736,8 @@ static void LWIP_UdpReceiveData(void* pArg, struct udp_pcb* ptUdpPcb, struct pbu
 	pbuf_free(ptBuf);
 }
 
-OSAL_THREAD_FUNC configure_udp(void *lpParam)
+OSAL_THREAD_FUNC configure_udp()
 {
-	context = (ecx_contextt *)lpParam;
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
 	ec_mbxheadert * MbxHdr = (ec_mbxheadert *)MbxIn;
@@ -1746,16 +1747,11 @@ OSAL_THREAD_FUNC configure_udp(void *lpParam)
 	ip4_addr_t tIpAddr, tNetmask, tGwIpAddr;
 
 	/* Initilialize the LwIP stack without RTOS */
-	lwip_init();
-
-	/* IP addresses initialization */
-	IP4_ADDR(&tIpAddr, 192, 168,
-		2, 22);
-	IP4_ADDR(&tNetmask, 255, 255,
-		255, 0);
-	IP4_ADDR(&tGwIpAddr, 192, 168,
-		2, 1);
-
+	if (!is_lwip_on){
+		lwip_init();
+		is_lwip_on = TRUE;
+	}
+	
 	/* IP addresses initialization */
 	IP4_ADDR(&tIpAddr, 192, 168,
 		2, 22);
@@ -1859,7 +1855,7 @@ void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 	ecx_EOEgetIp(context, slave, 0, &re_ipsettings, EC_TIMEOUTRXM);
 
 	/* Configure UDP */
-	osal_thread_create(&configure_udp_thread, 128000, &configure_udp, &ecx_context);
+	configure_udp();
 
 	/* Create a asyncronous EoE reader */
 	stop_mailbox = 0;
@@ -1879,20 +1875,8 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uin
 	int i, oloop, iloop, chk;
 	needlf = FALSE;
 	inOP = FALSE;
-
-	il_ecat_net_t *this = to_ecat_net(net);
-
-	il_ecat_net_opts_t opts;
-	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
-	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
-	opts.connect_slave = slave;
-	opts.slave = slave;
-	opts.port_ip = 1061;
-	opts.port = "";
-	opts.ifname = ifname;
+	
 	slave_number = slave;
-	opts.use_eoe_comms = use_eoe_comms;
-
 
 	printf("Starting EtherCAT Master\n");
 	/* Initialise SOEM, bind socket to ifname */
@@ -1901,7 +1885,7 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uin
 		/* Find and auto-config slaves */
 		if (ec_config_init(FALSE) > 0) {
 			printf("%d slaves found and configured.\n", ec_slavecount);
-
+			context = &ecx_context;
 			if (slave <= ec_slavecount) {
 				printf("Slaves mapped, state to PRE_OP.\n");
 				/* Wait for all slaves to reach SAFE_OP state */
@@ -1930,7 +1914,7 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uin
 				}
 
 				if (ec_slavecount > 0 && use_eoe_comms) {
-					init_eoe(net, &ecx_context, slave);
+					init_eoe(net, context, slave);
 				}
 			} else {
 				printf("Slave number not found.\n");
@@ -2002,25 +1986,34 @@ static int *il_ecat_net_master_stop(il_net_t *net)
 
 	printf("Close listener ecat\n");
 	il_ecat_net_t *this = to_ecat_net(net);
-	il_ecat_mon_stop(this);
-
-    printf("Setting state to INIT\n");
-	if (il_ecat_net_change_state(this->slave, EC_STATE_INIT) != UP_NOERROR) {
-		printf("Slave %d cannot enter into state INIT.\n", 0);
+	stop_mailbox = 1;
+	// Wait for mailbox stop
+	Sleep(1000);
+	if (this->use_eoe_comms == 1){
+		osal_mutex_destroy(lock_mailbox);
+		osal_cond_destroy(mailbox_check);
 	}
+
 	printf("Disconnecting interface\n");
 	ec_slavecount = 0;
 	/* Disconnecting and removing udp interface */
 	if (ptUdpPcb != NULL) {
 		udp_disconnect(ptUdpPcb);
+		udp_recv(ptUdpPcb, NULL, (void*)NULL);
 		udp_remove(ptUdpPcb);
 	}
 
 	/* Remove the network interface */
 	printf("Removing network interface\n");
+	netif_set_down(&tNetif);
 	netif_remove(&tNetif);
 	ec_mbxempty(this->slave, 100000);
 	context->EOEhook = NULL;
+
+	printf("Setting state to INIT\n");
+	if (il_ecat_net_change_state(this->slave, EC_STATE_INIT) != UP_NOERROR) {
+		printf("Slave %d cannot enter into state INIT.\n", 0);
+	}
 
 	printf("Closing EtherCAT interface\n");
 	/* Close EtherCAT interface */
