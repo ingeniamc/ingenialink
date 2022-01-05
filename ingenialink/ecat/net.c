@@ -73,6 +73,16 @@ char *Ifname;
 char *If_address_ip;
 uint16_t slave_number;
 
+/** Current RX fragment number */
+uint8_t rxfragmentno = 0;
+/** Complete RX frame size of current frame */
+uint16_t rxframesize = 0;
+/** Current RX data offset in frame */
+uint16_t rxframeoffset = 0;
+/** Current RX frame number */
+uint16_t rxframeno = 0;
+uint8 rxbuf[1024];
+int size_of_rx;
 
 /*******************************************************************************/
 
@@ -1757,7 +1767,6 @@ OSAL_THREAD_FUNC mailbox_reader(il_ecat_net_t *this)
 	while (!(this->stop_mailbox))
 	{
 		if (context != NULL){
-			uint8 rxbuf[1024];
 			wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
 			LWIP_ProcessTimeouts();
 		}
@@ -1774,16 +1783,7 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 	* 	that will start/continue fill an Ethernet frame buffer
 	*/
 
-	/** Current RX fragment number */
-	uint8_t rxfragmentno = 0;
-	/** Complete RX frame size of current frame */
-	uint16_t rxframesize = 0;
-	/** Current RX data offset in frame */
-	uint16_t rxframeoffset = 0;
-	/** Current RX frame number */
-	uint16_t rxframeno = 0;
-	uint8 rxbuf[1024];
-	int size_of_rx = sizeof(rxbuf);
+	size_of_rx = sizeof(rxbuf);
 	wkc = ecx_EOEreadfragment(eoembx,
 		&rxfragmentno,
 		&rxframesize,
