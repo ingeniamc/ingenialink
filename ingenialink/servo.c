@@ -776,6 +776,12 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 	opts.ifname = ifname;
 	opts.use_eoe_comms = use_eoe_comms;
 
+	*net = il_net_create(prot, &opts);
+	if (!*net) {
+		printf("FAIL");
+		return IL_EFAIL;
+	}
+
 	/* Initialization of the EtherCAT master */
 	int r = il_net_master_startup(*net, ifname, slave, use_eoe_comms);
 	printf("master_startup result: %i\n", r);
@@ -784,26 +790,13 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 		/* Wait until slaves are initialized */
 		Sleep(2000);
 
-		*net = il_net_create(prot, &opts);
-		if (!*net) {
-			printf("FAIL");
-			return IL_EFAIL;
-		}
-
-		/* Create as much servos as slaves found */
-		servo_ids = il_net_servos_list_get(*net, NULL, NULL);
-
-		/* Create servo */
-		//il_net_servos_list_foreach(servo_id, servo_ids) {
 		*servo = il_servo_create(*net, slave, dict);
 		/* found */
 		if (servo) {
-			il_net_servos_list_destroy(servo_ids);
 			return r;
 		}
-		//}
-
 	}
+	il_net_destroy(*net);
 	printf("No connected servos found\n");
 	return IL_EFAIL;
 }
