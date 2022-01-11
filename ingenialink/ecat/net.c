@@ -52,6 +52,7 @@
 
 #define EC_TIMEOUTMON 500
 #define UDP_OPEN_PORT           (uint16_t)1061U
+#define MAX_FOE_TIMEOUT 2000000
 
 /* Network instance */
 struct netif tNetif;
@@ -2139,7 +2140,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 
 				printf("File read OK, %d bytes.\n", filesize);
 				printf("FoE write....");
-				r = ec_FOEwrite(slave, file_id, 0x70636675, filesize, &filebuffer, 700000);
+				r = ec_FOEwrite(slave, file_id, 0x70636675, filesize, &filebuffer, MAX_FOE_TIMEOUT);
 				printf("FOE write result %d.\n", r);
 				if (r > 0) {
 					printf("Request init state for slave %d\n", slave);
