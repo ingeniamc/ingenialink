@@ -85,6 +85,12 @@ typedef struct il_ecat_net {
 
 	uint8_t use_eoe_comms;
 
+	/** Mailbox vars*/
+	uint8_t frame_received[1024];
+	osal_cond_t *mailbox_check;
+	osal_mutex_t *lock_mailbox;
+	bool stop_mailbox;
+
 } il_ecat_net_t;
 
 /** ECAT network device monitor */

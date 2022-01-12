@@ -52,26 +52,27 @@
 
 #define EC_TIMEOUTMON 500
 #define UDP_OPEN_PORT           (uint16_t)1061U
+#define MAX_FOE_TIMEOUT 2000000
 
 /* Network instance */
 struct netif tNetif;
-
-/* Global reply data buffer */
-uint8_t pReplyData[1024U];
 
 ecx_contextt *context;
 
 char IOmap[4096];
 
-int expectedWKC;
-boolean needlf;
-volatile int globalwkc;
-boolean inOP;
-uint8 currentgroup = 0;
-OSAL_THREAD_HANDLE configure_udp_thread;
+bool is_lwip_on = FALSE;
+
 OSAL_THREAD_HANDLE mailbox_reader_thread;
-volatile int stop_mailbox = 0;
-uint8 txbuf[1024];
+
+struct udp_pcb *ptUdpPcb;
+
+ip_addr_t dstaddr;
+err_t error;
+
+char *Ifname;
+char *If_address_ip;
+uint16_t slave_number;
 
 /** Current RX fragment number */
 uint8_t rxfragmentno = 0;
@@ -82,23 +83,7 @@ uint16_t rxframeoffset = 0;
 /** Current RX frame number */
 uint16_t rxframeno = 0;
 uint8 rxbuf[1024];
-int size_of_rx = sizeof(rxbuf);
-
-struct udp_pcb *ptUdpPcb;
-
-ip_addr_t dstaddr;
-err_t error;
-
-uint8_t frame_received[1024];
-osal_cond_t *mailbox_check;
-osal_mutex_t *lock_mailbox;
-
-boolean isFirstTime = true;
-
-char *Ifname;
-char *If_address_ip;
-uint16_t slave_number;
-
+int size_of_rx;
 
 /*******************************************************************************/
 
@@ -422,6 +407,7 @@ static void il_ecat_net_close_socket(il_net_t *net) {
 static void il_ecat_net_destroy(il_net_t *net)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
+	il_ecat_mon_stop(this);
 	il_utils__refcnt_release(this->refcnt);
 }
 
@@ -535,7 +521,6 @@ static int il_ecat_mon_stop(il_net_t *net)
 		osal_thread_join(this->listener, NULL);
 	}
 	printf("Join mailbox thread\n");
-	stop_mailbox = 1;
 	Sleep(1000);
 }
 
@@ -1481,7 +1466,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	uint8_t *pBuf = (uint8_t*)&frame;
 	uint8_t extended_bit = 0;
 
-	int r = osal_cond_wait(mailbox_check, lock_mailbox, this->recv_timeout/1000);
+	int r = osal_cond_wait(this->mailbox_check, this->lock_mailbox, this->recv_timeout/1000);
 
 	if (r == -2){
 		return IL_ETIMEDOUT;
@@ -1492,7 +1477,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 
 	int s32SzRead = 1024;
 	/* Obtain the frame received */
-	memcpy(frame, (uint8_t*)&frame_received, 1024);
+	memcpy(frame, (uint8_t*)&(this->frame_received), 1024);
 	/* process frame: validate CRC, address, ACK */
 	crc = *(uint16_t *)&frame[6];
 	uint16_t crc_res = crc_calc_ecat((uint16_t *)frame, 6);
@@ -1530,7 +1515,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 			/* Read size of data */
 			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			memcpy(net->monitoring_raw_data, (uint8_t*)&frame_received[14], size);
+			memcpy(net->monitoring_raw_data, (uint8_t*)&(this->frame_received[14]), size);
 
 			net->monitoring_data_size = size;
 			int num_mapped = net->monitoring_number_mapped_registers;
@@ -1574,7 +1559,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 		else {
 			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
 			uint16_t size = *(uint16_t*)buf;
-			memcpy(net->extended_buff, (char*)&frame_received[14], size);
+			memcpy(net->extended_buff, (char*)&(this->frame_received[14]), size);
 		}
 	}
 	else {
@@ -1596,7 +1581,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
  	uint8_t *pBuf = (uint8_t*)&frame;
  	uint8_t extended_bit = 0;
 
-	int r = osal_cond_wait(mailbox_check, lock_mailbox, this->recv_timeout/1000);
+	int r = osal_cond_wait(this->mailbox_check, this->lock_mailbox, this->recv_timeout/1000);
 
 	if (r == -2) {
 		return IL_ETIMEDOUT;
@@ -1606,7 +1591,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 	}
 
  	/* Obtain the frame received */
- 	memcpy(frame, (uint8_t*)&frame_received, 1024);
+ 	memcpy(frame, (uint8_t*)&(this->frame_received), 1024);
 
  	/* process frame: validate CRC, address, ACK */
  	crc = *(uint16_t *)&frame[6];
@@ -1652,7 +1637,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 				size = num_bytes;
 			}
 			uint16_t start_addr = net->monitoring_data_size;
-			memcpy((uint8_t*)&net->monitoring_raw_data[start_addr], (uint8_t*)&frame_received[14], size);
+			memcpy((uint8_t*)&net->monitoring_raw_data[start_addr], (uint8_t*)&(this->frame_received[14]), size);
 
 			net->monitoring_data_size += size;
  		}
@@ -1660,7 +1645,7 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 		{
  			memcpy(buf, &(frame[ECAT_MCB_DATA_POS]), 2);
  			uint16_t size = *(uint16_t*)buf;
- 			memcpy(net->extended_buff, (char*)&frame_received[14], size);
+ 			memcpy(net->extended_buff, (char*)&(this->frame_received[14]), size);
  		}
  	}
  	else
@@ -1726,17 +1711,17 @@ void LWIP_EthernetifInp(void* pData, uint16_t u16SizeBy)
 	}
 }
 
-static void LWIP_UdpReceiveData(void* pArg, struct udp_pcb* ptUdpPcb, struct pbuf* ptBuf,
+static void LWIP_UdpReceiveData(void* net, struct udp_pcb* ptUdpPcb, struct pbuf* ptBuf,
 	const ip_addr_t* ptAddr, u16_t u16Port)
 {
-	memcpy(frame_received, ptBuf->payload, ptBuf->len);
-	osal_cond_signal(mailbox_check);
+	il_ecat_net_t *this = to_ecat_net((il_net_t*)net);
+	memcpy(this->frame_received, ptBuf->payload, ptBuf->len);
+	osal_cond_signal(this->mailbox_check);
 	pbuf_free(ptBuf);
 }
 
-OSAL_THREAD_FUNC configure_udp(void *lpParam)
+OSAL_THREAD_FUNC configure_udp(il_net_t *net)
 {
-	context = (ecx_contextt *)lpParam;
 	int wkc = 0;
 	ec_mbxbuft MbxIn;
 	ec_mbxheadert * MbxHdr = (ec_mbxheadert *)MbxIn;
@@ -1746,16 +1731,11 @@ OSAL_THREAD_FUNC configure_udp(void *lpParam)
 	ip4_addr_t tIpAddr, tNetmask, tGwIpAddr;
 
 	/* Initilialize the LwIP stack without RTOS */
-	lwip_init();
-
-	/* IP addresses initialization */
-	IP4_ADDR(&tIpAddr, 192, 168,
-		2, 22);
-	IP4_ADDR(&tNetmask, 255, 255,
-		255, 0);
-	IP4_ADDR(&tGwIpAddr, 192, 168,
-		2, 1);
-
+	if (!is_lwip_on){
+		lwip_init();
+		is_lwip_on = TRUE;
+	}
+	
 	/* IP addresses initialization */
 	IP4_ADDR(&tIpAddr, 192, 168,
 		2, 22);
@@ -1774,23 +1754,21 @@ OSAL_THREAD_FUNC configure_udp(void *lpParam)
 	/* Open the Upd port and link receive callback */
 	ptUdpPcb = udp_new();
 	/* Link UDP callback */
-	udp_recv(ptUdpPcb, LWIP_UdpReceiveData, (void*)NULL);
+	udp_recv(ptUdpPcb, LWIP_UdpReceiveData, net);
 	/* UDP connect */
 	error = udp_connect(ptUdpPcb, &tIpAddr, 1061);
 
 	//osal_usleep(100000);
 }
 
-OSAL_THREAD_FUNC mailbox_reader(uint16_t slave)
+OSAL_THREAD_FUNC mailbox_reader(il_ecat_net_t *this)
 {
 	int s32SzRead = 1024;
 	int wkc;
-	mailbox_check = osal_cond_create();
-	lock_mailbox = osal_mutex_create();
-	while (!stop_mailbox)
+	while (!(this->stop_mailbox))
 	{
 		if (context != NULL){
-			wkc = ecx_EOErecv(context, slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
+			wkc = ecx_EOErecv(context, this->slave, 0, &s32SzRead, rxbuf, EC_TIMEOUTRXM);
 			LWIP_ProcessTimeouts();
 		}
 	}
@@ -1805,8 +1783,8 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 	* 	Pass received Mbx data to EoE recevive fragment function that
 	* 	that will start/continue fill an Ethernet frame buffer
 	*/
+
 	size_of_rx = sizeof(rxbuf);
-	//printf("rxfragmentno: %d", rxfragmentno);
 	wkc = ecx_EOEreadfragment(eoembx,
 		&rxfragmentno,
 		&rxframesize,
@@ -1828,6 +1806,8 @@ void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 {
 	printf("Init EoE\n");
 	/* Set the HOOK */
+	il_ecat_net_t *this = to_ecat_net(net);
+
 	ecx_EOEdefinehook(context, eoe_hook);
 
 	eoe_param_t ipsettings, re_ipsettings;
@@ -1859,11 +1839,13 @@ void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 	ecx_EOEgetIp(context, slave, 0, &re_ipsettings, EC_TIMEOUTRXM);
 
 	/* Configure UDP */
-	osal_thread_create(&configure_udp_thread, 128000, &configure_udp, &ecx_context);
+	configure_udp(net);
 
 	/* Create a asyncronous EoE reader */
-	stop_mailbox = 0;
-	osal_thread_create(&mailbox_reader_thread, 128000, &mailbox_reader, slave);
+	this->mailbox_check = osal_cond_create();
+	this->lock_mailbox = osal_mutex_create();
+	this->stop_mailbox = 0;
+	osal_thread_create(&mailbox_reader_thread, 128000, &mailbox_reader, this);
 }
 
 int *il_ecat_net_set_if_params(il_net_t *net, char *ifname, char *if_address_ip)
@@ -1877,22 +1859,8 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uin
 {
 
 	int i, oloop, iloop, chk;
-	needlf = FALSE;
-	inOP = FALSE;
-
-	il_ecat_net_t *this = to_ecat_net(net);
-
-	il_ecat_net_opts_t opts;
-	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
-	opts.timeout_wr = IL_NET_TIMEOUT_WR_DEF;
-	opts.connect_slave = slave;
-	opts.slave = slave;
-	opts.port_ip = 1061;
-	opts.port = "";
-	opts.ifname = ifname;
+	
 	slave_number = slave;
-	opts.use_eoe_comms = use_eoe_comms;
-
 
 	printf("Starting EtherCAT Master\n");
 	/* Initialise SOEM, bind socket to ifname */
@@ -1901,13 +1869,12 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uin
 		/* Find and auto-config slaves */
 		if (ec_config_init(FALSE) > 0) {
 			printf("%d slaves found and configured.\n", ec_slavecount);
-
+			context = &ecx_context;
 			if (slave <= ec_slavecount) {
 				printf("Slaves mapped, state to PRE_OP.\n");
 				/* Wait for all slaves to reach SAFE_OP state */
 				ec_statecheck(slave, EC_STATE_PRE_OP, EC_TIMEOUTSTATE * 4);
 
-				printf("Calculated workcounter %d\n", expectedWKC);
 				ec_slave[slave].state = EC_STATE_PRE_OP;
 
 				/* Request OP state for all slaves */
@@ -1930,7 +1897,7 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uin
 				}
 
 				if (ec_slavecount > 0 && use_eoe_comms) {
-					init_eoe(net, &ecx_context, slave);
+					init_eoe(net, context, slave);
 				}
 			} else {
 				printf("Slave number not found.\n");
@@ -1966,8 +1933,6 @@ int *il_ecat_net_test(il_net_t *net) {
 int *il_ecat_net_num_slaves_get(char *ifname)
 {
 	int i, oloop, iloop, chk;
-	needlf = FALSE;
-	inOP = FALSE;
 
 	printf("Starting EtherCAT Master\n");
 	/* Initialise SOEM, bind socket to ifname */
@@ -2002,25 +1967,34 @@ static int *il_ecat_net_master_stop(il_net_t *net)
 
 	printf("Close listener ecat\n");
 	il_ecat_net_t *this = to_ecat_net(net);
-	il_ecat_mon_stop(this);
-
-    printf("Setting state to INIT\n");
-	if (il_ecat_net_change_state(this->slave, EC_STATE_INIT) != UP_NOERROR) {
-		printf("Slave %d cannot enter into state INIT.\n", 0);
+	this->stop_mailbox = 1;
+	// Wait for mailbox stop
+	Sleep(1000);
+	if (this->use_eoe_comms == 1){
+		osal_mutex_destroy(this->lock_mailbox);
+		osal_cond_destroy(this->mailbox_check);
 	}
+
 	printf("Disconnecting interface\n");
 	ec_slavecount = 0;
 	/* Disconnecting and removing udp interface */
 	if (ptUdpPcb != NULL) {
 		udp_disconnect(ptUdpPcb);
+		udp_recv(ptUdpPcb, NULL, (void*)NULL);
 		udp_remove(ptUdpPcb);
 	}
 
 	/* Remove the network interface */
 	printf("Removing network interface\n");
+	netif_set_down(&tNetif);
 	netif_remove(&tNetif);
 	ec_mbxempty(this->slave, 100000);
 	context->EOEhook = NULL;
+
+	printf("Setting state to INIT\n");
+	if (il_ecat_net_change_state(this->slave, EC_STATE_INIT) != UP_NOERROR) {
+		printf("Slave %d cannot enter into state INIT.\n", 0);
+	}
 
 	printf("Closing EtherCAT interface\n");
 	/* Close EtherCAT interface */
@@ -2166,7 +2140,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 
 				printf("File read OK, %d bytes.\n", filesize);
 				printf("FoE write....");
-				r = ec_FOEwrite(slave, file_id, 0x70636675, filesize, &filebuffer, 700000);
+				r = ec_FOEwrite(slave, file_id, 0x70636675, filesize, &filebuffer, MAX_FOE_TIMEOUT);
 				printf("FOE write result %d.\n", r);
 				if (r > 0) {
 					printf("Request init state for slave %d\n", slave);
@@ -2751,8 +2725,6 @@ int *il_ecat_net_force_error(il_net_t **net, char *ifname, char *if_address_ip)
 	int i, j, oloop, iloop, wkc_count, chk, slc;
     UINT mmResult;
 
-    needlf = FALSE;
-    inOP = FALSE;
 
    	printf("Slave force error\n");
 
