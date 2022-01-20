@@ -2131,7 +2131,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				// Get filename of absolute path
 				int len = strlen(filename);
 				while (len >= 0) {
-					if (filename[len] == '/') {
+					if (filename[len] == '/' || filename[len] == '\\') {
 						break;
 					}
 					--len;
