@@ -407,7 +407,6 @@ static void il_ecat_net_close_socket(il_net_t *net) {
 static void il_ecat_net_destroy(il_net_t *net)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
-	il_ecat_mon_stop(this);
 	il_utils__refcnt_release(this->refcnt);
 }
 
@@ -516,8 +515,7 @@ static int il_ecat_mon_stop(il_net_t *net)
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop_reconnect = 1;
 	printf("Join listener thread\n");
-	if (this->listener)
-	{
+	if (this->listener != NULL) {
 		osal_thread_join(this->listener, NULL);
 	}
 	printf("Join mailbox thread\n");
@@ -1968,6 +1966,8 @@ static int *il_ecat_net_master_stop(il_net_t *net)
 	printf("Close listener ecat\n");
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop_mailbox = 1;
+	il_ecat_mon_stop(this);
+
 	// Wait for mailbox stop
 	Sleep(1000);
 	if (this->use_eoe_comms == 1){
