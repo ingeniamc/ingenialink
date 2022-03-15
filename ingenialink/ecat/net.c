@@ -1636,10 +1636,9 @@ static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint
 			{
 				size = num_bytes;
 			}
-			uint16_t start_addr = net->monitoring_data_size;
-			memcpy((uint8_t*)&net->monitoring_raw_data[start_addr], (uint8_t*)&(this->frame_received[14]), size);
-
-			net->monitoring_data_size += size;
+			uint32_t start_addr = net->monitoring_data_size;
+			memcpy((uint16_t*)&net->monitoring_raw_data[start_addr], (uint16_t*)&(this->frame_received[14]), size);
+			net->monitoring_data_size += (uint32_t)size;
  		}
  		else
 		{
