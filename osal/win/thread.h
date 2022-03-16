@@ -39,6 +39,8 @@ struct osal_thread {
 	void *args;
 	/** Thread return value. */
 	int result;
+	/** Thread is finished */
+	int isFinished;
 };
 
 #endif
