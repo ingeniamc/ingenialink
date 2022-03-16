@@ -47,6 +47,7 @@ static void *thread_wrapper(void *args)
 	osal_thread_t *thread = args;
 
 	thread->result = thread->func(thread->args);
+	thread->isFinished = 1;
 
 	return NULL;
 }
@@ -67,6 +68,7 @@ osal_thread_t *osal_thread_create_(osal_thread_func_t func, void *args)
 	thread->func = func;
 	thread->args = args;
 	thread->result = 0;
+	thread->isFinished = 0;
 
 	r = pthread_create(&thread->t, NULL, thread_wrapper, thread);
 	if (r)
@@ -82,7 +84,9 @@ cleanup_thread:
 
 void osal_thread_join(osal_thread_t *thread, int *result)
 {
-	(void)pthread_join(thread->t, NULL);
+	if (thread->isFinished != 1) {
+		(void)pthread_join(thread->t, NULL);
+	}
 
 	if (result)
 		*result = thread->result;
