@@ -26,7 +26,7 @@
 
 #include "ingenialink/err.h"
 #include <windows.h>
-
+#include <inttypes.h>
 /*******************************************************************************
  * Private
  ******************************************************************************/
@@ -1039,7 +1039,7 @@ int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 		break;
 	case IL_REG_DTYPE_U32:
 		r = il_servo_raw_read_u32(servo, reg_, NULL, &u32_v, subnode);
-		buf_ = (float)u32_v;
+		buf_ = (double)u32_v;
 		break;
 	case IL_REG_DTYPE_S32:
 		r = il_servo_raw_read_s32(servo, reg_, NULL, &s32_v, subnode);
