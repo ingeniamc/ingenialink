@@ -49,7 +49,6 @@ endif()
 option(WITH_EXAMPLES     "Build library usage example apps"                   OFF)
 option(WITH_DOCS         "Build library public API documentation"             OFF)
 option(WITH_PIC          "Generate position independent code"                 OFF)
-option(WITH_PROT_MCB     "Build with MCB protocol support"                     ON)
 option(WITH_PROT_ETH     "Build with ETH protocol support"                     ON)
 option(WITH_PROT_ECAT     "Build with ECAT protocol support (EXPERIMENTAL)"     ON)
 
@@ -87,15 +86,6 @@ list(APPEND ingenialink_srcs
   ingenialink/base/net.c
   ingenialink/base/servo.c
 )
-
-if(WITH_PROT_MCB)
-  list(APPEND ingenialink_srcs
-    ingenialink/mcb/frame.c
-    ingenialink/mcb/net.c
-    ingenialink/mcb/servo.c
-    ingenialink/mcb/registers.c
-  )
-endif()
 
 if(WITH_PROT_ETH)
   list(APPEND ingenialink_srcs
@@ -248,10 +238,6 @@ target_include_directories(
 
 # Definitions
 target_compile_definitions(ingenialink PRIVATE IL_BUILDING)
-
-if(WITH_PROT_MCB)
-  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_MCB)
-endif()
 
 if(WITH_PROT_ETH)
   include_directories(./ ./ingenialink/ecat/lwip)
