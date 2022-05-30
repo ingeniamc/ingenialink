@@ -13,7 +13,7 @@ control tasks and communications with Ingenia drives.
 The library provides:
 
 * Simple motion control functions (homing, profile position, etc.)
-* Communications API for Ingenia drives (multiple protocols supported)
+* Communications API for Ingenia Summit Series drives (multiple protocols supported)
 * Load and use IngeniaDictionary XML dictionaries
 * Operate directly using units (e.g. degrees, rad/s, etc.)
 * Register polling and monitoring for scope applications
