@@ -99,7 +99,6 @@ endif()
 
 if(WITH_PROT_ETH)
   list(APPEND ingenialink_srcs
-    ingenialink/eth/frame.c
     ingenialink/eth/net.c
     ingenialink/eth/servo.c
   )
@@ -107,7 +106,6 @@ endif()
 
 if(WITH_PROT_ECAT)
   list(APPEND ingenialink_srcs
-    ingenialink/ecat/frame.c
     ingenialink/ecat/net.c
     ingenialink/ecat/servo.c
 
