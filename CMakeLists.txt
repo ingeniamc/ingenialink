@@ -49,11 +49,9 @@ endif()
 option(WITH_EXAMPLES     "Build library usage example apps"                   OFF)
 option(WITH_DOCS         "Build library public API documentation"             OFF)
 option(WITH_PIC          "Generate position independent code"                 OFF)
-option(WITH_PROT_EUSB    "Build with EUSB protocol support"                    ON)
 option(WITH_PROT_MCB     "Build with MCB protocol support"                     ON)
 option(WITH_PROT_ETH     "Build with ETH protocol support"                     ON)
 option(WITH_PROT_ECAT     "Build with ECAT protocol support (EXPERIMENTAL)"     ON)
-option(WITH_PROT_VIRTUAL "Build with Virtual protocol support (EXPERIMENTAL)" OFF)
 
 # Build a shared library by default
 if(NOT DEFINED BUILD_SHARED_LIBS)
@@ -89,16 +87,6 @@ list(APPEND ingenialink_srcs
   ingenialink/base/net.c
   ingenialink/base/servo.c
 )
-
-if(WITH_PROT_EUSB)
-  list(APPEND ingenialink_srcs
-    ingenialink/eusb/net.c
-    ingenialink/eusb/frame.c
-    ingenialink/eusb/monitor.c
-    ingenialink/eusb/registers.c
-    ingenialink/eusb/servo.c
-  )
-endif()
 
 if(WITH_PROT_MCB)
   list(APPEND ingenialink_srcs
@@ -207,13 +195,6 @@ if(WITH_PROT_ECAT)
   )
 endif()
 
-if(WITH_PROT_VIRTUAL)
-  list(APPEND ingenialink_srcs
-    ingenialink/virtual/net.c
-    ingenialink/virtual/servo.c
-  )
-endif()
-
 # Sources (osal)
 if(UNIX)
   list(APPEND ingenialink_srcs
@@ -270,10 +251,6 @@ target_include_directories(
 # Definitions
 target_compile_definitions(ingenialink PRIVATE IL_BUILDING)
 
-if(WITH_PROT_EUSB)
-  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_EUSB)
-endif()
-
 if(WITH_PROT_MCB)
   target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_MCB)
 endif()
@@ -285,10 +262,6 @@ endif()
 
 if(WITH_PROT_ECAT)
   target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_ECAT)
-endif()
-
-if(WITH_PROT_VIRTUAL)
-  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_VIRTUAL)
 endif()
 
 # Dependencies

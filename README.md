@@ -47,7 +47,6 @@ Note that a `INSTALL` is the installation folder.
 The following build options are available:
 
 
-- `WITH_PROT_EUSB` (ON): Build `EUSB` protocol support.
 - `WITH_PROT_MCB` (OFF): Build `MCB` protocol support.
 - `DWITH_PROT_ETH` (OFF): Build `ETH` protocol support.
 - `WITH_PROT_ECAT` (OFF): Build `ECAT` protocol support.
