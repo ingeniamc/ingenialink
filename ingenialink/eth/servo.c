@@ -23,7 +23,6 @@
  */
 
 #include "servo.h"
-#include "mc.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -33,6 +32,7 @@
 #include "ingenialink/err.h"
 #include "ingenialink/base/servo.h"
 #include "ingenialink/registers.h"
+#include "ingenialink/mc.h"
 
 /*******************************************************************************
  * Private
