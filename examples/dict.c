@@ -7,14 +7,15 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <ingenialink/ingenialink.h>
+#include "ingenialink/log.h"
 
 static void print_scat(const char *id, il_dict_labels_t *labels)
 {
 	/* id */
-	printf("\tID: %s\n", id);
+	log_info("\tID: %s", id);
 
 	/* labels */
-	printf("\tLabels:\n");
+	log_info("\tLabels:");
 
 	if (labels && il_dict_labels_nlabels_get(labels) > 0) {
 		size_t i;
@@ -27,12 +28,12 @@ static void print_scat(const char *id, il_dict_labels_t *labels)
 
 			(void)il_dict_labels_get(labels, langs[i], &label);
 
-			printf("\t\t%s: %s\n", langs[i], label);
+			log_info("\t\t%s: %s", langs[i], label);
 		}
 
 		il_dict_labels_langs_destroy(langs);
 	} else {
-		printf("\t\tNone\n");
+		log_info("\t\tNone");
 	}
 }
 
@@ -42,10 +43,10 @@ static void print_cat(il_dict_t *dict, const char *id, il_dict_labels_t *labels)
 	const char **ids;
 
 	/* id */
-	printf("ID: %s\n", id);
+	log_info("ID: %s", id);
 
 	/* labels */
-	printf("Labels:\n");
+	log_info("Labels:");
 
 	if (labels && il_dict_labels_nlabels_get(labels) > 0) {
 		size_t i;
@@ -58,20 +59,19 @@ static void print_cat(il_dict_t *dict, const char *id, il_dict_labels_t *labels)
 
 			(void)il_dict_labels_get(labels, langs[i], &label);
 
-			printf("\t%s: %s\n", langs[i], label);
+			log_info("\t%s: %s", langs[i], label);
 		}
 
 		il_dict_labels_langs_destroy(langs);
 	} else {
-		printf("\tNone\n");
+		log_info("\tNone");
 	}
 
 	/* subcategories */
-	printf("Sub-categories:\n");
+	log_info("Sub-categories:");
 	ids = il_dict_scat_ids_get(dict, id);
 	if (!ids) {
-		fprintf(stderr,
-			"Could not obtain sub-categories: %s\n", ilerr_last());
+		log_error("Could not obtain sub-categories: %s", ilerr_last());
 		return;
 	}
 
@@ -84,7 +84,7 @@ static void print_cat(il_dict_t *dict, const char *id, il_dict_labels_t *labels)
 
 	il_dict_scat_ids_destroy(ids);
 
-	printf("==============================\n");
+	log_info("==============================");
 }
 
 static void print_reg(const il_reg_t *reg)
@@ -94,7 +94,7 @@ static void print_reg(const il_reg_t *reg)
 	size_t i;
 
 	/* address */
-	printf("Address: %08x\n", reg->address);
+	log_info("Address: %08x", reg->address);
 
 	/* data type */
 	switch (reg->dtype) {
@@ -126,7 +126,7 @@ static void print_reg(const il_reg_t *reg)
 		name = "unknown";
 	}
 
-	printf("Data type: %s\n", name);
+	log_info("Data type: %s", name);
 
 	/* access */
 	switch (reg->access) {
@@ -143,7 +143,7 @@ static void print_reg(const il_reg_t *reg)
 		name = "unknown";
 	}
 
-	printf("Access: %s\n", name);
+	log_info("Access: %s", name);
 
 	/* physical units */
 	switch (reg->phy) {
@@ -173,50 +173,50 @@ static void print_reg(const il_reg_t *reg)
 	}
 
 	/* physical units */
-	printf("Physical units: %s\n", name);
+	log_info("Physical units: %s", name);
 
 	/* range */
-	printf("Range: ");
+	log_info("Range: ");
 
 	switch (reg->dtype) {
 	case IL_REG_DTYPE_U8:
-		printf("(%"PRIu8", %"PRIu8")\n",
+		log_info("(%"PRIu8", %"PRIu8")",
 		       reg->range.min.u8, reg->range.max.u8);
 		break;
 	case IL_REG_DTYPE_S8:
-		printf("(%"PRId8", %"PRId8")\n",
+		log_info("(%"PRId8", %"PRId8")",
 		       reg->range.min.s8, reg->range.max.s8);
 		break;
 	case IL_REG_DTYPE_U16:
-		printf("(%"PRIu16", %"PRIu16")\n",
+		log_info("(%"PRIu16", %"PRIu16")",
 		       reg->range.min.u16, reg->range.max.u16);
 		break;
 	case IL_REG_DTYPE_S16:
-		printf("(%"PRId16", %"PRId16")\n",
+		log_info("(%"PRId16", %"PRId16")",
 		       reg->range.min.s16, reg->range.max.s16);
 		break;
 	case IL_REG_DTYPE_U32:
-		printf("(%"PRIu32", %"PRIu32")\n",
+		log_info("(%"PRIu32", %"PRIu32")",
 		       reg->range.min.u32, reg->range.max.u32);
 		break;
 	case IL_REG_DTYPE_S32:
-		printf("(%"PRId32", %"PRId32")\n",
+		log_info("(%"PRId32", %"PRId32")",
 		       reg->range.min.s32, reg->range.max.s32);
 		break;
 	case IL_REG_DTYPE_U64:
-		printf("(%"PRIu64", %"PRIu64")\n",
+		log_info("(%"PRIu64", %"PRIu64")",
 		       reg->range.min.u64, reg->range.max.u64);
 		break;
 	case IL_REG_DTYPE_S64:
-		printf("(%"PRId64", %"PRId64")\n",
+		log_info("(%"PRId64", %"PRId64")",
 		       reg->range.min.s64, reg->range.max.s64);
 		break;
 	default:
-		printf("Undefined\n");
+		log_info("Undefined");
 	}
 
 	/* labels */
-	printf("Labels:\n");
+	log_info("Labels:");
 
 	if (reg->labels && il_dict_labels_nlabels_get(reg->labels) > 0) {
 		langs = il_dict_labels_langs_get(reg->labels);
@@ -226,19 +226,19 @@ static void print_reg(const il_reg_t *reg)
 
 			(void)il_dict_labels_get(reg->labels, langs[i], &label);
 
-			printf("\t%s: %s\n", langs[i], label);
+			log_info("\t%s: %s", langs[i], label);
 		}
 
 		il_dict_labels_langs_destroy(langs);
 	} else {
-		printf("\tNone\n");
+		log_info("\tNone");
 	}
 
 	/* category and subcategory */
-	printf("Category ID: %s\n", reg->cat_id);
-	printf("Sub-category ID: %s\n", reg->scat_id);
+	log_info("Category ID: %s", reg->cat_id);
+	log_info("Sub-category ID: %s", reg->scat_id);
 
-	printf("==============================\n");
+	log_info("==============================");
 }
 
 int main(int argc, const char **argv)
@@ -250,13 +250,13 @@ int main(int argc, const char **argv)
 	const il_reg_t *reg;
 
 	if (argc < 2) {
-		fprintf(stderr, "Usage: ./dict DICTIONARY.xml\n");
+		log_error("Usage: ./dict DICTIONARY.xml");
 		return -1;
 	}
 
 	dict = il_dict_create(argv[1]);
 	if (!dict) {
-		fprintf(stderr, "Could not create dictionary: %s\n",
+		log_error("Could not create dictionary: %s",
 			ilerr_last());
 		return -1;
 	}
@@ -264,8 +264,7 @@ int main(int argc, const char **argv)
 	/* show categories */
 	ids = il_dict_cat_ids_get(dict);
 	if (!ids) {
-		fprintf(stderr,
-			"Could not obtain categories: %s\n", ilerr_last());
+		log_error("Could not obtain categories: %s", ilerr_last());
 		goto cleanup;
 	}
 
@@ -281,7 +280,7 @@ int main(int argc, const char **argv)
 	/* show registers */
 	ids = il_dict_reg_ids_get(dict);
 	if (!ids) {
-		fprintf(stderr, "Could not obtain IDs: %s\n", ilerr_last());
+		log_error("Could not obtain IDs: %s", ilerr_last());
 		goto cleanup;
 	}
 

@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <ingenialink/ingenialink.h>
+#include "ingenialink/log.h"
 
 int main(int argc, const char **argv)
 {
@@ -15,29 +16,29 @@ int main(int argc, const char **argv)
 	il_dict_t *dict;
 
 	if (argc < 3) {
-		fprintf(stderr, "Usage: ./dict DICTIONARY.xml OUTPUT.xml\n");
+		log_error("Usage: ./dict DICTIONARY.xml OUTPUT.xml");
 		return -1;
 	}
 
-	printf("Looking for servos...\n");
+	log_info("Looking for servos...");
 	r = il_servo_lucky(IL_NET_PROT_EUSB, &net, &servo, argv[1]);
 	if (r < 0) {
-		fprintf(stderr, "%s\n", ilerr_last());
+		log_error("%s", ilerr_last());
 		return r;
 	}
 
-	printf("Reading servo registers...\n");
+	log_info("Reading servo registers...");
 	r = il_servo_dict_storage_read(servo);
 	if (r < 0) {
-		fprintf(stderr, "%s\n", ilerr_last());
+		log_error("%s", ilerr_last());
 		goto cleanup_net_servo;
 	}
 
-	printf("Storing...\n");
+	log_info("Storing...");
 	dict = il_servo_dict_get(servo);
 	r = il_dict_save(dict, argv[2]);
 	if (r < 0)
-		fprintf(stderr, "%s\n", ilerr_last());
+		log_error("%s", ilerr_last());
 
 cleanup_net_servo:
 	il_servo_destroy(servo);

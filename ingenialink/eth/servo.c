@@ -33,6 +33,7 @@
 #include "ingenialink/err.h"
 #include "ingenialink/base/servo.h"
 #include "ingenialink/registers.h"
+#include "ingenialink/log.h"
 
 /*******************************************************************************
  * Private
@@ -196,7 +197,7 @@ static int sw_wait_value(il_servo_t *servo, uint16_t msk, uint16_t val,
  */
 static void servo_destroy(void *ctx)
 {
-	printf("Servo destroyed!\n");
+	log_debug("Servo destroyed!");
 	il_eth_servo_t *this = ctx;
 
 	il_servo_base__deinit(&this->servo);
@@ -583,7 +584,7 @@ static int il_eth_servo_store_all(il_servo_t *servo, int subnode)
 	r = il_servo_raw_wait_write_u32(servo, &il_reg_store_all,
 						   NULL, 0x65766173, 1, 0);
 
-	printf("Store finished!");
+	log_debug("Store finished!");
 
 	return r;
 }

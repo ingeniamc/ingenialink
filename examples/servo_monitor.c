@@ -8,11 +8,13 @@
 
 #include <stdio.h>
 
+#include "ingenialink/log.h"
+
 void on_found(void *ctx, uint8_t id)
 {
 	(void)ctx;
 
-	printf("Found servo with id 0x%02x\n", id);
+	log_info("Found servo with id 0x%02x", id);
 }
 
 void on_evt(void *ctx, il_net_dev_evt_t evt, const char *port)
@@ -24,7 +26,7 @@ void on_evt(void *ctx, il_net_dev_evt_t evt, const char *port)
 		il_net_opts_t opts;
 		il_net_servos_list_t *servos;
 
-		printf("Plugged device %s\n", port);
+		log_info("Plugged device %s", port);
 
 		/* create network */
 		opts.port = port;
@@ -36,15 +38,15 @@ void on_evt(void *ctx, il_net_dev_evt_t evt, const char *port)
 			return;
 
 		/* scan */
-		printf("Scanning...\n");
+		log_info("Scanning...");
 		servos = il_net_servos_list_get(net, on_found, NULL);
-		printf("Scanning finished\n");
+		log_info("Scanning finished");
 
 		/* free resources */
 		il_net_servos_list_destroy(servos);
 		il_net_destroy(net);
 	} else {
-		printf("Unplugged device %s\n", port);
+		log_info("Unplugged device %s", port);
 	}
 }
 
@@ -55,7 +57,7 @@ int main(int argc, const char *argv[])
 	il_net_dev_mon_t *mon;
 
 	if (argc < 2) {
-		fprintf(stderr, "Usage: ./servo_monitor PROT\n");
+		log_error("Usage: ./servo_monitor PROT");
 		return -1;
 	}
 
@@ -63,7 +65,7 @@ int main(int argc, const char *argv[])
 
 	mon = il_net_dev_mon_create(prot);
 	if (!mon) {
-		fprintf(stderr, "Could not create monitor: %s\n", ilerr_last());
+		log_error("Could not create monitor: %s", ilerr_last());
 		return 1;
 	}
 
@@ -72,9 +74,9 @@ int main(int argc, const char *argv[])
 		goto cleanup;
 	}
 
-	printf("Press ENTER to stop monitoring\n");
+	log_info("Press ENTER to stop monitoring");
 	getchar();
-	printf("Stopping...\n");
+	log_info("Stopping...");
 
 	il_net_dev_mon_stop(mon);
 

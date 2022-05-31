@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <ingenialink/ingenialink.h>
+#include "ingenialink/log.h"
 
 /** Enable timeout. */
 #define ENABLE_TIMEOUT  2000
@@ -27,7 +28,7 @@ void on_emcy(void *ctx, uint32_t code)
 {
 	(void)ctx;
 
-	printf("Emergency occurred (0x%04x)\n", code);
+	log_info("Emergency occurred (0x%04x)", code);
 }
 
 static int run(const char *log_fname)
@@ -69,13 +70,13 @@ static int run(const char *log_fname)
 
 	r = il_servo_lucky(IL_NET_PROT_EUSB, &net, &servo, NULL);
 	if (r < 0) {
-		fprintf(stderr, "%s\n", ilerr_last());
+		log_error("%s", ilerr_last());
 		return r;
 	}
 
 	r = il_servo_emcy_subscribe(servo, on_emcy, NULL);
 	if (r < 0) {
-		fprintf(stderr, "Could not subscribe to emergencies: %s\n",
+		log_error("Could not subscribe to emergencies: %s",
 			ilerr_last());
 		goto cleanup_net_servo;
 	}
@@ -86,28 +87,28 @@ static int run(const char *log_fname)
 	/* create poller */
 	poller = il_poller_create(servo, 2);
 	if (!poller) {
-		fprintf(stderr, "Could not create poller: %s\n", ilerr_last());
+		log_error("Could not create poller: %s", ilerr_last());
 		r = 1;
 		goto cleanup_net_servo;
 	}
 
 	r = il_poller_configure(poller, T_S, POLLER_SZ);
 	if (r < 0) {
-		fprintf(stderr, "Could not configure poller: %s\n",
+		log_error("Could not configure poller: %s",
 			ilerr_last());
 		goto cleanup_poller;
 	}
 
 	r = il_poller_ch_configure(poller, 0, &IL_REG_POS_ACT, NULL);
 	if (r < 0) {
-		fprintf(stderr, "Could not configure poller channel: %s\n",
+		log_error("Could not configure poller channel: %s",
 			ilerr_last());
 		goto cleanup_poller;
 	}
 
 	r = il_poller_ch_configure(poller, 1, &IL_REG_VEL_ACT, NULL);
 	if (r < 0) {
-		fprintf(stderr, "Could not configure poller channel: %s\n",
+		log_error("Could not configure poller channel: %s",
 			ilerr_last());
 		goto cleanup_poller;
 	}
@@ -115,57 +116,57 @@ static int run(const char *log_fname)
 	/* disable */
 	r = il_servo_disable(servo);
 	if (r < 0) {
-		fprintf(stderr, "Could not disable servo: %s\n", ilerr_last());
+		log_error("Could not disable servo: %s", ilerr_last());
 		goto cleanup_poller;
 	}
 
 	/* perform homing */
 	r = il_servo_mode_set(servo, IL_SERVO_MODE_HOMING);
 	if (r < 0) {
-		fprintf(stderr, "Could not set mode: %s\n", ilerr_last());
+		log_error("Could not set mode: %s", ilerr_last());
 		goto cleanup_poller;
 	}
 
 	r = il_servo_enable(servo, ENABLE_TIMEOUT);
 	if (r < 0) {
-		fprintf(stderr, "Could not enable servo: %s\n", ilerr_last());
+		log_error("Could not enable servo: %s", ilerr_last());
 		goto cleanup_poller;
 	}
 
 	r = il_servo_homing_start(servo);
 	if (r < 0) {
-		fprintf(stderr, "Could not start homing: %s\n", ilerr_last());
+		log_error("Could not start homing: %s", ilerr_last());
 		goto cleanup_poller;
 	}
 
 	r = il_servo_homing_wait(servo, HOMING_TIMEOUT);
 	if (r < 0) {
-		fprintf(stderr, "Homing did not succeed: %s\n", ilerr_last());
+		log_error("Homing did not succeed: %s", ilerr_last());
 		goto cleanup_poller;
 	}
 
 	/* perform PP movements */
 	r = il_servo_disable(servo);
 	if (r < 0) {
-		fprintf(stderr, "Could not disable servo: %s\n", ilerr_last());
+		log_error("Could not disable servo: %s", ilerr_last());
 		goto cleanup_poller;
 	}
 
 	r = il_servo_mode_set(servo, IL_SERVO_MODE_PP);
 	if (r < 0) {
-		fprintf(stderr, "Could not set mode: %s\n", ilerr_last());
+		log_error("Could not set mode: %s", ilerr_last());
 		goto cleanup_poller;
 	}
 
 	r = il_servo_enable(servo, ENABLE_TIMEOUT);
 	if (r < 0) {
-		fprintf(stderr, "Could not enable servo: %s\n", ilerr_last());
+		log_error("Could not enable servo: %s", ilerr_last());
 		goto cleanup_poller;
 	}
 
 	r = il_poller_start(poller);
 	if (r < 0) {
-		fprintf(stderr, "Could not start poller: %s\n", ilerr_last());
+		log_error("Could not start poller: %s", ilerr_last());
 		goto cleanup_poller;
 	}
 
@@ -173,7 +174,7 @@ static int run(const char *log_fname)
 		r = il_servo_position_set(servo, 90 * i, 0, 0,
 					  IL_SERVO_SP_TIMEOUT_DEF);
 		if (r < 0) {
-			fprintf(stderr, "Could not set position: %s\n",
+			flog_error("Could not set position: %s",
 				ilerr_last());
 			goto cleanup_poller;
 		}
@@ -181,7 +182,7 @@ static int run(const char *log_fname)
 
 	r = il_servo_wait_reached(servo, POS_TIMEOUT);
 	if (r < 0) {
-		fprintf(stderr, "Could not reach target: %s\n", ilerr_last());
+		log_error("Could not reach target: %s", ilerr_last());
 	}
 
 	(void)il_servo_disable(servo);
@@ -191,11 +192,11 @@ static int run(const char *log_fname)
 	il_poller_data_get(poller, &acq);
 
 	if (acq->lost)
-		fprintf(stderr, "Warning: poller data was lost\n");
+		log_error("Warning: poller data was lost");
 
 	log_f = fopen(log_fname, "w");
 	if (!log_f) {
-		fprintf(stderr, "Could not open log file\n");
+		log_error("Could not open log file");
 		goto cleanup_poller;
 	}
 
@@ -219,8 +220,7 @@ cleanup_net_servo:
 int main(int argc, char **argv)
 {
 	if (argc < 2) {
-		fprintf(stderr,
-			"Usage: motion LOG_FILE\n");
+		log_error("Usage: motion LOG_FILE");
 		return 1;
 	}
 

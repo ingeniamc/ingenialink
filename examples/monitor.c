@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <ingenialink/ingenialink.h>
+#include "ingenialink/log.h"
 
 /** Enable timeout. */
 #define ENABLE_TIMEOUT	2000
@@ -55,7 +56,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 
 	net = il_net_create(IL_NET_PROT_EUSB, &opts);
 	if (!net) {
-		fprintf(stderr, "Could not create network: %s\n", ilerr_last());
+		log_error("Could not create network: %s", ilerr_last());
 		r = 1;
 		goto out;
 	}
@@ -63,7 +64,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	/* create servo */
 	servo = il_servo_create(net, id, NULL);
 	if (!servo) {
-		fprintf(stderr, "Could not create servo: %s\n", ilerr_last());
+		log_error("Could not create servo: %s", ilerr_last());
 		r = 1;
 		goto cleanup_net;
 	}
@@ -75,21 +76,21 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	 * 90 % of the target */
 	monitor = il_monitor_create(servo);
 	if (!monitor) {
-		fprintf(stderr, "Could not create monitor: %s\n", ilerr_last());
+		log_error("Could not create monitor: %s", ilerr_last());
 		r = 1;
 		goto cleanup_servo;
 	}
 
 	r = il_monitor_configure(monitor, T_S, 0, MAX_SAMPLES);
 	if (r < 0) {
-		fprintf(stderr, "Could not configure monitor: %s\n",
+		log_error("Could not configure monitor: %s",
 			ilerr_last());
 		goto cleanup_monitor;
 	}
 
 	r = il_monitor_ch_configure(monitor, 0, &IL_REG_VEL_ACT, NULL);
 	if (r < 0) {
-		fprintf(stderr, "Could not configure channel: %s\n",
+		log_error("Could not configure channel: %s",
 			ilerr_last());
 		goto cleanup_monitor;
 	}
@@ -98,7 +99,7 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 					 0, &IL_REG_VEL_ACT, NULL,
 					 TARGET_VEL * 0.9, 0, 0);
 	if (r < 0) {
-		fprintf(stderr, "Could not configure trigger: %s\n",
+		log_error("Could not configure trigger: %s",
 			ilerr_last());
 		goto cleanup_monitor;
 	}
@@ -106,40 +107,40 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	/* enable servo in PV mode */
 	r = il_servo_disable(servo);
 	if (r < 0) {
-		fprintf(stderr, "Could not disable servo: %s\n", ilerr_last());
+		log_error("Could not disable servo: %s", ilerr_last());
 		goto cleanup_monitor;
 	}
 
 	r = il_servo_mode_set(servo, IL_SERVO_MODE_PV);
 	if (r < 0) {
-		fprintf(stderr, "Could not set mode: %s\n", ilerr_last());
+		log_error("Could not set mode: %s", ilerr_last());
 		goto cleanup_monitor;
 	}
 
 	r = il_servo_enable(servo, ENABLE_TIMEOUT);
 	if (r < 0) {
-		fprintf(stderr, "Could not enable servo: %s\n", ilerr_last());
+		log_error("Could not enable servo: %s", ilerr_last());
 		goto cleanup_monitor;
 	}
 
 	/* enable monitor, set velocity */
 	r = il_monitor_start(monitor);
 	if (r < 0) {
-		fprintf(stderr, "Could not start monitor: %s\n", ilerr_last());
+		log_error("Could not start monitor: %s", ilerr_last());
 		goto servo_disable;
 	}
 
 	r = il_servo_velocity_set(servo, TARGET_VEL);
 	if (r < 0) {
-		fprintf(stderr, "Could not set velocity: %s\n", ilerr_last());
+		log_error("Could not set velocity: %s", ilerr_last());
 		goto servo_disable;
 	}
 
 	/* wait for monitor to capture all samples, then store results */
-	printf("Waiting for monitor to complete...\n");
+	log_info("Waiting for monitor to complete...\n");
 	r = il_monitor_wait(monitor, MONITOR_TIMEOUT);
 	if (r < 0) {
-		fprintf(stderr, "Monitor acquisition failed: %s\n",
+		log_error("Monitor acquisition failed: %s",
 			ilerr_last());
 		goto servo_disable;
 	}
@@ -147,12 +148,12 @@ static int run(const char *port, uint8_t id, const char *log_fname)
 	il_monitor_data_get(monitor, &acq);
 
 	if (acq->sz != acq->cnt)
-		fprintf(stderr, "WARNING: Acquisition did not complete!\n");
+		log_error("WARNING: Acquisition did not complete!");
 
-	printf("Writing samples (%zu) to file...\n", acq->cnt);
+	log_info("Writing samples (%zu) to file...", acq->cnt);
 	log_f = fopen(log_fname, "w");
 	if (!log_f) {
-		fprintf(stderr, "Could not open log file");
+		log_error("Could not open log file");
 		goto servo_disable;
 	}
 
@@ -184,8 +185,7 @@ int main(int argc, char **argv)
 	uint8_t id;
 
 	if (argc < 4) {
-		fprintf(stderr,
-			"Usage: monitor PORT SERVO_ID LOG_FILE\n");
+		log_error("Usage: monitor PORT SERVO_ID LOG_FILE");
 		return 1;
 	}
 

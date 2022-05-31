@@ -2085,7 +2085,7 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				log_error("Slave %d cannot enter into state INIT.", slave);
 				return UP_STATEMACHINE_ERROR;
 			}
-			log_debug("Slave %d state to INIT.\n", slave);
+			log_debug("Slave %d state to INIT.", slave);
 
 			// MAGIC
 			/* read BOOT mailbox data, master -> slave */
@@ -2284,7 +2284,7 @@ int input_intelhex(char *fname, int *start, int *length)
       {
          c = EOF;
          retval = 0;
-         log_warn("Invalid Intel Hex format.\n");
+         log_warn("Invalid Intel Hex format.");
       }
       if (c != EOF)
       {
