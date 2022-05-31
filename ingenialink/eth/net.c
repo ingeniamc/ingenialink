@@ -252,7 +252,7 @@ void SignalHandler(int signal)
 	}
 	else {
 		// ...
-		log_debug("Unhandled signal exception: %i", signal);
+		log_warn("Unhandled signal exception: %i", signal);
 	}
 }
 
@@ -393,12 +393,12 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 
 				r = select(this->server, NULL, &Write, &Err, &Timeout);
 				if (r == 0) {
-					log_debug("Timeout during connection");
+					log_warn("Timeout during connection");
 					result = 0;
 				}
 				else {
 					if (FD_ISSET(this->server, &Write)) {
-						log_debug("Connected to the Server");
+						log_info("Connected to the Server");
 						result = 1;
 					}
 					if (FD_ISSET(this->server, &Err)) {
@@ -416,7 +416,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 		}
 		else
 		{
-			log_debug("Connected to the Server");
+			log_info("Connected to the Server");
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 			if (r < 0)
 			{
@@ -487,11 +487,11 @@ static int il_net_reconnect(il_net_t *net)
 				FD_SET(this->server, &Err);
 				r = select(0, NULL, &Write, &Err, &Timeout);
 				if (r == 0) {
-					log_debug("Timeout during connection");
+					log_warn("Timeout during connection");
 				}
 				else {
 					if (FD_ISSET(this->server, &Write)) {
-						log_debug("Reconnected to the Server");
+						log_info("Reconnected to the Server");
 						this->stop = 0;
 					}
 					if (FD_ISSET(this->server, &Err)) {
@@ -505,7 +505,7 @@ static int il_net_reconnect(il_net_t *net)
 			}
 		}
 		else {
-			log_debug("Connected to the Server");
+			log_info("Connected to the Server");
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 			if (r < 0)
 			{

@@ -283,7 +283,7 @@ restart:
 			}
 			else {
 				if (il_net_status_get(this) == IL_NET_STATE_DISCONNECTED) {
-					log_debug("DEVICE CONNECTED");
+					log_info("DEVICE CONNECTED");
 					il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 				}
 				error_count = 0;
@@ -304,7 +304,7 @@ restart:
 
 err:
 	if(this != NULL) {
-		log_debug("DEVICE DISCONNECTED");
+		log_info("DEVICE DISCONNECTED");
 		ilerr__set("Slave %i disconnected\n", this->slave);
 		this->stop = IL_NET_STATE_DISCONNECTED;
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
@@ -337,7 +337,7 @@ void SignalHandlerECAT(int signal)
 		exit(-1);
 	}
 	else {
-		log_debug("Unhandled signal exception: %i", signal);
+		log_warn("Unhandled signal exception: %i", signal);
 	}
 }
 
@@ -457,7 +457,7 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 			if (r >= 0) {
 				this->stop = 0;
 				this->stop_reconnect = 0;
-				log_debug("DEVICE RECONNECTED");
+				log_info("DEVICE RECONNECTED");
 				il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 			}
 		}
