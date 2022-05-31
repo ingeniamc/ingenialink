@@ -25,6 +25,7 @@
 #include "servo.h"
 
 #include "ingenialink/err.h"
+#include "ingenialink/log.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -242,7 +243,7 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 				return IL_EFAIL;
 
 			if (ids[0] != NULL) {
-				printf("Loading subnode %i...\n", j);
+				log_debug("Loading subnode %i...", j);
 			}
 
 			for (size_t i = 0; ids[i]; i++) {
@@ -305,7 +306,7 @@ cleanup_ids:
 		il_dict_reg_ids_destroy(ids);
 	}
 	else {
-		printf("Could not load the configuration\n");
+		log_error("Could not load the configuration");
 	}
 
 	il_dict_destroy(dict);
@@ -745,7 +746,7 @@ int il_servo_is_connected(il_net_t **net, const char *address_ip, int port_ip, i
 
 	*net = il_net_create(IL_NET_PROT_ETH, &opts);
 	if (!*net) {
-		printf("FAIL");
+		log_error("FAIL");
 		return IL_EFAIL;
 	}
 	int r = 0;
@@ -778,15 +779,15 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 
 	*net = il_net_create(prot, &opts);
 	if (!*net) {
-		printf("FAIL");
+		log_error("FAIL");
 		return IL_EFAIL;
 	}
 
 	/* Initialization of the EtherCAT master */
 	int r = il_net_master_startup(*net, ifname, slave, use_eoe_comms);
-	printf("master_startup result: %i\n", r);
+	log_debug("master_startup result: %i", r);
 	if (r > 0) {
-		printf("Servos found!\n");
+		log_debug("Servos found!");
 		/* Wait until slaves are initialized */
 		Sleep(2000);
 
@@ -797,6 +798,6 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 		}
 	}
 	il_net_destroy(*net);
-	printf("No connected servos found\n");
+	log_error("No connected servos found");
 	return IL_EFAIL;
 }

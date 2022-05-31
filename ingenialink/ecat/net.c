@@ -36,6 +36,7 @@
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
+#include "ingenialink/log.h"
 
 #include "external/soem/soem/ethercat.h"
 #include "lwip/netif.h"
@@ -282,7 +283,7 @@ restart:
 			}
 			else {
 				if (il_net_status_get(this) == IL_NET_STATE_DISCONNECTED) {
-					printf("DEVICE CONNECTED\n");
+					log_debug("DEVICE CONNECTED");
 					il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 				}
 				error_count = 0;
@@ -303,7 +304,7 @@ restart:
 
 err:
 	if(this != NULL) {
-		printf("DEVICE DISCONNECTED\n");
+		log_debug("DEVICE DISCONNECTED");
 		ilerr__set("Slave %i disconnected\n", this->slave);
 		this->stop = IL_NET_STATE_DISCONNECTED;
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
@@ -312,9 +313,9 @@ err:
 	return 0;
 stop:
 	if (this != NULL) {
-		printf("Stop reconnection thread\n");
+		log_debug("Stop reconnection thread");
 		osal_mutex_unlock(this->net.lock);
-		printf("Net unlocked\n");
+		log_debug("Net unlocked");
 	}
 	return 0;
 }
@@ -331,12 +332,12 @@ void SignalHandlerECAT(int signal)
 		}
 		int r = il_net_master_stop(&this->net);
 		r = il_net_ecat_close_socket(&this->net);
-		printf("Unexpected termination: %i\n", signal);
+		log_error("Unexpected termination: %i", signal);
 
 		exit(-1);
 	}
 	else {
-		printf("Unhandled signal exception: %i\n", signal);
+		log_debug("Unhandled signal exception: %i", signal);
 	}
 }
 
@@ -428,7 +429,7 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 	uint16_t sw;
 
 	while (r < 0 && this->stop_reconnect == 0) {
-		printf("Disconnecting interface\n");
+		log_debug("Disconnecting interface");
 		ec_slavecount = 0;
 		/* Disconnecting and removing udp interface */
 		if (ptUdpPcb != NULL) {
@@ -437,12 +438,12 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 		}
 
 		/* Remove the network interface */
-		printf("Removing network interface\n");
+		log_debug("Removing network interface");
 		netif_remove(&tNetif);
 		ec_mbxempty(this->slave, 100000);
 		context->EOEhook = NULL;
 
-		printf("Closing EtherCAT interface\n");
+		log_debug("Closing EtherCAT interface");
 		/* Close EtherCAT interface */
 		ec_close();
 		Sleep(1000);
@@ -456,7 +457,7 @@ static int il_ecat_net_reconnect(il_ecat_net_t *this)
 			if (r >= 0) {
 				this->stop = 0;
 				this->stop_reconnect = 0;
-				printf("DEVICE RECONNECTED");
+				log_debug("DEVICE RECONNECTED");
 				il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 			}
 		}
@@ -514,11 +515,11 @@ static int il_ecat_mon_stop(il_net_t *net)
 {
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop_reconnect = 1;
-	printf("Join listener thread\n");
+	log_debug("Join listener thread");
 	if (this->listener != NULL) {
 		osal_thread_join(this->listener, NULL);
 	}
-	printf("Join mailbox thread\n");
+	log_debug("Join mailbox thread");
 	Sleep(1000);
 }
 
@@ -1801,7 +1802,7 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
 
 void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 {
-	printf("Init EoE\n");
+	log_debug("Init EoE");
 	/* Set the HOOK */
 	il_ecat_net_t *this = to_ecat_net(net);
 
@@ -1811,7 +1812,7 @@ void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 	memset(&ipsettings, 0, sizeof(ipsettings));
 	memset(&re_ipsettings, 0, sizeof(re_ipsettings));
 
-	printf("IP configuration\n");
+	log_debug("IP configuration");
 	ipsettings.ip_set = 1;
 	ipsettings.subnet_set = 1;
 	ipsettings.default_gateway_set = 1;
@@ -1827,7 +1828,7 @@ void init_eoe(il_net_t *net, ecx_contextt * context, uint16_t slave)
 	ipsettings.mac.addr[4] = 4;
 	ipsettings.mac.addr[5] = 5;
 
-	printf("IP configured\n");
+	log_debug("IP configured");
 
 	/* Send a set IP request */
 	ecx_EOEsetIp(context, slave, 0, &ipsettings, EC_TIMEOUTRXM);
@@ -1859,16 +1860,16 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uin
 	
 	slave_number = slave;
 
-	printf("Starting EtherCAT Master\n");
+	log_debug("Starting EtherCAT Master");
 	/* Initialise SOEM, bind socket to ifname */
 	if (ec_init(ifname)) {
-		printf("ec_init on %s succeeded.\n", ifname);
+		log_debug("ec_init on %s succeeded.", ifname);
 		/* Find and auto-config slaves */
 		if (ec_config_init(FALSE) > 0) {
-			printf("%d slaves found and configured.\n", ec_slavecount);
+			log_debug("%d slaves found and configured.", ec_slavecount);
 			context = &ecx_context;
 			if (slave <= ec_slavecount) {
-				printf("Slaves mapped, state to PRE_OP.\n");
+				log_debug("Slaves mapped, state to PRE_OP.");
 				/* Wait for all slaves to reach SAFE_OP state */
 				ec_statecheck(slave, EC_STATE_PRE_OP, EC_TIMEOUTSTATE * 4);
 
@@ -1883,12 +1884,12 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uin
 					ec_statecheck(slave, EC_STATE_PRE_OP, 50000);
 				} while (chk-- && (ec_slave[slave].state != EC_STATE_PRE_OP));
 				if (ec_slave[slave].state == EC_STATE_PRE_OP) {
-					printf("Pre-Operational state reached for all slaves.\n");
+					log_info("Pre-Operational state reached for all slaves");
 				} else {
-					printf("Not all slaves reached operational state.\n");
+					log_warn("Not all slaves reached operational state.");
 					ec_readstate();
 					if (ec_slave[slave].state != EC_STATE_PRE_OP) {
-						printf("Not all slaves are in PRE-OP\n");
+						log_error("Not all slaves are in PRE-OP");
 						return -1;
 					}
 				}
@@ -1897,14 +1898,14 @@ int *il_ecat_net_master_startup(il_net_t *net, char *ifname, uint16_t slave, uin
 					init_eoe(net, context, slave);
 				}
 			} else {
-				printf("Slave number not found.\n");
+				log_error("Slave number not found.");
 				return -1;
 			}
 		} else {
-			printf("No slaves found!\n");
+			log_info("No slaves found!");
 		}
 	} else {
-		printf("No socket connection on %s\nExcecute as root\n", ifname);
+		log_warn("No socket connection on %s. Excecute as root", ifname);
 	}
 
 	return ec_slavecount;
@@ -1917,10 +1918,10 @@ int *il_ecat_net_test(il_net_t *net) {
 		uint16_t sw;
 		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 		if (r < 0) {
-			printf("FAIL READING SW!\n");
+			log_warn("FAIL READING SW!");
 		}
 		else {
-			printf("SW -> %i\n", sw);
+			log_debug("SW -> %i", sw);
 		}
 		Sleep(1000);
 	}
@@ -1931,18 +1932,18 @@ int *il_ecat_net_num_slaves_get(char *ifname)
 {
 	int i, oloop, iloop, chk;
 
-	printf("Starting EtherCAT Master\n");
+	log_debug("Starting EtherCAT Master");
 	/* Initialise SOEM, bind socket to ifname */
 	if (ec_init(ifname)) {
-		printf("ec_init on %s succeeded.\n", ifname);
+		log_debug("ec_init on %s succeeded.", ifname);
 		/* Find and auto-config slaves */
 		if (ec_config_init(FALSE) > 0) {
-			printf("%d slaves found.\n", ec_slavecount);
+			log_debug("%d slaves found.", ec_slavecount);
 		} else {
-			printf("No slaves found!\n");
+			log_warn("No slaves found!");
 		}
 	} else {
-		printf("No socket connection on %s\nExcecute as root\n", ifname);
+		log_warn("No socket connection on %s. Excecute as root", ifname);
 	}
 	ec_close();
 	return ec_slavecount;
@@ -1962,7 +1963,7 @@ int *il_ecat_net_change_state(uint16_t slave, ec_state state)
 static int *il_ecat_net_master_stop(il_net_t *net)
 {
 
-	printf("Close listener ecat\n");
+	log_debug("Close listener ecat");
 	il_ecat_net_t *this = to_ecat_net(net);
 	this->stop_mailbox = 1;
 	il_ecat_mon_stop(this);
@@ -1974,7 +1975,7 @@ static int *il_ecat_net_master_stop(il_net_t *net)
 		osal_cond_destroy(this->mailbox_check);
 	}
 
-	printf("Disconnecting interface\n");
+	log_debug("Disconnecting interface");
 	ec_slavecount = 0;
 	/* Disconnecting and removing udp interface */
 	if (ptUdpPcb != NULL) {
@@ -1984,18 +1985,18 @@ static int *il_ecat_net_master_stop(il_net_t *net)
 	}
 
 	/* Remove the network interface */
-	printf("Removing network interface\n");
+	log_debug("Removing network interface");
 	netif_set_down(&tNetif);
 	netif_remove(&tNetif);
 	ec_mbxempty(this->slave, 100000);
 	context->EOEhook = NULL;
 
-	printf("Setting state to INIT\n");
+	log_debug("Setting state to INIT");
 	if (il_ecat_net_change_state(this->slave, EC_STATE_INIT) != UP_NOERROR) {
-		printf("Slave %d cannot enter into state INIT.\n", 0);
+		log_warn("Slave %d cannot enter into state INIT.", 0);
 	}
 
-	printf("Closing EtherCAT interface\n");
+	log_debug("Closing EtherCAT interface");
 	/* Close EtherCAT interface */
 	ec_close();
 }
@@ -2022,69 +2023,69 @@ int input_bin(char *fname, int *length)
 */
 static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t slave, char *filename, bool is_summit)
 {
-	printf(filename);
-	printf("Starting firmware update example\n");
+	log_debug(filename);
+	log_debug("Starting firmware update example");
 	int r = 0;
 	/* initialise SOEM, bind socket to ifname */
 	if (ec_init(ifname)) {
-		printf("ec_init on %s succeeded.\n", ifname);
+		log_debug("ec_init on %s succeeded.", ifname);
 		/* find and auto-config slaves */
 
 		if (ec_config_init(FALSE) > 0) {
-			printf("%d slaves found and configured.\n", ec_slavecount);
+			log_debug("%d slaves found and configured.", ec_slavecount);
 
-			printf("Request init state for slave %d\n", slave);
+			log_debug("Request init state for slave %d", slave);
 			if (il_ecat_net_change_state(slave, EC_STATE_INIT) != UP_NOERROR) {
-				printf("Slave %d cannot enter into state INIT.\n", slave);
+				log_error("Slave %d cannot enter into state INIT.", slave);
 				return UP_STATEMACHINE_ERROR;
 			}
 
-			printf("Slave %d state to INIT.\n", slave);
+			log_debug("Slave %d state to INIT.", slave);
 
-			printf("Request pre-op state for slave %d\n", slave);
+			log_debug("Request pre-op state for slave %d", slave);
 			if (il_ecat_net_change_state(slave, EC_STATE_PRE_OP) != UP_NOERROR) {
-				printf("Slave %d cannot enter into state PRE-OP.\n", slave);
-				printf("Application not detected. Trying Bootloader process..\n");
+				log_warn("Slave %d cannot enter into state PRE-OP.", slave);
+				log_debug("Application not detected. Trying Bootloader process..");
 			} else {
 				if (!is_summit) {
-					printf("Writing COCO FORCE BOOT password through SDO\n");
+					log_debug("Writing COCO FORCE BOOT password through SDO");
 					uint32 u32val = 0x424F4F54;
 					if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTRXM) <= 0) {
-						printf("SDO write error\n");
-						printf("Retrying...\n");
+						log_debug("SDO write error");
+						log_debug("Retrying...");
 						if (ec_SDOwrite(slave, 0x5EDE, 0x00, FALSE, sizeof(u32val), &u32val, EC_TIMEOUTRXM) <= 0)  {
-							printf("Force Boot error\n");
+							log_error("Force Boot error");
 							return UP_FORCE_BOOT_ERROR;
 						}
 					}
 				}
 
-				printf("Request init state for slave %d\n", slave);
+				log_debug("Request init state for slave %d", slave);
 				if (il_ecat_net_change_state(slave, EC_STATE_INIT) != UP_NOERROR) {
-					printf("Slave %d cannot enter into state INIT.\n", slave);
+					log_error("Slave %d cannot enter into state INIT.", slave);
 					return UP_STATEMACHINE_ERROR;
 				}
-				printf("Slave %d state to INIT.\n", slave);
+				log_debug("Slave %d state to INIT.", slave);
 
-				printf("Request BOOT state for slave %d\n", slave);
+				log_debug("Request BOOT state for slave %d", slave);
 				if (il_ecat_net_change_state(slave, EC_STATE_BOOT) == UP_NOERROR && !is_summit) {
-					printf("Slave %d entered into state BOOT. \n", slave);
-					printf("Force COCO Boot not applied correctly.\n");
+					log_debug("Slave %d entered into state BOOT.", slave);
+					log_error("Force COCO Boot not applied correctly.");
 					return UP_STATEMACHINE_ERROR;
 				}
-				printf("As expected, Slave %d cannot enter into state BOOT the first time.\n", slave);
+				log_debug("As expected, Slave %d cannot enter into state BOOT the first time.", slave);
 
 				ec_close();
 				ec_init(ifname);
 				ec_config_init(FALSE);
 			}
 
-			printf("Request init state for slave %d\n", slave);
+			log_debug("Request init state for slave %d", slave);
 			if (il_ecat_net_change_state(slave, EC_STATE_INIT) != UP_NOERROR) {
-				printf("Slave %d cannot enter into state INIT.\n", slave);
+				log_error("Slave %d cannot enter into state INIT.", slave);
 				return UP_STATEMACHINE_ERROR;
 			}
-			printf("Slave %d state to INIT.\n", slave);
+			log_debug("Slave %d state to INIT.\n", slave);
 
 			// MAGIC
 			/* read BOOT mailbox data, master -> slave */
@@ -2105,26 +2106,26 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 			/* store boot read mailbox size */
 			ec_slave[slave].mbx_rl = (uint16)HI_WORD(data);
 
-			printf(" SM0 A:%4.4x L:%4d F:%8.8x\n", ec_slave[slave].SM[0].StartAddr, ec_slave[slave].SM[0].SMlength,
+			log_debug(" SM0 A:%4.4x L:%4d F:%8.8x", ec_slave[slave].SM[0].StartAddr, ec_slave[slave].SM[0].SMlength,
 				(int)ec_slave[slave].SM[0].SMflags);
-			printf(" SM1 A:%4.4x L:%4d F:%8.8x\n", ec_slave[slave].SM[1].StartAddr, ec_slave[slave].SM[1].SMlength,
+			log_debug(" SM1 A:%4.4x L:%4d F:%8.8x", ec_slave[slave].SM[1].StartAddr, ec_slave[slave].SM[1].SMlength,
 				(int)ec_slave[slave].SM[1].SMflags);
 			/* program SM0 mailbox in for slave */
 			ec_FPWR(ec_slave[slave].configadr, ECT_REG_SM0, sizeof(ec_smt), &ec_slave[slave].SM[0], EC_TIMEOUTRET);
 			/* program SM1 mailbox out for slave */
 			ec_FPWR(ec_slave[slave].configadr, ECT_REG_SM1, sizeof(ec_smt), &ec_slave[slave].SM[1], EC_TIMEOUTRET);
 
-			printf("Request BOOT state for slave %d\n", slave);
+			log_debug("Request BOOT state for slave %d", slave);
 			if (il_ecat_net_change_state(slave, EC_STATE_BOOT) != UP_NOERROR) {
-				printf("Slave %d cannot enter into state BOOT.\n", slave);
+				log_error("Slave %d cannot enter into state BOOT.", slave);
 				return UP_STATEMACHINE_ERROR;
 			}
-			printf("Slave %d state to BOOT.\n", slave);
+			log_debug("Slave %d state to BOOT.", slave);
 
 			if (ec_eeprom2pdi(slave) <= 0) {
 				return UP_EEPROM_PDI_ERROR;
 			}
-			printf("Slave %d EEPROM set to PDI.\n", slave);
+			log_debug("Slave %d EEPROM set to PDI.", slave);
 
 			if (input_bin(filename, &filesize)){
 				// Get filename of absolute path
@@ -2137,48 +2138,48 @@ static int *il_ecat_net_update_firmware(il_net_t **net, char *ifname, uint16_t s
 				}
 				char* file_id = &filename[len + 1];
 
-				printf("File read OK, %d bytes.\n", filesize);
-				printf("FoE write....");
+				log_debug("File read OK, %d bytes.", filesize);
+				log_debug("FoE write....");
 				r = ec_FOEwrite(slave, file_id, 0x70636675, filesize, &filebuffer, MAX_FOE_TIMEOUT);
-				printf("FOE write result %d.\n", r);
+				log_debug("FOE write result %d.", r);
 				if (r > 0) {
-					printf("Request init state for slave %d\n", slave);
+					log_debug("Request init state for slave %d", slave);
 					if (!is_summit) {
 						ec_slave[slave].state = EC_STATE_INIT;
 						ec_writestate(slave);
 
-						printf("Wait for drive to reset...\n");
+						log_debug("Wait for drive to reset...");
 						Sleep(4000);
 					} else {
 						ec_slave[slave].state = EC_STATE_INIT;
 						ec_writestate(slave);
 
-						printf("Wait for drive to reset...\n");
+						log_debug("Wait for drive to reset...");
 						Sleep(60000);
 					}
-					printf("FOE Process finished succesfully!!!.\n");
+					log_info("FOE Process finished succesfully!!!.");
 				} else  {
 					if (r == 0) {
 						r = SOEM_EC_ERR_TYPE_SDO_ERROR;
 					}
-					printf("Error during FoE process...");
+					log_warn("Error during FoE process...");
 				}
 
 			} else {
-				printf("File not read OK.\n");
+				log_error("File not read OK.");
 				return UP_EEPROM_FILE_ERROR;
 			}
 
 		} else {
-			printf("No slaves found!\n");
+			log_error("No slaves found!");
 			return UP_NOT_FOUND_ERROR;
 		}
 
 	} else {
-		printf("No socket connection on %s\nExecute as root\n",ifname);
+		log_error("No socket connection on %s. Execute as root",ifname);
 		return UP_NO_SOCKET;
 	}
-	printf("End firmware update, close socket\n");
+	log_debug("End firmware update, close socket");
 	/* stop SOEM, close socket */
 	ec_close();
 	return r;
@@ -2283,7 +2284,7 @@ int input_intelhex(char *fname, int *start, int *length)
       {
          c = EOF;
          retval = 0;
-         printf("Invalid Intel Hex format.\n");
+         log_warn("Invalid Intel Hex format.\n");
       }
       if (c != EOF)
       {
@@ -2306,7 +2307,7 @@ int input_intelhex(char *fname, int *start, int *length)
             {
                c = EOF;
                retval = 0;
-               printf("Invalid checksum.\n");
+               log_warn("Invalid checksum.");
             }
          }
       }
@@ -2443,7 +2444,7 @@ int eeprom_write(int slave, int start, int length)
          if (++dc >= 100)
          {
             dc = 0;
-            printf(".");
+            log_debug(".");
             fflush(stdout);
          }
       }
@@ -2487,7 +2488,7 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 	/* initialise SOEM, bind socket to ifname */
 	if (ec_init(ifname))
 	{
-		printf("ec_init on %s succeeded.\n",ifname);
+		log_debug("ec_init on %s succeeded.",ifname);
 
 		w = 0x0000;
 		wkc_eeprom = ec_BRD(0x0000, ECT_REG_TYPE, sizeof(w), &w, EC_TIMEOUTSAFE);      /* detect number of slaves */
@@ -2495,7 +2496,7 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 		{
 			ec_slavecount = wkc_eeprom;
 
-			printf("%d slaves found.\n",ec_slavecount);
+			log_debug("%d slaves found.",ec_slavecount);
 			if((ec_slavecount >= slave) && (slave > 0))
 			{
 				if ((mode == MODE_INFO) || (mode == MODE_READBIN) || (mode == MODE_READINTEL))
@@ -2504,21 +2505,21 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 					eeprom_read(slave, 0x0000, MINBUF); // read first 128 bytes
 
 					wbuf = (uint16 *)&ebuf[0];
-					printf("Slave %d data\n", slave);
-					printf(" PDI Control      : %4.4X\n",*(wbuf + 0x00));
-					printf(" PDI Config       : %4.4X\n",*(wbuf + 0x01));
-					printf(" Config Alias     : %4.4X\n",*(wbuf + 0x04));
-					printf(" Checksum         : %4.4X\n",*(wbuf + 0x07));
-					printf("   calculated     : %4.4X\n",SIIcrc(&ebuf[0]));
-					printf(" Vendor ID        : %8.8X\n",*(uint32 *)(wbuf + 0x08));
-					printf(" Product Code     : %8.8X\n",*(uint32 *)(wbuf + 0x0A));
-					printf(" Revision Number  : %8.8X\n",*(uint32 *)(wbuf + 0x0C));
-					printf(" Serial Number    : %8.8X\n",*(uint32 *)(wbuf + 0x0E));
-					printf(" Mailbox Protocol : %4.4X\n",*(wbuf + 0x1C));
+					log_debug("Slave %d data", slave);
+					log_debug(" PDI Control      : %4.4X",*(wbuf + 0x00));
+					log_debug(" PDI Config       : %4.4X",*(wbuf + 0x01));
+					log_debug(" Config Alias     : %4.4X",*(wbuf + 0x04));
+					log_debug(" Checksum         : %4.4X",*(wbuf + 0x07));
+					log_debug("   calculated     : %4.4X",SIIcrc(&ebuf[0]));
+					log_debug(" Vendor ID        : %8.8X",*(uint32 *)(wbuf + 0x08));
+					log_debug(" Product Code     : %8.8X",*(uint32 *)(wbuf + 0x0A));
+					log_debug(" Revision Number  : %8.8X",*(uint32 *)(wbuf + 0x0C));
+					log_debug(" Serial Number    : %8.8X",*(uint32 *)(wbuf + 0x0E));
+					log_debug(" Mailbox Protocol : %4.4X",*(wbuf + 0x1C));
 					esize = (*(wbuf + 0x3E) + 1) * 128;
 					if (esize > MAXBUF) esize = MAXBUF;
-					printf(" Size             : %4.4X = %d bytes\n",*(wbuf + 0x3E), esize);
-					printf(" Version          : %4.4X\n",*(wbuf + 0x3F));
+					log_debug(" Size             : %4.4X = %d bytes",*(wbuf + 0x3E), esize);
+					log_debug(" Version          : %4.4X",*(wbuf + 0x3F));
 				}
 				if ((mode == MODE_READBIN) || (mode == MODE_READINTEL))
 				{
@@ -2533,7 +2534,7 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 					if (mode == MODE_READINTEL) output_intelhex(fname, esize);
 					if (mode == MODE_READBIN)   output_bin(fname, esize);
 
-					printf("\nTotal EEPROM read time :%ldms\n", (tdif.usec+(tdif.sec*1000000L)) / 1000);
+					log_debug("Total EEPROM read time :%ldms", (tdif.usec+(tdif.sec*1000000L)) / 1000);
 				}
 				if ((mode == MODE_WRITEBIN) || (mode == MODE_WRITEINTEL))
 				{
@@ -2544,24 +2545,24 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 					if (rc > 0)
 					{
 						wbuf = (uint16 *)&ebuf[0];
-						printf("Slave %d\n", slave);
-						printf(" Vendor ID        : %8.8X\n", *(uint32 *)(wbuf + 0x08));
-						printf(" Product Code     : %8.8X\n", *(uint32 *)(wbuf + 0x0A));
-						printf(" Revision Number  : %8.8X\n", *(uint32 *)(wbuf + 0x0C));
-						printf(" Serial Number    : %8.8X\n", *(uint32 *)(wbuf + 0x0E));
+						log_debug("Slave %d", slave);
+						log_debug(" Vendor ID        : %8.8X", *(uint32 *)(wbuf + 0x08));
+						log_debug(" Product Code     : %8.8X", *(uint32 *)(wbuf + 0x0A));
+						log_debug(" Revision Number  : %8.8X", *(uint32 *)(wbuf + 0x0C));
+						log_debug(" Serial Number    : %8.8X", *(uint32 *)(wbuf + 0x0E));
 
-						printf("Busy");
+						log_debug("Busy");
 						fflush(stdout);
 						tstart = osal_current_time();
 						eeprom_write(slave, estart, esize);
 						tend = osal_current_time();
 						osal_time_diff(&tstart, &tend, &tdif);
 
-						printf("\nTotal EEPROM write time :%ldms\n", (tdif.usec + (tdif.sec * 1000000L)) / 1000);
+						log_debug("Total EEPROM write time :%ldms", (tdif.usec + (tdif.sec * 1000000L)) / 1000);
 					}
 					else
 					{
-						printf("Error reading file, abort.\n");
+						log_error("Error reading file, abort.");
 						r = -1;
 					}
 				}
@@ -2573,36 +2574,36 @@ static int *il_ecat_net_eeprom_tool(il_net_t **net, char *ifname, int slave, int
 						*(wbuf + 0x04) = alias;
 						if(eeprom_writealias(slave, alias, SIIcrc(&ebuf[0])))
 						{
-							printf("Alias %4.4X written successfully to slave %d\n", alias, slave);
+							log_debug("Alias %4.4X written successfully to slave %d", alias, slave);
 						}
 						else
 						{
-							printf("Alias not written\n");
+							log_debug("Alias not written");
 						}
 					}
 					else
 					{
-						printf("Could not read slave EEPROM");
+						log_debug("Could not read slave EEPROM");
 					}
 				}
 			}
 			else
 			{
-				printf("Slave number outside range.\n");
+				log_debug("Slave number outside range.");
 			}
 		}
 		else
 		{
-			printf("No slaves found!\n");
+			log_error("No slaves found!");
 			r = -1;
 		}
-		printf("End, close socket\n");
+		log_debug("End, close socket");
 		/* stop SOEM, close socket */
 		ec_close();
 	}
 	else
 	{
-		printf("No socket connection on %s\nExcecute as root\n",ifname);
+		log_warn("No socket connection on %s. Excecute as root",ifname);
 	}
 	return r;
 }
@@ -2678,23 +2679,17 @@ int Everestsetup(uint16 slave)
 
 	u8val = 0;
 	retval += ec_SDOwrite(slave, 0x1c12, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
-	//printf("Set reg 0x1c1200 to 0 = %d\n", retval);
 	u16val = 0x1600;
 	retval += ec_SDOwrite(slave, 0x1c12, 0x01, FALSE, sizeof(u16val), &u16val, EC_TIMEOUTRXM);
-	//printf("Set reg 0x1c1201 to 0x1600 = %d\n", retval);
 	u8val = 1;
 	retval += ec_SDOwrite(slave, 0x1c12, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
-	//printf("Set reg 0x1c1200 to 1 = %d\n", retval);
 
 	u8val = 0;
 	retval += ec_SDOwrite(slave, 0x1c13, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
-	//printf("Set reg 0x1c1300 to 0 = %d\n", retval);
 	u16val = 0x1a00;
 	retval += ec_SDOwrite(slave, 0x1c13, 0x01, FALSE, sizeof(u16val), &u16val, EC_TIMEOUTRXM);
-	//printf("Set reg 0x1c1301 to 0x1a00 = %d\n", retval);
 	u8val = 1;
 	retval += ec_SDOwrite(slave, 0x1c13, 0x00, FALSE, sizeof(u8val), &u8val, EC_TIMEOUTRXM);
-	//printf("Set reg 0x1c1300 to 1 = %d\n", retval);
 
 
 	//u8val = 8;
@@ -2713,9 +2708,9 @@ int Everestsetup(uint16 slave)
 	// set other nescessary parameters as needed
 	// .....
 
-	while (EcatError) printf("%s", ec_elist2string());
+	while (EcatError) log_debug("%s", ec_elist2string());
 
-	printf("Everest slave %d set, retval = %d\n", slave, retval);
+	log_debug("Everest slave %d set, retval = %d", slave, retval);
 	return 1;
 }
 
@@ -2725,18 +2720,18 @@ int *il_ecat_net_force_error(il_net_t **net, char *ifname, char *if_address_ip)
     UINT mmResult;
 
 
-   	printf("Slave force error\n");
+   	log_debug("Slave force error");
 
 	/* initialise SOEM, bind socket to ifname */
    	if (ec_init(ifname))
 	{
-		printf("ec_init on %s succeeded.\n",ifname);
+		log_debug("ec_init on %s succeeded.",ifname);
       	/* find and auto-config slaves */
 
 		if ( ec_config_init(FALSE) > 0 )
       	{
 
-			printf("%d slaves found and configured.\n",ec_slavecount);
+			log_debug("%d slaves found and configured.",ec_slavecount);
 			if (ec_slavecount > 0)
 			{
 				int slave = 1;
@@ -2761,7 +2756,7 @@ int *il_ecat_net_force_error(il_net_t **net, char *ifname, char *if_address_ip)
 
 				uint16_t objectValue = 0x10;
 				retval += ec_SDOwrite(slave, 0x1600, 0x00, FALSE, sizeof(objectValue), &objectValue, EC_TIMEOUTSAFE);
-				printf("retval = %i\n", retval);
+				log_debug("retval = %i", retval);
 				Sleep(1000);
 				ec_slave[slave].state = EC_STATE_SAFE_OP;
 				/* request SAFE_OP state for all slaves */
@@ -2791,7 +2786,7 @@ int *il_ecat_net_force_error(il_net_t **net, char *ifname, char *if_address_ip)
 
 static int process_monitoring_data(il_ecat_net_t *this, il_net_t *net)
 {
-	printf("Process monitoring data: %i\n", net->monitoring_data_size);
+	log_debug("Process monitoring data: %i", net->monitoring_data_size);
 
 	int num_mapped = net->monitoring_number_mapped_registers;
 	int bytes_per_block = net->monitoring_bytes_per_block;
@@ -2831,7 +2826,7 @@ static int process_monitoring_data(il_ecat_net_t *this, il_net_t *net)
 		pData += bytes_per_block;
 	}
 
-	printf("Data Processed\n");
+	log_debug("Data Processed");
 	return 0;
 }
 
