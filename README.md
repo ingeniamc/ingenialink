@@ -32,7 +32,7 @@ install them. `libingenialink` can be built and installed on any system like
 this:
 
 ```sh
-cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL -DWITH_PROT_MCB=ON -DWITH_PROT_ETH=ON -DWITH_PROT_ECAT=ON
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL -DWITH_PROT_ETH=ON -DWITH_PROT_ECAT=ON
 cmake --build _build
 cmake --build _build --target install
 ```
@@ -47,10 +47,8 @@ Note that a `INSTALL` is the installation folder.
 The following build options are available:
 
 
-- `WITH_PROT_EUSB` (ON): Build `EUSB` protocol support.
-- `WITH_PROT_MCB` (OFF): Build `MCB` protocol support.
-- `DWITH_PROT_ETH` (OFF): Build `ETH` protocol support.
-- `WITH_PROT_ECAT` (OFF): Build `ECAT` protocol support.
+- `DWITH_PROT_ETH` (ON): Build `ETH` protocol support.
+- `WITH_PROT_ECAT` (ON): Build `ECAT` protocol support.
 - `WITH_EXAMPLES` (OFF): When enabled, the library usage example applications will be built.
 - `WITH_DOCS` (OFF): When enabled the API documentation can be built.
 - `WITH_PIC` (OFF): When enabled, generated code will be position independent.
