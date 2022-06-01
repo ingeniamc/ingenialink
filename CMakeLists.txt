@@ -82,7 +82,7 @@ set(ingenialink_srcs
   ingenialink/servo.c
   ingenialink/utils.c
   ingenialink/version.c
-  ingenialink/log.c
+  external/log.c/src/log.c
 )
 
 # Sources (protocols)

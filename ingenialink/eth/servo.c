@@ -33,7 +33,7 @@
 #include "ingenialink/err.h"
 #include "ingenialink/base/servo.h"
 #include "ingenialink/registers.h"
-#include "ingenialink/log.h"
+#include "external/log.c/src/log.h"
 
 /*******************************************************************************
  * Private

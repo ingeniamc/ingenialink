@@ -34,7 +34,7 @@
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
-#include "ingenialink/log.h"
+#include "external/log.c/src/log.h"
 
 /*******************************************************************************
 * Private

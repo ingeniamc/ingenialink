@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 #include <ingenialink/ingenialink.h>
-#include "ingenialink/log.h"
+#include "external/log.c/src/log.h"
 
 int main(int argc, const char **argv)
 {

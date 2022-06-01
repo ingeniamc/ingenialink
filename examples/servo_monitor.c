@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-#include "ingenialink/log.h"
+#include "external/log.c/src/log.h"
 
 void on_found(void *ctx, uint8_t id)
 {

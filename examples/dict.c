@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <ingenialink/ingenialink.h>
-#include "ingenialink/log.h"
+#include "external/log.c/src/log.h"
 
 static void print_scat(const char *id, il_dict_labels_t *labels)
 {

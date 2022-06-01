@@ -25,7 +25,7 @@
 #include "servo.h"
 
 #include "ingenialink/err.h"
-#include "ingenialink/log.h"
+#include "external/log.c/src/log.h"
 
 #include <string.h>
 #include <stdio.h>

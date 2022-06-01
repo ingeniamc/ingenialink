@@ -7,7 +7,7 @@
 
 #include "lwip.h"
 
-#include "ingenialink/log.h"
+#include "external/log.c/src/log.h"
 #include "lwip/netif.h"
 #include "lwip/err.h"
 #include "lwip/init.h"
