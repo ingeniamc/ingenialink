@@ -1,31 +1,3 @@
-#-------------------------------------------------------------------------------
-# libingenialink - IngeniaLink Protocol Communications Library
-#
-# MIT License
-#
-# Copyright (c) 2017 Ingenia-CAT S.L.
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-#-------------------------------------------------------------------------------
-# General
-
 cmake_minimum_required(VERSION 3.0)
 project(ingenialink LANGUAGES C VERSION 6.2.4)
 
@@ -49,11 +21,8 @@ endif()
 option(WITH_EXAMPLES     "Build library usage example apps"                   OFF)
 option(WITH_DOCS         "Build library public API documentation"             OFF)
 option(WITH_PIC          "Generate position independent code"                 OFF)
-option(WITH_PROT_EUSB    "Build with EUSB protocol support"                    ON)
-option(WITH_PROT_MCB     "Build with MCB protocol support"                     ON)
 option(WITH_PROT_ETH     "Build with ETH protocol support"                     ON)
 option(WITH_PROT_ECAT     "Build with ECAT protocol support (EXPERIMENTAL)"     ON)
-option(WITH_PROT_VIRTUAL "Build with Virtual protocol support (EXPERIMENTAL)" OFF)
 
 # Build a shared library by default
 if(NOT DEFINED BUILD_SHARED_LIBS)
@@ -89,30 +58,11 @@ set(ingenialink_srcs
 list(APPEND ingenialink_srcs
   ingenialink/base/net.c
   ingenialink/base/servo.c
+  ingenialink/base/registers.c
 )
-
-if(WITH_PROT_EUSB)
-  list(APPEND ingenialink_srcs
-    ingenialink/eusb/net.c
-    ingenialink/eusb/frame.c
-    ingenialink/eusb/monitor.c
-    ingenialink/eusb/registers.c
-    ingenialink/eusb/servo.c
-  )
-endif()
-
-if(WITH_PROT_MCB)
-  list(APPEND ingenialink_srcs
-    ingenialink/mcb/frame.c
-    ingenialink/mcb/net.c
-    ingenialink/mcb/servo.c
-    ingenialink/mcb/registers.c
-  )
-endif()
 
 if(WITH_PROT_ETH)
   list(APPEND ingenialink_srcs
-    ingenialink/eth/frame.c
     ingenialink/eth/net.c
     ingenialink/eth/servo.c
   )
@@ -120,7 +70,6 @@ endif()
 
 if(WITH_PROT_ECAT)
   list(APPEND ingenialink_srcs
-    ingenialink/ecat/frame.c
     ingenialink/ecat/net.c
     ingenialink/ecat/servo.c
 
@@ -208,13 +157,6 @@ if(WITH_PROT_ECAT)
   )
 endif()
 
-if(WITH_PROT_VIRTUAL)
-  list(APPEND ingenialink_srcs
-    ingenialink/virtual/net.c
-    ingenialink/virtual/servo.c
-  )
-endif()
-
 # Sources (osal)
 if(UNIX)
   list(APPEND ingenialink_srcs
@@ -271,14 +213,6 @@ target_include_directories(
 # Definitions
 target_compile_definitions(ingenialink PRIVATE IL_BUILDING)
 
-if(WITH_PROT_EUSB)
-  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_EUSB)
-endif()
-
-if(WITH_PROT_MCB)
-  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_MCB)
-endif()
-
 if(WITH_PROT_ETH)
   include_directories(./ ./ingenialink/ecat/lwip)
   target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_ETH)
@@ -286,10 +220,6 @@ endif()
 
 if(WITH_PROT_ECAT)
   target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_ECAT)
-endif()
-
-if(WITH_PROT_VIRTUAL)
-  target_compile_definitions(ingenialink PRIVATE IL_HAS_PROT_VIRTUAL)
 endif()
 
 # Dependencies

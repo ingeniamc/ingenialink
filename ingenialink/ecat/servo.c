@@ -1,6 +1,5 @@
 
 #include "servo.h"
-#include "mc.h"
 
 #include <string.h>
 
@@ -12,6 +11,7 @@
 #include "ingenialink/base/servo.h"
 #include "ingenialink/registers.h"
 #include "external/log.c/src/log.h"
+#include "ingenialink/mc.h"
 
 /*******************************************************************************
  * Private
@@ -273,7 +273,7 @@ static il_servo_t *il_ecat_servo_create(il_net_t *net, uint16_t id,
 
 	/* Configure the number of axis if the register is defined */
 	uint16_t subnodes;
-	r = il_servo_raw_read_u16(&this->servo, &IL_REG_ETH_NUMBER_AXIS, NULL, &subnodes);
+	r = il_servo_raw_read_u16(&this->servo, &IL_REG_NUMBER_AXIS, NULL, &subnodes);
 	if (r < 0) {
 		this->servo.subnodes = 1;
 	}
@@ -566,7 +566,7 @@ static int il_ecat_servo_store_all(il_servo_t *servo, int subnode)
 	int r = 0;
 
 	// Set subnode in store all register
-	il_reg_t il_reg_store_all = IL_REG_ETH_STORE_ALL;
+	il_reg_t il_reg_store_all = IL_REG_STORE_ALL;
 	il_reg_store_all.subnode = subnode;
 
 	r = il_servo_raw_wait_write_u32(servo, &il_reg_store_all,
