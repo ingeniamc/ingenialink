@@ -95,7 +95,7 @@ LWIP_EthernetifOutput(struct netif *ptNetIfHnd, struct pbuf *ptBuf);
 static void LWIP_UdpReceiveData(void* pArg, struct udp_pcb* ptUdpPcb, struct pbuf* ptBuf,
                                 const ip_addr_t* ptAddr, u16_t u16Port)
 {
-    log_debug("UDP received bro!!");
+    log_debug("UDP received");
     // uint16_t u16SzBy;
     // struct pbuf* pRepBuf = NULL;
 
