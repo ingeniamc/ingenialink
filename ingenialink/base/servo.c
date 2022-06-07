@@ -251,7 +251,6 @@ static void sw_update(void *ctx, uint16_t sw)
 		servo->sw.value = sw;
 		osal_cond_broadcast(servo->sw.changed);
 	}
-	// printf("%d\n", servo->sw.value);
 	osal_mutex_unlock(servo->sw.lock);
 }
 
@@ -876,12 +875,10 @@ int il_servo_base__raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
 				const char *id, uint16_t *buf, uint8_t subnode)
 {
 	int r;
-	// printf("before read \n");
 	r = raw_read(servo, reg, id, IL_REG_DTYPE_U16, buf, sizeof(*buf), subnode);
 	if (r == 0)
 		*buf = __swap_be_16(*buf);
 
-	// printf("after read \n");
 
 	return r;
 }
