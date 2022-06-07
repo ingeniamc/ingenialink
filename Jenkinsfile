@@ -1,4 +1,6 @@
-node('windows') {
+def SW_NODE = "sw"
+
+node(SW_NODE) {
 	  deleteDir()
 
     stage('Checkout') {
