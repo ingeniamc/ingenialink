@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 
+#include "external/log.c/src/log.h"
+
 int main(int argc, const char *argv[])
 {
 	il_net_prot_t prot;
@@ -15,7 +17,7 @@ int main(int argc, const char *argv[])
 	il_net_servos_list_t *servo_ids, *servo_id;
 
 	if (argc < 2) {
-		fprintf(stderr, "Usage: ./list PROT\n");
+		log_error("Usage: ./list PROT");
 		return -1;
 	}
 
@@ -37,7 +39,7 @@ int main(int argc, const char *argv[])
 			continue;
 
 		/* scan (use callback to print on the go) */
-		printf("Scanning %s...\n", dev->port);
+		log_info("Scanning %s...", dev->port);
 
 		servo_ids = il_net_servos_list_get(net, NULL, NULL);
 		il_net_servos_list_foreach(servo_id, servo_ids) {
@@ -51,14 +53,14 @@ int main(int argc, const char *argv[])
 			if (il_servo_info_get(servo, &info) < 0)
 				goto cleanup_servo;
 
-			printf("-------------------------------------------\n");
-			printf("%s, 0x%02x\n", info.name, servo_id->id);
-			printf("\tSerial number: %u\n", info.serial);
-			printf("\tSoftware version: %s\n", info.sw_version);
-			printf("\tHardware variant: %s\n", info.hw_variant);
-			printf("\tProduct code: 0x%08x\n", info.prod_code);
-			printf("\tProduct revision: 0x%08x\n", info.revision);
-			printf("-------------------------------------------\n");
+			log_info("-------------------------------------------");
+			log_info("%s, 0x%02x", info.name, servo_id->id);
+			log_info("\tSerial number: %u", info.serial);
+			log_info("\tSoftware version: %s", info.sw_version);
+			log_info("\tHardware variant: %s", info.hw_variant);
+			log_info("\tProduct code: 0x%08x", info.prod_code);
+			log_info("\tProduct revision: 0x%08x", info.revision);
+			log_info("-------------------------------------------");
 
 cleanup_servo:
 			il_servo_destroy(servo);

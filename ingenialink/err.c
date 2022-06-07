@@ -150,3 +150,8 @@ int *ilerr_ipb_last()
 {
 	return err_ipb_last;
 }
+
+void set_log_level(int8_t level)
+{
+	log_set_level(level);
+}

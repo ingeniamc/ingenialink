@@ -58,6 +58,8 @@ IL_BEGIN_DECL
  */
 IL_EXPORT const char *ilerr_last(void);
 IL_EXPORT int *ilerr_ipb_last(void);
+IL_EXPORT void set_log_level(int8_t level);
+
 /** @} */
 
 IL_END_DECL

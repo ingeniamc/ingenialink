@@ -57,7 +57,7 @@ static int run(int loops, il_net_prot_t prot, const char *port, uint8_t id)
 	/*net = il_net_eusb_create(&opts);*/
 	net = il_net_create(prot, &opts);
 	if (!net) {
-		fprintf(stderr, "Could not create network: %s\n", ilerr_last());
+		log_error("Could not create network: %s", ilerr_last());
 		r = 1;
 		goto out;
 	}
@@ -65,7 +65,7 @@ static int run(int loops, il_net_prot_t prot, const char *port, uint8_t id)
 	/* create servo */
 	servo = il_servo_create(net, id, NULL);
 	if (!servo) {
-		fprintf(stderr, "Could not create servo: %s\n", ilerr_last());
+		log_error("Could not create servo: %s", ilerr_last());
 		goto cleanup_net;
 	}
 
@@ -83,7 +83,7 @@ static int run(int loops, il_net_prot_t prot, const char *port, uint8_t id)
 		r = il_servo_raw_read_s32(servo, &reg, NULL, &buf);
 		/*r = il_servo_read(servo, &reg, NULL, &buf);*/
 		if (r < 0) {
-			fprintf(stderr, "Error while reading: %s\n",
+			log_error("Error while reading: %s",
 				ilerr_last());
 			break;
 		}
@@ -91,7 +91,7 @@ static int run(int loops, il_net_prot_t prot, const char *port, uint8_t id)
 	benchmark_end(elapsed);
 
 	if (r == 0) {
-		printf("%d messages read in %.2f ms (%.2f msgs/s).\n", loops,
+		log_info("%d messages read in %.2f ms (%.2f msgs/s).", loops,
 		       elapsed, ((double)loops / elapsed) * 1000.0);
 	}
 
@@ -112,8 +112,7 @@ int main(int argc, char **argv)
 	uint8_t id;
 
 	if (argc < 5) {
-		fprintf(stderr,
-			"Usage: benchmark LOOPS PROT PORT SERVO_ID\n");
+		log_error("Usage: benchmark LOOPS PROT PORT SERVO_ID");
 		return 1;
 	}
 
