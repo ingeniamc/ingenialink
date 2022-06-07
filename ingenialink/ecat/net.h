@@ -7,7 +7,6 @@
 
 #include "osal/osal.h"
 
-#define _SER_NO_LEGACY_STDINT
 #include <winsock2.h>
 
 /** Default number of retries while waiting to receive a frame. */
