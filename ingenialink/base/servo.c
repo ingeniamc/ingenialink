@@ -1043,15 +1043,15 @@ int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 		break;
 	case IL_REG_DTYPE_S32:
 		r = il_servo_raw_read_s32(servo, reg_, NULL, &s32_v, subnode);
-		buf_ = (float)s32_v;
+		buf_ = (double)s32_v;
 		break;
 	case IL_REG_DTYPE_U64:
 		r = il_servo_raw_read_u64(servo, reg_, NULL, &u64_v, subnode);
-		buf_ = (float)u64_v;
+		buf_ = (double)u64_v;
 		break;
 	case IL_REG_DTYPE_S64:
 		r = il_servo_raw_read_s64(servo, reg_, NULL, &s64_v, subnode);
-		buf_ = (float)s64_v;
+		buf_ = (double)s64_v;
 		break;
 	case IL_REG_DTYPE_FLOAT:
 		r = il_servo_raw_read_float(servo, reg_, NULL, &float_v, subnode);
