@@ -339,7 +339,7 @@ IL_EXPORT const char *il_net_port_get(il_net_t *net);
  *	  Address ip.
  *
  */
-IL_EXPORT int *il_net_is_slave_connected(il_net_t *net, const char *ip);
+IL_EXPORT int il_net_is_slave_connected(il_net_t *net, const char *ip);
 
 
 
@@ -364,7 +364,7 @@ IL_EXPORT char *il_net_extended_buffer_get(il_net_t *net);
  * @returns
  *	Network monitoring data.
  */
-IL_EXPORT uint16_t *il_net_monitornig_data_get(il_net_t *net);
+IL_EXPORT uint8_t *il_net_monitornig_data_get(il_net_t *net);
 
 /**
  * Obtain network monitoring data size.
@@ -435,7 +435,7 @@ IL_EXPORT void il_net_disturbance_data_size_set(il_net_t *net, uint16_t disturba
  *	  Network.
  *
  */
-IL_EXPORT int *il_net_remove_all_mapped_registers(il_net_t *net);
+IL_EXPORT int il_net_remove_all_mapped_registers(il_net_t *net);
 
 /**
  * Set Mapped register.
@@ -453,7 +453,7 @@ IL_EXPORT int *il_net_remove_all_mapped_registers(il_net_t *net);
  *	  Data Type.
  *
  */
-IL_EXPORT int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address,
+IL_EXPORT int il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address,
 											uint8_t subnode, il_reg_dtype_t dtype, uint8_t size);
 
 
@@ -474,7 +474,7 @@ IL_EXPORT uint16_t il_net_num_mapped_registers_get(il_net_t *net);
  *	  Network.
  *
  */
-IL_EXPORT int *il_net_enable_monitoring(il_net_t *net);
+IL_EXPORT int il_net_enable_monitoring(il_net_t *net);
 
 /**
  * Disable monitoring.
@@ -483,7 +483,7 @@ IL_EXPORT int *il_net_enable_monitoring(il_net_t *net);
  *	  Network.
  *
  */
-IL_EXPORT int *il_net_disable_monitoring(il_net_t *net);
+IL_EXPORT int il_net_disable_monitoring(il_net_t *net);
 
 /**
  * Enable monitoring.
@@ -492,7 +492,7 @@ IL_EXPORT int *il_net_disable_monitoring(il_net_t *net);
  *	  Network.
  *
  */
-IL_EXPORT int *il_net_enable_disturbance(il_net_t *net);
+IL_EXPORT int il_net_enable_disturbance(il_net_t *net);
 
 /**
  * Disable monitoring.
@@ -501,7 +501,7 @@ IL_EXPORT int *il_net_enable_disturbance(il_net_t *net);
  *	  Network.
  *
  */
-IL_EXPORT int *il_net_disable_disturbance(il_net_t *net);
+IL_EXPORT int il_net_disable_disturbance(il_net_t *net);
 
 /**
  * Remove data from disturbance.
@@ -510,7 +510,7 @@ IL_EXPORT int *il_net_disable_disturbance(il_net_t *net);
  *	  Network.
  *
  */
-IL_EXPORT int *il_net_disturbance_remove_data(il_net_t *net);
+IL_EXPORT int il_net_disturbance_remove_data(il_net_t *net);
 
 /**
  * Remove data from monitoing.
@@ -519,7 +519,7 @@ IL_EXPORT int *il_net_disturbance_remove_data(il_net_t *net);
  *	  Network.
  *
  */
-IL_EXPORT int *il_net_monitoring_remove_data(il_net_t *net);
+IL_EXPORT int il_net_monitoring_remove_data(il_net_t *net);
 
 /**
  * Read monitoring data.
@@ -528,7 +528,7 @@ IL_EXPORT int *il_net_monitoring_remove_data(il_net_t *net);
  *	  Network.
  *
  */
-IL_EXPORT int *il_net_read_monitoring_data(il_net_t *net);
+IL_EXPORT int il_net_read_monitoring_data(il_net_t *net);
 
 /**
  * Obtain network monitoring channel data.
@@ -608,7 +608,7 @@ IL_EXPORT float *il_net_monitoring_channel_flt(il_net_t *net, int channel);
  *	  Network.
  *
  */
-IL_EXPORT int *il_net_disturbance_remove_all_mapped_registers(il_net_t *net);
+IL_EXPORT int il_net_disturbance_remove_all_mapped_registers(il_net_t *net);
 
 /**
  * Set Mapped register for disturbance.
@@ -626,7 +626,7 @@ IL_EXPORT int *il_net_disturbance_remove_all_mapped_registers(il_net_t *net);
  *	  Data Type.
  *
  */
-IL_EXPORT int *il_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address, uint8_t subnode, il_reg_dtype_t dtype, uint8_t size);
+IL_EXPORT int il_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address, uint8_t subnode, il_reg_dtype_t dtype, uint8_t size);
 
 /**
  * Set network disturbance uint16 data.
@@ -710,7 +710,7 @@ IL_EXPORT int il_net_set_status_check_stop(il_net_t *net, int status_check);
 
 IL_EXPORT int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, il_reg_dtype_t dtype, double *buf);
 
-IL_EXPORT int il_net_SDO_read_array(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, char *buf);
+IL_EXPORT int il_net_SDO_read_array(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, void *buf);
 
 IL_EXPORT int il_net_SDO_read_complete_access(il_net_t *net, uint8_t slave, uint16_t index, int size, void *buf);
 
@@ -799,8 +799,6 @@ IL_EXPORT void il_net_dev_mon_stop(il_net_dev_mon_t *mon);
  *      Monitor.
  */
 IL_EXPORT void il_net_dev_mon_destroy(il_net_dev_mon_t *mon);
-
-IL_EXPORT void il_net_fake_destroy(il_net_t *net);
 
 /**
  * Obtain network devices list.

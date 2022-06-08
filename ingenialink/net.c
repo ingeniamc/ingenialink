@@ -141,9 +141,9 @@ int il_net_status_get(il_net_t *net)
 	return net->ops->status_get(net);
 }
 
-int *il_net_is_slave_connected(il_net_t *net, const char *ip)
+int il_net_is_slave_connected(il_net_t *net, const char *ip)
 {
-	return il_eth_net_ops.is_slave_connected(net);
+	return il_eth_net_ops.is_slave_connected(net, ip);
 }
 
 int il_net_mon_stop(il_net_t *net)
@@ -166,7 +166,7 @@ char *il_net_extended_buffer_get(il_net_t *net)
 	return net->extended_buff;
 }
 
-uint16_t *il_net_monitornig_data_get(il_net_t *net)
+uint8_t *il_net_monitornig_data_get(il_net_t *net)
 {
 	return net->monitoring_raw_data;
 }
@@ -201,12 +201,12 @@ void il_net_disturbance_data_size_set(il_net_t *net, uint16_t disturbance_data_s
 	net->disturbance_data_size = disturbance_data_size;
 }
 
-int *il_net_remove_all_mapped_registers(il_net_t *net)
+int il_net_remove_all_mapped_registers(il_net_t *net)
 {
 	return net->ops->remove_all_mapped_registers(net);
 }
 
-int *il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, uint8_t subnode, il_reg_dtype_t dtype, uint8_t size)
+int il_net_set_mapped_register(il_net_t *net, int channel, uint32_t address, uint8_t subnode, il_reg_dtype_t dtype, uint8_t size)
 {
 	return net->ops->set_mapped_register(net, channel, address, subnode, dtype, size);
 }
@@ -216,37 +216,37 @@ uint16_t il_net_num_mapped_registers_get(il_net_t *net)
 	return net->monitoring_number_mapped_registers;
 }
 
-int *il_net_enable_monitoring(il_net_t *net)
+int il_net_enable_monitoring(il_net_t *net)
 {
 	return net->ops->enable_monitoring(net);
 }
 
-int *il_net_disable_monitoring(il_net_t *net)
+int il_net_disable_monitoring(il_net_t *net)
 {
 	return net->ops->disable_monitoring(net);
 }
 
-int *il_net_enable_disturbance(il_net_t *net)
+int il_net_enable_disturbance(il_net_t *net)
 {
 	return net->ops->enable_disturbance(net);
 }
 
-int *il_net_disable_disturbance(il_net_t *net)
+int il_net_disable_disturbance(il_net_t *net)
 {
 	return net->ops->disable_disturbance(net);
 }
 
-int *il_net_monitoring_remove_data(il_net_t *net)
+int il_net_monitoring_remove_data(il_net_t *net)
 {
 	return net->ops->monitoring_remove_data(net);
 }
 
-int *il_net_disturbance_remove_data(il_net_t *net)
+int il_net_disturbance_remove_data(il_net_t *net)
 {
 	return net->ops->disturbance_remove_data(net);
 }
 
-int *il_net_read_monitoring_data(il_net_t *net)
+int il_net_read_monitoring_data(il_net_t *net)
 {
 	return net->ops->read_monitoring_data(net);
 }
@@ -276,14 +276,14 @@ float *il_net_monitoring_channel_flt(il_net_t *net, int channel)
 	return net->monitoring_data_channels[channel].value.monitoring_data_flt;
 }
 
-int *il_net_disturbance_remove_all_mapped_registers(il_net_t *net)
+int il_net_disturbance_remove_all_mapped_registers(il_net_t *net)
 {
 	return net->ops->disturbance_remove_all_mapped_registers(net);
 }
 
 
 
-int *il_net_disturbance_set_mapped_register(il_net_t *net,
+int il_net_disturbance_set_mapped_register(il_net_t *net,
 	int channel, uint32_t address,
 	uint8_t subnode, il_reg_dtype_t dtype, uint8_t size)
 {
@@ -293,27 +293,27 @@ int *il_net_disturbance_set_mapped_register(il_net_t *net,
 
 void il_net_disturbance_data_u16_set(il_net_t *net, int channel, uint16_t disturbance_data[2048])
 {
-	for (int i = 0; i < (1010/sizeof(uint16_t)); net->disturbance_data_channels[channel].value.disturbance_data_u16[i] = disturbance_data[i], i++);
+	for (size_t i = 0; i < (1010/sizeof(uint16_t)); net->disturbance_data_channels[channel].value.disturbance_data_u16[i] = disturbance_data[i], i++);
 }
 
 void il_net_disturbance_data_s16_set(il_net_t *net, int channel, int16_t disturbance_data[2048])
 {
-	for (int i = 0; i < (1010/sizeof(int16_t)); net->disturbance_data_channels[channel].value.disturbance_data_s16[i] = disturbance_data[i], i++);
+	for (size_t i = 0; i < (1010/sizeof(int16_t)); net->disturbance_data_channels[channel].value.disturbance_data_s16[i] = disturbance_data[i], i++);
 }
 
 void il_net_disturbance_data_u32_set(il_net_t *net, int channel, uint32_t disturbance_data[2048])
 {
-	for (int i = 0; i < (1010/sizeof(uint32_t)); net->disturbance_data_channels[channel].value.disturbance_data_u32[i] = disturbance_data[i], i++);
+	for (size_t i = 0; i < (1010/sizeof(uint32_t)); net->disturbance_data_channels[channel].value.disturbance_data_u32[i] = disturbance_data[i], i++);
 }
 
 void il_net_disturbance_data_s32_set(il_net_t *net, int channel, int32_t disturbance_data[2048])
 {
-	for (int i = 0; i < (1010/sizeof(int32_t)); net->disturbance_data_channels[channel].value.disturbance_data_s32[i] = disturbance_data[i], i++);
+	for (size_t i = 0; i < (1010/sizeof(int32_t)); net->disturbance_data_channels[channel].value.disturbance_data_s32[i] = disturbance_data[i], i++);
 }
 
-void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturbance_data[2048], uint32_t size)
+void il_net_disturbance_data_flt_set(il_net_t *net, int channel, float disturbance_data[2048])
 {
-	for (int i = 0; i < (1010/sizeof(float)); net->disturbance_data_channels[channel].value.disturbance_data_flt[i] = disturbance_data[i], i++);
+	for (size_t i = 0; i < (1010/sizeof(float)); net->disturbance_data_channels[channel].value.disturbance_data_flt[i] = disturbance_data[i], i++);
 }
 
 int il_net_close_socket(il_net_t *net)
@@ -369,6 +369,8 @@ int il_net_set_reconnection_retries(il_net_t *net, uint8_t num_reconnections)
 			return il_eth_net_ops.set_reconnection_retries(net, num_reconnections);
 		case IL_NET_PROT_ECAT:
 			return il_ecat_net_ops.set_reconnection_retries(net, num_reconnections);
+		default:
+			return -1;
 	}
 }
 
@@ -380,6 +382,8 @@ int il_net_set_recv_timeout(il_net_t *net, uint32_t timeout)
 			return il_eth_net_ops.set_recv_timeout(net, timeout);
 		case IL_NET_PROT_ECAT:
 			return il_ecat_net_ops.set_recv_timeout(net, timeout);
+		default:
+			return -1;
 	}
 }
 
@@ -391,6 +395,8 @@ int il_net_set_status_check_stop(il_net_t *net, int stop)
 			return il_eth_net_ops.set_status_check_stop(net, stop);
 		case IL_NET_PROT_ECAT:
 			return il_ecat_net_ops.set_status_check_stop(net, stop);
+		default:
+			return -1;
 	}
 }
 
@@ -398,6 +404,8 @@ int il_net_test(il_net_t *net) {
 	switch(net->prot) {
 		case IL_NET_PROT_ECAT:
 			return il_ecat_net_ops.net_test(net);
+		default:
+			return -1;
 	}
 }
 
@@ -406,11 +414,10 @@ int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subind
 	switch(net->prot)
 	{
 		case IL_NET_PROT_ECAT:
-
+		{
 			uint8_t u8_v;
 			uint16_t u16_v;
 			uint32_t u32_v;
-			uint32_t u32_str_v;
 			uint64_t u64_v;
 			int8_t s8_v;
 			int16_t s16_v;
@@ -466,6 +473,9 @@ int il_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subind
 			}
 			*buf = buf_;
 			return r;
+		}
+		default:
+			return -1;
 	}
 }
 
@@ -475,6 +485,8 @@ int il_net_SDO_read_array(il_net_t *net, uint8_t slave, uint16_t index, uint8_t 
 	{
 		case IL_NET_PROT_ECAT:
 			return il_ecat_net_ops.SDO_read(net, slave, index, subindex, size, buf);
+		default:
+			return -1;
 	}
 }
 
@@ -484,6 +496,8 @@ int il_net_SDO_read_complete_access(il_net_t *net, uint8_t slave, uint16_t index
 	{
 		case IL_NET_PROT_ECAT:
 			return il_ecat_net_ops.SDO_read_complete_access(net, slave, index, size, buf);
+		default:
+			return -1;
 	}
 }
 
@@ -492,19 +506,16 @@ int il_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subin
 	switch(net->prot)
 	{
 		case IL_NET_PROT_ECAT:
+		{
 			uint8_t u8_v;
 			uint16_t u16_v;
 			uint32_t u32_v;
-			uint32_t u32_str_v;
 			uint64_t u64_v;
 			int8_t s8_v;
 			int16_t s16_v;
 			int32_t s32_v;
 			int64_t s64_v;
 			float float_v;
-			double val_;
-
-			// val_ = buf;
 
 			switch (dtype) {
 				case IL_REG_DTYPE_U8:
@@ -538,8 +549,9 @@ int il_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subin
 					ilerr__set("Unsupported register data type");
 					return IL_EINVAL;
 			}
-
-
+		default:
+			return -1;
+		}
 	}
 }
 
@@ -614,8 +626,6 @@ void il_net_dev_mon_stop(il_net_dev_mon_t *mon)
 {
 	mon->ops->stop(mon);
 }
-
-void il_net_fake_destroy(il_net_t *net) {}
 
 il_net_dev_list_t *il_net_dev_list_get(il_net_prot_t prot)
 {

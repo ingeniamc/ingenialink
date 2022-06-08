@@ -717,7 +717,7 @@ static il_net_servos_list_t *il_eth_net_servos_list_get(
 /**
 * Monitoring remove all mapped registers
 */
-static int *il_eth_net_remove_all_mapped_registers(il_net_t *net)
+static int il_eth_net_remove_all_mapped_registers(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
@@ -857,7 +857,7 @@ static int il_eth_net_set_mapped_register_v2(il_net_t *net, int channel, uint32_
 /**
 * Disturbance remove all mapped registers
 */
-static int *il_eth_net_disturbance_remove_all_mapped_registers(il_net_t *net)
+static int il_eth_net_disturbance_remove_all_mapped_registers(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
@@ -908,7 +908,7 @@ static int il_eth_net_disturbance_remove_all_mapped_registers_v2(il_net_t *net)
 /**
 * Disturbance set mapped reg
 */
-static int *il_eth_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address,
+static int il_eth_net_disturbance_set_mapped_register(il_net_t *net, int channel, uint32_t address,
 														uint8_t subnode, il_reg_dtype_t dtype,
 														uint8_t size)
 {
@@ -983,7 +983,7 @@ static int il_eth_net_disturbance_set_mapped_register_v2(il_net_t *net, int chan
 /**
 * Disturbance enable
 */
-static int *il_eth_net_enable_disturbance(il_net_t *net)
+static int il_eth_net_enable_disturbance(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
@@ -1025,7 +1025,7 @@ static int *il_eth_net_enable_disturbance(il_net_t *net)
 	return r;
 }
 
-static int *il_eth_net_disable_disturbance(il_net_t *net)
+static int il_eth_net_disable_disturbance(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
@@ -1067,7 +1067,7 @@ static int *il_eth_net_disable_disturbance(il_net_t *net)
 	return r;
 }
 
-static int *il_eth_net_monitoring_remove_data(il_net_t *net)
+static int il_eth_net_monitoring_remove_data(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
@@ -1077,9 +1077,10 @@ static int *il_eth_net_monitoring_remove_data(il_net_t *net)
 	if (r < 0) {
 
 	}
+	return r;
 }
 
-static int *il_eth_net_disturbance_remove_data(il_net_t *net)
+static int il_eth_net_disturbance_remove_data(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
@@ -1089,6 +1090,7 @@ static int *il_eth_net_disturbance_remove_data(il_net_t *net)
 	if (r < 0) {
 
 	}
+	return r;
 }
 
 static int il_eth_set_last_channel(il_net_t *net, int channel)
@@ -1100,7 +1102,7 @@ static int il_eth_set_last_channel(il_net_t *net, int channel)
 /**
 * Monitoring enable
 */
-static int *il_eth_net_enable_monitoring(il_net_t *net)
+static int il_eth_net_enable_monitoring(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
@@ -1113,7 +1115,7 @@ static int *il_eth_net_enable_monitoring(il_net_t *net)
 	return r;
 }
 
-static int *il_eth_net_disable_monitoring(il_net_t *net)
+static int il_eth_net_disable_monitoring(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
@@ -1127,7 +1129,7 @@ static int *il_eth_net_disable_monitoring(il_net_t *net)
 	return r;
 }
 
-static int *il_eth_net_read_monitoring_data(il_net_t *net)
+static int il_eth_net_read_monitoring_data(il_net_t *net)
 {
 	int r = 0;
 	il_eth_net_t *this = to_eth_net(net);
@@ -1141,6 +1143,7 @@ static int *il_eth_net_read_monitoring_data(il_net_t *net)
 
 	}
 	osal_mutex_unlock(this->net.lock);
+	return r;
 }
 
 /**
