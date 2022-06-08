@@ -97,7 +97,7 @@ void il_net__state_set(il_net_t *net, il_net_state_t state);
  *	0 on success, error code otherwise.
  */
 int il_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, const void *buf,
-		  size_t sz, int confirmed);
+		  size_t sz, int confirmed, uint16_t extended);
 
 /**
  * Read.
@@ -191,16 +191,16 @@ typedef struct {
 		il_net_t *net, il_net_state_t state);
 	/** Read. */
 	int (*_read)(
-		il_net_t *net, uint16_t id, uint32_t address, void *buf,
+		il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, void *buf,
 		size_t sz);
 	/** Write. */
 	int (*_write)(
-		il_net_t *net, uint16_t id, uint32_t address, const void *buf,
-		size_t sz, int confirmed);
+		il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, const void *buf,
+		size_t sz, int confirmed, uint16_t extended);
 	/** Wait Write. */
 	int (*_wait_write)(
-		il_net_t *net, uint16_t id, uint32_t address, const void *buf,
-		size_t sz, int confirmed);
+		il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, const void *buf,
+		size_t sz, int confirmed, uint16_t extended);
 	/** Subscribe to state updates. */
 	int (*_sw_subscribe)(
 		il_net_t *net, uint16_t id, il_net_sw_subscriber_cb_t cb,
@@ -271,7 +271,7 @@ typedef struct {
 		il_net_t *net, il_net_state_t state);
 	/** Read. */
 	int (*_read)(
-		il_net_t *net, uint16_t id, uint32_t address, void *buf,
+		il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, void *buf,
 		size_t sz);
 	/** Write. */
 	int (*_write)(
@@ -377,7 +377,7 @@ typedef struct {
 		il_net_t *net, il_net_state_t state);
 	/** Read. */
 	int (*_read)(
-		il_net_t *net, uint16_t id, uint32_t address, void *buf,
+		il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, void *buf,
 		size_t sz);
 	/** Write. */
 	int (*_write)(

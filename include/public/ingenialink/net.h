@@ -306,7 +306,7 @@ IL_EXPORT il_net_state_t il_net_state_get(il_net_t *net);
  * @returns
  *	Network is status.
  */
-IL_EXPORT il_net_prot_t il_net_status_get(il_net_t *net);
+IL_EXPORT int il_net_status_get(il_net_t *net);
 
 /**
  * Stop network monitor.
