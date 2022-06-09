@@ -812,7 +812,7 @@ IL_EXPORT void il_net_dev_mon_destroy(il_net_dev_mon_t *mon);
  * @see
  *	il_net_dev_list_destroy
  */
-IL_EXPORT il_net_dev_list_t *il_net_dev_list_get(il_net_prot_t prot);
+IL_EXPORT il_eth_net_dev_list_t *il_net_dev_list_get(il_net_prot_t prot);
 
 /**
  * Destroy Network device list.

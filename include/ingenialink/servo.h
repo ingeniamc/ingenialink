@@ -66,7 +66,7 @@ typedef struct {
 	void (*destroy)(il_servo_t *servo);
 	int (*reset)(il_servo_t *servo);
 	void (*state_get)(
-		il_servo_t *servo, il_servo_state_t *state, int *flags);
+		il_servo_t *servo, il_servo_state_t *state, int *flags, uint8_t subnode);
 	int (*state_subscribe)(
 		il_servo_t *servo, il_servo_state_subscriber_cb_t cb,
 		void *ctx);

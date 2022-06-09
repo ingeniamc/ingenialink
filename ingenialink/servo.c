@@ -156,7 +156,7 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 		if (!ids)
 			return IL_EFAIL;
 
-		for (size_t i = 0; i < ids[i]; i++) {
+		for (size_t i = 0; ids[i]; i++) {
 			const il_reg_t *reg;
 			il_reg_value_t storage;
 			(void)il_dict_reg_get(servo->dict, ids[i], &reg, j);
@@ -216,9 +216,6 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 		}
 	}
 
-
-cleanup_ids:
-	il_dict_reg_ids_destroy(ids);
 
 	return r;
 }
@@ -299,16 +296,6 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 			}
 		}
 	}
-
-cleanup_ids:
-	if (ids) {
-		il_dict_reg_ids_destroy(ids);
-	}
-	else {
-		printf("Could not load the configuration\n");
-	}
-
-	il_dict_destroy(dict);
 
 	return r;
 }
