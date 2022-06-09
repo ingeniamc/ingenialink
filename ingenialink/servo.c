@@ -517,9 +517,9 @@ int il_servo_disable(il_servo_t *servo, uint8_t subnode, int timeout)
 	return servo->ops->disable(servo, subnode, timeout);
 }
 
-int il_servo_switch_on(il_servo_t *servo, int timeout)
+int il_servo_switch_on(il_servo_t *servo, int timeout, uint8_t subnode)
 {
-	return servo->ops->switch_on(servo, timeout);
+	return servo->ops->switch_on(servo, timeout, subnode);
 }
 
 int il_servo_enable(il_servo_t *servo, uint8_t subnode, int timeout)
@@ -623,8 +623,6 @@ int il_servo_state_subs_stop(il_servo_t *servo, int stop)
 {
 	return servo->ops->state_subs_stop(servo, stop);
 }
-
-void il_servo_fake_destroy(il_servo_t *servo) {}
 
 int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		   const char *dict)
@@ -750,8 +748,6 @@ const uint16_t *il_servo_subnodes_get(il_servo_t *servo)
 int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 	il_servo_t **servo, const char *dict, int port_ip, uint16_t slave, uint8_t use_eoe_comms)
 {
-	il_net_servos_list_t *servo_ids, *servo_id;
-
 	il_ecat_net_opts_t opts;
 
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;
