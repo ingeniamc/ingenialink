@@ -27,7 +27,7 @@
 
 #include "osal/cond.h"
 
-#include <Windows.h>
+//#include<windows.h>
 
 /** Condition variable (Windows). */
 struct osal_cond {

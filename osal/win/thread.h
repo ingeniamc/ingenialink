@@ -27,7 +27,7 @@
 
 #include "osal/thread.h"
 
-#include <Windows.h>
+//#include<windows.h>
 
 /** Thread (Windows). */
 struct osal_thread {

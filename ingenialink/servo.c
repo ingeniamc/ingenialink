@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <windows.h>
+//#include<windows.h>
 #include <inttypes.h>
 /*******************************************************************************
  * Internal
@@ -235,7 +235,7 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 	for (int j = 0; j < subnodes; j++) {
 		if (subnode == all_subnodes || j == subnode) {
 			ids = il_dict_reg_ids_get(dict, j);
-			if (!ids)
+			if (!ids)				
 				return IL_EFAIL;
 
 			if (ids[0] != NULL) {
@@ -295,7 +295,6 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 					continue;
 			}
 		}
-	}
 
 	return r;
 }

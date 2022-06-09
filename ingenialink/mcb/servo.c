@@ -28,7 +28,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <windows.h>
+//#include<windows.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/servo.h"
@@ -521,47 +521,6 @@ static int il_mcb_servo_enable(il_servo_t *servo, uint8_t subnode, int timeout)
 	return 0;
 }
 
-static int il_mcb_servo_fault_reset(il_servo_t *servo, uint8_t subnode, int timeout)
-{
-	int r;
-	uint16_t sw;
-	il_servo_state_t state;
-	int retries = 0;
-
-	sw = sw_get(servo);
-
-	do {
-		servo->ops->_state_decode(sw, &state, NULL);
-
-		/* check if faulty, if so try to reset (0->1) */
-		if ((state == IL_SERVO_STATE_FAULT) ||
-		    (state == IL_SERVO_STATE_FAULTR)) {
-			if (retries == FAULT_RESET_RETRIES) {
-				return IL_ESTATE;
-			}
-			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
-						   NULL, 0, 1, 0);
-			if (r < 0)
-				return r;
-
-			r = il_servo_raw_write_u16(servo, &IL_REG_MCB_CTL_WORD,
-						   NULL, IL_MC_PDS_CMD_FR, 1, 0);
-			if (r < 0)
-				return r;
-
-			/* wait until statusword changes */
-			r = sw_wait_change(servo, &sw, &timeout);
-			if (r < 0)
-				return r;
-			
-			++retries;
-		}
-	} while ((state == IL_SERVO_STATE_FAULT) ||
-		 (state == IL_SERVO_STATE_FAULTR));
-
-	return 0;
-}
-
 static int il_mcb_servo_mode_get(il_servo_t *servo, il_servo_mode_t *mode)
 {
 	(void)servo;
@@ -756,7 +715,6 @@ const il_servo_ops_t il_mcb_servo_ops = {
 	.disable = il_mcb_servo_disable,
 	.switch_on = il_mcb_servo_switch_on,
 	.enable = il_mcb_servo_enable,
-	.fault_reset = il_mcb_servo_fault_reset,
 	.mode_get = il_mcb_servo_mode_get,
 	.mode_set = il_mcb_servo_mode_set,
 	.ol_voltage_get = il_mcb_servo_ol_voltage_get,

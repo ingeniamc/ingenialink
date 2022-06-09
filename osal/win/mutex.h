@@ -27,7 +27,7 @@
 
 #include "osal/mutex.h"
 
-#include <Windows.h>
+//#include<windows.h>
 
 /** Mutex (Windows). */
 struct osal_mutex {

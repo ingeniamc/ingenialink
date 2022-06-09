@@ -21,7 +21,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-#include <winsock2.h>
+//#include <winsock2.h>
 #include "net.h"
 #include "frame.h"
 
@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <windows.h>
+//#include<windows.h>
 #include <fcntl.h>
 
 #include "ingenialink/err.h"
@@ -345,12 +345,12 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	int result = 0;
 	uint16_t sw;
 
-	if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
+	/*if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
 	{
 		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
 		WSACleanup();
 		return -1;
-	}
+	}*/
 	else printf("Server: WSAStartup() is OK.\n");
 	if (this != NULL) {
 		if (this->protocol == 1)
@@ -537,12 +537,12 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 
 	int r = 0;
 
-	if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
+	/*if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
 	{
 		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
 		WSACleanup();
 		return -1;
-	}
+	}*/
 	else printf("Server: WSAStartup() is OK.\n");
 	int gas = this->protocol;
 	// Initialize socket with the protocol choosen

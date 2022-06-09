@@ -627,11 +627,19 @@ void il_net_dev_mon_stop(il_net_dev_mon_t *mon)
 	mon->ops->stop(mon);
 }
 
-il_eth_net_dev_list_t *il_net_dev_list_get(il_net_prot_t prot)
+il_net_dev_list_t *il_net_dev_list_get(il_net_prot_t prot)
 {
 	switch (prot) {
+#ifdef IL_HAS_PROT_EUSB
+	case IL_NET_PROT_EUSB:
+		return il_eusb_net_dev_list_get();
+#endif
+#ifdef IL_HAS_PROT_MCB
+	case IL_NET_PROT_MCB:
+		return il_mcb_net_dev_list_get();
 	case IL_NET_PROT_ETH:
 	 	return il_eth_net_dev_list_get();
+#endif
 	default:
 		ilerr__set("Unsupported network protocol");
 		return NULL;

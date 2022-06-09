@@ -27,7 +27,7 @@
 
 #include "osal/timer.h"
 
-#include <Windows.h>
+//#include<windows.h>
 
 /** Step size (ns) of the FILETIME values. */
 #define STEP_SIZE	100U

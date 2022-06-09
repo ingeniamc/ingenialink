@@ -33,7 +33,7 @@
 
 #define _SER_NO_LEGACY_STDINT
 #include <sercomm/sercomm.h>
-#include <winsock2.h>
+//#include <winsock2.h>
 
 /** Default number of retries while waiting to receive a frame. */
 #define NUMBER_OP_RETRIES_DEF	2
@@ -60,11 +60,11 @@ typedef struct il_ecat_net {
 	/** Port IP*/
     int port_ip;
 	/** Server: WSAStartup() */
-	WSADATA *WSAData;
+	//WSADATA *WSAData;
 	/** Socket */
-	SOCKET *server;
+	//SOCKET *server;
 	/** Socket address */
-	SOCKADDR_IN addr;
+	//SOCKADDR_IN addr;
     /** Stop reconnect */
     int stop_reconnect;
 	/** Check status */

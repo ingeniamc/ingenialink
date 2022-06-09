@@ -28,7 +28,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <windows.h>
+//#include<windows.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
@@ -175,118 +175,6 @@ typedef union
 	uint64_t u64;
 	uint16_t u16[4];
 } UINT_UNION_T;
-
-static int net_send(il_mcb_net_t *this, uint8_t subnode, uint16_t address, const void *data,
-		    size_t sz)
-{	
-	int finished = 0;
-	uint8_t cmd;
-	size_t pending_sz = sz;
-
-	cmd = sz ? MCB_CMD_WRITE : MCB_CMD_READ;
-
-	(void)ser_flush(this->ser, SER_QUEUE_ALL);
-
-	while (!finished) {
-		int r;
-		uint16_t frame[MCB_FRAME_SZ], pending;
-		uint16_t hdr_h, hdr_l, crc;
-		size_t chunk_sz;
-
-		/* header */
-		// pending = (pending_sz > MCB_CFG_DATA_SZ) ? 1 : 0; // Not used right now
-		pending = 0;
-
-		// hdr_h = (MCB_SUBNODE_MOCO << 12) | (MCB_NODE_DFLT);
-		hdr_h = (MCB_NODE_DFLT << 4) | (subnode);
-		*(uint16_t *)&frame[MCB_HDR_H_POS] = hdr_h;
-		hdr_l = (address << 4) | (cmd << 1) | (pending);
-		*(uint16_t *)&frame[MCB_HDR_L_POS] = hdr_l;
-
-		/* cfg_data */
-		uint64_t d = 0;
-		if (sz > 0) {
-			memcpy(&d, data, sz);
-		}
-		UINT_UNION_T u = { .u64 = d };
-		memcpy(&frame[MCB_DATA_POS], &u.u16[0], 8);
-		
-		/* crc */
-		crc = crc_calc(frame, MCB_CRC_POS);
-		frame[MCB_CRC_POS] = crc;
-
-		/* send frame */
-		r = ser_write(this->ser, frame, sizeof(frame), NULL);
-		if (r < 0)
-			return ilerr__ser(r);
-		finished = 1;
-	}
-
-	return 0;
-}
-
-static int net_recv(il_mcb_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
-		    size_t sz)
-{
-	int finished = 0;
-	size_t pending_sz = sz;
-
-	/*while (!finished) {*/
-	uint16_t frame[7];
-	size_t block_sz = 0;
-	uint16_t crc, hdr_l;
-	uint8_t *pBuf = (uint8_t*) &frame;
-
-	Sleep(5);
-	/* read next frame */
-	while (block_sz < 14) {
-		int r;
-		size_t chunk_sz;
-		
-		r = ser_read(this->ser, pBuf,
-					sizeof(frame) - block_sz, &chunk_sz);
-		if (r == SER_EEMPTY) {
-			r = ser_read_wait(this->ser);
-			if (r < 0)
-				return ilerr__ser(r);
-		} else if (r < 0) {
-			return ilerr__ser(r);
-		} else {
-			block_sz += chunk_sz;
-			pBuf += block_sz;
-		}
-	}
-
-	/* process frame: validate CRC, address, ACK */
-	crc = *(uint16_t *)&frame[6];
-	uint16_t crc_res = crc_calc((uint16_t *)frame, 6);
-	if (crc_res != crc) {
-		ilerr__set("Communications error (CRC mismatch)");
-		return IL_EIO;
-	}
-
-	/* TODO: Check subnode */
-
-	/* Check ACK */
-	hdr_l = *(uint16_t *)&frame[MCB_HDR_L_POS];
-	int cmd = (hdr_l & MCB_CMD_MSK) >> MCB_CMD_POS;
-	if (cmd != MCB_CMD_ACK) {
-		uint32_t err;
-
-		err = __swap_be_32(*(uint32_t *)&frame[MCB_DATA_POS]);
-
-		ilerr__set("Communications error (NACK -> %08x)", err);
-		return IL_EIO;
-	}
-	if (!pending_sz) {
-		finished = 1;
-	}
-	else {
-		memcpy(buf, &(frame[MCB_DATA_POS]), sz);
-	}
-
-	return 0;
-}
 
 /**
  * Monitor event callback.
