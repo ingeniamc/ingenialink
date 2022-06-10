@@ -21,7 +21,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-//#include <winsock2.h>
+#include <winsock2.h>
 #include "net.h"
 #include "frame.h"
 
@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
-//#include<windows.h>
+#include <windows.h>
 #include <fcntl.h>
 
 #include "ingenialink/err.h"
@@ -42,6 +42,26 @@ static int il_net_reconnect(il_net_t *net);
 static int process_monitoring_data(il_eth_net_t *this, il_net_t *net);
 static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
 	size_t sz, uint8_t *monitoring_raw_data, il_net_t *net, int num_bytes);
+static int il_eth_net_remove_all_mapped_registers_v1(il_net_t *net);
+static int il_eth_net_remove_all_mapped_registers_v2(il_net_t *net);
+static int il_eth_net_set_mapped_register_v1(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype);
+static int il_eth_net_set_mapped_register_v2(il_net_t *net, int channel, uint32_t address,
+											uint8_t subnode, il_reg_dtype_t dtype,
+											uint8_t size);
+static int il_eth_net_disturbance_remove_all_mapped_registers_v1(il_net_t *net);
+static int il_eth_net_disturbance_remove_all_mapped_registers_v2(il_net_t *net);
+static int il_eth_net_disturbance_set_mapped_register_v1(il_net_t *net, int channel, uint32_t address,
+															uint8_t subnode, il_reg_dtype_t dtype,
+															uint8_t size);
+static int il_eth_net_disturbance_set_mapped_register_v2(il_net_t *net, int channel, uint32_t address,
+														uint8_t subnode, il_reg_dtype_t dtype,
+														uint8_t size);
+static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
+	size_t sz, uint16_t *monitoring_raw_data, il_net_t *net);
+static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const void *data,
+	size_t sz, uint16_t extended, il_net_t *net);
+static int il_eth_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
+	void *buf, size_t sz);																															
 
 int il_net_monitoring_mapping_registers[16] = {
 	0x0D0,
@@ -544,12 +564,12 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 
 	int r = 0;
 
-	/*if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
+	if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
 	{
 		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
 		WSACleanup();
 		return -1;
-	}*/
+	}
 	else printf("Server: WSAStartup() is OK.\n");
 	int gas = this->protocol;
 	// Initialize socket with the protocol choosen

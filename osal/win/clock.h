@@ -27,7 +27,7 @@
 
 #include "osal/clock.h"
 
-//#include<windows.h>
+#include <Windows.h>
 
 /** Performance counter (Windows). */
 struct osal_clock_perf {

@@ -24,7 +24,7 @@
 
 #include "osal/sleep.h"
 
-//#include<windows.h>
+#include <Windows.h>
 
 /*******************************************************************************
  * Public
