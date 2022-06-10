@@ -37,7 +37,7 @@
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
 
-#include "external/soem/soem/ethercat.h"
+#include "external/SOEM/soem/ethercat.h"
 #include "lwip/netif.h"
 #include "lwip/err.h"
 #include "lwip/init.h"
@@ -103,6 +103,33 @@ uint16 argslave;
 /*******************************************************************************
 * Private
 ******************************************************************************/
+static int il_ecat_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, void *buf, size_t sz);
+static int il_ecat_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
+	void *buf, size_t sz);
+int il_ecat_net_SDO_read(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, void *buf);
+static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, const void *data,
+	size_t sz, uint16_t extended, il_net_t *net);
+int il_ecat_net_SDO_write(il_net_t *net, uint8_t slave, uint16_t index, uint8_t subindex, int size, void *buf);
+static int il_ecat_net_recv_monitoring(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
+ 	size_t sz, uint16_t *monitoring_raw_data, il_net_t *net, int num_bytes);
+static int net_recv(il_ecat_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
+	size_t sz, uint16_t *monitoring_raw_data, il_net_t *net);
+static int process_monitoring_data(il_ecat_net_t *this, il_net_t *net);
+static int il_ecat_net_remove_all_mapped_registers_v1(il_net_t *net);
+static int il_ecat_net_remove_all_mapped_registers_v2(il_net_t *net);
+static int il_ecat_net_disturbance_remove_all_mapped_registers_v1(il_net_t *net);
+static int il_ecat_net_disturbance_remove_all_mapped_registers_v2(il_net_t *net);
+static int il_ecat_net_disturbance_set_mapped_register_v1(il_net_t *net, int channel, uint32_t address,
+															uint8_t subnode, il_reg_dtype_t dtype,
+															uint8_t size);
+static int il_ecat_net_disturbance_set_mapped_register_v2(il_net_t *net, int channel, uint32_t address,
+														uint8_t subnode, il_reg_dtype_t dtype,
+														uint8_t size);
+static int il_ecat_net_set_mapped_register_v1(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype);
+static int il_ecat_net_set_mapped_register_v2(il_net_t *net, int channel, uint32_t address,
+											uint8_t subnode, il_reg_dtype_t dtype,
+											uint8_t size);
+
 int il_net_ecat_monitoring_mapping_registers[16] = {
 	0x0D0,
 	0x0D1,
@@ -266,6 +293,7 @@ int listener_ecat(void *args)
 	uint64_t buf;
 
 restart:
+{
 	int error_count = 0;
 	il_ecat_net_t *this = args;
 
@@ -317,6 +345,7 @@ stop:
 		printf("Net unlocked\n");
 	}
 	return 0;
+}
 }
 
 void SignalHandlerECAT(int signal)
@@ -2725,7 +2754,6 @@ int Everestsetup(uint16 slave)
 int *il_ecat_net_force_error(il_net_t **net, char *ifname, char *if_address_ip)
 {
 	int i, j, oloop, iloop, wkc_count, chk, slc;
-    UINT mmResult;
 
 
    	printf("Slave force error\n");

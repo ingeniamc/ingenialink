@@ -295,7 +295,7 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 					continue;
 			}
 		}
-
+	}
 	return r;
 }
 

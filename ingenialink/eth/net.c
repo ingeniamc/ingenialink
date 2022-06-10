@@ -38,6 +38,11 @@
 /*******************************************************************************
 * Private
 ******************************************************************************/
+static int il_net_reconnect(il_net_t *net);
+static int process_monitoring_data(il_eth_net_t *this, il_net_t *net);
+static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
+	size_t sz, uint8_t *monitoring_raw_data, il_net_t *net, int num_bytes);
+
 int il_net_monitoring_mapping_registers[16] = {
 	0x0D0,
 	0x0D1,
@@ -198,6 +203,7 @@ int listener_eth(void *args)
 	uint64_t buf;
 
 restart:
+{
 	int error_count = 0;
 	il_eth_net_t *this = to_eth_net(args);
 	while (error_count < this->reconnection_retries && this != NULL && this->stop_reconnect == 0 ) {
@@ -232,6 +238,7 @@ err:
 		if (r == 0) goto restart;
 	}
 	return 0;
+}
 }
 
 void SignalHandler(int signal)
@@ -345,12 +352,12 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	int result = 0;
 	uint16_t sw;
 
-	/*if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
+	if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
 	{
 		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
 		WSACleanup();
 		return -1;
-	}*/
+	}
 	else printf("Server: WSAStartup() is OK.\n");
 	if (this != NULL) {
 		if (this->protocol == 1)
