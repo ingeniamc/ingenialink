@@ -25,7 +25,9 @@
 #include "../servo.h"
 
 #include "ingenialink/err.h"
-#include <windows.h>
+#ifdef _WIN32
+	#include <windows.h>
+#endif
 
 /*******************************************************************************
  * Private

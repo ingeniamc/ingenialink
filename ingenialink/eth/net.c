@@ -21,7 +21,12 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-#include <winsock2.h>
+#ifdef _WIN32
+	#include <windows.h>
+#else
+	#include <errno.h>
+	#include <sys/time.h>
+#endif
 #include "net.h"
 #include "frame.h"
 
@@ -29,7 +34,6 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <windows.h>
 #include <fcntl.h>
 
 #include "ingenialink/err.h"
@@ -359,6 +363,35 @@ static void il_eth_net_close_socket(il_net_t *net) {
 	return r;
 }
 
+static int il_eth_net_init_socket(void)
+{
+	#ifdef _WIN32
+		WSADATA wsa_data;
+		return WSAStartup(0x202, &wsa_data);
+	#else
+		return 0;
+	#endif
+}
+
+
+static int il_eth_net_quit_socket(void)
+{
+	#ifdef _WIN32
+		return WSACleanup();
+	#else
+		return 0;
+	#endif
+}
+
+static int il_eth_get_last_socket_error(void)
+{
+    #ifdef _WIN32
+    	return WSAGetLastError();
+    #else
+    	return errno;
+    #endif
+};
+
 static void il_eth_net_destroy(il_net_t *net)
 {
 	il_eth_net_t *this = to_eth_net(net);
@@ -372,10 +405,10 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 	int result = 0;
 	uint16_t sw;
 
-	if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
+	if ((r = il_eth_net_init_socket()) != 0)
 	{
 		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
-		WSACleanup();
+		r = il_eth_net_quit_socket();
 		return -1;
 	}
 	else printf("Server: WSAStartup() is OK.\n");
@@ -394,21 +427,32 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 
 		unsigned long iMode = 1;
 		r = ioctlsocket(this->server, FIONBIO, &iMode);
-		if (r != NO_ERROR)
+		#ifdef _WIN32
+			long no_err = NO_ERROR 
+		#else
+			int no_err = 0;
+		#endif
+		if (r != no_err)
 		{
 			printf("ioctlsocket failed with error: %ld\n", r);
 		}
 
-		r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
-		if (r == SOCKET_ERROR) {
+		r = connect(this->server, (struct sockaddr *)&this->addr, sizeof(this->addr));
+		if (r < 0) {
 
-			r = WSAGetLastError();
+			int err = il_eth_get_last_socket_error();
 
-			// check if error was WSAEWOULDBLOCK, where we'll wait
-			if (r == WSAEWOULDBLOCK) {
+			// check if error was WSAEWOULDBLOCK, where we'll wait					
+			if (
+				#ifdef WINDOWS
+					err == WSAEWOULDBLOCK
+				#else
+					err == EWOULDBLOCK
+				#endif
+				){
 				printf("Attempting to connect.\n");
 				fd_set Write, Err;
-				TIMEVAL Timeout;
+				struct timeval Timeout;
 				Timeout.tv_sec = 0;
 				Timeout.tv_usec = 50000;
 
@@ -434,7 +478,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 				}
 			}
 			else {
-				int last_error = WSAGetLastError();
+				int last_error = il_eth_get_last_socket_error();
 				printf("Fail connecting to server\n");
 				result = 0;
 			}
@@ -458,7 +502,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 
 		iMode = 0;
 		r = ioctlsocket(this->server, FIONBIO, &iMode);
-		if (r != NO_ERROR)
+		if (r != no_err)
 		{
 			printf("ioctlsocket failed with error: %ld\n", r);
 		}
@@ -492,18 +536,29 @@ static int il_net_reconnect(il_net_t *net)
 		//set the socket in non-blocking
 		unsigned long iMode = 1;
 		r = ioctlsocket(this->server, FIONBIO, &iMode);
-		if (r != NO_ERROR)
+		#ifdef _WIN32
+			long no_err = NO_ERROR 
+		#else
+			int no_err = 0;
+		#endif
+		if (r != no_err)
 		{
 			printf("ioctlsocket failed with error: %ld\n", r);
 		}
-		r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
-		if (r == SOCKET_ERROR) {
-			r = WSAGetLastError();
+		r = connect(this->server, (struct sockaddr *)&this->addr, sizeof(this->addr));
+		if (r < 0) {
+			int err = il_eth_get_last_socket_error();
 			// check if error was WSAEWOULDBLOCK, where we'll wait
-			if (r == WSAEWOULDBLOCK) {
+			if (
+				#ifdef WINDOWS
+					err == WSAEWOULDBLOCK
+				#else
+					err == EWOULDBLOCK
+				#endif
+				){
 				printf("Attempting to connect.\n");
 				fd_set Write, Err;
-				TIMEVAL Timeout;
+				struct timeval Timeout;
 				Timeout.tv_sec = 2;
 				Timeout.tv_usec = 0;
 
@@ -548,7 +603,7 @@ static int il_net_reconnect(il_net_t *net)
 		iMode = 0;
 		int r = -1;
 		r = ioctlsocket(this->server, FIONBIO, &iMode);
-		if (r != NO_ERROR)
+		if (r != no_err)
 		{
 			printf("ioctlsocket failed with error: %ld\n", r);
 		}
@@ -564,10 +619,10 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 
 	int r = 0;
 
-	if ((r = WSAStartup(0x202, &this->WSAData)) != 0)
+	if ((r = il_eth_net_init_socket()) != 0)
 	{
 		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
-		WSACleanup();
+		r = il_eth_net_quit_socket();
 		return -1;
 	}
 	else printf("Server: WSAStartup() is OK.\n");
@@ -588,19 +643,30 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	//set the socket in non-blocking
 	unsigned long iMode = 1;
 	r = ioctlsocket(this->server, FIONBIO, &iMode);
-	if (r != NO_ERROR)
+	#ifdef _WIN32
+		long no_err = NO_ERROR 
+	#else
+		int no_err = 0;
+	#endif	
+	if (r != no_err)
 	{
 		printf("ioctlsocket failed with error: %ld\n", r);
 	}
 
-	r = connect(this->server, (SOCKADDR *)&this->addr, sizeof(this->addr));
-	if (r == SOCKET_ERROR) {
-		r = WSAGetLastError();
+	r = connect(this->server, (struct sockaddr *)&this->addr, sizeof(this->addr));
+	if (r < 0) {
+		int err = il_eth_get_last_socket_error();
 		// check if error was WSAEWOULDBLOCK, where we'll wait
-		if (r == WSAEWOULDBLOCK) {
+		if (
+			#ifdef WINDOWS
+				err == WSAEWOULDBLOCK
+			#else
+				err == EWOULDBLOCK
+			#endif
+			){
 			printf("Attempting to connect.\n");
 			fd_set Write, Err;
-			TIMEVAL Timeout;
+			struct timeval Timeout;
 			Timeout.tv_sec = 2;
 			Timeout.tv_usec = 0;
 
@@ -637,7 +703,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	}
 	iMode = 0;
 	r = ioctlsocket(this->server, FIONBIO, &iMode);
-	if (r != NO_ERROR)
+	if (r != no_err)
 	{
 		printf("ioctlsocket failed with error: %ld\n", r);
 	}

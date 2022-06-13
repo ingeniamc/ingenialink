@@ -30,7 +30,9 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <windows.h>
+#ifdef _WIN32
+	#include <windows.h>
+#endif
 #include <inttypes.h>
 /*******************************************************************************
  * Internal
