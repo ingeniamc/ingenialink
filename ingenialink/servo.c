@@ -216,6 +216,9 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 		}
 	}
 
+cleanup_ids:
+	il_dict_reg_ids_destroy(ids);
+
 
 	return r;
 }
@@ -235,7 +238,7 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 	for (int j = 0; j < subnodes; j++) {
 		if (subnode == all_subnodes || j == subnode) {
 			ids = il_dict_reg_ids_get(dict, j);
-			if (!ids)				
+			if (!ids)
 				return IL_EFAIL;
 
 			if (ids[0] != NULL) {
@@ -296,6 +299,17 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 			}
 		}
 	}
+
+cleanup_ids:
+	if (ids) {
+		il_dict_reg_ids_destroy(ids);
+	}
+	else {
+		printf("Could not load the configuration\n");
+	}
+
+	il_dict_destroy(dict);
+
 	return r;
 }
 
@@ -623,6 +637,8 @@ int il_servo_state_subs_stop(il_servo_t *servo, int stop)
 	return servo->ops->state_subs_stop(servo, stop);
 }
 
+void il_servo_fake_destroy(il_servo_t *servo) {}
+
 int il_servo_lucky(il_net_prot_t prot, il_net_t **net, il_servo_t **servo,
 		   const char *dict)
 {
@@ -747,6 +763,8 @@ const uint16_t *il_servo_subnodes_get(il_servo_t *servo)
 int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 	il_servo_t **servo, const char *dict, int port_ip, uint16_t slave, uint8_t use_eoe_comms)
 {
+	il_net_servos_list_t *servo_ids, *servo_id;
+
 	il_ecat_net_opts_t opts;
 
 	opts.timeout_rd = IL_NET_TIMEOUT_RD_DEF;

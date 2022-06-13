@@ -789,12 +789,18 @@ IL_EXPORT int il_net_dev_mon_start(il_net_dev_mon_t *mon,
  */
 IL_EXPORT void il_net_dev_mon_stop(il_net_dev_mon_t *mon);
 
-/*
+/**
  * Destroy the network device monitor.
  *
- * @note_wait_write
+ * @note
+ *	If the monitor is running, it will be stopped.
+ *
+ * @param [in] mon
+ *      Monitor.
  */
 IL_EXPORT void il_net_dev_mon_destroy(il_net_dev_mon_t *mon);
+
+IL_EXPORT void il_net_fake_destroy(il_net_t *net);
 
 /**
  * Obtain network devices list.
