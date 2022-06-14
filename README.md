@@ -119,7 +119,7 @@ In order to use the embbedded master communications of `ingenialink` (still in d
 install SOEM libraries as an external package.
 ```sh
 cd external/SOEM
-cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 cmake --build _build --target install
 ```
 

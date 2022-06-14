@@ -22,7 +22,9 @@
 * SOFTWARE.
 */
 
-#include <winsock2.h>
+#ifdef _WIN32
+	#include <windows.h>
+#endif
 #include "net.h"
 #include "servo.h"
 #include "frame.h"
@@ -31,7 +33,6 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <windows.h>
 #include <inttypes.h>
 
 #include "ingenialink/err.h"

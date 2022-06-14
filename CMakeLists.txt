@@ -178,11 +178,6 @@ if(WITH_PROT_ECAT)
     external/SOEM/soem/ethercatprint.c
     external/SOEM/soem/ethercatsoe.c
 
-    external/SOEM/oshw/win32/nicdrv.c
-    external/SOEM/oshw/win32/oshw.c
-
-    external/SOEM/osal/win32/osal.c
-
     external/SOEM/soem/ethercat.h
     external/SOEM/soem/ethercatbase.h
     external/SOEM/soem/ethercatcoe.h
@@ -196,14 +191,8 @@ if(WITH_PROT_ECAT)
     external/SOEM/soem/ethercatsoe.h
     external/SOEM/soem/ethercattype.h
 
-    external/SOEM/oshw/win32/nicdrv.h
-    external/SOEM/oshw/win32/oshw.h
-
     external/SOEM/osal/osal.h
-    external/SOEM/osal/win32/inttypes.h
-    external/SOEM/osal/win32/osal_defs.h
-    external/SOEM/osal/win32/osal_win32.h
-    external/SOEM/osal/win32/stdint.h
+
   )
 endif()
 
@@ -230,6 +219,16 @@ elseif(WIN32)
     osal/win/mutex.c
     osal/win/thread.c
     osal/win/timer.c
+    external/SOEM/oshw/win32/nicdrv.c
+    external/SOEM/oshw/win32/oshw.c
+
+    external/SOEM/osal/win32/osal.c
+    external/SOEM/oshw/win32/nicdrv.h
+    external/SOEM/oshw/win32/oshw.h
+    external/SOEM/osal/win32/inttypes.h
+    external/SOEM/osal/win32/osal_defs.h
+    external/SOEM/osal/win32/osal_win32.h
+    external/SOEM/osal/win32/stdint.h      
   )
 else()
   message(FATAL_ERROR "Unsupported platform")
