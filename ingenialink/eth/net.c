@@ -1,26 +1,3 @@
-/*
-* MIT License
-*
-* Copyright (c) 2017-2018 Ingenia-CAT S.L.
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*/
 #ifdef __linux__
 	#include <errno.h>
 	#include <sys/time.h>
@@ -36,6 +13,7 @@
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/net.h"
+#include "external/log.c/src/log.h"
 
 /*******************************************************************************
 * Private
@@ -252,7 +230,7 @@ restart:
 
 err:
 	if(this != NULL) {
-		printf("DEVICE DISCONNECTED!\n");
+		log_info("DEVICE DISCONNECTED!");
 		ilerr__set("Device at %s disconnected\n", this->address_ip);
 		il_net__state_set(&this->net, IL_NET_STATE_DISCONNECTED);
 		closesocket(this->server);
@@ -274,13 +252,13 @@ void SignalHandler(int signal)
 			return NULL;
 		}
 		int r = il_net_close_socket(&this->net);
-		printf("Unexpected termination: %i\n", signal);
+		log_error("Unexpected termination: %i", signal);
 
 		exit(-1);
 	}
 	else {
 		// ...
-		printf("Unhandled signal exception: %i\n", signal);
+		log_warn("Unhandled signal exception: %i", signal);
 	}
 }
 
@@ -405,11 +383,11 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 
 	if ((r = il_eth_net_init_socket()) != 0)
 	{
-		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
+		log_error("Server: WSAStartup() failed with error %d\n", r);
 		r = il_eth_net_quit_socket();
 		return -1;
 	}
-	else printf("Server: WSAStartup() is OK.\n");
+	else log_debug("Server: WSAStartup() is OK.\n");
 	if (this != NULL) {
 		if (this->protocol == 1)
 		{
@@ -432,7 +410,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 		#endif
 		if (r != no_err)
 		{
-			printf("ioctlsocket failed with error: %ld\n", r);
+			log_warn("ioctlsocket failed with error: %ld", r);
 		}
 
 		r = connect(this->server, (struct sockaddr *)&this->addr, sizeof(this->addr));
@@ -448,7 +426,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 					err == EWOULDBLOCK
 				#endif
 				){
-				printf("Attempting to connect.\n");
+				log_debug("Attempting to connect.\n");
 				fd_set Write, Err;
 				struct timeval Timeout;
 				Timeout.tv_sec = 0;
@@ -461,34 +439,34 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 
 				r = select(this->server, NULL, &Write, &Err, &Timeout);
 				if (r == 0) {
-					printf("Timeout during connection\n");
+					log_warn("Timeout during connection");
 					result = 0;
 				}
 				else {
 					if (FD_ISSET(this->server, &Write)) {
-						printf("Connected to the Server\n");
+						log_info("Connected to the Server");
 						result = 1;
 					}
 					if (FD_ISSET(this->server, &Err)) {
-						printf("Fail connecting to server\n");
+						log_warn("Fail connecting to server");
 						result = 0;
 					}
 				}
 			}
 			else {
 				int last_error = il_eth_get_last_socket_error();
-				printf("Fail connecting to server\n");
+				log_warn("Fail connecting to server\n");
 				result = 0;
 			}
 
 		}
 		else
 		{
-			printf("Connected to the Server\n");
+			log_info("Connected to the Server");
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 			if (r < 0)
 			{
-				printf("Fail connecting to server\n");
+				log_warn("Fail connecting to server");
 				result = 0;
 			}
 			else
@@ -502,7 +480,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 		r = ioctlsocket(this->server, FIONBIO, &iMode);
 		if (r != no_err)
 		{
-			printf("ioctlsocket failed with error: %ld\n", r);
+			log_warn("ioctlsocket failed with error: %ld", r);
 		}
 	}
 	else result = 0;
@@ -522,7 +500,7 @@ static int il_net_reconnect(il_net_t *net)
 	uint16_t sw;
 	while (r < 0 && this->stop_reconnect == 0)
 	{
-		printf("Reconnecting...\n");
+		log_debug("Reconnecting...");
 		if (this->protocol == 1)
 		{
         	this->server = socket(AF_INET, SOCK_STREAM, 0);
@@ -541,7 +519,7 @@ static int il_net_reconnect(il_net_t *net)
 		#endif
 		if (r != no_err)
 		{
-			printf("ioctlsocket failed with error: %ld\n", r);
+			log_warn("ioctlsocket failed with error: %ld", r);
 		}
 		r = connect(this->server, (struct sockaddr *)&this->addr, sizeof(this->addr));
 		if (r < 0) {
@@ -554,7 +532,7 @@ static int il_net_reconnect(il_net_t *net)
 					err == EWOULDBLOCK
 				#endif
 				){
-				printf("Attempting to connect.\n");
+				log_debug("Attempting to connect.\n");
 				fd_set Write, Err;
 				struct timeval Timeout;
 				Timeout.tv_sec = 2;
@@ -566,35 +544,35 @@ static int il_net_reconnect(il_net_t *net)
 				FD_SET(this->server, &Err);
 				r = select(0, NULL, &Write, &Err, &Timeout);
 				if (r == 0) {
-					printf("Timeout during connection\n");
+					log_warn("Timeout during connection");
 				}
 				else {
 					if (FD_ISSET(this->server, &Write)) {
-						printf("Reconnected to the Server\n");
+						log_info("Reconnected to the Server");
 						this->stop = 0;
 					}
 					if (FD_ISSET(this->server, &Err)) {
-						printf("Error reconnecting\n");
+						log_warn("Error reconnecting");
 					}
 				}
 			}
 			else {
 				int last_error = WSAGetLastError();
-				printf("Fail connecting to server\n");
+				log_warn("Fail connecting to server");
 			}
 		}
 		else {
-			printf("Connected to the Server\n");
+			log_info("Connected to the Server");
 			r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 			if (r < 0)
 			{
-				printf("Fail connecting to server\n");
+				log_warn("Fail connecting to server");
 			}
 			else
 			{
 				this->stop = 0;
 				this->stop_reconnect = 0;
-				printf("DEVICE RECONNECTED!\n");
+				log_info("DEVICE RECONNECTED!");
 				il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 			}
 		}
@@ -603,7 +581,7 @@ static int il_net_reconnect(il_net_t *net)
 		r = ioctlsocket(this->server, FIONBIO, &iMode);
 		if (r != no_err)
 		{
-			printf("ioctlsocket failed with error: %ld\n", r);
+			log_warn("ioctlsocket failed with error: %ld", r);
 		}
 		Sleep(1000);
 	}
@@ -619,11 +597,11 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 
 	if ((r = il_eth_net_init_socket()) != 0)
 	{
-		fprintf(stderr, "Server: WSAStartup() failed with error %d\n", r);
+		log_error("Server: WSAStartup() failed with error %d\n", r);
 		r = il_eth_net_quit_socket();
 		return -1;
 	}
-	else printf("Server: WSAStartup() is OK.\n");
+	else log_debug("Server: WSAStartup() is OK.");
 	int gas = this->protocol;
 	// Initialize socket with the protocol choosen
 	if (this->protocol == 1)
@@ -648,7 +626,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	#endif	
 	if (r != no_err)
 	{
-		printf("ioctlsocket failed with error: %ld\n", r);
+		log_warn("ioctlsocket failed with error: %ld", r);
 	}
 
 	r = connect(this->server, (struct sockaddr *)&this->addr, sizeof(this->addr));
@@ -662,7 +640,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 				err == EWOULDBLOCK
 			#endif
 			){
-			printf("Attempting to connect.\n");
+			log_debug("Attempting to connect.\n");
 			fd_set Write, Err;
 			struct timeval Timeout;
 			Timeout.tv_sec = 2;
@@ -674,16 +652,16 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 			FD_SET(this->server, &Err);
 			r = select(0, NULL, &Write, &Err, &Timeout);
 			if (r == 0) {
-				printf("Timeout during connection\n");
+				log_warn("Timeout during connection");
 				closesocket(this->server);
 				return -1;
 			}
 			else {
 				if (FD_ISSET(this->server, &Write)) {
-					printf("Connected to the Server\n");
+					log_info("Connected to the Server");
 				}
 				if (FD_ISSET(this->server, &Err)) {
-					printf("Error connecting\n");
+					log_error("Error connecting");
 					closesocket(this->server);
 					return -1;
 				}
@@ -691,19 +669,19 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		}
 		else {
 			int last_error = WSAGetLastError();
-			printf("Fail connecting to server\n");
+			log_error("Fail connecting to server");
 			closesocket(this->server);
 			return -1;
 		}
 	}
 	else {
-		printf("Connected to the Server\n");
+		log_info("Connected to the Server");
 	}
 	iMode = 0;
 	r = ioctlsocket(this->server, FIONBIO, &iMode);
 	if (r != no_err)
 	{
-		printf("ioctlsocket failed with error: %ld\n", r);
+		log_warn("ioctlsocket failed with error: %ld", r);
 	}
 
 	/*
@@ -716,7 +694,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		uint32_t sw;
 		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 		if (r < 0) {
-			printf("Cannot connect to the slave.\n");
+			log_error("Cannot connect to the slave.");
 			closesocket(this->server);
 			return r;
 		}
@@ -725,13 +703,13 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 		uint32_t sw;
 		r = il_net__read(&this->net, 1, 1, STATUSWORD_ADDRESS, &sw, sizeof(sw));
 		if (r < 0) {
-			printf("Failed connecting. MOCO did not respond.\n");
+			log_error("Failed connecting. MOCO did not respond.");
 			closesocket(this->server);
 			return r;
 		}
 	}
 
-	printf("Connected to the Server!\n");
+	log_info("Connected to the Server!");
 	il_net__state_set(&this->net, IL_NET_STATE_CONNECTED);
 
 	return 0;
@@ -1582,12 +1560,12 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	n = select(this->server, &fds, NULL, NULL, &tv);
 	if (n == 0)
 	{
-		printf("Timeout...\n");
+		log_error("Timeout...");
 		return ilerr__eth(IL_ETIMEDOUT);
 	}
 	else if (n == -1)
 	{
-		printf("Error..\n");
+		log_error("Error..");
 		return ilerr__eth(IL_EIO);
 	}
 
@@ -1623,11 +1601,9 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 		uint32_t err;
 
 		err = __swap_be_32(*(uint32_t *)&frame[ETH_MCB_DATA_POS]);
-		printf("\n =======================================================================================\n\n");
-		printf("Address error (Address asked -> %08x, Address frame -> %08x, err -> %08x)\n"
+		log_error("Address error (Address asked -> %08x, Address frame -> %08x, err -> %08x)"
 				, address, addr, err);
-		printf("Frame -> %04x %04x %04x %04x %04x %04x %04x %04x\n", frame[0], frame[1], frame[2], frame[3], frame[4], frame[5], frame[6], frame[7]);
-		printf("\n =======================================================================================\n\n");
+		log_error("Frame -> %04x %04x %04x %04x %04x %04x %04x %04x", frame[0], frame[1], frame[2], frame[3], frame[4], frame[5], frame[6], frame[7]);
 		return ilerr__eth(IL_EWRONGREG);
 	}
 
@@ -1727,13 +1703,13 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 	n = select(this->server, &fds, NULL, NULL, &tv);
 	if (n == 0)
 	{
-		printf("Timeout..\n");
+		log_error("Timeout..");
 		closesocket(this->server);
 		return -1;
 	}
 	else if (n == -1)
 	{
-		printf("Error..\n");
+		log_error("Error..");
 		return -1;
 	}
 
@@ -1794,7 +1770,7 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 
 static int process_monitoring_data(il_eth_net_t *this, il_net_t *net)
 {
-	printf("Process monitoring data: %i\n", net->monitoring_data_size);
+	log_debug("Process monitoring data: %i", net->monitoring_data_size);
 
 	int num_mapped = net->monitoring_number_mapped_registers;
 	int bytes_per_block = net->monitoring_bytes_per_block;

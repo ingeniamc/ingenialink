@@ -1,30 +1,7 @@
-/*
- * MIT License
- *
- * Copyright (c) 2017-2018 Ingenia-CAT S.L.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "servo.h"
 
 #include "ingenialink/err.h"
+#include "external/log.c/src/log.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -244,7 +221,7 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 				return IL_EFAIL;
 
 			if (ids[0] != NULL) {
-				printf("Loading subnode %i...\n", j);
+				log_debug("Loading subnode %i...", j);
 			}
 
 			for (size_t i = 0; ids[i]; i++) {
@@ -307,7 +284,7 @@ cleanup_ids:
 		il_dict_reg_ids_destroy(ids);
 	}
 	else {
-		printf("Could not load the configuration\n");
+		log_error("Could not load the configuration");
 	}
 
 	il_dict_destroy(dict);
@@ -747,7 +724,7 @@ int il_servo_is_connected(il_net_t **net, const char *address_ip, int port_ip, i
 
 	*net = il_net_create(IL_NET_PROT_ETH, &opts);
 	if (!*net) {
-		printf("FAIL");
+		log_error("FAIL");
 		return IL_EFAIL;
 	}
 	int r = 0;
@@ -780,15 +757,15 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 
 	*net = il_net_create(prot, &opts);
 	if (!*net) {
-		printf("FAIL");
+		log_error("FAIL");
 		return IL_EFAIL;
 	}
 
 	/* Initialization of the EtherCAT master */
 	int r = il_net_master_startup(*net, ifname, slave, use_eoe_comms);
-	printf("master_startup result: %i\n", r);
+	log_debug("master_startup result: %i", r);
 	if (r > 0) {
-		printf("Servos found!\n");
+		log_debug("Servos found!");
 		/* Wait until slaves are initialized */
 		Sleep(2000);
 
@@ -799,6 +776,6 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 		}
 	}
 	il_net_destroy(*net);
-	printf("No connected servos found\n");
+	log_error("No connected servos found");
 	return IL_EFAIL;
 }

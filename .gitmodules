@@ -12,3 +12,6 @@
 	path = external/SOEM
 	url = https://github.com/ingeniamc/SOEM.git
 	branch = 1.0.0
+[submodule "external/log.c"]
+	path = external/log.c
+	url = https://github.com/rxi/log.c.git
