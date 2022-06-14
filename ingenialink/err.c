@@ -1,8 +1,5 @@
 #include "ingenialink/err.h"
 
-#define _SER_NO_LEGACY_STDINT
-#include <sercomm/sercomm.h>
-
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -42,28 +39,6 @@ void ilerr__set(const char *fmt, ...)
 void ilerr__ipb_set(int err)
 {
 	err_ipb_last = err;
-}
-
-int ilerr__ser(int32_t code)
-{
-	int r;
-
-	switch (code) {
-	case SER_ETIMEDOUT:
-		ilerr__set("Operation timed out");
-		r = IL_ETIMEDOUT;
-		break;
-	case SER_EDISCONN:
-		ilerr__set("Device was disconnected");
-		r = IL_EDISCONN;
-		break;
-	default:
-		ilerr__set("sercomm: %s", sererr_last());
-		r = IL_EFAIL;
-		break;
-	}
-
-	return r;
 }
 
 int ilerr__eth(int32_t code)
