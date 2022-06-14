@@ -21,9 +21,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-#ifdef _WIN32
-	#include <windows.h>
-#else
+#ifdef __linux__
 	#include <errno.h>
 	#include <sys/time.h>
 #endif
@@ -428,7 +426,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 		unsigned long iMode = 1;
 		r = ioctlsocket(this->server, FIONBIO, &iMode);
 		#ifdef _WIN32
-			long no_err = NO_ERROR 
+			long no_err = NO_ERROR;
 		#else
 			int no_err = 0;
 		#endif
@@ -537,7 +535,7 @@ static int il_net_reconnect(il_net_t *net)
 		unsigned long iMode = 1;
 		r = ioctlsocket(this->server, FIONBIO, &iMode);
 		#ifdef _WIN32
-			long no_err = NO_ERROR 
+			long no_err = NO_ERROR;
 		#else
 			int no_err = 0;
 		#endif
@@ -644,7 +642,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
 	unsigned long iMode = 1;
 	r = ioctlsocket(this->server, FIONBIO, &iMode);
 	#ifdef _WIN32
-		long no_err = NO_ERROR 
+		long no_err = NO_ERROR;
 	#else
 		int no_err = 0;
 	#endif	

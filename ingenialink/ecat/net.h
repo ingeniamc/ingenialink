@@ -59,12 +59,14 @@ typedef struct il_ecat_net {
     int port;
 	/** Port IP*/
     int port_ip;
-	/** Server: WSAStartup() */
-	WSADATA *WSAData;
-	/** Socket */
-	SOCKET *server;
+	#ifdef _WIN32
+		/** Socket */
+		SOCKET *server;
+	#else
+		int server;
+	#endif
 	/** Socket address */
-	SOCKADDR_IN addr;
+	struct sockaddr_in addr;
     /** Stop reconnect */
     int stop_reconnect;
 	/** Check status */
