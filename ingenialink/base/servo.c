@@ -1,27 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2017-2018 Ingenia-CAT S.L.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "../servo.h"
 
 #include "ingenialink/err.h"
@@ -275,7 +251,6 @@ static void sw_update(void *ctx, uint16_t sw)
 		servo->sw.value = sw;
 		osal_cond_broadcast(servo->sw.changed);
 	}
-	// printf("%d\n", servo->sw.value);
 	osal_mutex_unlock(servo->sw.lock);
 }
 
@@ -900,12 +875,10 @@ int il_servo_base__raw_read_u16(il_servo_t *servo, const il_reg_t *reg,
 				const char *id, uint16_t *buf, uint8_t subnode)
 {
 	int r;
-	// printf("before read \n");
 	r = raw_read(servo, reg, id, IL_REG_DTYPE_U16, buf, sizeof(*buf), subnode);
 	if (r == 0)
 		*buf = __swap_be_16(*buf);
 
-	// printf("after read \n");
 
 	return r;
 }
@@ -1043,15 +1016,15 @@ int il_servo_base__read(il_servo_t *servo, const il_reg_t *reg, const char *id,
 		break;
 	case IL_REG_DTYPE_S32:
 		r = il_servo_raw_read_s32(servo, reg_, NULL, &s32_v);
-		buf_ = (float)s32_v;
+		buf_ = (double)s32_v;
 		break;
 	case IL_REG_DTYPE_U64:
 		r = il_servo_raw_read_u64(servo, reg_, NULL, &u64_v);
-		buf_ = (float)u64_v;
+		buf_ = (double)u64_v;
 		break;
 	case IL_REG_DTYPE_S64:
 		r = il_servo_raw_read_s64(servo, reg_, NULL, &s64_v);
-		buf_ = (float)s64_v;
+		buf_ = (double)s64_v;
 		break;
 	case IL_REG_DTYPE_FLOAT:
 		r = il_servo_raw_read_float(servo, reg_, NULL, &float_v);
