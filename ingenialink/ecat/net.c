@@ -22,9 +22,6 @@
 * SOFTWARE.
 */
 
-#ifdef _WIN32
-	#include <windows.h>
-#endif
 #include "net.h"
 #include "servo.h"
 #include "frame.h"
