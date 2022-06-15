@@ -6,7 +6,7 @@
 	#include <windows.h>
 #else
 	#include <unistd.h>
-#define Sleep(x) usleep((x)*1000)
+	#define Sleep(x) usleep((x)*1000)
 #endif
 
 /*******************************************************************************

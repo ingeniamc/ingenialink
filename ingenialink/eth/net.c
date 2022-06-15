@@ -5,7 +5,7 @@
     #include <unistd.h>
     #include <errno.h>
     #include <sys/time.h>
-#define Sleep(x) usleep((x)*1000)
+    #define Sleep(x) usleep((x)*1000)
 #endif
 #include "net.h"
 #include "frame.h"
