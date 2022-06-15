@@ -32,30 +32,10 @@ void il_servo__release(il_servo_t *servo)
 il_servo_t *il_servo_create(il_net_t *net, uint16_t id, const char *dict)
 {
 	switch (il_net_prot_get(net)) {
-#ifdef IL_HAS_PROT_EUSB
-	case IL_NET_PROT_EUSB:
-		return il_eusb_servo_ops.create(net, id, dict);
-#endif
-#ifdef IL_HAS_PROT_MCB
-	case IL_NET_PROT_MCB:
-		return il_mcb_servo_ops.create(net, id, dict);
-#endif
-
-#ifdef IL_HAS_PROT_ETH
 	case IL_NET_PROT_ETH:
 		return il_eth_servo_ops.create(net, id, dict);
-#endif
-
-#ifdef IL_HAS_PROT_ECAT
 	case IL_NET_PROT_ECAT:
 		return il_ecat_servo_ops.create(net, id, dict);
-#endif
-
-
-#ifdef IL_HAS_PROT_VIRTUAL
-	case IL_NET_PROT_VIRTUAL:
-		return il_virtual_servo_ops.create(net, id, dict);
-#endif
 	default:
 		ilerr__set("Unsupported network protocol");
 		return NULL;
