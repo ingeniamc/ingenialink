@@ -450,7 +450,11 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 				FD_SET(this->server, &Write);
 				FD_SET(this->server, &Err);
 
-				r = select(this->server, NULL, &Write, &Err, &Timeout);
+				#ifdef WINDOWS
+					r = select(this->server, NULL, &Write, &Err, &Timeout);
+				#else
+					r = select(this->server + 1, NULL, &Write, &Err, &Timeout);
+				#endif
 				if (r == 0) {
 					log_warn("Timeout during connection");
 					result = 0;
@@ -1584,7 +1588,11 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
 	tv.tv_usec = this->recv_timeout;
 
 	// Wait until timeout or data received.
-	n = select(this->server, &fds, NULL, NULL, &tv);
+	#ifdef WINDOWS
+		n = select(this->server, &fds, NULL, NULL, &tv);
+	#else
+		n = select(this->server + 1, &fds, NULL, NULL, &tv);
+	#endif	
 	if (n == 0)
 	{
 		log_error("Timeout...");
@@ -1727,7 +1735,11 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
 	tv.tv_usec = this->recv_timeout;
 
 	// Wait until timeout or data received.
-	n = select(this->server, &fds, NULL, NULL, &tv);
+	#ifdef WINDOWS
+		n = select(this->server, &fds, NULL, NULL, &tv);
+	#else
+		n = select(this->server + 1, &fds, NULL, NULL, &tv);
+	#endif	
 	if (n == 0)
 	{
 		log_error("Timeout..");
