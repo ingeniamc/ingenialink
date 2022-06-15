@@ -1,4 +1,5 @@
 #ifdef _WIN32
+	#define _WINSOCKAPI_ 
 	#include <windows.h>
 #else
 	#include <unistd.h>
