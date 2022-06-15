@@ -26,28 +26,25 @@
 static int il_net_reconnect(il_net_t *net);
 static int process_monitoring_data(il_eth_net_t *this, il_net_t *net);
 static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
-    size_t sz, uint8_t *monitoring_raw_data, il_net_t *net, int num_bytes);
+                                      size_t sz, uint8_t *monitoring_raw_data, il_net_t *net, int num_bytes);
 static int il_eth_net_remove_all_mapped_registers_v1(il_net_t *net);
 static int il_eth_net_remove_all_mapped_registers_v2(il_net_t *net);
 static int il_eth_net_set_mapped_register_v1(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype);
 static int il_eth_net_set_mapped_register_v2(il_net_t *net, int channel, uint32_t address,
-                                            uint8_t subnode, il_reg_dtype_t dtype,
-                                            uint8_t size);
+                                             uint8_t subnode, il_reg_dtype_t dtype, uint8_t size);
 static int il_eth_net_disturbance_remove_all_mapped_registers_v1(il_net_t *net);
 static int il_eth_net_disturbance_remove_all_mapped_registers_v2(il_net_t *net);
 static int il_eth_net_disturbance_set_mapped_register_v1(il_net_t *net, int channel, uint32_t address,
-                                                            uint8_t subnode, il_reg_dtype_t dtype,
-                                                            uint8_t size);
+                                                         uint8_t subnode, il_reg_dtype_t dtype, uint8_t size);
 static int il_eth_net_disturbance_set_mapped_register_v2(il_net_t *net, int channel, uint32_t address,
-                                                        uint8_t subnode, il_reg_dtype_t dtype,
-                                                        uint8_t size);
+                                                         uint8_t subnode, il_reg_dtype_t dtype, uint8_t size);
 static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8_t *buf,
-    size_t sz, uint16_t *monitoring_raw_data, il_net_t *net);
+                    size_t sz, uint16_t *monitoring_raw_data, il_net_t *net);
 static int net_send(il_eth_net_t *this, uint8_t subnode, uint16_t address, const void *data,
-    size_t sz, uint16_t extended, il_net_t *net);
+                    size_t sz, uint16_t extended, il_net_t *net);
 static int il_eth_net__read_monitoring(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
-    void *buf, size_t sz);
-static void il_eth_net_close_socket(il_net_t *net);																													
+                                       void *buf, size_t sz);
+static void il_eth_net_close_socket(il_net_t *net);																														
 
 int il_net_monitoring_mapping_registers[16] = {
     0x0D0,
@@ -459,15 +456,11 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
                     log_warn("Timeout during connection");
                     result = 0;
                 }
-                else {
                     if (FD_ISSET(this->server, &Write)) {
                         log_info("Connected to the Server");
                         result = 1;
                     }
                     if (FD_ISSET(this->server, &Err)) {
-                        log_warn("Fail connecting to server");
-                        result = 0;
-                    }
                 }
             }
             else {

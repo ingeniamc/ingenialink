@@ -1,4 +1,6 @@
-node('windows') {
+def SW_NODE = "sw"
+
+node(SW_NODE) {
 	  deleteDir()
 
     stage('Checkout') {
@@ -10,17 +12,17 @@ node('windows') {
 
 	stage('Build externals') {
 		bat '''
-			cmake -Hexternal/sercomm -Bexternal/sercomm/_build -DCMAKE_INSTALL_PREFIX=_install
-			cmake --build external/sercomm/_build --target install
-
 			cmake -Hexternal/libxml2 -Bexternal/libxml2/_build -DCMAKE_INSTALL_PREFIX=_install
 			cmake --build external/libxml2/_build --target install
+
+			cmake -Hexternal/SOEM/ -B external/SOEM/_build -DCMAKE_INSTALL_PREFIX=_install
+			cmake --build external/SOEM/_build --target install
 		'''
 	}
 
 	stage('Build libraries') {
 		bat '''
-			cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install -DWITH_PROT_MCB=ON -DWITH_PROT_ETH=ON -DWITH_PROT_ECAT=ON
+			cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=_install -DWITH_PROT_ETH=ON -DWITH_PROT_ECAT=ON
 			cmake --build _build
 		'''
 	}

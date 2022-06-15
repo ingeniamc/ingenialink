@@ -102,15 +102,12 @@ static int il_ecat_net_remove_all_mapped_registers_v2(il_net_t *net);
 static int il_ecat_net_disturbance_remove_all_mapped_registers_v1(il_net_t *net);
 static int il_ecat_net_disturbance_remove_all_mapped_registers_v2(il_net_t *net);
 static int il_ecat_net_disturbance_set_mapped_register_v1(il_net_t *net, int channel, uint32_t address,
-                                                            uint8_t subnode, il_reg_dtype_t dtype,
-                                                            uint8_t size);
+                                                          uint8_t subnode, il_reg_dtype_t dtype, uint8_t size);
 static int il_ecat_net_disturbance_set_mapped_register_v2(il_net_t *net, int channel, uint32_t address,
-                                                        uint8_t subnode, il_reg_dtype_t dtype,
-                                                        uint8_t size);
+                                                          uint8_t subnode, il_reg_dtype_t dtype, uint8_t size);
 static int il_ecat_net_set_mapped_register_v1(il_net_t *net, int channel, uint32_t address, il_reg_dtype_t dtype);
 static int il_ecat_net_set_mapped_register_v2(il_net_t *net, int channel, uint32_t address,
-                                            uint8_t subnode, il_reg_dtype_t dtype,
-                                            uint8_t size);
+                                              uint8_t subnode, il_reg_dtype_t dtype, uint8_t size);
 
 int il_net_ecat_monitoring_mapping_registers[16] = {
     0x0D0,
@@ -155,7 +152,7 @@ int il_net_ecat_disturbance_mapping_registers[16] = {
 * Destroy ECAT network.
 *
 * @param [in] ctx
-*	Context (il_net_t *).
+*   Context (il_net_t *).
 */
 static void ecat_net_destroy(void *ctx)
 {
@@ -180,12 +177,12 @@ uint16_t crc_tabccitt_ecat[256];
 * Compute CRC of the given buffer.
 *
 * @param [in] buf
-*	Buffer.
+*   Buffer.
 * @param [in] sz
-*	Buffer size (bytes).
+*   Buffer size (bytes).
 *
 * @return
-*	CRC.
+*   CRC.
 */
 static void init_crcccitt_tab_ecat(void) {
 
@@ -231,9 +228,9 @@ static uint16_t crc_calc_ecat(const uint16_t *buf, uint16_t u16Sz)
 * Process asynchronous statusword messages.
 *
 * @param [in] this
-*	ECAT Network.
+*   ECAT Network.
 * @param [in] frame
-*	IngeniaLink frame.
+*   IngeniaLink frame.
 */
 static void process_statusword(il_ecat_net_t *this, uint8_t subnode, uint16_t *data)
 {
@@ -267,7 +264,7 @@ static void process_statusword(il_ecat_net_t *this, uint8_t subnode, uint16_t *d
 * Listener thread.
 *
 * @param [in] args
-*	ECAT Network (il_ecat_net_t *).
+*   ECAT Network (il_ecat_net_t *).
 */
 int listener_ecat(void *args)
 {
@@ -828,7 +825,7 @@ static int il_ecat_net_disturbance_set_mapped_register_v2(il_net_t *net, int cha
     hdr_l = ((uint32_t)data_type << 8) | (data_size);
     *(uint16_t *)&frame[0] = hdr_l;
 
-    hdr_h = ((uint32_t) (subnode) << 12) | (address);		// subnode | address
+    hdr_h = ((uint32_t) (subnode) << 12) | (address);  // subnode | address
     *(uint16_t *)&frame[1] = hdr_h;
 
     uint32_t entire_frame = *(uint32_t*)frame;
@@ -1797,8 +1794,8 @@ int eoe_hook(ecx_contextt * context, uint16 slave, void * eoembx)
     int wkc;
 
     /*
-    * 	Pass received Mbx data to EoE recevive fragment function that
-    * 	that will start/continue fill an Ethernet frame buffer
+    *   Pass received Mbx data to EoE recevive fragment function that
+    *   that will start/continue fill an Ethernet frame buffer
     */
 
     size_of_rx = sizeof(rxbuf);
