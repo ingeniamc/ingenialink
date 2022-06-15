@@ -9,7 +9,11 @@
 #include <stdbool.h>
 #ifdef _WIN32
 	#include <windows.h>
+#else
+	#include <unistd.h>
+#define Sleep(x) usleep((x)*1000)
 #endif
+
 #include <inttypes.h>
 /*******************************************************************************
  * Internal

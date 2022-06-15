@@ -1,3 +1,9 @@
+#ifdef _WIN32
+	#include <windows.h>
+#else
+	#include <unistd.h>
+#define Sleep(x) usleep((x)*1000)
+#endif
 #include "net.h"
 #include "servo.h"
 #include "frame.h"
@@ -403,9 +409,15 @@ static void il_ecat_net_close_socket(il_net_t *net) {
 	il_ecat_net_t *this = to_ecat_net(net);
 
 	int r = 0;
-	r = closesocket(this->server);
-	WSACleanup();
-	return r;
+	#ifdef _WIN32
+		r = shutdown(this->server, SD_BOTH);
+		if (r == 0) { r = closesocket(this->server); }
+	#else
+		r = shutdown(this->server, SHUT_RDWR);
+		if (r == 0) { r = close(this->server); }
+	#endif
+
+	return r;	
 }
 
 static void il_ecat_net_destroy(il_net_t *net)
