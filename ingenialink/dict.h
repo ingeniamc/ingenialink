@@ -93,6 +93,5 @@ struct il_dict {
 	/** Dictionary subnodes. */
 	int subnodes;
 };
-typedef struct il_dict il_dict_t;
 
 #endif

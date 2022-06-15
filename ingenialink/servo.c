@@ -133,7 +133,7 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 		if (!ids)
 			return IL_EFAIL;
 
-		for (size_t i = 0; i < ids[i]; i++) {
+		for (size_t i = 0; ids[i]; i++) {
 			const il_reg_t *reg;
 			il_reg_value_t storage;
 			(void)il_dict_reg_get(servo->dict, ids[i], &reg, j);
@@ -193,9 +193,9 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 		}
 	}
 
-
 cleanup_ids:
 	il_dict_reg_ids_destroy(ids);
+
 
 	return r;
 }
@@ -507,9 +507,9 @@ int il_servo_disable(il_servo_t *servo, uint8_t subnode, int timeout)
 	return servo->ops->disable(servo, subnode, timeout);
 }
 
-int il_servo_switch_on(il_servo_t *servo, int timeout)
+int il_servo_switch_on(il_servo_t *servo, int timeout, uint8_t subnode)
 {
-	return servo->ops->switch_on(servo, timeout);
+	return servo->ops->switch_on(servo, timeout, subnode);
 }
 
 int il_servo_enable(il_servo_t *servo, uint8_t subnode, int timeout)
