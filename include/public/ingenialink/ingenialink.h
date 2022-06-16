@@ -4,7 +4,6 @@
 #include "const.h"
 #include "dict.h"
 #include "err.h"
-#include "monitor.h"
 #include "poller.h"
 #include "version.h"
 
