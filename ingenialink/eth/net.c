@@ -465,7 +465,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
             }
             else {
                 int last_error = il_eth_get_last_socket_error();
-                log_warn("Fail connecting to server\n");
+                log_warn("Fail connecting to server");
                 result = 0;
             }
 
