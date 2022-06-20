@@ -1451,7 +1451,7 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
         }
         else {
             int wkc = 0;
-            error = -1;
+            err_t error = -1;
             struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, 14, PBUF_RAM);
             if (p != NULL) {
                 memcpy(p->payload, frame, 14);
@@ -1770,7 +1770,7 @@ OSAL_THREAD_FUNC configure_udp(il_net_t *net)
     /* Link UDP callback */
     udp_recv(ptUdpPcb, LWIP_UdpReceiveData, net);
     /* UDP connect */
-    error = udp_connect(ptUdpPcb, &tIpAddr, 1061);
+    err_t error = udp_connect(ptUdpPcb, &tIpAddr, 1061);
 
     //osal_usleep(100000);
 }
