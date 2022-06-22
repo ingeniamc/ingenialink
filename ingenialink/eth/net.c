@@ -351,6 +351,7 @@ static void il_eth_net_close_socket(il_net_t *net) {
 static int il_eth_net_init_socket(void)
 {
     #ifdef _WIN32
+        /* Use Winsocks 2.2 (0x202) */
         WSADATA wsa_data;
         return WSAStartup(0x202, &wsa_data);
     #else
