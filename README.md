@@ -26,7 +26,7 @@ The library provides:
 
 Actually, `libingenialink` only supports Windows OS, but Linux support is coming later this year.
 
-`libingenialink` depends on [libsercomm][sercomm] and [libxml2][libxml2]. A
+`libingenialink` depends on [libxml2][libxml2] and [SOEM][SOEM]. A
 couple of sections below you will find some instructions on how to build and
 install them. `libingenialink` can be built and installed on any system like
 this:
@@ -39,8 +39,8 @@ cmake --build _build --target install
 
 Note that a `INSTALL` is the installation folder.
 
-[sercomm]: https://github.com/ingeniamc/sercomm
 [libxml2]: https://xmlsoft.org
+[SOEM]: https://github.com/ingeniamc/SOEM.git
 
 ### Build options
 
@@ -61,8 +61,8 @@ read this list of [useful CMake variables][cmakeuseful].
 
 ## Dependencies
 
-As mentioned before, `libingenialink` depends on [libsercomm][sercomm] and
-[libxml2][libxml2], both referenced in the [external][external] folder as
+As mentioned before, `libingenialink` depends on [libxml2][libxml2] and [SOEM][SOEM],
+both referenced in the [external][external] folder as
 submodules. Therefore, if building them make sure to initialize the submodules
 first:
 
@@ -73,20 +73,8 @@ git submodule update --init --recursive
 Below you can find some building instructions for dependencies. Note that
 `INSTALL` is the installation folder.
 
-[sercomm]: https://github.com/ingeniamc/sercomm
 [libxml2]: https://xmlsoft.org
 [external]: https://github.com/ingeniamc/ingenialink/tree/master/external
-
-### libsercomm
-
-`libsercomm` also uses CMake, so it can be built and installed on any system
-like this:
-
-```sh
-cd external/sercomm
-cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
-cmake --build _build --target install
-```
 
 ### libxml2
 

@@ -7,8 +7,6 @@
 
 #include "osal/osal.h"
 
-#define _SER_NO_LEGACY_STDINT
-#include <sercomm/sercomm.h>
 #ifdef _WIN32
 	#include <winsock2.h>
 #endif
@@ -83,8 +81,6 @@ typedef struct il_ecat_net {
 typedef struct il_ecat_net_dev_mon {
 	/** Network monitor (parent). */
 	il_net_dev_mon_t mon;
-	/** Serial port monitor. */
-	ser_dev_mon_t *smon;
 	/** Running flag. */
 	int running;
 	/** Callback */
