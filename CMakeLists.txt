@@ -222,9 +222,6 @@ if(WITH_PROT_ECAT)
 endif()
 
 # Dependencies
-find_package(sercomm CONFIG REQUIRED)
-target_link_libraries(ingenialink PRIVATE sercomm)
-
 find_package(LibXml2 REQUIRED)
 target_link_libraries(ingenialink PRIVATE ${LIBXML2_LIBRARIES})
 target_include_directories(ingenialink PRIVATE ${LIBXML2_INCLUDE_DIR})

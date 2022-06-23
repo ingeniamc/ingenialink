@@ -1240,19 +1240,6 @@ static int il_eth_net_read_monitoring_data(il_net_t *net)
     return r;
 }
 
-/**
-* Monitor event callback.
-*/
-static void on_ser_evt(void *ctx, ser_dev_evt_t evt, const ser_dev_t *dev)
-{
-    il_eth_net_dev_mon_t *this = ctx;
-
-    if (evt == SER_DEV_EVT_ADDED)
-        this->on_evt(this->ctx, IL_NET_DEV_EVT_ADDED, dev->path);
-    else
-        this->on_evt(this->ctx, IL_NET_DEV_EVT_REMOVED, dev->path);
-}
-
 static il_net_dev_mon_t *il_eth_net_dev_mon_create(void)
 {
     il_eth_net_dev_mon_t *this;
@@ -1282,36 +1269,28 @@ static int il_eth_net_dev_mon_start(il_net_dev_mon_t *mon,
     il_net_dev_on_evt_t on_evt,
     void *ctx)
 {
-    il_eth_net_dev_mon_t *this = to_eth_mon(mon);
+	il_eth_net_dev_mon_t *this = to_eth_mon(mon);
 
-    if (this->running) {
-        ilerr__set("Monitor already running");
-        return IL_EALREADY;
-    }
+	if (this->running) {
+		ilerr__set("Monitor already running");
+		return IL_EALREADY;
+	}
 
-    /* store context and bring up monitor */
-    this->ctx = ctx;
-    this->on_evt = on_evt;
-    this->smon = ser_dev_monitor_init(on_ser_evt, this);
-    if (!this->smon) {
-        ilerr__set("Network device monitor allocation failed (%s)",
-            sererr_last());
-        return IL_EFAIL;
-    }
+	/* store context and bring up monitor */
+	this->ctx = ctx;
+	this->on_evt = on_evt;
+	this->running = 1;
 
-    this->running = 1;
-
-    return 0;
+	return 0;
 }
 
 static void il_eth_net_dev_mon_stop(il_net_dev_mon_t *mon)
 {
     il_eth_net_dev_mon_t *this = to_eth_mon(mon);
 
-    if (this->running) {
-        ser_dev_monitor_stop(this->smon);
-        this->running = 0;
-    }
+	if (this->running) {
+		this->running = 0;
+	}
 }
 
 static int il_eth_net__read(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address,
