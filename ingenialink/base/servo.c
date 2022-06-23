@@ -1,7 +1,13 @@
 #include "../servo.h"
 
 #include "ingenialink/err.h"
-#include <windows.h>
+#ifdef _WIN32
+	#define _WINSOCKAPI_
+	#include <windows.h>
+#else
+	#include <unistd.h>
+	#define Sleep(x) usleep((x)*1000)
+#endif
 
 /*******************************************************************************
  * Private

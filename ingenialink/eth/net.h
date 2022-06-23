@@ -9,7 +9,15 @@
 
 #define _SER_NO_LEGACY_STDINT
 #include <sercomm/sercomm.h>
-#include <winsock2.h>
+#ifdef _WIN32
+	#include <winsock2.h>
+#endif
+#ifdef linux
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <netinet/ip.h>
+	#include <sys/ioctl.h>	
+#endif
 
 /** Default number of retries while waiting to receive a frame. */
 #define NUMBER_OP_RETRIES_DEF 	0
@@ -41,12 +49,14 @@ typedef struct il_eth_net {
     int port;
 	/** Port IP*/
     int port_ip;
-	/** Server: WSAStartup() */
-	WSADATA *WSAData;
-	/** Socket */
-	SOCKET *server;
+	#ifdef _WIN32
+		/** Socket */
+		SOCKET *server;
+	#else
+		int server;
+	#endif
 	/** Socket address */
-	SOCKADDR_IN addr;
+	struct sockaddr_in addr;	
     /** Stop reconnect */
     int stop_reconnect;
 	/** Check status */

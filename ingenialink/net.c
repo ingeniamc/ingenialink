@@ -70,22 +70,10 @@ void il_net__emcy_unsubscribe(il_net_t *net, int slot)
 il_net_t *il_net_create(il_net_prot_t prot, const il_net_opts_t *opts)
 {
 	switch (prot) {
-#ifdef IL_HAS_PROT_EUSB
-	case IL_NET_PROT_EUSB:
-		return il_eusb_net_ops.create(opts);
-#endif
-#ifdef IL_HAS_PROT_MCB
-	case IL_NET_PROT_MCB:
-		return il_mcb_net_ops.create(opts);
 	case IL_NET_PROT_ETH:
 		return il_eth_net_ops.create(opts);
 	case IL_NET_PROT_ECAT:
 		return il_ecat_net_ops.create(opts);
-#endif
-#ifdef IL_HAS_PROT_VIRTUAL
-	case IL_NET_PROT_VIRTUAL:
-		return il_virtual_net_ops.create(opts);
-#endif
 	default:
 		ilerr__set("Unsupported network protocol");
 		return NULL;
@@ -569,18 +557,10 @@ void il_net_dev_list_destroy(il_net_dev_list_t *lst)
 il_net_dev_mon_t *il_net_dev_mon_create(il_net_prot_t prot)
 {
 	switch (prot) {
-#ifdef IL_HAS_PROT_EUSB
-	case IL_NET_PROT_EUSB:
-		return il_eusb_net_dev_mon_ops.create();
-#endif
-#ifdef IL_HAS_PROT_MCB
-	case IL_NET_PROT_MCB:
-		return il_mcb_net_dev_mon_ops.create();
 	 case IL_NET_PROT_ETH:
 	 	return il_eth_net_dev_mon_ops.create();
 	 case IL_NET_PROT_ECAT:
 		 return il_ecat_net_dev_mon_ops.create();
-#endif
 	default:
 		ilerr__set("Unsupported network protocol");
 		return NULL;
@@ -608,16 +588,8 @@ void il_net_fake_destroy(il_net_t *net) {}
 il_net_dev_list_t *il_net_dev_list_get(il_net_prot_t prot)
 {
 	switch (prot) {
-#ifdef IL_HAS_PROT_EUSB
-	case IL_NET_PROT_EUSB:
-		return il_eusb_net_dev_list_get();
-#endif
-#ifdef IL_HAS_PROT_MCB
-	case IL_NET_PROT_MCB:
-		return il_mcb_net_dev_list_get();
 	case IL_NET_PROT_ETH:
 	 	return il_eth_net_dev_list_get();
-#endif
 	default:
 		ilerr__set("Unsupported network protocol");
 		return NULL;

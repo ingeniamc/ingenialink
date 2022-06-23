@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <windows.h>
 
 #include "ingenialink/err.h"
 #include "ingenialink/base/servo.h"

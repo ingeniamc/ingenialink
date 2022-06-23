@@ -156,24 +156,12 @@ struct il_servo {
 };
 
 /** Servo implementations. */
-#ifdef IL_HAS_PROT_EUSB
-extern const il_servo_ops_t il_eusb_servo_ops;
-#endif
-
-#ifdef IL_HAS_PROT_MCB
-extern const il_servo_ops_t il_mcb_servo_ops;
-#endif
-
 #ifdef IL_HAS_PROT_ETH
 extern const il_servo_ops_t il_eth_servo_ops;
 #endif
 
 #ifdef IL_HAS_PROT_ECAT
 extern const il_servo_ops_t il_ecat_servo_ops;
-#endif
-
-#ifdef IL_HAS_PROT_VIRTUAL
-extern const il_servo_ops_t il_virtual_servo_ops;
 #endif
 
 #endif

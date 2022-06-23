@@ -1,4 +1,10 @@
-#include <winsock2.h>
+#ifdef _WIN32
+    #define _WINSOCKAPI_ 
+    #include <windows.h>
+#else
+    #include <unistd.h>
+    #define Sleep(x) usleep((x)*1000)
+#endif
 #include "net.h"
 #include "servo.h"
 #include "frame.h"
@@ -7,7 +13,6 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <windows.h>
 #include <inttypes.h>
 
 #include "ingenialink/err.h"
@@ -402,9 +407,15 @@ static void il_ecat_net_close_socket(il_net_t *net) {
     il_ecat_net_t *this = to_ecat_net(net);
 
     int r = 0;
-    r = closesocket(this->server);
-    WSACleanup();
-    return r;
+    #ifdef _WIN32
+        r = shutdown(this->server, SD_BOTH);
+        if (r == 0) { r = closesocket(this->server); }
+    #else
+        r = shutdown(this->server, SHUT_RDWR);
+        if (r == 0) { r = close(this->server); }
+    #endif
+
+    return r;	
 }
 
 static void il_ecat_net_destroy(il_net_t *net)
@@ -1440,7 +1451,7 @@ static int net_send(il_ecat_net_t *this, uint8_t subnode, uint16_t address, cons
         }
         else {
             int wkc = 0;
-            error = -1;
+            err_t error = -1;
             struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, 14, PBUF_RAM);
             if (p != NULL) {
                 memcpy(p->payload, frame, 14);
@@ -1759,7 +1770,7 @@ OSAL_THREAD_FUNC configure_udp(il_net_t *net)
     /* Link UDP callback */
     udp_recv(ptUdpPcb, LWIP_UdpReceiveData, net);
     /* UDP connect */
-    error = udp_connect(ptUdpPcb, &tIpAddr, 1061);
+    err_t error = udp_connect(ptUdpPcb, &tIpAddr, 1061);
 
     //osal_usleep(100000);
 }
