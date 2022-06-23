@@ -409,7 +409,7 @@ IL_EXPORT int il_servo_info_get(il_servo_t *servo, il_servo_info_t *info);
  * @return
  *	0 on success, error code otherwise.
  */
-IL_EXPORT int il_servo_store_all(il_servo_t *servo, int subnode);
+IL_EXPORT int il_servo_store_all(il_servo_t *servo);
 
 /**
  * Store all servo current communications parameters to the NVM.

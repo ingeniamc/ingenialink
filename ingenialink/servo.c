@@ -7,7 +7,14 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <windows.h>
+#ifdef _WIN32
+	#define _WINSOCKAPI_ 
+	#include <windows.h>
+#else
+	#include <unistd.h>
+	#define Sleep(x) usleep((x)*1000)
+#endif
+
 #include <inttypes.h>
 /*******************************************************************************
  * Internal
@@ -30,30 +37,10 @@ void il_servo__release(il_servo_t *servo)
 il_servo_t *il_servo_create(il_net_t *net, uint16_t id, const char *dict)
 {
 	switch (il_net_prot_get(net)) {
-#ifdef IL_HAS_PROT_EUSB
-	case IL_NET_PROT_EUSB:
-		return il_eusb_servo_ops.create(net, id, dict);
-#endif
-#ifdef IL_HAS_PROT_MCB
-	case IL_NET_PROT_MCB:
-		return il_mcb_servo_ops.create(net, id, dict);
-#endif
-
-#ifdef IL_HAS_PROT_ETH
 	case IL_NET_PROT_ETH:
 		return il_eth_servo_ops.create(net, id, dict);
-#endif
-
-#ifdef IL_HAS_PROT_ECAT
 	case IL_NET_PROT_ECAT:
 		return il_ecat_servo_ops.create(net, id, dict);
-#endif
-
-
-#ifdef IL_HAS_PROT_VIRTUAL
-	case IL_NET_PROT_VIRTUAL:
-		return il_virtual_servo_ops.create(net, id, dict);
-#endif
 	default:
 		ilerr__set("Unsupported network protocol");
 		return NULL;
@@ -133,7 +120,7 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 		if (!ids)
 			return IL_EFAIL;
 
-		for (size_t i = 0; i < ids[i]; i++) {
+		for (size_t i = 0; ids[i]; i++) {
 			const il_reg_t *reg;
 			il_reg_value_t storage;
 			(void)il_dict_reg_get(servo->dict, ids[i], &reg, j);
@@ -193,9 +180,9 @@ int il_servo_dict_storage_read(il_servo_t *servo)
 		}
 	}
 
-
 cleanup_ids:
 	il_dict_reg_ids_destroy(ids);
+
 
 	return r;
 }
@@ -507,9 +494,9 @@ int il_servo_disable(il_servo_t *servo, uint8_t subnode, int timeout)
 	return servo->ops->disable(servo, subnode, timeout);
 }
 
-int il_servo_switch_on(il_servo_t *servo, int timeout)
+int il_servo_switch_on(il_servo_t *servo, int timeout, uint8_t subnode)
 {
-	return servo->ops->switch_on(servo, timeout);
+	return servo->ops->switch_on(servo, timeout, subnode);
 }
 
 int il_servo_enable(il_servo_t *servo, uint8_t subnode, int timeout)
