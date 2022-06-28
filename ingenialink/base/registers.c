@@ -1,7 +1,7 @@
 #include "public/ingenialink/registers.h"
 
 
-const il_reg_t IL_REG_MCB_CTL_WORD = {
+il_reg_t IL_REG_MCB_CTL_WORD = {
 	.subnode = 1,
 	.address = 0x0010,
 	.dtype = IL_REG_DTYPE_U16,
