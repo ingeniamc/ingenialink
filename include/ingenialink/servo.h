@@ -1,27 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2017 Ingenia-CAT S.L.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #ifndef INGENIALINK_SERVO_H_
 #define INGENIALINK_SERVO_H_
 
@@ -66,7 +42,7 @@ typedef struct {
 	void (*destroy)(il_servo_t *servo);
 	int (*reset)(il_servo_t *servo);
 	void (*state_get)(
-		il_servo_t *servo, il_servo_state_t *state, int *flags);
+		il_servo_t *servo, il_servo_state_t *state, int *flags, uint8_t subnode);
 	int (*state_subscribe)(
 		il_servo_t *servo, il_servo_state_subscriber_cb_t cb,
 		void *ctx);
@@ -127,41 +103,41 @@ typedef struct {
 		double *buf);
 	int (*raw_write_u8)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
-		uint8_t val, int confirm);
+		uint8_t val, int confirm, uint16_t extended);
 	int (*raw_write_s8)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
-		int8_t val, int confirm);
+		int8_t val, int confirm, uint16_t extended);
 	int (*raw_write_u16)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
-		uint16_t val, int confirm);
+		uint16_t val, int confirm, uint16_t extended);
 	int (*raw_write_s16)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
-		int16_t val, int confirm);
+		int16_t val, int confirm, uint16_t extended);
 	int (*raw_write_u32)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
-		uint32_t val, int confirm);
+		uint32_t val, int confirm, uint16_t extended);
 	int (*raw_wait_write_u32)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
-		uint32_t val, int confirm);
+		uint32_t val, int confirm, uint16_t extended);
 	int (*raw_write_s32)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
-		int32_t val, int confirm);
+		int32_t val, int confirm, uint16_t extended);
 	int (*raw_write_u64)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
-		uint64_t val, int confirm);
+		uint64_t val, int confirm, uint16_t extended);
 	int (*raw_write_s64)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
-		int64_t val, int confirm);
+		int64_t val, int confirm, uint16_t extended);
 	int (*raw_write_float)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
-		float val, int confirm);
+		float val, int confirm, uint16_t extended);
 	int (*write)(
 		il_servo_t *servo, const il_reg_t *reg, const char *id,
-		double val, int confirm);
-	int (*disable)(il_servo_t *servo);
-	int (*switch_on)(il_servo_t *servo, int timeout);
-	int (*enable)(il_servo_t *servo, int timeout);
-	int (*fault_reset)(il_servo_t *servo);
+		double val, int confirm, uint16_t extended);
+	int (*disable)(il_servo_t *servo, uint8_t subnode, int timeout);
+	int (*switch_on)(il_servo_t *servo, int timeout, uint8_t subnode);
+	int (*enable)(il_servo_t *servo, uint8_t subnode, int timeout);
+	int (*fault_reset)(il_servo_t *servo, uint8_t subnode, int timeout);
 	int (*mode_get)(il_servo_t *servo, il_servo_mode_t *mode);
 	int (*mode_set)(il_servo_t *servo, il_servo_mode_t mode);
 	int (*ol_voltage_get)(il_servo_t *servo, double *voltage);

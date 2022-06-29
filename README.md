@@ -1,19 +1,19 @@
 # libingenialink - Motion and communications library for Ingenia servodrives
 
-[![Build Status](https://jenkins.ingeniamc.com/buildStatus/icon?job=Ingenia-public%2Fingenialink%2Fdevelop)]()
+[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 
 
 `libingenialink` is a portable, pure C implementation library for simple motion
 control tasks and communications with Ingenia drives.
 
-[![Ingenia Servodrives](https://s3.eu-central-1.amazonaws.com/ingeniamc-cdn/images/all-servodrives.png)](http://www.ingeniamc.com)
+[![Ingenia Servodrives](https://ingeniamc.com/wp-content/uploads/2021/04/ingenia-servo-drives.jpg)](http://www.ingeniamc.com)
 
 ## What it can do
 
 The library provides:
 
 * Simple motion control functions (homing, profile position, etc.)
-* Communications API for Ingenia drives (multiple protocols supported)
+* Communications API for Ingenia Summit Series drives (multiple protocols supported)
 * Load and use IngeniaDictionary XML dictionaries
 * Operate directly using units (e.g. degrees, rad/s, etc.)
 * Register polling and monitoring for scope applications
@@ -26,31 +26,29 @@ The library provides:
 
 Actually, `libingenialink` only supports Windows OS, but Linux support is coming later this year.
 
-`libingenialink` depends on [libsercomm][sercomm] and [libxml2][libxml2]. A
+`libingenialink` depends on [libxml2][libxml2] and [SOEM][SOEM]. A
 couple of sections below you will find some instructions on how to build and
 install them. `libingenialink` can be built and installed on any system like
 this:
 
 ```sh
-cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL -DWITH_PROT_MCB=ON -DWITH_PROT_ETH=ON -DWITH_PROT_ECAT=ON
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL -DWITH_PROT_ETH=ON -DWITH_PROT_ECAT=ON
 cmake --build _build
 cmake --build _build --target install
 ```
 
 Note that a `INSTALL` is the installation folder.
 
-[sercomm]: https://github.com/ingeniamc/sercomm
 [libxml2]: https://xmlsoft.org
+[SOEM]: https://github.com/ingeniamc/SOEM.git
 
 ### Build options
 
 The following build options are available:
 
 
-- `WITH_PROT_EUSB` (ON): Build `EUSB` protocol support.
-- `WITH_PROT_MCB` (OFF): Build `MCB` protocol support.
-- `DWITH_PROT_ETH` (OFF): Build `ETH` protocol support.
-- `WITH_PROT_ECAT` (OFF): Build `ECAT` protocol support.
+- `DWITH_PROT_ETH` (ON): Build `ETH` protocol support.
+- `WITH_PROT_ECAT` (ON): Build `ECAT` protocol support.
 - `WITH_EXAMPLES` (OFF): When enabled, the library usage example applications will be built.
 - `WITH_DOCS` (OFF): When enabled the API documentation can be built.
 - `WITH_PIC` (OFF): When enabled, generated code will be position independent.
@@ -63,8 +61,8 @@ read this list of [useful CMake variables][cmakeuseful].
 
 ## Dependencies
 
-As mentioned before, `libingenialink` depends on [libsercomm][sercomm] and
-[libxml2][libxml2], both referenced in the [external][external] folder as
+As mentioned before, `libingenialink` depends on [libxml2][libxml2] and [SOEM][SOEM],
+both referenced in the [external][external] folder as
 submodules. Therefore, if building them make sure to initialize the submodules
 first:
 
@@ -75,20 +73,8 @@ git submodule update --init --recursive
 Below you can find some building instructions for dependencies. Note that
 `INSTALL` is the installation folder.
 
-[sercomm]: https://github.com/ingeniamc/sercomm
 [libxml2]: https://xmlsoft.org
 [external]: https://github.com/ingeniamc/ingenialink/tree/master/external
-
-### libsercomm
-
-`libsercomm` also uses CMake, so it can be built and installed on any system
-like this:
-
-```sh
-cd external/sercomm
-cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
-cmake --build _build --target install
-```
 
 ### libxml2
 
@@ -119,7 +105,7 @@ In order to use the embbedded master communications of `ingenialink` (still in d
 install SOEM libraries as an external package.
 ```sh
 cd external/SOEM
-cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL
+cmake -H. -B_build -DCMAKE_INSTALL_PREFIX=$INSTALL -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 cmake --build _build --target install
 ```
 

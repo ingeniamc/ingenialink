@@ -1,27 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2017-2018 Ingenia-CAT S.L.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #ifndef INGENIALINK_NET_H_
 #define INGENIALINK_NET_H_
 
@@ -97,7 +73,7 @@ void il_net__state_set(il_net_t *net, il_net_state_t state);
  *	0 on success, error code otherwise.
  */
 int il_net__write(il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, const void *buf,
-		  size_t sz, int confirmed);
+		  size_t sz, int confirmed, uint16_t extended);
 
 /**
  * Read.
@@ -191,16 +167,16 @@ typedef struct {
 		il_net_t *net, il_net_state_t state);
 	/** Read. */
 	int (*_read)(
-		il_net_t *net, uint16_t id, uint32_t address, void *buf,
+		il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, void *buf,
 		size_t sz);
 	/** Write. */
 	int (*_write)(
-		il_net_t *net, uint16_t id, uint32_t address, const void *buf,
-		size_t sz, int confirmed);
+		il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, const void *buf,
+		size_t sz, int confirmed, uint16_t extended);
 	/** Wait Write. */
 	int (*_wait_write)(
-		il_net_t *net, uint16_t id, uint32_t address, const void *buf,
-		size_t sz, int confirmed);
+		il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, const void *buf,
+		size_t sz, int confirmed, uint16_t extended);
 	/** Subscribe to state updates. */
 	int (*_sw_subscribe)(
 		il_net_t *net, uint16_t id, il_net_sw_subscriber_cb_t cb,
@@ -271,7 +247,7 @@ typedef struct {
 		il_net_t *net, il_net_state_t state);
 	/** Read. */
 	int (*_read)(
-		il_net_t *net, uint16_t id, uint32_t address, void *buf,
+		il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, void *buf,
 		size_t sz);
 	/** Write. */
 	int (*_write)(
@@ -377,7 +353,7 @@ typedef struct {
 		il_net_t *net, il_net_state_t state);
 	/** Read. */
 	int (*_read)(
-		il_net_t *net, uint16_t id, uint32_t address, void *buf,
+		il_net_t *net, uint16_t id, uint8_t subnode, uint32_t address, void *buf,
 		size_t sz);
 	/** Write. */
 	int (*_write)(
