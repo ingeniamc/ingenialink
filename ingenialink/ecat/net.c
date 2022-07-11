@@ -975,7 +975,7 @@ static int il_ecat_net_disturbance_remove_data(il_net_t *net)
     il_ecat_net_t *this = to_ecat_net(net);
     uint16_t remove_data_val = 1;
 
-    r = il_net__write(&this->net, 1, 0, 0x0E1, &remove_data_val, 2, 1, 0);
+    r = il_net__write(&this->net, 1, 0, 0x0EB, &remove_data_val, 2, 1, 0);
     if (r < 0) {
 
     }
