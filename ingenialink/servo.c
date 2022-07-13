@@ -192,16 +192,23 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 	int r = -1;
 	int all_subnodes = -1;
 	const char **ids = NULL;
+	size_t i;
+	int src_subnode;
 
 	il_dict_t *dict = il_dict_create(dict_path);
 	if (!dict)
 		return IL_EFAIL;
-
 	// Subnodes = axis available at servo + 1 subnode of general parameters
 	int subnodes = servo->subnodes + 1;
+	if (subnode != all_subnodes){
+		src_subnode = il_servo_dict_get_subnode(servo, dict, subnode);
+	}
 	for (int j = 0; j < subnodes; j++) {
 		if (subnode == all_subnodes || j == subnode) {
-			ids = il_dict_reg_ids_get(dict, j);
+			if (subnode == all_subnodes){
+				src_subnode = j;
+			}
+			ids = il_dict_reg_ids_get(dict, src_subnode);
 			if (!ids)
 				return IL_EFAIL;
 
@@ -210,10 +217,9 @@ int il_servo_dict_storage_write(il_servo_t *servo, const char *dict_path, int su
 			}
 
 			for (size_t i = 0; ids[i]; i++) {
-				const il_reg_t *reg;
-
-				(void)il_dict_reg_get(dict, ids[i], &reg, j);
-
+				il_reg_t *reg;
+				(void)il_dict_reg_get(dict, ids[i], &reg, src_subnode);
+				reg->subnode = j;
 				if (reg->access != IL_REG_ACCESS_RW)
 					continue;
 
@@ -763,4 +769,22 @@ int il_servo_connect_ecat(il_net_prot_t prot, char *ifname, il_net_t **net,
 	il_net_destroy(*net);
 	log_error("No connected servos found");
 	return IL_EFAIL;
+}
+
+int il_servo_dict_get_subnode(il_servo_t *servo, il_dict_t *dict, int subnode)
+{	
+	/* Find the saved subnode in the dictionary */
+	int subnodes = servo->subnodes + 1;
+	size_t i = il_dict_reg_cnt(dict, subnode);
+	if (i == 0){
+		int j;
+		for (j = 0; j < subnodes; j++) {
+			i = il_dict_reg_cnt(dict, j);
+			if (i > 0)
+				return j;
+		}	
+	}
+	else {
+		return subnode;
+	}
 }
