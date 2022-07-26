@@ -1014,10 +1014,10 @@ static int il_eth_net_disturbance_set_mapped_register(il_net_t *net, int channel
     r = il_net__read(&this->net, 1, 0, 0x00BA, &mon_dist_version, sizeof(uint32_t));
     if (r < 0) {
         // Old monitoring implementation
-        il_eth_net_disturbance_set_mapped_register_v1(net, channel, address, subnode, dtype, size);
+        r = il_eth_net_disturbance_set_mapped_register_v1(net, channel, address, subnode, dtype, size);
     }
     else {
-        il_eth_net_disturbance_set_mapped_register_v2(net, channel, address, subnode, dtype, size);
+        r = il_eth_net_disturbance_set_mapped_register_v2(net, channel, address, subnode, dtype, size);
     }
 
     return r;
