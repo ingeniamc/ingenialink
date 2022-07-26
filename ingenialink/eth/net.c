@@ -880,7 +880,7 @@ static int *il_eth_net_set_mapped_register(il_net_t *net, int channel, uint32_t 
         r = il_eth_net_set_mapped_register_v1(net, channel, address, dtype);
     }
     else {
-        il_eth_net_set_mapped_register_v2(net, channel,
+        r = il_eth_net_set_mapped_register_v2(net, channel,
                                             address, subnode,
                                             dtype, size);
     }
