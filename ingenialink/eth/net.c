@@ -431,7 +431,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
 
             // check if error was WSAEWOULDBLOCK, where we'll wait					
             if (
-                #ifdef WINDOWS
+                #ifdef _WIN32
                     err == WSAEWOULDBLOCK
                 #else
                     err == EWOULDBLOCK
@@ -448,7 +448,7 @@ static int il_eth_net_is_slave_connected(il_net_t *net, const char *ip) {
                 FD_SET(this->server, &Write);
                 FD_SET(this->server, &Err);
 
-                #ifdef WINDOWS
+                #ifdef _WIN32
                     r = select(this->server, NULL, &Write, &Err, &Timeout);
                 #else
                     r = select(this->server + 1, NULL, &Write, &Err, &Timeout);
@@ -542,7 +542,7 @@ static int il_net_reconnect(il_net_t *net)
             int err = il_eth_get_last_socket_error();
             // check if error was WSAEWOULDBLOCK, where we'll wait
             if (
-                #ifdef WINDOWS
+                #ifdef _WIN32
                     err == WSAEWOULDBLOCK
                 #else
                     err == EWOULDBLOCK
@@ -655,7 +655,7 @@ static int il_eth_net_connect(il_net_t *net, const char *ip)
         int err = il_eth_get_last_socket_error();
         // check if error was WSAEWOULDBLOCK, where we'll wait
         if (
-            #ifdef WINDOWS
+            #ifdef _WIN32
                 err == WSAEWOULDBLOCK
             #else
                 err == EWOULDBLOCK
@@ -1561,7 +1561,7 @@ static int net_recv(il_eth_net_t *this, uint8_t subnode, uint16_t address, uint8
     tv.tv_usec = this->recv_timeout;
 
     // Wait until timeout or data received.
-    #ifdef WINDOWS
+    #ifdef _WIN32
         n = select(this->server, &fds, NULL, NULL, &tv);
     #else
         n = select(this->server + 1, &fds, NULL, NULL, &tv);
@@ -1708,7 +1708,7 @@ static int il_eth_net_recv_monitoring(il_eth_net_t *this, uint8_t subnode, uint1
     tv.tv_usec = this->recv_timeout;
 
     // Wait until timeout or data received.
-    #ifdef WINDOWS
+    #ifdef _WIN32
         n = select(this->server, &fds, NULL, NULL, &tv);
     #else
         n = select(this->server + 1, &fds, NULL, NULL, &tv);
