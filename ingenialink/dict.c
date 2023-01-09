@@ -98,11 +98,13 @@ static uint16_t crc_calc_dict(const uint16_t *buf, uint16_t u16Sz, il_dict_t *di
     
 	uint16_t u16Idx = 0;
 	uint8_t* pu8Data = (uint8_t*)buf;
-
+	printf("Initial CRC: %d\n", crc);
 	while (u16Idx < u16Sz)
     {
         crc = update_crc_ccitt_dict(crc, pu8Data[u16Idx + (uint16_t)1U]);
+		printf("CRC update 1: %d\n", crc);
         crc = update_crc_ccitt_dict(crc, pu8Data[u16Idx]);
+		printf("CRC update 2: %d\n", crc);
         u16Idx += 2U;
     }
 	return crc;
@@ -1527,6 +1529,7 @@ uint16_t il_dict_crc_update(il_dict_t *dict, const char *id,
 	//UINT_UNION_T u = { .u32 = data };
 	//memcpy(&stBuf[0], &u.u16[0], 8);
 
+	printf("Address: %d, subnode: %d, Data: %d\n", reg->address, subnode, data);
 	uint16_t crc = crc_calc_dict((uint16_t*)&data, sz, dict, subnode);
 	switch(subnode) 
 	{
