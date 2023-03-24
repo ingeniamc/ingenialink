@@ -41,7 +41,7 @@
 #define UDP_OPEN_PORT           (uint16_t)1061U
 
 /* Network instance */
-struct netif tNetif;
+struct netif tNetifLwip;
 
 /* Global reply data buffer */
 uint8_t pReplyData[1024U];
@@ -137,11 +137,11 @@ void LWIP_Init(void)
              DEFAULT_GW_IP_ADDR3, DEFAULT_GW_IP_ADDR4);
 
     /* Add the network interface */
-    netif_add(&tNetif, &tIpAddr, &tNetmask, &tGwIpAddr, NULL,
+    netif_add(&tNetifLwip, &tIpAddr, &tNetmask, &tGwIpAddr, NULL,
               &LWIP_EthernetifInit, &ethernet_input);
-    netif_set_default(&tNetif);
-    netif_set_up(&tNetif);
-    tNetif.flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
+    netif_set_default(&tNetifLwip);
+    netif_set_up(&tNetifLwip);
+    tNetifLwip.flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
 
     /* Open the Upd port and link receive callback */
     ptUdpPcb = udp_new();
@@ -190,7 +190,7 @@ void LWIP_EthernetifIntput(void* pData, uint16_t u16SizeBy)
     memcpy((void*)pBuf->payload, (const void*)pData, u16SizeBy);
     pBuf->len = u16SizeBy;
 
-    tError = tNetif.input(pBuf, &tNetif);
+    tError = tNetifLwip.input(pBuf, &tNetifLwip);
 
     if (tError != ERR_OK)
     {
@@ -204,7 +204,7 @@ void LWIP_SetIpAddress(uint8_t* pu8IpAddr)
     ip4_addr_t tNewIpAddr;
 
     IP4_ADDR(&tNewIpAddr, pu8IpAddr[0], pu8IpAddr[1], pu8IpAddr[2], pu8IpAddr[3]);
-    netif_set_ipaddr(&tNetif, &tNewIpAddr);
+    netif_set_ipaddr(&tNetifLwip, &tNewIpAddr);
 }
 
 void LWIP_SetNetmask(uint8_t* pu8Netmask)
@@ -212,7 +212,7 @@ void LWIP_SetNetmask(uint8_t* pu8Netmask)
     ip4_addr_t tNewNetmask;
 
     IP4_ADDR(&tNewNetmask, pu8Netmask[0], pu8Netmask[1], pu8Netmask[2], pu8Netmask[3]);
-    netif_set_netmask(&tNetif, &tNewNetmask);
+    netif_set_netmask(&tNetifLwip, &tNewNetmask);
 }
 
 void LWIP_SetGwAddress(uint8_t* pu8GwAddr)
@@ -220,7 +220,7 @@ void LWIP_SetGwAddress(uint8_t* pu8GwAddr)
     ip4_addr_t tNewGwAddr;
 
     IP4_ADDR(&tNewGwAddr, pu8GwAddr[0], pu8GwAddr[1], pu8GwAddr[2], pu8GwAddr[3]);
-    netif_set_gw(&tNetif, &tNewGwAddr);
+    netif_set_gw(&tNetifLwip, &tNewGwAddr);
 }
 
 void LWIP_ProcessTimeouts()
