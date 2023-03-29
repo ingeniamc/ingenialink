@@ -431,15 +431,15 @@ int il_servo_base__init(il_servo_t *servo, il_net_t *net, uint16_t id,
 	//il_net__retain(servo->net);
 
 	/* load dictionary (optional) */
-	// if (dict) {
-	// 	servo->dict = il_dict_create(dict);
-	// 	if (!servo->dict) {
-	// 		r = IL_EFAIL;
-	// 		goto cleanup_net;
-	// 	}
-	// } else {
-	// 	servo->dict = NULL;
-	// }
+	if (dict) {
+		servo->dict = il_dict_create(dict);
+		if (!servo->dict) {
+			r = IL_EFAIL;
+			goto cleanup_net;
+		}
+	} else {
+		servo->dict = NULL;
+	}
 
 	/* configure units */
 	servo->units.lock = osal_mutex_create();
