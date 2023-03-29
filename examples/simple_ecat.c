@@ -8,7 +8,7 @@ int main(int argc, const char *argv[])
 {
 	il_net_t *net = NULL;
 	il_servo_t *servo = NULL;
-	char* ifname = "\\Device\\NPF_{XXX}";
+	char* ifname = "enp0s25";
 	char* dict_path = "XXX";
 	int port = 1061;
 	int slave = 1;

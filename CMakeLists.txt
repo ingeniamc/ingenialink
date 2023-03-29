@@ -4,6 +4,7 @@ project(ingenialink LANGUAGES C VERSION 6.3.2)
 set(CMAKE_MODULE_PATH
   ${CMAKE_SOURCE_DIR}/cmake
 )
+set(CMAKE_BUILD_TYPE Release)
 
 #-------------------------------------------------------------------------------
 # Compiler options
@@ -12,7 +13,7 @@ if(MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4 /D_CRT_SECURE_NO_WARNINGS")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi")
 elseif(${CMAKE_C_COMPILER_ID} MATCHES "(GNU|Clang)")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wextra -pedantic")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -w -O3")
 endif()
 
 #-------------------------------------------------------------------------------

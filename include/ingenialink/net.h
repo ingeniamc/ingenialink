@@ -22,8 +22,8 @@ typedef struct il_net_emcy_subscriber il_net_emcy_subscriber_t;
 /** Emergency subcriber callback. */
 typedef void (*il_net_emcy_subscriber_cb_t)(void *ctx, uint32_t code);
 
-int il_net_monitoring_mapping_register[16];
-int il_net_disturbance_mapping_register[16];
+// int il_net_monitoring_mapping_register[16];
+// int il_net_disturbance_mapping_register[16];
 
 /**
  * Retain a reference of the network.
